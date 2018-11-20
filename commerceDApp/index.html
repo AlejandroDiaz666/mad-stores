@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mad Escrow Stores</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542741198_.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542741198_.js"></script>
+
+  </head>
+
+  <body>
+
+
+
+    <div id="metaMaskModal">
+      <p>
+	Waiting for MetaMask signature...
+      </p>
+    </div>
+
+    <div id="topSection">
+      <div style="float:left;">
+	<img src="images/logo.png" alt="Logo goes here " width="40px" height="40px"/>
+      </div>
+      <span id="mainTitleSpan">
+	<h3>MAD Escrow Stores.</h3>
+      </span>
+      <div style="float:right;">
+	<div id="networkAreaDiv">
+	  <textarea id="networkArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	</div>
+	<div id="accountDiv">
+	  <textarea id="accountArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	</div>
+	<div id="balanceAreaDiv">
+	  <textarea id="balanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	</div>
+	<div id="outstandingOrdersAreaDiv">
+	  <textarea id="outstandingOrdersArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	</div>
+	<div id="escrowBalanceAreaDiv">
+	  <textarea id="escrowBalanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	</div>
+      </div>
+    </div>
+
+    <div id="topMenuBarDiv" style="clear:both">
+      <button id="searchStoresButton" class="menuBarButton" type="button">Shop</button>
+      <button id="viewStoreItemsButton" class="menuBarButton" type="button">Dashboard</button>
+      <button id="createStoreButton" class="menuBarButton" type="button">Create Your Own Store!</button>
+      <span id="navButtonsSpan" class="hidden">
+	<button id="prevUnreadButton" type="button" class="navButton hidden">prev unread</button>
+	<button id="nextUnreadButton" type="button" class="navButton hidden">next unread</button>
+	<button id="firstMsgButton" type="button" class="navButton">first</button>
+	<button id="prevPageButton" type="button" class="navButton">prev page</button>
+	<button id="prevMsgButton" type="button" class="navButton">prev</button>
+	<button id="msgNoNotButton" type="button" class="navButton" disabled="true">&nbsp;</button>
+	<button id="nextMsgButton" type="button" class="navButton">next</button>
+	<button id="nextPageButton" type="button" class="navButton">next page</button>
+	<button id="lastMsgButton"  type="button" class="navButton">last</button>
+	</span>
+    </div>
+
+    <div id="outerDiv">
+      <div id="leftSideDiv">
+      </div>
+      <div id="centerDiv">
+	<div class="tilesDiv">
+	  <!-- here are some sample tiles -->
+	  <div id="tile0" class="tileDiv">
+	    <img id="tile0Img" src="images/logo.png" class="tileImg">
+	    <div id="tile0NameBg" class="tileNameBg"></div>
+	    <span id="tile0Name" class="tileName">sample name</span>
+	    <div id="tile0TextBg" class="tileTextBg"></div>
+	    <span id="tile0Text" class="tileText">sample text 0</span>
+	  </div>
+	  <div id="tile1" class="tileDiv">
+	    <img id="tile1Img" src="images/logo.png" class="tileImg">
+	    <div id="tile1NameBg" class="tileNameBg"></div>
+	    <span id="tile1Name" class="tileName">sample name</span>
+	    <div id="tile1TextBg" class="tileTextBg"></div>
+	    <span id="tile1Text" class="tileText">sundries, q-tips, fine-silverware, dog-food, syringes, matroshka-dolls</span>
+	  </div>
+	  <div class="tileDiv">
+	    <img src="images/logo.png" class="tileImg">
+	    <div id="tileNameBg" class="tileNameBg"></div>
+	    <span id="tileName" class="tileName">sample name</span>
+	    <div class="tileTextBg"></div>
+	    <span class="tileText">sample text 1</span>
+	  </div>
+	  <div class="tileDiv">
+	    <img src="images/logo.png" class="tileImg">
+	    <div id="tileNameBg" class="tileNameBg"></div>
+	    <span id="tileName" class="tileName">sample name</span>
+	    <div class="tileTextBg"></div>
+	    <span class="tileText">sample text 1</span>
+	  </div>
+	  <div class="tileDiv">
+	    <img src="images/logo.png" class="tileImg">
+	    <div id="tileNameBg" class="tileNameBg"></div>
+	    <span id="tileName" class="tileName">sample name</span>
+	    <div class="tileTextBg"></div>
+	    <span class="tileText">sample text 1</span>
+	  </div>
+	  <div class="tileDiv">
+	    <img src="images/logo.png" class="tileImg">
+	    <div id="tileNameBg" class="tileNameBg"></div>
+	    <span id="tileName" class="tileName">sample name</span>
+	    <div class="tileTextBg"></div>
+	    <span class="tileText">sample text 1</span>
+	  </div>
+	</div>
+      </div>
+      <div id="rightSideDiv">
+      </div>
+    </div>
+
+    <div id="storeInfoDiv" style="clear:both">
+      <div id="storeAddrDiv" style="clear:both">
+	<span>
+	  <textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled">Addr:</textarea>
+	  <textarea id="storeAddrArea" rows="1">&nbsp;</textarea>
+	  <button id="loadStoreButton" type="button">Load Store</button>
+	  <span>
+      </div>
+
+      <div id="storeInfoImageDiv">
+      </div>
+      <div id="storeInfoTextDiv">
+      </div>
+    </div>
+
+    <!-- list display area -->
+    <div id="listAreaDiv">
+      <div id="msgListHeaderDiv" class="msgListItemDiv">
+	<textarea id="msgListHeaderMsgNo" class="msgListMsgNoArea" rows="1" readonly="readonly" disabled="disabled">Msg No.</textarea>
+	<textarea id="msgListHeaderAddr" class="msgListAddrArea" rows="1" readonly="readonly" disabled="disabled">From</textarea>
+	<textarea id="msgListHeaderDate" class="msgListDateArea" rows="1" readonly="readonly" disabled="disabled">Date</textarea>
+	<textarea id="msgListHeaderMsgId" class="msgListMsgIdArea" rows="1" readonly="readonly" disabled="disabled">Msg ID</textarea>
+	<textarea id="msgListHeaderSubject" class="msgListSubjectArea" rows="1" readonly="readonly" disabled="disabled">Subject</textarea>
+      </div>
+    </div>
+
+    <div id="botMenuBarDiv" style="clear:both">
+      <button id="importantInfoButton" class="menuBarButton" type="button">Click here for important information</button>
+      <button id="registerButton" class="menuBarButton" type="button">Register Account</button>
+      <button id="composeButton" class="menuBarButton" type="button">Compose</button>
+      <button id="withdrawButton" class="menuBarButton" type="button">Withdraw Fees</button>
+    </div>
+
+    <!-- general display area -->
+    <div id="msgAreaDiv" style="clear:both">
+      <form action="javascript:void(0);">
+	<div id="msgInfoAreaDiv">
+	  <span>
+	    <textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+	    <textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
+	    <textarea id="msgIdArea" rows="1" class="hidden">&nbsp;</textarea>
+	    <button id="msgRefButton" type="button" class="hidden">Ref: N/A</button>
+	    <textarea id="msgDateArea" rows="1" class="hidden">&nbsp;</textarea>
+	    <button id="validateAddrButton" type="button" class="hidden">Validate</button>
+	    <button id="replyButton" type="button" class="hidden">Reply</button>
+	    <textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
+	    <span>
+	</div>
+	<div id="msgTextAreaDiv">
+	  <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
+	  <div id="registerDiv" class="hidden">
+	    <table>
+	      <tbody>
+		<tr>
+		  <td>Message fee:</td><td><input id="messageFeeInput" type="text"></td>
+		  <td><select id="messageFeeUnits">
+		      <option value="1">Wei</option>
+		      <option value="1000">Kwei</option>
+		      <option value="1000000">Mwei</option>
+		      <option value="1000000000">Gwei</option>
+		      <option value="1000000000000">Szabo</option>
+		      <option value="1000000000000000">Finney</option>
+		    </select>
+		  </td>
+		</tr>
+		<tr>
+		  <td>Spam fee:</td><td><input id="spamFeeInput" type="text"></td>
+		  <td><select id="spamFeeUnits">
+		      <option value="1">Wei</option>
+		      <option value="1000">Kwei</option>
+		      <option value="1000000">Mwei</option>
+		      <option value="1000000000">Gwei</option>
+		      <option value="1000000000000">Szabo</option>
+		      <option value="1000000000000000">Finney</option>
+		    </select>
+		  </td>
+		</tr>
+		<tr>
+		  <td></td><td><input id="registerSubmitButton" type="submit" value="Submit"></td>
+		</tr>
+	      </tbody>
+	    </table>
+	  </div>
+	</div>
+      </form>
+    </div>
+    <p>&nbsp;</p>
+    <div id="statusDiv" class="finalresultstable" style="display: none;"></div>
+  </body>
+</html>

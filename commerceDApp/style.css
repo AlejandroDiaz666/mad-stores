@@ -1,0 +1,530 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 100%;
+    background: #a4a4a4;
+    min-width: 480px;
+    min-height: 640px;
+    margin: 0;
+    padding: 20px;
+}
+h1 { font-size:22px; }
+h2 { font-size:20px; }
+h3 { font-size:18px; }
+
+/*
+  modifiers to make blocks disappear and re-appear.
+  visibleIB: for normal divs (inline-block)
+  visibleTC: for buttons (table-cells) for vertical alignment
+*/
+.visibleIB {
+    display: inline-block;
+}
+.visibleTC {
+    display: table-cell;
+}
+.hidden {
+    display: none;
+}
+.attention {
+    background-color: #9cd9db;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* this modal has a message telling the user that we are waiting
+   for metamask
+*/
+#metaMaskModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 55%;
+    top: 15%;
+    width: 300px;
+    height: 50px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    background-color: #60ff60;
+}
+
+#newMsgModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 80%;
+    top: 22%;
+    width: 270px;
+    height: 50px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    background-color: #9cd9db;
+}
+
+
+#importantInfoButton {
+    float: left;
+    margin-left:10px;
+    margin-right: auto;
+}
+
+#topSection {
+    display: block;
+    font-family: 'Lato', sans-serif;
+    background-color: #e3eceb;
+    margin-top:0px;
+}
+
+#mainTitleSpan {
+    float: left;
+}
+
+#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #outstandingOrdersAreaDiv, #escrowBalanceAreaDiv  {
+    display: block;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    margin: 0px;
+    min-width: 20%;
+    background-color: #e3eceb;
+}
+#networkArea, #accountArea, #balanceArea, #outstandingOrdersArea, #escrowBalanceArea {
+    float: right;
+    padding: 0px;
+    margin: 0px;
+    min-width: 20%;
+    resize: none;
+}
+
+#topMenuBarDiv, #botMenuBarDiv {
+    display: block;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 0px;
+    margin-right: 0px;
+    height: 100%;
+    background-color: #dbdcdb;
+    position: relative;
+}
+
+.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
+.menuBarButtonSelected, .menuBarButton:hover {
+    margin: 5px;
+    width: 15%;
+    height: 80%;
+}
+.menuBarButtonEnabled, .menuBarButtonDisabled {
+    background-color: #dbdcee;
+}
+.menuBarButtonSelected, .menuBarButtonEnabled:hover {
+    background-color: #dbeeee;
+}
+
+
+#outerDiv {
+    display: table;
+    padding: 0px;
+    margin: 0px;
+    min-height: 320px;
+    width: 100%;
+}
+#leftSideDiv, #centerDiv, #rightSideDiv {
+    display: table-cell;
+    min-width: 100px;
+}
+#leftSideDiv, #rightSideDiv {
+    background-color: red;
+}
+#centerDiv {
+    width: 1070px;
+}
+#centerTableDiv {
+    display: table;
+}
+
+
+/* tile styles here
+ */
+.tilesDiv {
+    display: grid;
+    grid-template-columns: repeat(4, 260px);
+    grid-auto-columns: minmax(260px, 260px);
+    grid-auto-rows: minmax(260px, 260px);
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.tileDiv {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    display: inline-block;
+    background-color: rgb(150, 150, 179);
+}
+.tileImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-80px, 5px, 0px);
+}
+.tileNameBg {
+    width: 240px;
+    height: 25px;
+    background-color: rgb(120, 120, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -90px, 0px);
+}
+.tileName {
+    width: 240px;
+    height: 25px;
+    background-color: rgb(100, 110, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -90px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.tileTextBg {
+    width: 240px;
+    height: 60px;
+    background-color: rgb(120, 120, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -60px, 0px);
+}
+.tileText {
+    width: 240px;
+    height: 60px;
+    background-color: rgb(120, 120, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -60px, 0px);
+}
+
+
+
+#storeInfoDiv {
+    display: table;
+    padding: 0px;
+    margin-top: 10px;
+    margin-left: 0px;
+    min-height: 180px;
+}
+#storeAddrDiv {
+    display: table-cell;
+    padding: 10px;
+    margin-top: 10px;
+    margin-left: 0px;
+    margin-right: auto;
+    background-color: #9cd9db;
+    width: 20%;
+}
+#storeAddrPromptArea, #storeAddrArea, #loadStoreButton {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#storeAddrPromptArea {
+    width: 4em;
+    max-width: 4em;
+}
+#storeAddrArea {
+    width: 26em;
+    min-width: 20%;
+}
+#loadStoreButton {
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+}
+
+#storeInfoImageDiv {
+    display: table-cell;
+    min-width: 180px;
+    max-width: 180px;
+    width: 15%;
+    height: 100%;
+    min-height: 180px;
+    background-color: #ec00ec;
+}
+#storeInfoTextDiv {
+    display: table-cell;
+    min-width: 300px;
+    height: 100%;
+    min-height: 180px;
+    background-color: #00eceb;
+}
+
+
+
+#navButtonsSpan {
+    margin-right: 10px;
+    /* below is essentially equivelent to: vertical-align: middle; */
+    position: absolute;
+    top: 50%;
+    right: 0%;
+    transform: translateY(-50%);
+}
+#prevUnreadButton {
+}
+#nextUnreadButton {
+    margin-right: 20px;
+}
+
+
+/*
+  message list attributes
+  note that it's necessary to collapse table borders (as opposed to being draw separate) or
+  else you can't set a border with display: table-row. also you can't use margin & padding
+  with display: table-row, cuz the height is always the height of the cell. so i work around
+  by setting a transparent border where i would want a margin.
+*/
+#listAreaDiv  {
+    display: table;
+    padding: 12px;
+    margin: 0px;
+    background-color: #e3eceb;
+    border-collapse: collapse;
+
+}
+
+.msgListItemDiv,    .msgListItemDivSelected,
+.msgListItemDivNew, .msgListItemDivSelectedNew {
+    display: table-row;
+    clear: both;
+    background-color: #e3eceb;
+    font-weight: normal;
+}
+.msgListItemDiv,
+.msgListItemDivNew {
+    border-top: 2px solid transparent;
+}
+.msgListItemDivSelected,
+.msgListItemDivSelectedNew {
+    border: 2px solid #404040;
+}
+.msgListItemDivNew,
+.msgListItemDivSelectedNew {
+    font-weight: bold;
+}
+
+.msgListMsgNoArea,    .msgListAddrArea,    .msgListDateArea,    .msgListMsgIdArea,    .msgListSubjectArea {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 1px;
+    resize: none;
+    font-weight: inherit;
+}
+.msgListMsgNoArea {
+    width: 5em;
+}
+.msgListAddrArea {
+    width: 26em;
+}
+.msgListDateArea {
+    width: 20em;
+}
+.msgListMsgIdArea {
+    width: 20em;
+}
+.msgListSubjectArea {
+    min-width: 20em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: elipsis;
+}
+
+
+
+
+/*
+  individual message area attributes
+*/
+#msgAreaDiv  {
+    display: block;
+    padding: 20px;
+    margin-top: 30px;
+    margin-left: 0px;
+    margin-right: auto;
+    /* background-color: #a4a4a4; */
+    background-color: #9cd9db;
+}
+
+#msgInfoAreaDiv {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 0px;
+    padding-left: 10px;
+    display: table;
+    margin: 0px;
+    min-width: 90%;
+    background-color: #e3eceb;
+}
+
+#msgPromptArea, #msgAddrArea, #msgIdArea {
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#msgPromptArea {
+    display: table-cell;
+    width: 4em;
+    max-width: 4em;
+}
+#msgAddrArea {
+    display: table-cell;
+    width: 26em;
+    min-width: 20%;
+}
+#msgIdArea {
+    width: 20em;
+}
+
+#msgRefButton {
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    width: 20em;
+    min-width: 10em;
+}
+
+#msgDateArea {
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    width: 20em;
+    resize: none;
+}
+#validateAddrButton {
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+}
+#msgFeeArea {
+    float: right;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    width: 14em;
+    resize: none;
+}
+#replyButton {
+    float: right;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+}
+
+
+#msgTextAreaDiv {
+    padding-top: 0px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    display: block;
+    margin: 0px;
+    min-width: 90%;
+    background-color: #e3eceb;
+}
+#msgTextArea {
+    padding: 0px;
+    margin: 0px;
+    min-width: 100%;
+    resize: none;
+}
+#registerDiv {
+    padding: 0px;
+    margin: 0px;
+    min-width: 100%;
+    resize: none;
+    height: 14em;
+}
+DIV.finalresultstable {
+    background-color: #60ff60;
+    padding: 2px;
+    margin: 2px;
+}
