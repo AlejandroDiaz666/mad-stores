@@ -4,8 +4,8 @@ pragma solidity ^0.4.24;
 //  interface to message transport
 // ---------------------------------------------------------------------------
 contract MessageTransport {
-  function getFee(address _toAddr) public view returns(uint256 _fee);
-  function sendMessage(address _toAddr, uint mimeType, bytes message) public payable returns (uint _recvMessageCount) { }
+  function getFee(address _fromAddr, address _toAddr) public view returns(uint256 _fee);
+  function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes message) public payable returns (uint _recvMessageCount) { }
 }
 
 
@@ -198,7 +198,7 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //first deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     require(balances[msg.sender] >= _minCustomerBond, "insufficient deposit funds");
@@ -209,7 +209,7 @@ contract MadEscrow_V1 {
     _escrowAccount.customerBalance += _minCustomerBond;
     _escrowAccount.approved = false;
     _escrowAccount.productID = _productID;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
     emit PurchaseDepositEvent(_vendorAddr, msg.sender, _productID, _surcharge, _msgNo);
     emit StatEvent("ok: purchase funds deposited");
   }
@@ -229,10 +229,10 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
     emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
     _product.quantity += 1;
     balances[_vendorAddr] += _escrowAccount.vendorBalance;
@@ -259,10 +259,10 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_customerAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _customerAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_customerAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _customerAddr, 0, _message);
     emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowAccount.productID, _msgNo);
     _escrowAccount.approved = true;
     emit StatEvent("ok: purchase approved -- funds locked");
@@ -283,10 +283,10 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_customerAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _customerAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_customerAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _customerAddr, 0, _message);
     emit PurchaseRejectEvent(msg.sender, _customerAddr, _escrowAccount.productID, _msgNo);
     Product storage _product = _vendorAccount.products[_escrowAccount.productID];
     _product.quantity += 1;
@@ -311,10 +311,10 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
     emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
     uint256 _price = (_escrowAccount.customerBalance - _escrowAccount.vendorBalance);
     uint256 _escrowFee = (_price * ESCROW_FEE_PCTX10) / 1000;
@@ -343,10 +343,10 @@ contract MadEscrow_V1 {
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr);
+    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, 0, _message);
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
     emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
     communityBalance += (_escrowAccount.customerBalance + _escrowAccount.vendorBalance);
     _escrowAccount.customerBalance = 0;
