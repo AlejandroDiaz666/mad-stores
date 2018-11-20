@@ -37,7 +37,6 @@ contract MadEscrow_V1 {
   // Product structure
   // -------------------------------------------------------------------------
   struct Product {
-    uint256 id;
     uint256 price;
     uint256 quantity;
   }
@@ -194,7 +193,7 @@ contract MadEscrow_V1 {
     else
       _product.quantity -= 1;
     uint256 _minVendorBond = (_effectivePrice * _vendorAccount.bondPct) / 100;
-    uint256 _minCustomerBond = _effectivePrice + _minCustomerBond;
+    uint256 _minCustomerBond = _effectivePrice + _minVendorBond;
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //first deduct any message fees
@@ -221,7 +220,7 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   function purchaseCancel(address _vendorAddr, bytes _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
     EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
     require(_escrowAccount.customerBalance != 0, "no active escrow with this vendor");
     require(_escrowAccount.approved != true, "purchase already approved; funds are locked");
@@ -305,7 +304,7 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   function deliveryApprove(address _vendorAddr, bytes _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
+    VendorAccount storage _vendorAccount = vendorAccounts[vendorAddr];
     EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
     //add msg funds to pre-existing customer balance
@@ -321,6 +320,7 @@ contract MadEscrow_V1 {
     communityBalance += _escrowFee;
     balances[_vendorAddr] += (_escrowAccount.customerBalance - _escrowFee);
     balances[msg.sender] += _escrowAccount.vendorBalance;
+
     _escrowAccount.customerBalance = 0;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.productID = 0;
@@ -337,7 +337,7 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   function deliveryReject(address _vendorAddr, bytes _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
     EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
     //add msg funds to pre-existing customer balance
