@@ -178,6 +178,12 @@ h3 { font-size:18px; }
 #leftSideDiv, #rightSideDiv {
     background-color: red;
 }
+#leftSideDiv {
+    width: 460px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
 #centerDiv {
     width: 1070px;
 }
@@ -185,6 +191,64 @@ h3 { font-size:18px; }
     display: table;
 }
 
+
+/* seller search elements here
+ */
+#sellerSearchNoteBg {
+    width: 410px;
+    height: 150px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-205px, 20px, 0px);
+    background-image: none;
+    background-color: rgb(126, 212, 246);
+}
+#sellerSearchNoteText {
+    width: 390px;
+    height: 125px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, 20px, 0px);
+}
+#sellerSearchDiv {
+    width: 460px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-230px, 190px, 0px);
+    background-color: #dbdcef;
+}
+#regionPromptArea, #keywordPromptArea, #storeAddrPromptArea {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#storeAddrArea, #keywordArea {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#regionSelector {
+    width: 25em;
+}
+#loadStoreButton {
+    width: 28em;
+}
 
 /* tile styles here
  */
@@ -276,20 +340,6 @@ h3 { font-size:18px; }
     margin-right: auto;
     background-color: #9cd9db;
     width: 20%;
-}
-#storeAddrPromptArea, #storeAddrArea, #loadStoreButton {
-    display: table-cell;
-    vertical-align: middle;
-    padding-top: 1px;
-    padding-right: 0px;
-    padding-bottom: 1px;
-    padding-left: 0px;
-    margin: 0px;
-    resize: none;
-}
-#storeAddrPromptArea {
-    width: 4em;
-    max-width: 4em;
 }
 #storeAddrArea {
     width: 26em;

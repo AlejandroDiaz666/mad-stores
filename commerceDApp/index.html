@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542741198_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542761530_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542741198_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542761530_.js"></script>
 
   </head>
 
@@ -66,6 +66,50 @@
 
     <div id="outerDiv">
       <div id="leftSideDiv">
+	<div id="sellerSearchNoteBg"></div>
+	<p id="sellerSearchNoteText">Enter search criteria to find a seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to find sellers that service your region of interest. You can optionally enter a search keyword to find sellers that sell a particular product or cater to a specific niche.</p>
+	<div id="sellerSearchDiv" style="clear:both">
+	  <table class="">
+	    <tbody>
+	      <tr>
+		<td>
+	      	  <textarea id="regionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
+		</td>
+		<td><select id="regionSelector">
+		    <option value="000000001">North America</option>
+		    <option value="000000002">South America</option>
+		    <option value="000000003">Eastern Botswana</option>
+		    <option value="000000004">Western Botswana</option>
+		  </select>
+		</td>
+	      </tr>
+	      <tr>
+		<td>
+	      	  <textarea id="keywordPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Keyword:</textarea>
+		</td>
+		<td>
+		  <textarea id="keywordArea" rows="1" cols="42">&nbsp;</textarea>
+		</td>
+	      </tr>
+	      <tr>
+		<td>
+	      	  <textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Addr:</textarea>
+		</td>
+		<td>
+		  <textarea id="storeAddrArea" rows="1" cols="42">&nbsp;</textarea>
+		</td>
+	      </tr>
+	      <tr>
+		<td colspan="2">
+		  <button id="loadStoreButton" type="button">Search Sellers</button>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+
+	<span>
+	  <span>
+	</div>
       </div>
       <div id="centerDiv">
 	<div class="tilesDiv">
@@ -80,7 +124,7 @@
 	  <div id="tile1" class="tileDiv">
 	    <img id="tile1Img" src="images/logo.png" class="tileImg">
 	    <div id="tile1NameBg" class="tileNameBg"></div>
-	    <span id="tile1Name" class="tileName">sample name</span>
+	    <span id="tile1Name" class="tileName">Joe's Sundry Shop</span>
 	    <div id="tile1TextBg" class="tileTextBg"></div>
 	    <span id="tile1Text" class="tileText">sundries, q-tips, fine-silverware, dog-food, syringes, matroshka-dolls</span>
 	  </div>
@@ -120,11 +164,6 @@
 
     <div id="storeInfoDiv" style="clear:both">
       <div id="storeAddrDiv" style="clear:both">
-	<span>
-	  <textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled">Addr:</textarea>
-	  <textarea id="storeAddrArea" rows="1">&nbsp;</textarea>
-	  <button id="loadStoreButton" type="button">Load Store</button>
-	  <span>
       </div>
 
       <div id="storeInfoImageDiv">
