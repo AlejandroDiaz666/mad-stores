@@ -159,8 +159,9 @@ h3 { font-size:18px; }
 .menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
 .menuBarButtonSelected, .menuBarButton:hover {
     margin: 5px;
-    width: 15%;
     height: 80%;
+    width: 15%;
+    max-width: 280px;
 }
 .menuBarButtonEnabled, .menuBarButtonDisabled {
     background-color: #dbdcee;
@@ -189,15 +190,15 @@ h3 { font-size:18px; }
 .leftSideDiv, #centerDiv, #rightSideDiv {
     display: table-cell;
     min-width: 100px;
+    position: relative;
+    top: 0px;
+    left: 0px;
 }
 .leftSideDiv, #rightSideDiv {
     background-color: red;
 }
 .leftSideDiv {
     width: 460px;
-    position: relative;
-    top: 0px;
-    left: 0px;
 }
 .centerDiv {
     width: 1070px;
@@ -342,25 +343,54 @@ h3 { font-size:18px; }
 /*
  * create store steps elements here
  */
+#rsMenuBarDiv {
+    display: block;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 0px;
+    margin-right: 0px;
+    height: 100%;
+    background-color: #dbdcdb;
+    position: relative;
+}
+.rsMenuBarButton, .rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled,
+.rsMenuBarButtonSelected, .rsMenuBarButton:hover {
+    margin: 5px;
+    height: 80%;
+    width: 30%;
+    max-width: 280px;
+}
+.rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled {
+    background-color: #dbdcee;
+}
+.rsMenuBarButtonSelected, .rsMenuBarButtonEnabled:hover {
+    background-color: #dbeeee;
+}
+
+
 #createStoreNoteBg {
     width: 410px;
-    height: 200px;
+    height: 140px;
     position: absolute;
     top: 0%;
     left: 50%;
     transform-style: preserve-3d;
-    transform: translate3d(-205px, 20px, 0px);
+    transform: translate3d(-205px, 62px, 0px);
     background-image: none;
     background-color: rgb(126, 212, 246);
 }
 #createStoreNoteText {
     width: 370px;
-    height: 225px;
+    height: 120px;
     position: absolute;
     top: 0%;
     left: 50%;
     transform-style: preserve-3d;
-    transform: translate3d(-180px, 20px, 0px);
+    transform: translate3d(-180px, 55px, 0px);
 }
 #createStoreStepsDiv {
     width: 460px;
@@ -372,6 +402,101 @@ h3 { font-size:18px; }
     background-color: #dbdcef;
 }
 
+
+#registerStoreStepsDiv {
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+#rsStep1NoBg, #rsStep2NoBg {
+   width: 70px;
+   height: 70px;
+   border-radius: 35px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: rgb(126, 212, 246);
+}
+#rsStep1NoText, #rsStep2NoText {
+    text-align: center;
+    font-family: lato;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+#rsStep1InstrBg, #rsStep2InstrBg {
+   width: 295px;
+   height: 70px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: rgb(126, 212, 246);
+}
+#rsStep1InstrText, #rsStep2InstrText {
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+
+#rsStep1NoBg {
+    transform-style: preserve-3d;
+    transform: translate3d(70px, 50px, 0px);
+}
+#rsStep1NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 36px, 0px);
+}
+#rsStep1InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 50px, 0px);
+}
+#rsStep1InstrText {
+    font-size: 18px;
+    width: 225px;
+    transform-style: preserve-3d;
+    transform: translate3d(153px, 55px, 0px);
+}
+#rsStoreNameArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 128px, 0px);
+    resize: none;
+}
+#rsStep2NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 190px, 0px);
+}
+#rsStep2NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 176px, 0px);
+}
+#rsStep2InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 190px, 0px);
+}
+#rsStep2InstrText {
+    width: 235px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(153px, 181px, 0px);
+}
+#rsStoreDescArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 268px, 0px);
+    resize: none;
+}
 
 
 

@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542767198_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542832952_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542767198_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542832952_.js"></script>
 
   </head>
 
@@ -26,7 +26,7 @@
 	<img src="images/logo.png" alt="Logo goes here " width="40px" height="40px"/>
       </div>
       <span id="mainTitleSpan">
-	<h3>MAD Escrow Stores -- A Turms Anonymous Commerce Utility.</h3>
+	<h3>MAD Escrow Stores -- Based on the Turms Anonymous Message Transport</h3>
       </span>
       <div style="float:right;">
 	<div id="networkAreaDiv">
@@ -175,13 +175,30 @@
       -->
     <div id="createStorePageDiv" class="outerDiv hidden">
       <div class="leftSideDiv">
+	<div id="rsMenuBarDiv" style="clear:both">
+	  <button id="createStoreButton" class="rsMenuBarButton" type="button">Create Store</button>
+	  <button id="addProductButton" class="rsMenuBarButton" type="button">Add Product</button>
+	  <button id="editProductButton" class="rsMenuBarButton" type="button">Edit Product</button>
+	</div>
 	<div id="createStoreNoteBg"></div>
 	<p id="createStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
-	  Simply follow the steps below to set the name of the store; a breif list of the items you will sell or the services you offer (this list will be searchable); a slightly more detailed description of your products or services; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can being to add products.</p>
-	<div id="createStoreStepsDiv" style="clear:both">
+	  Simply enter the name of your store; a description of your store or the services you offer; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can begin adding products.</p>
+	<div id="createStoreButtonsDiv" style="clear:both">
 	</div>
       </div>
       <div class="centerDiv">
+	<div id="registerStoreStepsDiv">
+	  <div id="rsStep1NoBg" class="rsStepNoBg"></div>
+	  <div id="rsStep1InstrBg" class="rsStepInstrBg"></div>
+	  <span id="rsStep1InstrText" class="rsStepInstrText"><p>Enter a name for your store</p></span>
+	  <p id="rsStep1NoText" class="rsStepNoText">1</p>
+	  <textarea id="rsStoreNameArea" rows="1" cols="42">&nbsp;</textarea>
+	  <div id="rsStep2NoBg" class="rsStepNoBg"></div>
+	  <div id="rsStep2InstrBg" class="rsStepInstrBg"></div>
+	  <span id="rsStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
+	  <p id="rsStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="rsStoreDescArea" rows="3" cols="70">&nbsp;</textarea>
+	</div>
       </div>
       <div id="rightSideDiv">
       </div>
@@ -211,12 +228,6 @@
       </div>
     </div>
 
-    <div id="botMenuBarDiv" style="clear:both">
-      <button id="importantInfoButton" class="menuBarButton" type="button">Click here for important information</button>
-      <button id="registerButton" class="menuBarButton" type="button">Register Account</button>
-      <button id="composeButton" class="menuBarButton" type="button">Compose</button>
-      <button id="withdrawButton" class="menuBarButton" type="button">Withdraw Fees</button>
-    </div>
 
     <!-- general display area -->
     <div id="msgAreaDiv" style="clear:both">
