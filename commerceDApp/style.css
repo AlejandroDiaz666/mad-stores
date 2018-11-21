@@ -16,6 +16,12 @@ h3 { font-size:18px; }
   visibleIB: for normal divs (inline-block)
   visibleTC: for buttons (table-cells) for vertical alignment
 */
+.visibleT {
+    display: table;
+}
+.visibleB {
+    display: block;
+}
 .visibleIB {
     display: inline-block;
 }
@@ -164,35 +170,43 @@ h3 { font-size:18px; }
 }
 
 
-#outerDiv {
-    display: table;
+#shopButton, #dashboardButton, #createStoreButton {
+}
+
+
+/* three column format common to all pages
+ */
+.outerDiv {
+    /*
+     * via class visibleT
+     *  display: table
+     */
     padding: 0px;
     margin: 0px;
     min-height: 320px;
     width: 100%;
 }
-#leftSideDiv, #centerDiv, #rightSideDiv {
+.leftSideDiv, #centerDiv, #rightSideDiv {
     display: table-cell;
     min-width: 100px;
 }
-#leftSideDiv, #rightSideDiv {
+.leftSideDiv, #rightSideDiv {
     background-color: red;
 }
-#leftSideDiv {
+.leftSideDiv {
     width: 460px;
     position: relative;
     top: 0px;
     left: 0px;
 }
-#centerDiv {
+.centerDiv {
     width: 1070px;
 }
-#centerTableDiv {
-    display: table;
-}
 
 
-/* seller search elements here
+
+/*
+ * shop page seller search elements here
  */
 #sellerSearchNoteBg {
     width: 410px;
@@ -206,7 +220,7 @@ h3 { font-size:18px; }
     background-color: rgb(126, 212, 246);
 }
 #sellerSearchNoteText {
-    width: 390px;
+    width: 370px;
     height: 125px;
     position: absolute;
     top: 0%;
@@ -322,6 +336,44 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-120px, -60px, 0px);
 }
+
+
+
+/*
+ * create store steps elements here
+ */
+#createStoreNoteBg {
+    width: 410px;
+    height: 200px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-205px, 20px, 0px);
+    background-image: none;
+    background-color: rgb(126, 212, 246);
+}
+#createStoreNoteText {
+    width: 370px;
+    height: 225px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, 20px, 0px);
+}
+#createStoreStepsDiv {
+    width: 460px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-230px, 190px, 0px);
+    background-color: #dbdcef;
+}
+
+
+
 
 
 

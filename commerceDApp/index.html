@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542761530_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542767198_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542761530_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542767198_.js"></script>
 
   </head>
 
@@ -26,7 +26,7 @@
 	<img src="images/logo.png" alt="Logo goes here " width="40px" height="40px"/>
       </div>
       <span id="mainTitleSpan">
-	<h3>MAD Escrow Stores.</h3>
+	<h3>MAD Escrow Stores -- A Turms Anonymous Commerce Utility.</h3>
       </span>
       <div style="float:right;">
 	<div id="networkAreaDiv">
@@ -48,8 +48,8 @@
     </div>
 
     <div id="topMenuBarDiv" style="clear:both">
-      <button id="searchStoresButton" class="menuBarButton" type="button">Shop</button>
-      <button id="viewStoreItemsButton" class="menuBarButton" type="button">Dashboard</button>
+      <button id="shopButton" class="menuBarButton" type="button">Shop</button>
+      <button id="dashboardButton" class="menuBarButton" type="button">Dashboard</button>
       <button id="createStoreButton" class="menuBarButton" type="button">Create Your Own Store!</button>
       <span id="navButtonsSpan" class="hidden">
 	<button id="prevUnreadButton" type="button" class="navButton hidden">prev unread</button>
@@ -64,10 +64,16 @@
 	</span>
     </div>
 
-    <div id="outerDiv">
-      <div id="leftSideDiv">
+
+    <!--
+	====================================================================================================================
+	shop page
+	====================================================================================================================
+      -->
+    <div id="shopPageDiv" class="outerDiv visibleT">
+      <div class="leftSideDiv">
 	<div id="sellerSearchNoteBg"></div>
-	<p id="sellerSearchNoteText">Enter search criteria to find a seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to find sellers that service your region of interest. You can optionally enter a search keyword to find sellers that sell a particular product or cater to a specific niche.</p>
+	<p id="sellerSearchNoteText">Enter search criteria to find a seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to find seller that serves your region of interest. You can optionally enter a search keyword to find seller that sell a particular product or cater to a specific niche.</p>
 	<div id="sellerSearchDiv" style="clear:both">
 	  <table class="">
 	    <tbody>
@@ -107,11 +113,9 @@
 	    </tbody>
 	  </table>
 
-	<span>
-	  <span>
 	</div>
       </div>
-      <div id="centerDiv">
+      <div class="centerDiv">
 	<div class="tilesDiv">
 	  <!-- here are some sample tiles -->
 	  <div id="tile0" class="tileDiv">
@@ -161,6 +165,30 @@
       <div id="rightSideDiv">
       </div>
     </div>
+
+
+
+    <!--
+	====================================================================================================================
+	create a store page
+	====================================================================================================================
+      -->
+    <div id="createStorePageDiv" class="outerDiv hidden">
+      <div class="leftSideDiv">
+	<div id="createStoreNoteBg"></div>
+	<p id="createStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
+	  Simply follow the steps below to set the name of the store; a breif list of the items you will sell or the services you offer (this list will be searchable); a slightly more detailed description of your products or services; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can being to add products.</p>
+	<div id="createStoreStepsDiv" style="clear:both">
+	</div>
+      </div>
+      <div class="centerDiv">
+      </div>
+      <div id="rightSideDiv">
+      </div>
+    </div>
+
+
+
 
     <div id="storeInfoDiv" style="clear:both">
       <div id="storeAddrDiv" style="clear:both">
