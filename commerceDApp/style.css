@@ -1,9 +1,13 @@
+html {
+    height: 100%;
+}
 body {
     font-family: 'Roboto', sans-serif;
     font-size: 100%;
     background: #a4a4a4;
     min-width: 480px;
     min-height: 640px;
+    height: 100%;
     margin: 0;
     padding: 20px;
 }
@@ -117,6 +121,7 @@ h3 { font-size:18px; }
     font-family: 'Lato', sans-serif;
     background-color: #e3eceb;
     margin-top:0px;
+    height: 80px;
 }
 
 #mainTitleSpan {
@@ -151,7 +156,7 @@ h3 { font-size:18px; }
     margin-bottom: 4px;
     margin-left: 0px;
     margin-right: 0px;
-    height: 100%;
+    height: 26px;
     background-color: #dbdcdb;
     position: relative;
 }
@@ -184,17 +189,18 @@ h3 { font-size:18px; }
      */
     padding: 0px;
     margin: 0px;
-    min-height: 320px;
     width: 100%;
+    height: max-content;
 }
-.leftSideDiv, #centerDiv, #rightSideDiv {
+.leftSideDiv, .centerDiv, .rightSideDiv {
     display: table-cell;
     min-width: 100px;
+    min-height: 640px;
     position: relative;
     top: 0px;
     left: 0px;
 }
-.leftSideDiv, #rightSideDiv {
+.leftSideDiv, .rightSideDiv {
     background-color: red;
 }
 .leftSideDiv {
@@ -203,7 +209,12 @@ h3 { font-size:18px; }
 .centerDiv {
     width: 1070px;
 }
-
+.height640Div {
+    position: relative;
+    height: 640px;
+    top: 0px;
+    left: 0px;
+}
 
 
 /*
@@ -276,6 +287,9 @@ h3 { font-size:18px; }
     grid-row-gap: 10px;
     padding-left: 20px;
     padding-right: 20px;
+    position: absolute;
+    top: 0%;
+    left: 0%;
 }
 .tileDiv {
     position: relative;
@@ -346,23 +360,25 @@ h3 { font-size:18px; }
 #rsMenuBarDiv {
     display: block;
     padding-top: 4px;
-    padding-right: 4px;
+    padding-right: 0px;
     padding-bottom: 4px;
-    padding-left: 4px;
+    padding-left: 0px;
     margin-top: 4px;
     margin-bottom: 4px;
     margin-left: 0px;
     margin-right: 0px;
-    height: 100%;
+    height: 26px;
     background-color: #dbdcdb;
-    position: relative;
+    position: absolute;
+    top: 0%;
+    width: 100%;
 }
 .rsMenuBarButton, .rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled,
 .rsMenuBarButtonSelected, .rsMenuBarButton:hover {
     margin: 5px;
     height: 80%;
     width: 30%;
-    max-width: 280px;
+    max-width: 150px;
 }
 .rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled {
     background-color: #dbdcee;

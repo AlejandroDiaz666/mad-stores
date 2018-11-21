@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542832952_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542839270_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542832952_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542839270_.js"></script>
 
   </head>
 
@@ -72,6 +72,7 @@
       -->
     <div id="shopPageDiv" class="outerDiv visibleT">
       <div class="leftSideDiv">
+	<div class="height640Div"></div>
 	<div id="sellerSearchNoteBg"></div>
 	<p id="sellerSearchNoteText">Enter search criteria to find a seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to find seller that serves your region of interest. You can optionally enter a search keyword to find seller that sell a particular product or cater to a specific niche.</p>
 	<div id="sellerSearchDiv" style="clear:both">
@@ -170,15 +171,108 @@
 
     <!--
 	====================================================================================================================
+	dashboard page
+	====================================================================================================================
+      -->
+    <div id="dashboardPageDiv" class="outerDiv hidden">
+      <div class="leftSideDiv">
+      </div>
+      <div class="centerDiv">
+	<div id="storeInfoDiv" style="clear:both">
+	  <div id="storeAddrDiv" style="clear:both">
+	  </div>
+
+	  <div id="storeInfoImageDiv">
+	  </div>
+	  <div id="storeInfoTextDiv">
+	  </div>
+	</div>
+
+	<!-- list display area -->
+	<div id="listAreaDiv">
+	  <div id="msgListHeaderDiv" class="msgListItemDiv">
+	    <textarea id="msgListHeaderMsgNo" class="msgListMsgNoArea" rows="1" readonly="readonly" disabled="disabled">Msg No.</textarea>
+	    <textarea id="msgListHeaderAddr" class="msgListAddrArea" rows="1" readonly="readonly" disabled="disabled">From</textarea>
+	    <textarea id="msgListHeaderDate" class="msgListDateArea" rows="1" readonly="readonly" disabled="disabled">Date</textarea>
+	    <textarea id="msgListHeaderMsgId" class="msgListMsgIdArea" rows="1" readonly="readonly" disabled="disabled">Msg ID</textarea>
+	    <textarea id="msgListHeaderSubject" class="msgListSubjectArea" rows="1" readonly="readonly" disabled="disabled">Subject</textarea>
+	  </div>
+	</div>
+
+
+	<!-- general display area -->
+	<div id="msgAreaDiv" style="clear:both">
+	  <form action="javascript:void(0);">
+	    <div id="msgInfoAreaDiv">
+	      <span>
+		<textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+		<textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
+		<textarea id="msgIdArea" rows="1" class="hidden">&nbsp;</textarea>
+		<button id="msgRefButton" type="button" class="hidden">Ref: N/A</button>
+		<textarea id="msgDateArea" rows="1" class="hidden">&nbsp;</textarea>
+		<button id="validateAddrButton" type="button" class="hidden">Validate</button>
+		<button id="replyButton" type="button" class="hidden">Reply</button>
+		<textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
+		<span>
+	    </div>
+	    <div id="msgTextAreaDiv">
+	      <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
+	      <div id="registerDiv" class="hidden">
+		<table>
+		  <tbody>
+		    <tr>
+		      <td>Message fee:</td><td><input id="messageFeeInput" type="text"></td>
+		      <td><select id="messageFeeUnits">
+			  <option value="1">Wei</option>
+			  <option value="1000">Kwei</option>
+			  <option value="1000000">Mwei</option>
+			  <option value="1000000000">Gwei</option>
+			  <option value="1000000000000">Szabo</option>
+			  <option value="1000000000000000">Finney</option>
+			</select>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td>Spam fee:</td><td><input id="spamFeeInput" type="text"></td>
+		      <td><select id="spamFeeUnits">
+			  <option value="1">Wei</option>
+			  <option value="1000">Kwei</option>
+			  <option value="1000000">Mwei</option>
+			  <option value="1000000000">Gwei</option>
+			  <option value="1000000000000">Szabo</option>
+			  <option value="1000000000000000">Finney</option>
+			</select>
+		      </td>
+		    </tr>
+		    <tr>
+		      <td></td><td><input id="registerSubmitButton" type="submit" value="Submit"></td>
+		    </tr>
+		  </tbody>
+		</table>
+	      </div>
+	    </div>
+	  </form>
+	</div>
+      </div>
+
+      <div class="rightSideDiv">
+      </div>
+    </div>
+
+
+
+    <!--
+	====================================================================================================================
 	create a store page
 	====================================================================================================================
       -->
     <div id="createStorePageDiv" class="outerDiv hidden">
       <div class="leftSideDiv">
+	<div class="height640Div"></div>
 	<div id="rsMenuBarDiv" style="clear:both">
-	  <button id="createStoreButton" class="rsMenuBarButton" type="button">Create Store</button>
-	  <button id="addProductButton" class="rsMenuBarButton" type="button">Add Product</button>
-	  <button id="editProductButton" class="rsMenuBarButton" type="button">Edit Product</button>
+	  <button id="rsCreateStoreButton" class="rsMenuBarButton" type="button">Create Store</button>
+	  <button id="rsAddProductButton" class="rsMenuBarButton" type="button">Add Product</button>
+	  <button id="rsEditProductButton" class="rsMenuBarButton" type="button">Edit Product</button>
 	</div>
 	<div id="createStoreNoteBg"></div>
 	<p id="createStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
@@ -200,88 +294,10 @@
 	  <textarea id="rsStoreDescArea" rows="3" cols="70">&nbsp;</textarea>
 	</div>
       </div>
-      <div id="rightSideDiv">
+      <div class="rightSideDiv">
       </div>
     </div>
 
-
-
-
-    <div id="storeInfoDiv" style="clear:both">
-      <div id="storeAddrDiv" style="clear:both">
-      </div>
-
-      <div id="storeInfoImageDiv">
-      </div>
-      <div id="storeInfoTextDiv">
-      </div>
-    </div>
-
-    <!-- list display area -->
-    <div id="listAreaDiv">
-      <div id="msgListHeaderDiv" class="msgListItemDiv">
-	<textarea id="msgListHeaderMsgNo" class="msgListMsgNoArea" rows="1" readonly="readonly" disabled="disabled">Msg No.</textarea>
-	<textarea id="msgListHeaderAddr" class="msgListAddrArea" rows="1" readonly="readonly" disabled="disabled">From</textarea>
-	<textarea id="msgListHeaderDate" class="msgListDateArea" rows="1" readonly="readonly" disabled="disabled">Date</textarea>
-	<textarea id="msgListHeaderMsgId" class="msgListMsgIdArea" rows="1" readonly="readonly" disabled="disabled">Msg ID</textarea>
-	<textarea id="msgListHeaderSubject" class="msgListSubjectArea" rows="1" readonly="readonly" disabled="disabled">Subject</textarea>
-      </div>
-    </div>
-
-
-    <!-- general display area -->
-    <div id="msgAreaDiv" style="clear:both">
-      <form action="javascript:void(0);">
-	<div id="msgInfoAreaDiv">
-	  <span>
-	    <textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
-	    <textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
-	    <textarea id="msgIdArea" rows="1" class="hidden">&nbsp;</textarea>
-	    <button id="msgRefButton" type="button" class="hidden">Ref: N/A</button>
-	    <textarea id="msgDateArea" rows="1" class="hidden">&nbsp;</textarea>
-	    <button id="validateAddrButton" type="button" class="hidden">Validate</button>
-	    <button id="replyButton" type="button" class="hidden">Reply</button>
-	    <textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
-	    <span>
-	</div>
-	<div id="msgTextAreaDiv">
-	  <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
-	  <div id="registerDiv" class="hidden">
-	    <table>
-	      <tbody>
-		<tr>
-		  <td>Message fee:</td><td><input id="messageFeeInput" type="text"></td>
-		  <td><select id="messageFeeUnits">
-		      <option value="1">Wei</option>
-		      <option value="1000">Kwei</option>
-		      <option value="1000000">Mwei</option>
-		      <option value="1000000000">Gwei</option>
-		      <option value="1000000000000">Szabo</option>
-		      <option value="1000000000000000">Finney</option>
-		    </select>
-		  </td>
-		</tr>
-		<tr>
-		  <td>Spam fee:</td><td><input id="spamFeeInput" type="text"></td>
-		  <td><select id="spamFeeUnits">
-		      <option value="1">Wei</option>
-		      <option value="1000">Kwei</option>
-		      <option value="1000000">Mwei</option>
-		      <option value="1000000000">Gwei</option>
-		      <option value="1000000000000">Szabo</option>
-		      <option value="1000000000000000">Finney</option>
-		    </select>
-		  </td>
-		</tr>
-		<tr>
-		  <td></td><td><input id="registerSubmitButton" type="submit" value="Submit"></td>
-		</tr>
-	      </tbody>
-	    </table>
-	  </div>
-	</div>
-      </form>
-    </div>
     <p>&nbsp;</p>
     <div id="statusDiv" class="finalresultstable" style="display: none;"></div>
   </body>
