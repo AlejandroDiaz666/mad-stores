@@ -524,21 +524,21 @@ h3 { font-size:18px; }
 
 #rsStep3NoBg {
    transform-style: preserve-3d;
-   transform: translate3d(70px, 330px, 0px);
+   transform: translate3d(70px, 347px, 0px);
 }
 #rsStep3NoText {
     transform-style: preserve-3d;
-    transform: translate3d(95px, 316px, 0px);
+    transform: translate3d(95px, 335px, 0px);
 }
 #rsStep3InstrBg {
     transform-style: preserve-3d;
-    transform: translate3d(100px, 330px, 0px);
+    transform: translate3d(100px, 347px, 0px);
 }
 #rsStep3InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(129px, 321px, 0px);
+    transform: translate3d(129px, 337px, 0px);
 }
 #rsLoadImageButton {
     width: 20em;
@@ -546,7 +546,7 @@ h3 { font-size:18px; }
     left: 50%;
     top: 0%;
     transform-style: preserve-3d;
-    transform: translate3d(156px, 410px, 0px);
+    transform: translate3d(156px, 423px, 0px);
 }
 #rsStoreImg {
     width: 160px;
