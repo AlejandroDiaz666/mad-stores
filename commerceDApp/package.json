@@ -1,0 +1,19 @@
+{
+  "name": "MADEscrow",
+  "version": "1.0.0",
+  "description": "Kesher MADEscrow Anonymous Commerce DApp",
+  "main": "index.js",
+  "dependencies": {
+    "bn.js": "^4.11.8",
+    "buffer": "^5.2.1",
+    "ethereumjs-abi": "^0.6.5",
+    "ethereumjs-tx": "^1.3.7",
+    "ethereumjs-util": "^6.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
