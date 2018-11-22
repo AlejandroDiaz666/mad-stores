@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542839270_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542852996_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542839270_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542852996_.js"></script>
 
   </head>
 
@@ -26,7 +26,7 @@
 	<img src="images/logo.png" alt="Logo goes here " width="40px" height="40px"/>
       </div>
       <span id="mainTitleSpan">
-	<h3>MAD Escrow Stores -- Based on the Turms Anonymous Message Transport</h3>
+	<h3>MAD Escrow Stores -- Based on Turms Anonymous Message Transport</h3>
       </span>
       <div style="float:right;">
 	<div id="networkAreaDiv">
@@ -74,7 +74,7 @@
       <div class="leftSideDiv">
 	<div class="height640Div"></div>
 	<div id="sellerSearchNoteBg"></div>
-	<p id="sellerSearchNoteText">Enter search criteria to find a seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to find seller that serves your region of interest. You can optionally enter a search keyword to find seller that sell a particular product or cater to a specific niche.</p>
+	<p id="sellerSearchNoteText">Enter search criteria to find a product or seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to list only items from sellers that serve your area. You can optionally select a product category to list only items those items that match your interest.</p>
 	<div id="sellerSearchDiv" style="clear:both">
 	  <table class="">
 	    <tbody>
@@ -83,6 +83,7 @@
 	      	  <textarea id="regionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
 		</td>
 		<td><select id="regionSelector">
+		    <option value="000000001">All Regions</option>
 		    <option value="000000001">North America</option>
 		    <option value="000000002">South America</option>
 		    <option value="000000003">Eastern Botswana</option>
@@ -92,10 +93,15 @@
 	      </tr>
 	      <tr>
 		<td>
-	      	  <textarea id="keywordPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Keyword:</textarea>
+	      	  <textarea id="categoryPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Category:</textarea>
 		</td>
-		<td>
-		  <textarea id="keywordArea" rows="1" cols="42">&nbsp;</textarea>
+		<td><select id="categorySelector">
+		    <option value="000000000">All Categories</option>
+		    <option value="000000001">Electronics</option>
+		    <option value="000000002">Phamacuticals</option>
+		    <option value="000000003">Sundries</option>
+		    <option value="000000004">Services</option>
+		  </select>
 		</td>
 	      </tr>
 	      <tr>
@@ -108,7 +114,7 @@
 	      </tr>
 	      <tr>
 		<td colspan="2">
-		  <button id="loadStoreButton" type="button">Search Sellers</button>
+		  <button id="loadStoreButton" type="button">Search Products and Sellers</button>
 		</td>
 	      </tr>
 	    </tbody>
@@ -163,7 +169,7 @@
 	  </div>
 	</div>
       </div>
-      <div id="rightSideDiv">
+      <div class="rightSideDiv">
       </div>
     </div>
 
@@ -277,8 +283,7 @@
 	<div id="createStoreNoteBg"></div>
 	<p id="createStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
 	  Simply enter the name of your store; a description of your store or the services you offer; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can begin adding products.</p>
-	<div id="createStoreButtonsDiv" style="clear:both">
-	</div>
+	<button id="rsRegisterStoreButton" type="button">Register My Store</button>
       </div>
       <div class="centerDiv">
 	<div id="registerStoreStepsDiv">
@@ -292,6 +297,12 @@
 	  <span id="rsStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
 	  <p id="rsStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="rsStoreDescArea" rows="3" cols="70">&nbsp;</textarea>
+	  <div id="rsStep3NoBg" class="rsStepNoBg"></div>
+	  <div id="rsStep3InstrBg" class="rsStepInstrBg"></div>
+	  <span id="rsStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
+	  <p id="rsStep3NoText" class="rsStepNoText">3</p>
+	  <input id="rsLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
+	  <img id="rsStoreImg" alt="160x160 .png image"/>
 	</div>
       </div>
       <div class="rightSideDiv">

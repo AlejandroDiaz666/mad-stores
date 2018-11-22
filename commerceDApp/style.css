@@ -249,7 +249,7 @@ h3 { font-size:18px; }
     transform: translate3d(-230px, 190px, 0px);
     background-color: #dbdcef;
 }
-#regionPromptArea, #keywordPromptArea, #storeAddrPromptArea {
+#regionPromptArea, #categoryPromptArea, #storeAddrPromptArea {
     display: table-cell;
     vertical-align: middle;
     padding-top: 1px;
@@ -259,7 +259,7 @@ h3 { font-size:18px; }
     margin: 0px;
     resize: none;
 }
-#storeAddrArea, #keywordArea {
+#storeAddrArea {
     display: table-cell;
     vertical-align: middle;
     padding-top: 1px;
@@ -269,7 +269,7 @@ h3 { font-size:18px; }
     margin: 0px;
     resize: none;
 }
-#regionSelector {
+#regionSelector, #categorySelector {
     width: 25em;
 }
 #loadStoreButton {
@@ -417,14 +417,22 @@ h3 { font-size:18px; }
     transform: translate3d(-230px, 190px, 0px);
     background-color: #dbdcef;
 }
+#rsRegisterStoreButton {
+    width: auto;
+    position: absolute;
+    top: 230px;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(0px, 0px, 0px);
+}
 
 
 #registerStoreStepsDiv {
-    position: relative;
+    position: absolute;
     top: 0px;
     left: 0px;
 }
-#rsStep1NoBg, #rsStep2NoBg {
+#rsStep1NoBg, #rsStep2NoBg, #rsStep3NoBg {
    width: 70px;
    height: 70px;
    border-radius: 35px;
@@ -434,7 +442,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1NoText, #rsStep2NoText {
+#rsStep1NoText, #rsStep2NoText, #rsStep3NoText {
     text-align: center;
     font-family: lato;
     font-size: 30px;
@@ -443,7 +451,7 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-#rsStep1InstrBg, #rsStep2InstrBg {
+#rsStep1InstrBg, #rsStep2InstrBg, #rsStep3InstrBg {
    width: 295px;
    height: 70px;
    position: absolute;
@@ -452,7 +460,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1InstrText, #rsStep2InstrText {
+#rsStep1InstrText, #rsStep2InstrText, #rsStep3InstrText {
     text-align: center;
     font-family: lato;
     font-weight: bold;
@@ -474,10 +482,10 @@ h3 { font-size:18px; }
     transform: translate3d(100px, 50px, 0px);
 }
 #rsStep1InstrText {
-    font-size: 18px;
-    width: 225px;
+    width: 260px;
+    font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(153px, 55px, 0px);
+    transform: translate3d(129px, 55px, 0px);
 }
 #rsStoreNameArea {
     position: absolute;
@@ -500,10 +508,10 @@ h3 { font-size:18px; }
     transform: translate3d(100px, 190px, 0px);
 }
 #rsStep2InstrText {
-    width: 235px;
+    width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(153px, 181px, 0px);
+    transform: translate3d(129px, 181px, 0px);
 }
 #rsStoreDescArea {
     position: absolute;
@@ -513,6 +521,43 @@ h3 { font-size:18px; }
     transform: translate3d(155px, 268px, 0px);
     resize: none;
 }
+
+#rsStep3NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 330px, 0px);
+}
+#rsStep3NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 316px, 0px);
+}
+#rsStep3InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 330px, 0px);
+}
+#rsStep3InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 321px, 0px);
+}
+#rsLoadImageButton {
+    width: 20em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(156px, 410px, 0px);
+}
+#rsStoreImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 346px, 0px);
+}
+
 
 
 
