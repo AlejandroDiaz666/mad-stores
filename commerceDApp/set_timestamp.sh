@@ -11,7 +11,8 @@ done
 if [ ! -d css ]; then
     mkdir css
 fi
-for f in *.css; do
-    g=$(echo $f | sed "s/\([^\.]*\)\.css/css\/\1_TIMESTAMP_${now}_\.css/")
+rm -f css/*_TIMESTAMP_*
+for f in src/*.css; do
+    g=$(echo $f | sed "s/src\/\([^\.]*\)\.css/css\/\1_TIMESTAMP_${now}_\.css/")
     cp $f $g
 done
