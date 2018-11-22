@@ -13,13 +13,13 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract MadEscrow_V1 {
+contract AMES {
 
   // -------------------------------------------------------------------------
   // events
   // -------------------------------------------------------------------------
   event StatEvent(string message);
-  event RegisterVendorEvent(address indexed _vendorAddr, bytes desc, bytes image);
+  event RegisterVendorEvent(address indexed _vendorAddr, bytes name, bytes desc, bytes image);
   event RegisterProductEvent(address indexed _vendorAddr, uint256 _region, uint256 _category, uint256 _productID, bytes desc, bytes image);
   event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr, uint256 _productID, uint256 _surcharge, uint256 _msgNo);
   event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
@@ -91,7 +91,7 @@ contract MadEscrow_V1 {
 
 
   // -------------------------------------------------------------------------
-  //  EMS constructor and tune
+  //  constructor and tune
   // -------------------------------------------------------------------------
   constructor(address _messageTransport) public {
     owner = msg.sender;
@@ -112,11 +112,11 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _serviceRegion, bytes _desc, bytes _image) public {
+  function registerVendor(uint256 _serviceRegion, bytes _name, bytes _desc, bytes _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
     _vendorAccount.active = true;
     _vendorAccount.serviceRegion = _serviceRegion;
-    emit RegisterVendorEvent(msg.sender, _desc, _image);
+    emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }
 
