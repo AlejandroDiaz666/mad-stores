@@ -1,11 +1,12 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.25;
+
 
 // ---------------------------------------------------------------------------
 //  interface to message transport
 // ---------------------------------------------------------------------------
 contract MessageTransport {
   function getFee(address _fromAddr, address _toAddr) public view returns(uint256 _fee);
-  function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes message) public payable returns (uint _recvMessageCount) { }
+  function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes message) public payable returns (uint _recvMessageCount);
 }
 
 
@@ -18,8 +19,8 @@ contract MadEscrow_V1 {
   // events
   // -------------------------------------------------------------------------
   event StatEvent(string message);
-  event RegisterVendorEvent(address indexed _vendorAddr, bool list, bytes desc, bytes image);
-  event RegisterProductEvent(address indexed _vendorAddr, uint256 _productID, bytes desc, bytes image);
+  event RegisterVendorEvent(address indexed _vendorAddr, bytes desc, bytes image);
+  event RegisterProductEvent(address indexed _vendorAddr, uint256 _region, uint256 _category, uint256 _productID, bytes desc, bytes image);
   event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr, uint256 _productID, uint256 _surcharge, uint256 _msgNo);
   event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
   event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
@@ -56,9 +57,7 @@ contract MadEscrow_V1 {
   // Vendor Account structure
   // -------------------------------------------------------------------------
   struct VendorAccount {
-    bool list;                          // please list me in some directory
     bool active;                        // if inactive, then no new orders are accepted
-    uint8 bondPct;                      // bond is (1 + bondPct/100) X productPrice
     uint256 serviceRegion;              // bitmask of geographical regions
     mapping (uint256 => Product) products;
     mapping (address => EscrowAccount) escrowAccounts;
@@ -113,18 +112,16 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _serviceRegion, uint8 _bondPct, bool _list, bytes _desc, bytes _image) public {
+  function registerVendor(uint256 _serviceRegion, bytes _desc, bytes _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    _vendorAccount.list = _list;
     _vendorAccount.active = true;
-    _vendorAccount.bondPct = _bondPct;
-    emit RegisterVendorEvent(msg.sender, _list, _desc, _image);
+    _vendorAccount.serviceRegion = _serviceRegion;
+    emit RegisterVendorEvent(msg.sender, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }
 
   function unregisterVendor() public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    _vendorAccount.list = false;
     _vendorAccount.active = false;
     emit StatEvent("ok: vendor unregistered");
   }
@@ -135,14 +132,14 @@ contract MadEscrow_V1 {
   // called by vendor
   // cannot use productID of zero -- that is used to indicate an active escrow
   // -------------------------------------------------------------------------
-  function registerProduct(uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image) public {
+  function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
     require(_vendorAccount.active == true, "vendor account is not active");
     require(_productID != 0);
     Product storage _product = _vendorAccount.products[_productID];
     _product.price = _price;
     _product.quantity = _quantity;
-    emit RegisterProductEvent(msg.sender, _productID, _desc, _image);
+    emit RegisterProductEvent(msg.sender, _vendorAccount.serviceRegion, _category, _productID, _desc, _image);
     emit StatEvent("ok: product added");
   }
 
@@ -192,7 +189,7 @@ contract MadEscrow_V1 {
       _effectivePrice += _product.price;
     else
       _product.quantity -= 1;
-    uint256 _minVendorBond = (_effectivePrice * _vendorAccount.bondPct) / 100;
+    uint256 _minVendorBond = (_effectivePrice * 50) / 100;
     uint256 _minCustomerBond = _effectivePrice + _minVendorBond;
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
@@ -304,7 +301,7 @@ contract MadEscrow_V1 {
   // -------------------------------------------------------------------------
   function deliveryApprove(address _vendorAddr, bytes _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[vendorAddr];
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
     EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
     //add msg funds to pre-existing customer balance
