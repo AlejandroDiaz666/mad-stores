@@ -1,6 +1,6 @@
 
 //
-// fcns related to ethereum and low level interaction w/ ME contract
+// fcns related to ethereum and low level interaction w/ MT contract
 //
 var common = require('./common');
 var ether = require('./ether');
@@ -11,96 +11,107 @@ var Buffer = require('buffer/').Buffer;
 var BN = require("bn.js");
 const keccak = require('keccakjs');
 
-var meEther = module.exports = {
+var mtEther = module.exports = {
 
     //ropsten
-    ME_CONTRACT_ADDR: '0xcFba15912B6d8aF808f2C1A10393180BECF602E5',
-    ME_CONTRACT_ABI:  '[{"constant":false,"inputs":[{"name":"_messageTransport","type":"address"}],"name":"setMessageTransport","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"communityAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_customerAddr","type":"address"},{"name":"_message","type":"bytes"}],"name":"purchaseReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_productID","type":"uint256"},{"name":"_surcharge","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseDeposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_message","type":"bytes"}],"name":"deliveryReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_serviceRegion","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_message","type":"bytes"}],"name":"purchaseCancel","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"withdrawEscrowFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"communityBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_message","type":"bytes"}],"name":"deliveryApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"vendorAccounts","outputs":[{"name":"active","type":"bool"},{"name":"serviceRegion","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_customerAddr","type":"address"},{"name":"_message","type":"bytes"}],"name":"purchaseApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_productID","type":"uint256"}],"name":"productInfo","outputs":[{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_category","type":"uint256"},{"name":"_productID","type":"uint256"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerProduct","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"contractSendGas","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"unregisterVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"depositFunds","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_messageTransport","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"StatEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterVendorEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"_region","type":"uint256"},{"indexed":false,"name":"_category","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterProductEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_surcharge","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseDepositEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseCancelEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseRejectEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryRejectEvent","type":"event"}]',
+    EMT_CONTRACT_ADDR: '0x3f58E7B1262b0b8E8F3c3b900c42Bf4c4B82cCbf',
+    EMT_CONTRACT_ABI:  '[{"constant":true,"inputs":[],"name":"communityAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_messageFee","type":"uint256"},{"name":"_spamFee","type":"uint256"},{"name":"_publicKey","type":"bytes"},{"name":"_encryptedPrivateKey","type":"bytes"}],"name":"register","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_toAddr","type":"address"},{"name":"mimeType","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"accounts","outputs":[{"name":"messageFee","type":"uint256"},{"name":"spamFee","type":"uint256"},{"name":"feeBalance","type":"uint256"},{"name":"recvMessageCount","type":"uint256"},{"name":"sentMessageCount","type":"uint256"},{"name":"publicKey","type":"bytes"},{"name":"encryptedPrivateKey","type":"bytes"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"trusted","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"}],"name":"getPeerMessageCount","outputs":[{"name":"_messageCount","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdrawCommunityFunds","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"},{"name":"mimeType","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_trustedAddr","type":"address"},{"name":"_trust","type":"bool"}],"name":"setTrust","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_fromAddr","type":"address"}],"name":"InviteEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_id","type":"uint256"},{"indexed":false,"name":"_fromAddr","type":"address"},{"indexed":false,"name":"_toAddr","type":"address"},{"indexed":false,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_mimeType","type":"uint256"},{"indexed":false,"name":"_ref","type":"uint256"},{"indexed":false,"name":"message","type":"bytes"}],"name":"MessageEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_fromAddr","type":"address"},{"indexed":true,"name":"_batch","type":"uint256"},{"indexed":true,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageTxEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_batch","type":"uint256"},{"indexed":true,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageRxEvent","type":"event"}]',
     messageEventTopic0: null,
     messageTxEventTopic0: null,
     messageRxEventTopic0: null,
-    etherscanioHost_kovan: 'api-kovan.etherscan.io',
-    etherscanioTxStatusHost_kovan: 'kovan.etherscan.io',
-    etherscanioHost_ropsten: 'api-ropsten.etherscan.io',
-    etherscanioTxStatusHost_ropsten: 'ropsten.etherscan.io',
-    etherscanioHost_main: 'api.etherscan.io',
-    etherscanioTxStatusHost_main: 'etherscan.io',
-    registerVendorABI: null,
     sendMessageABI: null,
+    registerABI: null,
     withdrawABI: null,
 
 
+    ACCTINFO_MESSAGEFEE: 0,
+    ACCTINFO_SPAMFEE: 1,
+    ACCTINFO_FEEBALANCE: 2,
+    ACCTINFO_RECVMESSAGECOUNT: 3,
+    ACCTINFO_SENTMESSAGECOUNT: 4,
+    ACCTINFO_PUBLICKEY: 5,
+    ACCTINFO_ENCRYPTEDPRIVATEKEY: 6,
+    accountQuery: function(web3, acct, cb) {
+	var ABIArray = JSON.parse(mtEther.EMT_CONTRACT_ABI);
+	var EMTcontract = web3.eth.contract(ABIArray);
+	console.log('contract: ' + EMTcontract);
+	console.log('contract addr: ' + mtEther.EMT_CONTRACT_ADDR);
+	var EMTContractInstance = EMTcontract.at(mtEther.EMT_CONTRACT_ADDR);
+	console.log('contract: ' + EMTContractInstance);
+	EMTContractInstance.accounts(acct, cb);
+    },
+
+    getPeerMessageCount: function(web3, from, to, cb) {
+	var ABIArray = JSON.parse(mtEther.EMT_CONTRACT_ABI);
+	var EMTcontract = web3.eth.contract(ABIArray);
+	var EMTContractInstance = EMTcontract.at(mtEther.EMT_CONTRACT_ADDR);
+	EMTContractInstance.getPeerMessageCount(from, to, cb);
+    },
+
     //cb(err, txid)
-    registerVendor: function(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, cb) {
-	var abiRegisterVendorFcn = meEther.abiEncodeRegisterVendor();
-	var abiParms = meEther.abiEncodeRegisterVendorParms(serviceRegionBN, nameBytes, descBytes, imageBytes);
-        var sendData = "0x" + abiRegisterVendorFcn + abiParms;
+    sendMessage: function(web3, toAddr, mimeType, ref, messageHex, size, cb) {
+	console.log('sendMessageParms: toAddr = ' + toAddr);
+	console.log('sendMessageParms: mimeType = ' + mimeType);
+	console.log('sendMessageParms: ref = ' + ref);
+	var abiSendMessageFcn = mtEther.abiEncodeSendMessage();
+	var abiParms = mtEther.abiEncodeSendMessageParms(toAddr, mimeType, ref, messageHex);
+        var sendData = "0x" + abiSendMessageFcn + abiParms;
+	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, size, 'wei', sendData, 0, cb);
+    },
+
+    //cb(err, txid)
+    register: function(web3, messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey, cb) {
+	var abiRegisterFcn = mtEther.abiEncodeRegister();
+	var abiParms = mtEther.abiEncodeRegisterParms(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey);
+        var sendData = "0x" + abiRegisterFcn + abiParms;
 	console.log('sendData = ' + sendData);
-	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
-
-    abiEncodeRegisterVendor: function() {
-	//function registerVendor(uint256 _serviceRegion, bytes _name, bytes _desc, bytes _image) public
-	if (!meEther.registerVendorABI)
-	    meEther.registerVendorABI = ethabi.methodID('registerVendor', [ 'uint256', 'bytes', 'bytes', 'bytes' ]).toString('hex');
-	return(meEther.registerVendorABI);
-    },
-
-    abiEncodeRegisterVendorParms: function(serviceRegionBN, nameBytes, descBytes, imageBytes) {
-	encoded = ethabi.rawEncode([ 'uint256', 'bytes', 'bytes', 'bytes' ],
-				   [ serviceRegionBN, nameBytes, descBytes, imageBytes ] ).toString('hex');
-	return(encoded);
-    },
-
-
-    getRegisterVendorEventTopic0: function() {
-    },
-
 
     //cb(err, txid)
     withdraw: function(web3, cb) {
-	var abiWithdrawFcn = meEther.abiEncodeWithdraw();
+	var abiWithdrawFcn = mtEther.abiEncodeWithdraw();
         var sendData = "0x" + abiWithdrawFcn;
 	console.log('sendData = ' + sendData);
-	ether.send(web3, meEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
 
     getMessageEventTopic0: function() {
-	if (!meEther.messageEventTopic0) {
+	if (!mtEther.messageEventTopic0) {
 	    var keccak256 = new keccak(256);
 	    keccak256.update("MessageEvent(uint256,address,address,uint256,uint256,uint256,uint256,bytes)");
-	    meEther.messageEventTopic0 = '0x' + keccak256.digest('hex');
+	    mtEther.messageEventTopic0 = '0x' + keccak256.digest('hex');
 	}
-	console.log('MessageEventTopic0 = ' + meEther.messageEventTopic0);
-	return(meEther.messageEventTopic0);
+	console.log('MessageEventTopic0 = ' + mtEther.messageEventTopic0);
+	return(mtEther.messageEventTopic0);
     },
 
     getMessageTxEventTopic0: function() {
-	if (!meEther.messageTxEventTopic0) {
+	if (!mtEther.messageTxEventTopic0) {
 	    var keccak256 = new keccak(256);
 	    keccak256.update("MessageTxEvent(address,uint256,uint256,uint256)");
-	    meEther.messageTxEventTopic0 = '0x' + keccak256.digest('hex');
+	    mtEther.messageTxEventTopic0 = '0x' + keccak256.digest('hex');
 	}
-	console.log('MessageTxEventTopic0 = ' + meEther.messageTxEventTopic0);
-	return(meEther.messageTxEventTopic0);
+	console.log('MessageTxEventTopic0 = ' + mtEther.messageTxEventTopic0);
+	return(mtEther.messageTxEventTopic0);
     },
 
     getMessageRxEventTopic0: function() {
-	if (!meEther.messageRxEventTopic0) {
+	if (!mtEther.messageRxEventTopic0) {
 	    var keccak256 = new keccak(256);
 	    keccak256.update("MessageRxEvent(address,uint256,uint256,uint256)");
-	    meEther.messageRxEventTopic0 = '0x' + keccak256.digest('hex');
+	    mtEther.messageRxEventTopic0 = '0x' + keccak256.digest('hex');
 	}
-	console.log('MessageTxEventTopic0 = ' + meEther.messageRxEventTopic0);
-	return(meEther.messageRxEventTopic0);
+	console.log('MessageTxEventTopic0 = ' + mtEther.messageRxEventTopic0);
+	return(mtEther.messageRxEventTopic0);
     },
 
     abiEncodeSendMessage: function() {
 	//address toAddr, uint256 mimeType, uint256 ref, bytes message
-	if (!meEther.sendMessageABI)
-	    meEther.sendMessageABI = ethabi.methodID('sendMessage', [ 'address', 'uint256', 'uint256', 'bytes' ]).toString('hex');
-	return(meEther.sendMessageABI);
+	if (!mtEther.sendMessageABI)
+	    mtEther.sendMessageABI = ethabi.methodID('sendMessage', [ 'address', 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(mtEther.sendMessageABI);
     },
 
     abiEncodeSendMessageParms: function(toAddr, mimeType, ref, message) {
@@ -120,11 +131,33 @@ var meEther = module.exports = {
 	return(encoded);
     },
 
+    abiEncodeRegister: function() {
+	//uint256 messageFee, uint256 spamFee, bytes publicKey, bytes encryptedPrivateKey
+	if (!mtEther.registerABI)
+	    mtEther.registerABI = ethabi.methodID('register', [ 'uint256', 'uint256', 'bytes', 'bytes' ]).toString('hex');
+	return(mtEther.registerABI);
+    },
+
+    abiEncodeRegisterParms: function(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey) {
+	console.log('abiEncodeRegisterParms: messageFee = ' + messageFeeBN.toString(10));
+	console.log('abiEncodeRegisterParms: spamFee = ' + spamFeeBN.toString(10));
+	console.log('abiEncodeRegisterParms: publicKey (' + publicKey.length + ') = ' + publicKey);
+	console.log('abiEncodeRegisterParms: encryptedPrivate (' + encryptedPrivateKey.length + ') = ' + encryptedPrivateKey);
+	if (publicKey.startsWith('0x'))
+	    publicKey = publicKey.substring(2);
+	var publicKeyBytes = common.hexToBytes(publicKey);
+	if (encryptedPrivateKey.startsWith('0x'))
+	    encryptedPrivateKey = encryptedPrivateKey.substring(2);
+	var encryptedPrivateKeyBytes = common.hexToBytes(encryptedPrivateKey);
+	encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'bytes', 'bytes' ],
+				   [ messageFeeBN, spamFeeBN, publicKeyBytes, encryptedPrivateKeyBytes ] ).toString('hex');
+	return(encoded);
+    },
 
     abiEncodeWithdraw: function() {
-	if (!meEther.withdrawABI)
-	    meEther.withdrawABI = ethabi.methodID('withdraw', [ ]).toString('hex');
-	return(meEther.withdrawABI);
+	if (!mtEther.withdrawABI)
+	    mtEther.withdrawABI = ethabi.methodID('withdraw', [ ]).toString('hex');
+	return(mtEther.withdrawABI);
     },
 
 
