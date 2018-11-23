@@ -123,13 +123,13 @@ function handleRegisterStore() {
     var rsStoreNameArea = document.getElementById('rsStoreNameArea');
     var rsStoreDescArea = document.getElementById('rsStoreDescArea');
     var rsLoadImageButton = document.getElementById('rsLoadImageButton');
-    var nameHex = common.strToUtf8Hex(rsStoreNameArea.value);
-    var descHex = common.strToUtf8Hex(rsStoreDescArea.value);
+    var nameBytes = common.strToUtf8Bytes(rsStoreNameArea.value);
+    var descBytes = common.strToUtf8Bytes(rsStoreDescArea.value);
     var reader = new FileReader();
     reader.onload = function(e) {
-        //e.target.result is a byteArry
-	var imageHex = common.strToUtf8Hex(e.target.result);
-	meEther.registerVendor(web3, serviceRegionBN, descHex, imageHex, function(err, txid) {
+        //e.target.result is a byteArray
+	var imageBytes = e.target.result;
+	meEther.registerVendor(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	    console.log('txid = ' + txid);
 	    metaMaskModal.style.display = 'none';
 	    var statusDiv = document.getElementById('statusDiv');

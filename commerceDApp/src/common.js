@@ -113,6 +113,17 @@ var common = module.exports = {
     },
 
 
+    strToUtf8Bytes: function(str) {
+	//javascript encodes strings as UCS2... convert to a buffer of UTF8
+	var utf8Buf = Buffer.from(str, 'utf8');
+	return(utf8Buf);
+    },
+
+    Utf8BytesToStr: function(utf8Bytes) {
+	//javascript encodes strings as UCS2, so convert from UTF8
+	return(Buffer.toString('utf8'));
+    },
+
     strToUtf8Hex: function(str) {
 	//javascript encodes strings as UCS2, so for convert to a buffer of UTF8
 	var utf8Buf = Buffer.from(str, 'utf8');
