@@ -2,7 +2,7 @@ var common = require('./common');
 var ether = require('./ether');
 var mtEther = require('./mtEther');
 var meEther = require('./meEther');
-var escrowUtil = require('./escrowUtil');
+var meUtil = require('./meUtil');
 var BN = require("bn.js");
 
 
@@ -72,6 +72,8 @@ function setRegisterStoreButtonHandlers() {
 	    console.log('rsLoadImageButton: got ' + rsLoadImageButton.files[0].name);
             var reader = new FileReader();
             reader.onload = (e) => {
+		//console.log('rsLoadImageButton: e.target.result = ' + e.target.result);
+		//eg. rsLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
                 rsStoreImg.src = e.target.result;
             };
             reader.readAsDataURL(rsLoadImageButton.files[0]);
@@ -81,11 +83,11 @@ function setRegisterStoreButtonHandlers() {
 	enableRegisterStoreButton();
     });
     var rsStoreNameArea  = document.getElementById('rsStoreNameArea');
-    rsStoreNameArea.addEventListener('change', function() {
+    rsStoreNameArea.addEventListener('input', function() {
 	enableRegisterStoreButton();
     });
     var rsStoreDescArea  = document.getElementById('rsStoreDescArea');
-    rsStoreDescArea.addEventListener('change', function() {
+    rsStoreDescArea.addEventListener('input', function() {
 	enableRegisterStoreButton();
     });
     var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
@@ -114,8 +116,8 @@ async function beginTheBeguine(mode) {
 	console.log('init acctCheckTimer');
 	var count = 0;
 	index.acctCheckTimer = setInterval(function() {
-	    if (timerIsPaused())
-		console.log('timerIsPaused!');
+	    //if (timerIsPaused())
+	    //  console.log('timerIsPaused!');
 	    common.checkForMetaMask(true, function(err, w3) {
 		var acct = (!err && !!w3) ? w3.eth.accounts[0] : null;
 		if (acct != index.account) {
@@ -234,8 +236,6 @@ function handleUnregisteredAcct() {
     replaceElemClassFromTo('createStorePageDiv','visibleT', 'hidden', null);
     var statusDiv = document.getElementById('statusDiv');
     clearStatusDiv(statusDiv);
-    var statusDiv = document.getElementById('statusDiv');
-    clearStatusDiv(statusDiv);
     alert('You must first register with Turms Anonymous Message Transport before using Turms MAD Escrow');
 }
 
@@ -250,6 +250,8 @@ function handleRegisteredAcct(mode) {
     setMenuButtonState('createStoreButton',   'Enabled');
     replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
     replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+    var statusDiv = document.getElementById('statusDiv');
+    clearStatusDiv(statusDiv);
 }
 
 
@@ -269,40 +271,65 @@ function handleCreateMyStorePage() {
     var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
     rsRegisterStoreButton.disabled = true;
     //
-    escrowUtil.getVendorLogs(vendorAddr, function(err, result) {
+    meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
+	console.log('handleCreateMyStorePage: result = ' + result + ', len = ' + result.length);
+	var rsCreateStoreButton  = document.getElementById('rsCreateStoreButton');
+	var rsStoreNameArea = document.getElementById('rsStoreNameArea');
+	var rsStoreDescArea = document.getElementById('rsStoreDescArea');
+	var rsStoreImg = document.getElementById('rsStoreImg');
+	var rsLoadImageButton = document.getElementById('rsLoadImageButton');
+	if (!!result && result.length > 0) {
+	    rsRegisterStoreButton.textContent = 'Re-Register My Store';
+	    rsCreateStoreButton.textContent = 'Modify Store';
+	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
+		rsStoreNameArea.value = name;
+		rsStoreDescArea.value = desc;
+		//image is eg. 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...'
+		rsStoreImg.src = image;
+	    });
+	} else {
+	    rsRegisterStoreButton.textContent = 'Register My Store';
+	    rsCreateStoreButton.textContent = 'Create Store';
+	    rsStoreNameArea.value = '';
+	    rsStoreDescArea.value = '';
+            rsStoreImg.src = '#';
+	}
     });
 }
 
 function enableRegisterStoreButton() {
+    console.log('enableRegisterStoreButton');
     var rsStoreNameArea = document.getElementById('rsStoreNameArea');
     var rsStoreDescArea = document.getElementById('rsStoreDescArea');
-    var rsLoadImageButton = document.getElementById('rsLoadImageButton');
+    var rsStoreImg = document.getElementById('rsStoreImg');
     var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
     rsRegisterStoreButton.disabled = (rsStoreNameArea.value.trim().length > 0 != "" &&
 				      rsStoreDescArea.value.trim().length > 0 != "" &&
-				      rsLoadImageButton.files && rsLoadImageButton.files[0]) ? false : true;
+				      rsStoreImg.src != '#') ? false : true;
 }
 
+
+//
+// user has clicked the (re-)register-my-store button. execute the transaction.
+//
 function handleRegisterStore() {
     var serviceRegionBN = new BN('000000', 2);
     var rsStoreNameArea = document.getElementById('rsStoreNameArea');
     var rsStoreDescArea = document.getElementById('rsStoreDescArea');
-    var rsLoadImageButton = document.getElementById('rsLoadImageButton');
     var nameBytes = common.strToUtf8Bytes(rsStoreNameArea.value);
     var descBytes = common.strToUtf8Bytes(rsStoreDescArea.value);
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        //e.target.result is a byteArray
-	var imageBytes = e.target.result;
-	meEther.registerVendor(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
-	    console.log('txid = ' + txid);
-	    metaMaskModal.style.display = 'none';
-	    var statusDiv = document.getElementById('statusDiv');
-	    waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', function() {
-	    });
+    var rsStoreImg = document.getElementById('rsStoreImg');
+    //console.log('handleRegisterStore: rsStoreImg.src = ' + );
+    //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
+    var imageBytes = common.strToUtf8Bytes(rsStoreImg.src);
+    console.log('handleRegisterStore: imageBytes = ' + imageBytes);
+    meEther.registerVendor(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+	console.log('txid = ' + txid);
+	metaMaskModal.style.display = 'none';
+	var statusDiv = document.getElementById('statusDiv');
+	waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', function() {
 	});
-    };
-    reader.readAsDataURL(rsLoadImageButton.files[0]);
+    });
 }
 
 

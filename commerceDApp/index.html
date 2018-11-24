@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1542963029_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1543019852_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1542963029_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1543019852_.js"></script>
 
   </head>
 
@@ -287,22 +287,38 @@
       </div>
       <div class="centerDiv">
 	<div id="registerStoreStepsDiv">
+	  <!-- step 1 -->
 	  <div id="rsStep1NoBg" class="rsStepNoBg"></div>
 	  <div id="rsStep1InstrBg" class="rsStepInstrBg"></div>
 	  <span id="rsStep1InstrText" class="rsStepInstrText"><p>Enter a name for your store</p></span>
 	  <p id="rsStep1NoText" class="rsStepNoText">1</p>
 	  <textarea id="rsStoreNameArea" rows="1" cols="42"></textarea>
+	  <!-- step 2 -->
 	  <div id="rsStep2NoBg" class="rsStepNoBg"></div>
 	  <div id="rsStep2InstrBg" class="rsStepInstrBg"></div>
 	  <span id="rsStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
 	  <p id="rsStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="rsStoreDescArea" rows="3" cols="70"></textarea>
+	  <!-- step 3 -->
 	  <div id="rsStep3NoBg" class="rsStepNoBg"></div>
 	  <div id="rsStep3InstrBg" class="rsStepInstrBg"></div>
 	  <span id="rsStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
 	  <p id="rsStep3NoText" class="rsStepNoText">3</p>
 	  <input id="rsLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
 	  <img id="rsStoreImg" alt="160x160 .png image"/>
+	  <!-- step 4 -->
+	  <div id="rsStep4NoBg" class="rsStepNoBg"></div>
+	  <div id="rsStep4InstrBg" class="rsStepInstrBg"></div>
+	  <span id="rsStep4InstrText" class="rsStepInstrText"><p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p></span>
+	  <p id="rsStep4NoText" class="rsStepNoText">4</p>
+	  <textarea id="rsRegionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
+	  <select id="rsRegionSelector">
+	    <option value="000000001">All Regions</option>
+	    <option value="000000001">North America</option>
+	    <option value="000000002">South America</option>
+	    <option value="000000003">Eastern Botswana</option>
+	    <option value="000000004">Western Botswana</option>
+	  </select>
 	</div>
       </div>
       <div class="rightSideDiv">

@@ -17,6 +17,12 @@ var ether = module.exports = {
     WEI_PER_SZABO:     1000000000000,
     WEI_PER_FINNEY:    1000000000000000,
     WEI_PER_ETH:       1000000000000000000,
+    etherscanioHost_kovan: 'api-kovan.etherscan.io',
+    etherscanioTxStatusHost_kovan: 'kovan.etherscan.io',
+    etherscanioHost_ropsten: 'api-ropsten.etherscan.io',
+    etherscanioTxStatusHost_ropsten: 'ropsten.etherscan.io',
+    etherscanioHost_main: 'api.etherscan.io',
+    etherscanioTxStatusHost_main: 'etherscan.io',
 
 
     //cb(err, network)

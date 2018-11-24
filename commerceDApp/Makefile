@@ -16,10 +16,10 @@ bundle/mtEther.js: src/mtEther.js bundle/common.js
 bundle/meEther.js: src/meEther.js bundle/common.js
 	browserify src/meEther.js -o bundle/meEther.js
 
-bundle/escrowUtil.js: src/escrowUtil.js bundle/common.js
-	browserify src/escrowUtil.js -o bundle/escrowUtil.js
+bundle/meUtil.js: src/meUtil.js bundle/common.js
+	browserify src/meUtil.js -o bundle/meUtil.js
 
-bundle/index.js: src/index.js bundle/ether.js bundle/mtEther.js bundle/meEther.js bundle/common.js bundle/escrowUtil.js
+bundle/index.js: src/index.js bundle/ether.js bundle/mtEther.js bundle/meEther.js bundle/common.js bundle/meUtil.js
 	browserify src/index.js -o bundle/index.js
 
 fake:	bundle/index.js src/style.css

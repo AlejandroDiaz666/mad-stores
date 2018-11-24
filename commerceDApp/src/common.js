@@ -92,7 +92,7 @@ var common = module.exports = {
 
 
     hexToBytes: function(hexStr) {
-	console.log('hexToBytes');
+	//console.log('hexToBytes: ' + hexStr);
 	//first ensure passed parm is a string
 	var hex = hexStr.toString();
 	if (hex.startsWith('0x'))
@@ -103,12 +103,11 @@ var common = module.exports = {
 	return bytes;
     },
 
-
     bytesToHex: function(byteArray) {
 	var hex = Array.from(byteArray, function(byte) {
 	    return('0' + (byte & 0xFF).toString(16)).slice(-2);
 	}).join('')
-	console.log('bytesToHex: ' + hex);
+	//console.log('bytesToHex: ' + hex);
 	return(hex);
     },
 
@@ -131,9 +130,9 @@ var common = module.exports = {
     },
 
     Utf8HexToStr: function(utf8Hex) {
-	var utf8Buf = common.hexToBytes(utf8Hex);
-	//javascript encodes strings as UCS2, so convert from UTF8
-	return(Buffer.toString('utf8'));
+	//javascript encodes strings as UCS2. use Buffer.toString to convert from utf8
+	var utf8Buf = Buffer.from(common.hexToBytes(utf8Hex));
+	return(utf8Buf.toString('utf8'));
     },
 
 

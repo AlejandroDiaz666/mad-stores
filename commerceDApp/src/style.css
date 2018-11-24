@@ -432,7 +432,7 @@ h3 { font-size:18px; }
     top: 0px;
     left: 0px;
 }
-#rsStep1NoBg, #rsStep2NoBg, #rsStep3NoBg {
+#rsStep1NoBg, #rsStep2NoBg, #rsStep3NoBg, #rsStep4NoBg {
    width: 70px;
    height: 70px;
    border-radius: 35px;
@@ -442,7 +442,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1NoText, #rsStep2NoText, #rsStep3NoText {
+#rsStep1NoText, #rsStep2NoText, #rsStep3NoText, #rsStep4NoText {
     text-align: center;
     font-family: lato;
     font-size: 30px;
@@ -451,7 +451,7 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-#rsStep1InstrBg, #rsStep2InstrBg, #rsStep3InstrBg {
+#rsStep1InstrBg, #rsStep2InstrBg, #rsStep3InstrBg, #rsStep4InstrBg {
    width: 295px;
    height: 70px;
    position: absolute;
@@ -460,7 +460,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1InstrText, #rsStep2InstrText, #rsStep3InstrText {
+#rsStep1InstrText, #rsStep2InstrText, #rsStep3InstrText, #rsStep4InstrText {
     text-align: center;
     font-family: lato;
     font-weight: bold;
@@ -468,7 +468,9 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-
+/*
+ * step 1
+ */
 #rsStep1NoBg {
     transform-style: preserve-3d;
     transform: translate3d(70px, 50px, 0px);
@@ -495,6 +497,9 @@ h3 { font-size:18px; }
     transform: translate3d(155px, 128px, 0px);
     resize: none;
 }
+/*
+ * step 2
+ */
 #rsStep2NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 190px, 0px);
@@ -521,7 +526,9 @@ h3 { font-size:18px; }
     transform: translate3d(155px, 268px, 0px);
     resize: none;
 }
-
+/*
+ * step 3
+ */
 #rsStep3NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 347px, 0px);
@@ -557,10 +564,43 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(424px, 346px, 0px);
 }
-
-
-
-
+/*
+ * step 4
+ */
+#rsStep4NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 487px, 0px);
+}
+#rsStep4NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 475px, 0px);
+}
+#rsStep4InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 487px, 0px);
+}
+#rsStep4InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 477px, 0px);
+}
+#rsRegionPromptArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 561px, 0px);
+    resize: none;
+}
+#rsRegionSelector {
+    width: 20em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(255px, 562px, 0px);
+}
 
 
 #storeInfoDiv {
