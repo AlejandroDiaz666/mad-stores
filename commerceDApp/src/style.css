@@ -173,6 +173,8 @@ h3 { font-size:18px; }
 }
 .menuBarButtonSelected, .menuBarButtonEnabled:hover {
     background-color: #dbeeee;
+    font-weight: bold;
+    color: black;
 }
 
 
@@ -385,6 +387,8 @@ h3 { font-size:18px; }
 }
 .rsMenuBarButtonSelected, .rsMenuBarButtonEnabled:hover {
     background-color: #dbeeee;
+    font-weight: bold;
+    color: black;
 }
 
 
