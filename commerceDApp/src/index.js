@@ -302,7 +302,7 @@ function handleCreateStorePage() {
 	var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
 	if (!!result && result.length > 0) {
 	    createStoreRegStoreButton.textContent = 'Modify Store';
-	    createStoreRegStoreRegisterButton.textContent = 'Re-Register My Store';
+	    createStoreRegStoreRegisterButton.textContent = 'Re-register My Store';
 	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
 		console.log('handleCreateMyStorePage: err = ' + err);
 		console.log('handleCreateMyStorePage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);

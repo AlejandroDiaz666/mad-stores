@@ -200,8 +200,11 @@ h3 { font-size:18px; }
     top: 0px;
     left: 0px;
 }
-.leftSideDiv, .rightSideDiv {
-    background-color: red;
+.leftSideDiv {
+    background-color: #dbdcdb;
+}
+.rightSideDiv {
+    background-color: initial;
 }
 .leftSideDiv {
     width: 460px;
