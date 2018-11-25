@@ -65,6 +65,15 @@ function setMainButtonHandlers() {
 }
 
 function setRegisterStoreButtonHandlers() {
+    var rsCreateStoreButton = document.getElementById('rsCreateStoreButton');
+    rsCreateStoreButton.addEventListener('click', function() {
+	handleCreateMyStorePage();
+    });
+    var rsAddProductButton = document.getElementById('rsAddProductButton');
+    rsAddProductButton.addEventListener('click', function() {
+	handleAddProduct();
+    });
+    //register store steps
     var rsLoadImageButton  = document.getElementById('rsLoadImageButton');
     rsLoadImageButton.addEventListener('change', function() {
 	var rsStoreImg = document.getElementById('rsStoreImg');
@@ -275,6 +284,7 @@ function handleCreateMyStorePage() {
     setRsMenuButtonState('rsCreateStoreButton',   'Selected');
     setRsMenuButtonState('rsAddProductButton',    'Disabled');
     setRsMenuButtonState('rsEditProductButton',   'Disabled');
+    replaceElemClassFromTo('registerStoreStepsDiv', 'hidden', 'visibleB', null);
     var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
     rsRegisterStoreButton.disabled = true;
     //
@@ -301,6 +311,7 @@ function handleCreateMyStorePage() {
 		//image is eg. 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...'
 		rsStoreImg.src = image;
 	    });
+	    setRsMenuButtonState('rsAddProductButton', 'Enabled');
 	} else {
 	    rsRegisterStoreButton.textContent = 'Register My Store';
 	    rsCreateStoreButton.textContent = 'Create Store';
@@ -350,6 +361,15 @@ function handleRegisterStore() {
     });
 }
 
+
+//sol: function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image);
+function handleAddProduct() {
+    console.log('handleAddProduct');
+    setRsMenuButtonState('rsCreateStoreButton',   'Enabled');
+    setRsMenuButtonState('rsAddProductButton',    'Selected');
+    setRsMenuButtonState('rsEditProductButton',   'Disabled');
+    replaceElemClassFromTo('registerStoreStepsDiv', 'visibleB', 'hidden', null);
+}
 
 
 /* ------------------------------------------------------------------------------------------------------------------
