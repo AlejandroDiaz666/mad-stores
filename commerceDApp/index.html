@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1543180641_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1543189537_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1543180641_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1543189537_.js"></script>
 
   </head>
 
@@ -280,37 +280,36 @@
 	  <button id="createStoreAddProductButton" class="createStoreMenuButton menuBarButton" type="button">Add Product</button>
 	  <button id="createStoreEditProductButton" class="createStoreMenuButton menuBarButton" type="button">Edit Product</button>
 	</div>
-	<div id="createStoreRegStoreNoteBg"></div>
-	<p id="createStoreRegStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
-	  Simply enter the name of your store; a description of your store or the services you offer; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can begin adding products.</p>
-	<button id="createStoreRegStoreRegisterButton" class="menuBarButton" type="button">Register My Store</button>
+	<!-- reg store -->
+	<div id="createStoreRegStoreNote" class="hidden">
+	  <p id="createStoreRegStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
+	    Simply enter the name of your store; a description of your store or the services you offer; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can begin adding products.</p>
+	  <button id="createStoreRegStoreRegisterButton" class="menuBarButton" type="button">Register My Store</button>
+	</div>
+	<!-- add product -->
+	<div id="createStoreAddProdNote" class="hidden">
+	  <p id="createStoreAddProdNoteText">Adding products to your store is easy!<br/>
+	    Simply enter a brief, and also a more complete description of the product; enter the price per item, and the number of items you have avilable; and upload a photo of the product. When you are all done click the 'add-product' button.</p>
+	  <button id="createStoreAddProdRegisterButton" class="menuBarButton" type="button">Add this Product</button>
+	</div>
       </div>
       <div class="centerDiv">
+	<!-- reg store -->
 	<div id="createStoreRegStoreStepsDiv" class="hidden">
 	  <!-- step 1 -->
 	  <div id="createStoreRegStoreStep1NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreRegStoreStep1InstrBg" class="rsStepInstrBg"></div>
-	  <span id="createStoreRegStoreStep1InstrText" class="rsStepInstrText"><p>Enter a name for your store</p></span>
+	  <span id="createStoreRegStoreStep1InstrText" class="rsStepInstrText"><p>Enter a name and a short description of your store</p></span>
 	  <p id="createStoreRegStoreStep1NoText" class="rsStepNoText">1</p>
-	  <textarea id="createStoreRegStoreNameArea" rows="1" cols="42"></textarea>
+	  <textarea id="createStoreRegStoreNameArea" rows="1" cols="42" placeholder="Name of your store"></textarea>
+	  <textarea id="createStoreRegStoreDescArea" rows="3" cols="70" placeholder="Description of your store, including any special services that you offer or delivery restrictions"></textarea>
 	  <!-- step 2 -->
 	  <div id="createStoreRegStoreStep2NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreRegStoreStep2InstrBg" class="rsStepInstrBg"></div>
-	  <span id="createStoreRegStoreStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
+	  <span id="createStoreRegStoreStep2InstrText" class="rsStepInstrText">
+	    <p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p>
+	  </span>
 	  <p id="createStoreRegStoreStep2NoText" class="rsStepNoText">2</p>
-	  <textarea id="createStoreRegStoreDescArea" rows="3" cols="70"></textarea>
-	  <!-- step 3 -->
-	  <div id="createStoreRegStoreStep3NoBg" class="rsStepNoBg"></div>
-	  <div id="createStoreRegStoreStep3InstrBg" class="rsStepInstrBg"></div>
-	  <span id="createStoreRegStoreStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
-	  <p id="createStoreRegStoreStep3NoText" class="rsStepNoText">3</p>
-	  <input id="createStoreRegStoreLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
-	  <img id="createStoreRegStoreStoreImg" alt="160x160 .png image"/>
-	  <!-- step 4 -->
-	  <div id="createStoreRegStoreStep4NoBg" class="rsStepNoBg"></div>
-	  <div id="createStoreRegStoreStep4InstrBg" class="rsStepInstrBg"></div>
-	  <span id="createStoreRegStoreStep4InstrText" class="rsStepInstrText"><p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p></span>
-	  <p id="createStoreRegStoreStep4NoText" class="rsStepNoText">4</p>
 	  <textarea id="createStoreRegStoreRegionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
 	  <select id="createStoreRegStoreRegionSelector">
 	    <option value="0x0000000000000000000000000000000000000000000000000000000000000000">All Regions</option>
@@ -319,7 +318,65 @@
 	    <option value="0x0000000000000000000000000000000000000000000000000000000000000003">Eastern Botswana</option>
 	    <option value="0x8000000000000000000000000000000000000000000000000000000000000000">Western Botswana</option>
 	  </select>
+	  <!-- step 3 -->
+	  <div id="createStoreRegStoreStep3NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreRegStoreStep3InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreRegStoreStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
+	  <p id="createStoreRegStoreStep3NoText" class="rsStepNoText">3</p>
+	  <input id="createStoreRegStoreLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
+	  <img id="createStoreRegStoreStoreImg" alt="160x160 .png image"/>
 	</div>
+
+	<!-- add product -->
+	<div id="createStoreAddProdStepsDiv" class="hidden">
+	  <!-- step 1 -->
+	  <div id="createStoreAddProdStep1NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreAddProdStep1InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreAddProdStep1InstrText" class="rsStepInstrText"><p>Enter a name and a short description of your store</p></span>
+	  <p id="createStoreAddProdStep1NoText" class="rsStepNoText">1</p>
+	  <textarea id="createStoreAddProdNameArea" rows="1" cols="42" placeholder="Name of your store"></textarea>
+	  <textarea id="createStoreAddProdDescArea" rows="3" cols="70" placeholder="Description of your store, including any special services that you offer or delivery restrictions"></textarea>
+	  <!-- step 2 -->
+	  <div id="createStoreAddProdStep2NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreAddProdStep2InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreAddProdStep2InstrText" class="rsStepInstrText">
+	    <p>Enter the price for each unit sold. The price should include shipping charges.</p>
+	  </span>
+	  <p id="createStoreAddProdStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="createStoreAddProdPriceArea" rows="1" cols="12"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder="Price"></textarea>
+	  <select id="createStoreAddProdPriceUnits">
+	    <option value="1">Wei</option>
+	    <option value="1000">Kwei</option>
+	    <option value="1000000">Mwei</option>
+	    <option value="1000000000">Gwei</option>
+	    <option value="1000000000000">Szabo</option>
+	    <option value="1000000000000000">Finney</option>
+	    <option value="10000000000000000">Eth</option>
+	  </select>
+	  <!-- step 3 -->
+	  <div id="createStoreAddProdStep3NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreAddProdStep3InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreAddProdStep3InstrText" class="rsStepInstrText">
+	    <p>Enter the quantity of items that are available for purchase</p>
+	  </span>
+	  <p id="createStoreAddProdStep3NoText" class="rsStepNoText">3</p>
+	  <p id="createStoreAddProdStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="createStoreAddProdQuantityArea" rows="1" cols="12"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder="Quantity"></textarea>
+	  <!-- step 4 -->
+	  <div id="createStoreAddProdStep4NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreAddProdStep4InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreAddProdStep4InstrText" class="rsStepInstrText">
+	    <p>Load a photo of this product</p>
+	  </span>
+	  <p id="createStoreAddProdStep4NoText" class="rsStepNoText">4</p>
+	  <input id="createStoreAddProdLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
+	  <img id="createStoreAddProdStoreImg" alt="160x160 .png image"/>
+	</div>
+
       </div>
       <div class="rightSideDiv">
       </div>

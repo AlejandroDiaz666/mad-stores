@@ -280,12 +280,15 @@ function handleCreateStorePage() {
     setMenuButtonState('shopButton',          'Enabled');
     setMenuButtonState('dashboardButton',     'Enabled');
     setMenuButtonState('createStoreButton',   'Selected');
-    replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden', null);
+    replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
     replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
     setMenuButtonState('createStoreRegStoreButton',    'Selected');
     setMenuButtonState('createStoreAddProductButton',  'Disabled');
     setMenuButtonState('createStoreEditProductButton', 'Disabled');
-    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden', 'visibleB', null);
+    replaceElemClassFromTo('createStoreRegStoreNote',   'hidden',   'visibleB', null);
+    replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
+    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden',   'visibleB', null);
+    replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     setMenuButtonState('createStoreRegStoreRegisterButton', 'Disabled');
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
@@ -369,7 +372,10 @@ function handleAddProduct() {
     setMenuButtonState('createStoreRegStoreButton',    'Enabled');
     setMenuButtonState('createStoreAddProductButton',  'Selected');
     setMenuButtonState('createStoreEditProductButton', 'Disabled');
-    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden', null);
+    replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
+    replaceElemClassFromTo('createStoreAddProdNote',    'hidden',   'visibleB', null);
+    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
+    replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
 }
 
 

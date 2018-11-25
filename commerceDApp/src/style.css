@@ -355,7 +355,7 @@ h3 { font-size:18px; }
 
 
 /*
- * create store steps elements here
+ * create store
  */
 #createStoreMenuBarDiv {
     display: block;
@@ -379,20 +379,11 @@ h3 { font-size:18px; }
     width: 30%;
     max-width: 150px;
 }
-/*
-#createStoreRegStoreRegisterButton:hover {
-    background-color: #dbeeee;
-    font-weight: bold;
-}
-#createStoreRegStoreRegisterButton[disabled], #createStoreRegStoreRegisterButton[disabled]:hover,
-#createStoreRegStoreRegisterButton[disabled]:focus, #createStoreRegStoreRegisterButton[disabled]:active {
-    background-color: #dbdcee;
-    font-weight: normal;
-    opacity: 0.8;
-}
-*/
 
-#createStoreRegStoreNoteBg {
+/*
+ * create store - reg store
+ */
+#createStoreRegStoreNote {
     width: 410px;
     height: 140px;
     position: absolute;
@@ -410,24 +401,25 @@ h3 { font-size:18px; }
     top: 0%;
     left: 50%;
     transform-style: preserve-3d;
-    transform: translate3d(-180px, 55px, 0px);
+    transform: translate3d(-180px, -7px, 0px);
 }
 #createStoreRegStoreRegisterButton {
     width: auto;
     position: absolute;
-    top: 230px;
+    top: 145px;
     left: 50%;
     transform-style: preserve-3d;
     transform: translate3d(0px, 0px, 0px);
 }
-
 
 #createStoreRegStoreStepsDiv {
     position: absolute;
     top: 0px;
     left: 0px;
 }
-#createStoreRegStoreStep1NoBg, #createStoreRegStoreStep2NoBg, #createStoreRegStoreStep3NoBg, #createStoreRegStoreStep4NoBg {
+#createStoreRegStoreStep1NoBg,
+#createStoreRegStoreStep2NoBg,
+#createStoreRegStoreStep3NoBg {
    width: 70px;
    height: 70px;
    border-radius: 35px;
@@ -437,7 +429,9 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#createStoreRegStoreStep1NoText, #createStoreRegStoreStep2NoText, #createStoreRegStoreStep3NoText, #createStoreRegStoreStep4NoText {
+#createStoreRegStoreStep1NoText,
+#createStoreRegStoreStep2NoText,
+#createStoreRegStoreStep3NoText {
     text-align: center;
     font-family: lato;
     font-size: 30px;
@@ -446,7 +440,9 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-#createStoreRegStoreStep1InstrBg, #createStoreRegStoreStep2InstrBg, #createStoreRegStoreStep3InstrBg, #createStoreRegStoreStep4InstrBg {
+#createStoreRegStoreStep1InstrBg,
+#createStoreRegStoreStep2InstrBg,
+#createStoreRegStoreStep3InstrBg {
    width: 295px;
    height: 70px;
    position: absolute;
@@ -455,7 +451,9 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#createStoreRegStoreStep1InstrText, #createStoreRegStoreStep2InstrText, #createStoreRegStoreStep3InstrText, #createStoreRegStoreStep4InstrText {
+#createStoreRegStoreStep1InstrText,
+#createStoreRegStoreStep2InstrText,
+#createStoreRegStoreStep3InstrText {
     text-align: center;
     font-family: lato;
     font-weight: bold;
@@ -464,6 +462,7 @@ h3 { font-size:18px; }
     left: 0%;
 }
 /*
+ * create store - reg store
  * step 1
  */
 #createStoreRegStoreStep1NoBg {
@@ -482,7 +481,7 @@ h3 { font-size:18px; }
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(129px, 55px, 0px);
+    transform: translate3d(129px, 51px, 0px);
 }
 #createStoreRegStoreNameArea {
     position: absolute;
@@ -492,36 +491,54 @@ h3 { font-size:18px; }
     transform: translate3d(155px, 128px, 0px);
     resize: none;
 }
-/*
- * step 2
- */
-#createStoreRegStoreStep2NoBg {
-   transform-style: preserve-3d;
-   transform: translate3d(70px, 190px, 0px);
-}
-#createStoreRegStoreStep2NoText {
-    transform-style: preserve-3d;
-    transform: translate3d(95px, 176px, 0px);
-}
-#createStoreRegStoreStep2InstrBg {
-    transform-style: preserve-3d;
-    transform: translate3d(100px, 190px, 0px);
-}
-#createStoreRegStoreStep2InstrText {
-    width: 260px;
-    font-size: 16px;
-    transform-style: preserve-3d;
-    transform: translate3d(129px, 181px, 0px);
-}
 #createStoreRegStoreDescArea {
     position: absolute;
     top: 0%;
     left: 0%;
     transform-style: preserve-3d;
-    transform: translate3d(155px, 268px, 0px);
+    transform: translate3d(155px, 154px, 0px);
     resize: none;
 }
 /*
+ * create store - reg store
+ * step 2
+ */
+#createStoreRegStoreStep2NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 220px, 0px);
+}
+#createStoreRegStoreStep2NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 206px, 0px);
+}
+#createStoreRegStoreStep2InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 220px, 0px);
+}
+#createStoreRegStoreStep2InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 210px, 0px);
+}
+#createStoreRegStoreRegionPromptArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 294px, 0px);
+    resize: none;
+}
+#createStoreRegStoreRegionSelector {
+    width: 20em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(255px, 295px, 0px);
+}
+/*
+ * create store - reg store
  * step 3
  */
 #createStoreRegStoreStep3NoBg {
@@ -559,43 +576,244 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(424px, 346px, 0px);
 }
+
+
 /*
+ * create store - add product
+ */
+#createStoreAddProdNote {
+    width: 410px;
+    height: 140px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-205px, 62px, 0px);
+    background-image: none;
+    background-color: rgb(126, 212, 246);
+}
+#createStoreAddProdNoteText {
+    width: 370px;
+    height: 120px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, -7px, 0px);
+}
+#createStoreAddProdRegisterButton {
+    width: auto;
+    position: absolute;
+    top: 145px;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(0px, 0px, 0px);
+}
+
+#createStoreAddProdStepsDiv {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+#createStoreAddProdStep1NoBg,
+#createStoreAddProdStep2NoBg,
+#createStoreAddProdStep3NoBg,
+#createStoreAddProdStep4NoBg {
+   width: 70px;
+   height: 70px;
+   border-radius: 35px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: rgb(126, 212, 246);
+}
+#createStoreAddProdStep1NoText,
+#createStoreAddProdStep2NoText,
+#createStoreAddProdStep3NoText,
+#createStoreAddProdStep4NoText {
+    text-align: center;
+    font-family: lato;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+#createStoreAddProdStep1InstrBg,
+#createStoreAddProdStep2InstrBg,
+#createStoreAddProdStep3InstrBg,
+#createStoreAddProdStep4InstrBg {
+   width: 295px;
+   height: 70px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: rgb(126, 212, 246);
+}
+#createStoreAddProdStep1InstrText,
+#createStoreAddProdStep2InstrText,
+#createStoreAddProdStep3InstrText,
+#createStoreAddProdStep4InstrText {
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+/*
+ * create store - add product
+ * step 1
+ */
+#createStoreAddProdStep1NoBg {
+    transform-style: preserve-3d;
+    transform: translate3d(70px, 50px, 0px);
+}
+#createStoreAddProdStep1NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 36px, 0px);
+}
+#createStoreAddProdStep1InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 50px, 0px);
+}
+#createStoreAddProdStep1InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 51px, 0px);
+}
+#createStoreAddProdNameArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 128px, 0px);
+    resize: none;
+}
+#createStoreAddProdDescArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 154px, 0px);
+    resize: none;
+}
+/*
+ * create store - add product
+ * step 2
+ */
+#createStoreAddProdStep2NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 220px, 0px);
+}
+#createStoreAddProdStep2NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 206px, 0px);
+}
+#createStoreAddProdStep2InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 220px, 0px);
+}
+#createStoreAddProdStep2InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 210px, 0px);
+}
+#createStoreAddProdPriceArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 294px, 0px);
+    resize: none;
+}
+#createStoreAddProdPriceUnits {
+    width: 5em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(277px, 295px, 0px);
+}
+/*
+ * create store - add product
+ * step 3
+ */
+#createStoreAddProdStep3NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 347px, 0px);
+}
+#createStoreAddProdStep3NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 335px, 0px);
+}
+#createStoreAddProdStep3InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 347px, 0px);
+}
+#createStoreAddProdStep3InstrText {
+    width: 260px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 337px, 0px);
+}
+#createStoreAddProdQuantityArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 421px, 0px);
+    resize: none;
+}
+/*
+ * create store - add product
  * step 4
  */
-#createStoreRegStoreStep4NoBg {
+#createStoreAddProdStep4NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 487px, 0px);
 }
-#createStoreRegStoreStep4NoText {
+#createStoreAddProdStep4NoText {
     transform-style: preserve-3d;
     transform: translate3d(95px, 475px, 0px);
 }
-#createStoreRegStoreStep4InstrBg {
+#createStoreAddProdStep4InstrBg {
     transform-style: preserve-3d;
     transform: translate3d(100px, 487px, 0px);
 }
-#createStoreRegStoreStep4InstrText {
+#createStoreAddProdStep4InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 477px, 0px);
 }
-#createStoreRegStoreRegionPromptArea {
-    position: absolute;
-    border: 1px solid black;
-    left: 50%;
-    transform-style: preserve-3d;
-    transform: translate3d(154px, 561px, 0px);
-    resize: none;
-}
-#createStoreRegStoreRegionSelector {
+#createStoreAddProdLoadImageButton {
     width: 20em;
     position: absolute;
     left: 50%;
     top: 0%;
     transform-style: preserve-3d;
-    transform: translate3d(255px, 562px, 0px);
+    transform: translate3d(156px, 563px, 0px);
 }
+#createStoreAddProdStoreImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 486px, 0px);
+}
+
+
+
+
+
+
 
 
 #storeInfoDiv {
