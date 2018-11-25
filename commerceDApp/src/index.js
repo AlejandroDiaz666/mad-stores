@@ -60,52 +60,52 @@ function setMainButtonHandlers() {
     });
     var createStoreButton = document.getElementById('createStoreButton');
     createStoreButton.addEventListener('click', function() {
-	handleCreateMyStorePage();
+	handleCreateStorePage();
     });
 }
 
 function setRegisterStoreButtonHandlers() {
-    var rsCreateStoreButton = document.getElementById('rsCreateStoreButton');
-    rsCreateStoreButton.addEventListener('click', function() {
-	handleCreateMyStorePage();
+    var createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
+    createStoreRegStoreButton.addEventListener('click', function() {
+	handleCreateStorePage();
     });
-    var rsAddProductButton = document.getElementById('rsAddProductButton');
-    rsAddProductButton.addEventListener('click', function() {
+    var createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
+    createStoreAddProductButton.addEventListener('click', function() {
 	handleAddProduct();
     });
-    //register store steps
-    var rsLoadImageButton  = document.getElementById('rsLoadImageButton');
-    rsLoadImageButton.addEventListener('change', function() {
-	var rsStoreImg = document.getElementById('rsStoreImg');
-	if (rsLoadImageButton.files && rsLoadImageButton.files[0]) {
-	    console.log('rsLoadImageButton: got ' + rsLoadImageButton.files[0].name);
+    //create-store / reg store steps
+    var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
+    createStoreRegStoreLoadImageButton.addEventListener('change', function() {
+	var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+	if (createStoreRegStoreLoadImageButton.files && createStoreRegStoreLoadImageButton.files[0]) {
+	    console.log('createStoreRegStoreLoadImageButton: got ' + createStoreRegStoreLoadImageButton.files[0].name);
             var reader = new FileReader();
             reader.onload = (e) => {
-		//console.log('rsLoadImageButton: e.target.result = ' + e.target.result);
-		//eg. rsLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
-                rsStoreImg.src = e.target.result;
+		//console.log('createStoreRegStoreLoadImageButton: e.target.result = ' + e.target.result);
+		//eg. createStoreRegStoreLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
+                createStoreRegStoreStoreImg.src = e.target.result;
             };
-            reader.readAsDataURL(rsLoadImageButton.files[0]);
+            reader.readAsDataURL(createStoreRegStoreLoadImageButton.files[0]);
         } else {
-            rsStoreImg.src = '#';
+            createStoreRegStoreStoreImg.src = '#';
 	}
 	enableRegisterStoreButton();
     });
-    var rsStoreNameArea  = document.getElementById('rsStoreNameArea');
-    rsStoreNameArea.addEventListener('input', function() {
+    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    createStoreRegStoreNameArea.addEventListener('input', function() {
 	enableRegisterStoreButton();
     });
-    var rsStoreDescArea  = document.getElementById('rsStoreDescArea');
-    rsStoreDescArea.addEventListener('input', function() {
+    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    createStoreRegStoreDescArea.addEventListener('input', function() {
 	enableRegisterStoreButton();
     });
-    var rsRegionSelector = document.getElementById('rsRegionSelector');
-    rsRegionSelector.addEventListener('change', function() {
+    var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
+    createStoreRegStoreRegionSelector.addEventListener('change', function() {
 	enableRegisterStoreButton();
     });
-    var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
-    rsRegisterStoreButton.addEventListener('click', function() {
-	handleRegisterStore();
+    var createStoreRegStoreRegisterButton = document.getElementById('createStoreRegStoreRegisterButton');
+    createStoreRegStoreRegisterButton.addEventListener('click', function() {
+	handleCreateStoreDoRegister();
     });
 }
 
@@ -273,80 +273,81 @@ function handleRegisteredAcct(mode) {
 
 
 /* ------------------------------------------------------------------------------------------------------------------
-   create my store functions
+   create store functions
+   create-store is divided into three: reg-store, add-prod, edit-prod
    ------------------------------------------------------------------------------------------------------------------ */
-function handleCreateMyStorePage() {
+function handleCreateStorePage() {
     setMenuButtonState('shopButton',          'Enabled');
     setMenuButtonState('dashboardButton',     'Enabled');
     setMenuButtonState('createStoreButton',   'Selected');
     replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden', null);
     replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
-    setRsMenuButtonState('rsCreateStoreButton',   'Selected');
-    setRsMenuButtonState('rsAddProductButton',    'Disabled');
-    setRsMenuButtonState('rsEditProductButton',   'Disabled');
-    replaceElemClassFromTo('registerStoreStepsDiv', 'hidden', 'visibleB', null);
-    var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
-    rsRegisterStoreButton.disabled = true;
+    setMenuButtonState('createStoreRegStoreButton',    'Selected');
+    setMenuButtonState('createStoreAddProductButton',  'Disabled');
+    setMenuButtonState('createStoreEditProductButton', 'Disabled');
+    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden', 'visibleB', null);
+    setMenuButtonState('createStoreRegStoreRegisterButton', 'Disabled');
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
 	console.log('handleCreateMyStorePage: result.length = ' + result.length);
-	var rsCreateStoreButton  = document.getElementById('rsCreateStoreButton');
-	var rsStoreNameArea = document.getElementById('rsStoreNameArea');
-	var rsStoreDescArea = document.getElementById('rsStoreDescArea');
-	var rsStoreImg = document.getElementById('rsStoreImg');
-	var rsRegionSelector = document.getElementById('rsRegionSelector');
-	var rsLoadImageButton = document.getElementById('rsLoadImageButton');
+	var createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
+	var createStoreRegStoreRegisterButton = document.getElementById('createStoreRegStoreRegisterButton');
+	var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+	var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+	var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+	var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
+	var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
 	if (!!result && result.length > 0) {
-	    rsRegisterStoreButton.textContent = 'Re-Register My Store';
-	    rsCreateStoreButton.textContent = 'Modify Store';
+	    createStoreRegStoreButton.textContent = 'Modify Store';
+	    createStoreRegStoreRegisterButton.textContent = 'Re-Register My Store';
 	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
 		console.log('handleCreateMyStorePage: err = ' + err);
 		console.log('handleCreateMyStorePage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
 		console.log('handleCreateMyStorePage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
-		rsRegionSelector.value = common.BNToHex256(common.numberToBN(vendorAcctInfo.serviceRegion));
+		createStoreRegStoreRegionSelector.value = common.BNToHex256(common.numberToBN(vendorAcctInfo.serviceRegion));
 	    });
 	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
-		rsStoreNameArea.value = name;
-		rsStoreDescArea.value = desc;
+		createStoreRegStoreNameArea.value = name;
+		createStoreRegStoreDescArea.value = desc;
 		//image is eg. 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...'
-		rsStoreImg.src = image;
+		createStoreRegStoreStoreImg.src = image;
 	    });
-	    setRsMenuButtonState('rsAddProductButton', 'Enabled');
+	    setMenuButtonState('createStoreAddProductButton', 'Enabled');
 	} else {
-	    rsRegisterStoreButton.textContent = 'Register My Store';
-	    rsCreateStoreButton.textContent = 'Create Store';
-	    rsStoreNameArea.value = '';
-	    rsStoreDescArea.value = '';
-            rsStoreImg.src = '#';
-	    rsRegionSelector.value = 0;
+	    createStoreRegStoreButton.textContent = 'Create Store';
+	    createStoreRegStoreRegisterButton.textContent = 'Register My Store';
+	    createStoreRegStoreNameArea.value = '';
+	    createStoreRegStoreDescArea.value = '';
+            createStoreRegStoreStoreImg.src = '#';
+	    createStoreRegStoreRegionSelector.value = 0;
 	}
     });
 }
 
 function enableRegisterStoreButton() {
     console.log('enableRegisterStoreButton');
-    var rsStoreNameArea = document.getElementById('rsStoreNameArea');
-    var rsStoreDescArea = document.getElementById('rsStoreDescArea');
-    var rsStoreImg = document.getElementById('rsStoreImg');
-    var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
-    rsRegisterStoreButton.disabled = (rsStoreNameArea.value.trim().length > 0 != "" &&
-				      rsStoreDescArea.value.trim().length > 0 != "" &&
-				      rsStoreImg.src != '#') ? false : true;
+    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+    var enable = (createStoreRegStoreNameArea.value.trim().length > 0 != "" &&
+		  createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
+		  createStoreRegStoreStoreImg.src != '#') ? true : false;
+    setMenuButtonState('createStoreRegStoreRegisterButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
 
 //
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
-function handleRegisterStore() {
-    var rsRegionSelector = document.getElementById('rsRegionSelector');
+function handleCreateStoreDoRegister() {
+    var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
     var serviceRegionBN = common.numberToBN(rsRegionSelector.value);
     console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
-    var rsStoreNameArea = document.getElementById('rsStoreNameArea');
-    var rsStoreDescArea = document.getElementById('rsStoreDescArea');
-    var nameBytes = common.strToUtf8Bytes(rsStoreNameArea.value);
-    var descBytes = common.strToUtf8Bytes(rsStoreDescArea.value);
-    var rsStoreImg = document.getElementById('rsStoreImg');
+    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
+    var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
+    var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
     //console.log('handleRegisterStore: rsStoreImg.src = ' + );
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
     var imageBytes = common.imageToBytes(rsStoreImg.src);
@@ -365,10 +366,10 @@ function handleRegisterStore() {
 //sol: function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image);
 function handleAddProduct() {
     console.log('handleAddProduct');
-    setRsMenuButtonState('rsCreateStoreButton',   'Enabled');
-    setRsMenuButtonState('rsAddProductButton',    'Selected');
-    setRsMenuButtonState('rsEditProductButton',   'Disabled');
-    replaceElemClassFromTo('registerStoreStepsDiv', 'visibleB', 'hidden', null);
+    setMenuButtonState('createStoreRegStoreButton',    'Enabled');
+    setMenuButtonState('createStoreAddProductButton',  'Selected');
+    setMenuButtonState('createStoreEditProductButton', 'Disabled');
+    replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden', null);
 }
 
 
@@ -395,9 +396,9 @@ function waitForTXID(err, txid, desc, statusDiv, continuationMode, callback) {
     setMenuButtonState('shopButton',          'Disabled');
     setMenuButtonState('dashboardButton',     'Disabled');
     setMenuButtonState('createStoreButton',   'Disabled');
-    setRsMenuButtonState('rsCreateStoreButton',   'Disabled');
-    setRsMenuButtonState('rsAddProductButton',    'Disabled');
-    setRsMenuButtonState('rsEditProductButton',   'Disabled');
+    setMenuButtonState('createStoreRegStoreButton',    'Disabled');
+    setMenuButtonState('createStoreAddProductButton',  'Disabled');
+    setMenuButtonState('createStoreEditProductButton', 'Disabled');
     //status div starts out hidden
     console.log('show status div');
     statusDiv.style.display = "block";
@@ -490,14 +491,17 @@ function clearMsgList() {
 function setMenuButtonState(buttonID, state) {
     var button = document.getElementById(buttonID);
     button.disabled = (state == 'Enabled') ? false : true;
-    button.className = 'menuBarButton' + state;
+    var newClassName = 'menuBarButton' + state;
+    if (button.className.indexOf('menuBarButtonDisabled') >= 0)
+	button.className = (button.className).replace('menuBarButtonDisabled', newClassName);
+    else if (button.className.indexOf('menuBarButtonEnabled') >= 0)
+	button.className = (button.className).replace('menuBarButtonEnabled', newClassName);
+    else if (button.className.indexOf('menuBarButtonSelected') >= 0)
+	button.className = (button.className).replace('menuBarButtonSelected', newClassName);
+    else
+	button.className = (button.className).replace('menuBarButton', newClassName);
 }
-//state = 'Disabled' | 'Enabled' | 'Selected'
-function setRsMenuButtonState(buttonID, state) {
-    var button = document.getElementById(buttonID);
-    button.disabled = (state == 'Enabled') ? false : true;
-    button.className = 'rsMenuBarButton' + state;
-}
+
 
 function replaceElemClassFromTo(elemId, from, to, disabled) {
     var elem = document.getElementById(elemId);

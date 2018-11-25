@@ -160,9 +160,7 @@ h3 { font-size:18px; }
     background-color: #dbdcdb;
     position: relative;
 }
-
-.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
-.menuBarButtonSelected, .menuBarButton:hover {
+.topMenuButton {
     margin: 5px;
     height: 80%;
     width: 15%;
@@ -359,7 +357,7 @@ h3 { font-size:18px; }
 /*
  * create store steps elements here
  */
-#rsMenuBarDiv {
+#createStoreMenuBarDiv {
     display: block;
     padding-top: 4px;
     padding-right: 0px;
@@ -375,35 +373,26 @@ h3 { font-size:18px; }
     top: 0%;
     width: 100%;
 }
-.rsMenuBarButton, .rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled,
-.rsMenuBarButtonSelected, .rsMenuBarButton:hover {
+.createStoreMenuButton {
     margin: 5px;
     height: 80%;
     width: 30%;
     max-width: 150px;
 }
-.rsMenuBarButtonEnabled, .rsMenuBarButtonDisabled {
-    background-color: #dbdcee;
-}
-.rsMenuBarButtonSelected, .rsMenuBarButtonEnabled:hover {
-    background-color: #dbeeee;
-    font-weight: bold;
-    color: black;
-}
-#rsRegisterStoreButton {
-}
-#rsRegisterStoreButton:hover {
+/*
+#createStoreRegStoreRegisterButton:hover {
     background-color: #dbeeee;
     font-weight: bold;
 }
-#rsRegisterStoreButton[disabled], #rsRegisterStoreButton[disabled]:hover, #rsRegisterStoreButton[disabled]:focus, #rsRegisterStoreButton[disabled]:active {
+#createStoreRegStoreRegisterButton[disabled], #createStoreRegStoreRegisterButton[disabled]:hover,
+#createStoreRegStoreRegisterButton[disabled]:focus, #createStoreRegStoreRegisterButton[disabled]:active {
     background-color: #dbdcee;
     font-weight: normal;
     opacity: 0.8;
 }
+*/
 
-
-#createStoreNoteBg {
+#createStoreRegStoreNoteBg {
     width: 410px;
     height: 140px;
     position: absolute;
@@ -414,7 +403,7 @@ h3 { font-size:18px; }
     background-image: none;
     background-color: rgb(126, 212, 246);
 }
-#createStoreNoteText {
+#createStoreRegStoreNoteText {
     width: 370px;
     height: 120px;
     position: absolute;
@@ -423,16 +412,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-180px, 55px, 0px);
 }
-#createStoreStepsDiv {
-    width: 460px;
-    position: absolute;
-    top: 0%;
-    left: 50%;
-    transform-style: preserve-3d;
-    transform: translate3d(-230px, 190px, 0px);
-    background-color: #dbdcef;
-}
-#rsRegisterStoreButton {
+#createStoreRegStoreRegisterButton {
     width: auto;
     position: absolute;
     top: 230px;
@@ -442,12 +422,12 @@ h3 { font-size:18px; }
 }
 
 
-#registerStoreStepsDiv {
+#createStoreRegStoreStepsDiv {
     position: absolute;
     top: 0px;
     left: 0px;
 }
-#rsStep1NoBg, #rsStep2NoBg, #rsStep3NoBg, #rsStep4NoBg {
+#createStoreRegStoreStep1NoBg, #createStoreRegStoreStep2NoBg, #createStoreRegStoreStep3NoBg, #createStoreRegStoreStep4NoBg {
    width: 70px;
    height: 70px;
    border-radius: 35px;
@@ -457,7 +437,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1NoText, #rsStep2NoText, #rsStep3NoText, #rsStep4NoText {
+#createStoreRegStoreStep1NoText, #createStoreRegStoreStep2NoText, #createStoreRegStoreStep3NoText, #createStoreRegStoreStep4NoText {
     text-align: center;
     font-family: lato;
     font-size: 30px;
@@ -466,7 +446,7 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-#rsStep1InstrBg, #rsStep2InstrBg, #rsStep3InstrBg, #rsStep4InstrBg {
+#createStoreRegStoreStep1InstrBg, #createStoreRegStoreStep2InstrBg, #createStoreRegStoreStep3InstrBg, #createStoreRegStoreStep4InstrBg {
    width: 295px;
    height: 70px;
    position: absolute;
@@ -475,7 +455,7 @@ h3 { font-size:18px; }
    background-image: none;
    background-color: rgb(126, 212, 246);
 }
-#rsStep1InstrText, #rsStep2InstrText, #rsStep3InstrText, #rsStep4InstrText {
+#createStoreRegStoreStep1InstrText, #createStoreRegStoreStep2InstrText, #createStoreRegStoreStep3InstrText, #createStoreRegStoreStep4InstrText {
     text-align: center;
     font-family: lato;
     font-weight: bold;
@@ -486,25 +466,25 @@ h3 { font-size:18px; }
 /*
  * step 1
  */
-#rsStep1NoBg {
+#createStoreRegStoreStep1NoBg {
     transform-style: preserve-3d;
     transform: translate3d(70px, 50px, 0px);
 }
-#rsStep1NoText {
+#createStoreRegStoreStep1NoText {
     transform-style: preserve-3d;
     transform: translate3d(95px, 36px, 0px);
 }
-#rsStep1InstrBg {
+#createStoreRegStoreStep1InstrBg {
     transform-style: preserve-3d;
     transform: translate3d(100px, 50px, 0px);
 }
-#rsStep1InstrText {
+#createStoreRegStoreStep1InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 55px, 0px);
 }
-#rsStoreNameArea {
+#createStoreRegStoreNameArea {
     position: absolute;
     top: 0%;
     left: 0%;
@@ -515,25 +495,25 @@ h3 { font-size:18px; }
 /*
  * step 2
  */
-#rsStep2NoBg {
+#createStoreRegStoreStep2NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 190px, 0px);
 }
-#rsStep2NoText {
+#createStoreRegStoreStep2NoText {
     transform-style: preserve-3d;
     transform: translate3d(95px, 176px, 0px);
 }
-#rsStep2InstrBg {
+#createStoreRegStoreStep2InstrBg {
     transform-style: preserve-3d;
     transform: translate3d(100px, 190px, 0px);
 }
-#rsStep2InstrText {
+#createStoreRegStoreStep2InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 181px, 0px);
 }
-#rsStoreDescArea {
+#createStoreRegStoreDescArea {
     position: absolute;
     top: 0%;
     left: 0%;
@@ -544,25 +524,25 @@ h3 { font-size:18px; }
 /*
  * step 3
  */
-#rsStep3NoBg {
+#createStoreRegStoreStep3NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 347px, 0px);
 }
-#rsStep3NoText {
+#createStoreRegStoreStep3NoText {
     transform-style: preserve-3d;
     transform: translate3d(95px, 335px, 0px);
 }
-#rsStep3InstrBg {
+#createStoreRegStoreStep3InstrBg {
     transform-style: preserve-3d;
     transform: translate3d(100px, 347px, 0px);
 }
-#rsStep3InstrText {
+#createStoreRegStoreStep3InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 337px, 0px);
 }
-#rsLoadImageButton {
+#createStoreRegStoreLoadImageButton {
     width: 20em;
     position: absolute;
     left: 50%;
@@ -570,7 +550,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(156px, 423px, 0px);
 }
-#rsStoreImg {
+#createStoreRegStoreStoreImg {
     width: 160px;
     height: 160px;
     position: absolute;
@@ -582,25 +562,25 @@ h3 { font-size:18px; }
 /*
  * step 4
  */
-#rsStep4NoBg {
+#createStoreRegStoreStep4NoBg {
    transform-style: preserve-3d;
    transform: translate3d(70px, 487px, 0px);
 }
-#rsStep4NoText {
+#createStoreRegStoreStep4NoText {
     transform-style: preserve-3d;
     transform: translate3d(95px, 475px, 0px);
 }
-#rsStep4InstrBg {
+#createStoreRegStoreStep4InstrBg {
     transform-style: preserve-3d;
     transform: translate3d(100px, 487px, 0px);
 }
-#rsStep4InstrText {
+#createStoreRegStoreStep4InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 477px, 0px);
 }
-#rsRegionPromptArea {
+#createStoreRegStoreRegionPromptArea {
     position: absolute;
     border: 1px solid black;
     left: 50%;
@@ -608,7 +588,7 @@ h3 { font-size:18px; }
     transform: translate3d(154px, 561px, 0px);
     resize: none;
 }
-#rsRegionSelector {
+#createStoreRegStoreRegionSelector {
     width: 20em;
     position: absolute;
     left: 50%;

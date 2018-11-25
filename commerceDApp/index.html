@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1543135138_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1543180641_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1543135138_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1543180641_.js"></script>
 
   </head>
 
@@ -48,9 +48,9 @@
     </div>
 
     <div id="topMenuBarDiv" style="clear:both">
-      <button id="shopButton" class="menuBarButton" type="button">Shop</button>
-      <button id="dashboardButton" class="menuBarButton" type="button">Dashboard</button>
-      <button id="createStoreButton" class="menuBarButton" type="button">Create Your Own Store!</button>
+      <button id="shopButton" class="topMenuButton menuBarButton" type="button">Shop</button>
+      <button id="dashboardButton" class="topMenuButton menuBarButton" type="button">Dashboard</button>
+      <button id="createStoreButton" class="topMenuButton menuBarButton" type="button">Create Your Own Store!</button>
       <span id="navButtonsSpan" class="hidden">
 	<button id="prevUnreadButton" type="button" class="navButton hidden">prev unread</button>
 	<button id="nextUnreadButton" type="button" class="navButton hidden">next unread</button>
@@ -275,44 +275,44 @@
     <div id="createStorePageDiv" class="outerDiv hidden">
       <div class="leftSideDiv">
 	<div class="height640Div"></div>
-	<div id="rsMenuBarDiv" style="clear:both">
-	  <button id="rsCreateStoreButton" class="rsMenuBarButton" type="button">Create Store</button>
-	  <button id="rsAddProductButton" class="rsMenuBarButton" type="button">Add Product</button>
-	  <button id="rsEditProductButton" class="rsMenuBarButton" type="button">Edit Product</button>
+	<div id="createStoreMenuBarDiv" style="clear:both">
+	  <button id="createStoreRegStoreButton" class="createStoreMenuButton menuBarButton" type="button">Create Store</button>
+	  <button id="createStoreAddProductButton" class="createStoreMenuButton menuBarButton" type="button">Add Product</button>
+	  <button id="createStoreEditProductButton" class="createStoreMenuButton menuBarButton" type="button">Edit Product</button>
 	</div>
-	<div id="createStoreNoteBg"></div>
-	<p id="createStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
+	<div id="createStoreRegStoreNoteBg"></div>
+	<p id="createStoreRegStoreNoteText">Creating your own MAD Escrow Store is easy!<br/>
 	  Simply enter the name of your store; a description of your store or the services you offer; and a logo. When you are all done click the 'register-my-store' (or modify-my-store) button. Once your store is registered you can begin adding products.</p>
-	<button id="rsRegisterStoreButton" type="button">Register My Store</button>
+	<button id="createStoreRegStoreRegisterButton" class="menuBarButton" type="button">Register My Store</button>
       </div>
       <div class="centerDiv">
-	<div id="registerStoreStepsDiv" class="hidden">
+	<div id="createStoreRegStoreStepsDiv" class="hidden">
 	  <!-- step 1 -->
-	  <div id="rsStep1NoBg" class="rsStepNoBg"></div>
-	  <div id="rsStep1InstrBg" class="rsStepInstrBg"></div>
-	  <span id="rsStep1InstrText" class="rsStepInstrText"><p>Enter a name for your store</p></span>
-	  <p id="rsStep1NoText" class="rsStepNoText">1</p>
-	  <textarea id="rsStoreNameArea" rows="1" cols="42"></textarea>
+	  <div id="createStoreRegStoreStep1NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreRegStoreStep1InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreRegStoreStep1InstrText" class="rsStepInstrText"><p>Enter a name for your store</p></span>
+	  <p id="createStoreRegStoreStep1NoText" class="rsStepNoText">1</p>
+	  <textarea id="createStoreRegStoreNameArea" rows="1" cols="42"></textarea>
 	  <!-- step 2 -->
-	  <div id="rsStep2NoBg" class="rsStepNoBg"></div>
-	  <div id="rsStep2InstrBg" class="rsStepInstrBg"></div>
-	  <span id="rsStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
-	  <p id="rsStep2NoText" class="rsStepNoText">2</p>
-	  <textarea id="rsStoreDescArea" rows="3" cols="70"></textarea>
+	  <div id="createStoreRegStoreStep2NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreRegStoreStep2InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreRegStoreStep2InstrText" class="rsStepInstrText"><p>Enter a short description of your store. Include special services that you offer, or delivery restrictions</p></span>
+	  <p id="createStoreRegStoreStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="createStoreRegStoreDescArea" rows="3" cols="70"></textarea>
 	  <!-- step 3 -->
-	  <div id="rsStep3NoBg" class="rsStepNoBg"></div>
-	  <div id="rsStep3InstrBg" class="rsStepInstrBg"></div>
-	  <span id="rsStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
-	  <p id="rsStep3NoText" class="rsStepNoText">3</p>
-	  <input id="rsLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
-	  <img id="rsStoreImg" alt="160x160 .png image"/>
+	  <div id="createStoreRegStoreStep3NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreRegStoreStep3InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreRegStoreStep3InstrText" class="rsStepInstrText"><p>Load an image to represent your store. This can be a photo of you, or perhaps a store logo</p></span>
+	  <p id="createStoreRegStoreStep3NoText" class="rsStepNoText">3</p>
+	  <input id="createStoreRegStoreLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
+	  <img id="createStoreRegStoreStoreImg" alt="160x160 .png image"/>
 	  <!-- step 4 -->
-	  <div id="rsStep4NoBg" class="rsStepNoBg"></div>
-	  <div id="rsStep4InstrBg" class="rsStepInstrBg"></div>
-	  <span id="rsStep4InstrText" class="rsStepInstrText"><p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p></span>
-	  <p id="rsStep4NoText" class="rsStepNoText">4</p>
-	  <textarea id="rsRegionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
-	  <select id="rsRegionSelector">
+	  <div id="createStoreRegStoreStep4NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreRegStoreStep4InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreRegStoreStep4InstrText" class="rsStepInstrText"><p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p></span>
+	  <p id="createStoreRegStoreStep4NoText" class="rsStepNoText">4</p>
+	  <textarea id="createStoreRegStoreRegionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
+	  <select id="createStoreRegStoreRegionSelector">
 	    <option value="0x0000000000000000000000000000000000000000000000000000000000000000">All Regions</option>
 	    <option value="0x0000000000000000000000000000000000000000000000000000000000000001">North America</option>
 	    <option value="0x0000000000000000000000000000000000000000000000000000000000000002">South America</option>
