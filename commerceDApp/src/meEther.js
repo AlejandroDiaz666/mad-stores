@@ -30,7 +30,7 @@ var meEther = module.exports = {
 	var abiRegisterVendorFcn = meEther.abiEncodeRegisterVendor();
 	var abiParms = meEther.abiEncodeRegisterVendorParms(serviceRegionBN, nameBytes, descBytes, imageBytes);
         var sendData = "0x" + abiRegisterVendorFcn + abiParms;
-	console.log('sendData = ' + sendData);
+	//console.log('sendData = ' + sendData);
 	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
@@ -60,6 +60,29 @@ var meEther = module.exports = {
     },
 
 
+    //cb(err, { activeFlag: bool, serviceRegion: uint256 } )
+    vendorAccountQuery: function(web3, addr, cb) {
+	var ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
+	var MEcontract = web3.eth.contract(ABIArray);
+	console.log('contract: ' + MEcontract);
+	console.log('contract addr: ' + meEther.ME_CONTRACT_ADDR);
+	var MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
+	console.log('contract: ' + MEContractInstance);
+	MEContractInstance.vendorAccounts(addr, (err, resultObj) => {
+	    var vendorAccountInfo = {};
+	    var vendorAccountInfo = {};
+	    if (!err) {
+		//result = { true, 0 }
+		var keys = [ 'activeFlag', 'serviceRegion' ];
+		var resultArray = Array.from(resultObj);
+		for (var i = 0; i < resultArray.length; ++i)
+		    vendorAccountInfo[keys[i]] = resultArray[i];
+	    }
+	    cb(err, vendorAccountInfo);
+	});
+    },
+
+
     //cb(err, txid)
     withdraw: function(web3, cb) {
 	var abiWithdrawFcn = meEther.abiEncodeWithdraw();
@@ -69,66 +92,7 @@ var meEther = module.exports = {
     },
 
 
-    getMessageEventTopic0: function() {
-	if (!meEther.messageEventTopic0) {
-	    var keccak256 = new keccak(256);
-	    keccak256.update("MessageEvent(uint256,address,address,uint256,uint256,uint256,uint256,bytes)");
-	    meEther.messageEventTopic0 = '0x' + keccak256.digest('hex');
-	}
-	console.log('MessageEventTopic0 = ' + meEther.messageEventTopic0);
-	return(meEther.messageEventTopic0);
-    },
 
-    getMessageTxEventTopic0: function() {
-	if (!meEther.messageTxEventTopic0) {
-	    var keccak256 = new keccak(256);
-	    keccak256.update("MessageTxEvent(address,uint256,uint256,uint256)");
-	    meEther.messageTxEventTopic0 = '0x' + keccak256.digest('hex');
-	}
-	console.log('MessageTxEventTopic0 = ' + meEther.messageTxEventTopic0);
-	return(meEther.messageTxEventTopic0);
-    },
-
-    getMessageRxEventTopic0: function() {
-	if (!meEther.messageRxEventTopic0) {
-	    var keccak256 = new keccak(256);
-	    keccak256.update("MessageRxEvent(address,uint256,uint256,uint256)");
-	    meEther.messageRxEventTopic0 = '0x' + keccak256.digest('hex');
-	}
-	console.log('MessageTxEventTopic0 = ' + meEther.messageRxEventTopic0);
-	return(meEther.messageRxEventTopic0);
-    },
-
-    abiEncodeSendMessage: function() {
-	//address toAddr, uint256 mimeType, uint256 ref, bytes message
-	if (!meEther.sendMessageABI)
-	    meEther.sendMessageABI = ethabi.methodID('sendMessage', [ 'address', 'uint256', 'uint256', 'bytes' ]).toString('hex');
-	return(meEther.sendMessageABI);
-    },
-
-    abiEncodeSendMessageParms: function(toAddr, mimeType, ref, message) {
-	if (toAddr.startsWith('0x'))
-	    toAddr = toAddr.substring(2);
-	if (mimeType.startsWith('0x'))
-	    mimeType = mimeType.substring(2);
-	if (ref.startsWith('0x'))
-	    ref = ref.substring(2);
-	var bytes = common.hexToBytes(message);
-	console.log('abiEncodeSendMessageParms: toAddr = ' + toAddr);
-	console.log('abiEncodeSendMessageParms: mimeType = ' + mimeType);
-	console.log('abiEncodeSendMessageParms: ref = ' + ref);
-	//console.log('abiEncodeSendMessageParms: message (length = ' + bytes.length + '): ' + bytes.toString(16));
-	var encoded = ethabi.rawEncode([ 'address', 'uint256', 'uint256', 'bytes' ],
-				   [ new BN(toAddr, 16), new BN(mimeType, 16), new BN(ref, 16), bytes ] ).toString('hex');
-	return(encoded);
-    },
-
-
-    abiEncodeWithdraw: function() {
-	if (!meEther.withdrawABI)
-	    meEther.withdrawABI = ethabi.methodID('withdraw', [ ]).toString('hex');
-	return(meEther.withdrawABI);
-    },
 
 
 

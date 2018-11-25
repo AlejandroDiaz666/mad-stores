@@ -390,6 +390,17 @@ h3 { font-size:18px; }
     font-weight: bold;
     color: black;
 }
+#rsRegisterStoreButton {
+}
+#rsRegisterStoreButton:hover {
+    background-color: #dbeeee;
+    font-weight: bold;
+}
+#rsRegisterStoreButton[disabled], #rsRegisterStoreButton[disabled]:hover, #rsRegisterStoreButton[disabled]:focus, #rsRegisterStoreButton[disabled]:active {
+    background-color: #dbdcee;
+    font-weight: normal;
+    opacity: 0.8;
+}
 
 
 #createStoreNoteBg {

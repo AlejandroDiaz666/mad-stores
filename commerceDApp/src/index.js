@@ -90,6 +90,10 @@ function setRegisterStoreButtonHandlers() {
     rsStoreDescArea.addEventListener('input', function() {
 	enableRegisterStoreButton();
     });
+    var rsRegionSelector = document.getElementById('rsRegionSelector');
+    rsRegionSelector.addEventListener('change', function() {
+	enableRegisterStoreButton();
+    });
     var rsRegisterStoreButton = document.getElementById('rsRegisterStoreButton');
     rsRegisterStoreButton.addEventListener('click', function() {
 	handleRegisterStore();
@@ -203,18 +207,21 @@ function handleUnlockedMetaMask(mode) {
 		networkArea.className += ' attention';
 	}
     });
+    //console.log('handleUnlockedMetaMask: calling ether.getBalance');
     ether.getBalance(common.web3, 'szabo', function(err, balance) {
 	var balanceArea = document.getElementById('balanceArea');
 	var balanceSzabo = parseInt(balance);
-	console.log('balanceSzabo = ' + balanceSzabo);
+	console.log('handleUnlockedMetaMask: balanceSzabo = ' + balanceSzabo);
 	var balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
 	balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth';
     });
+    //console.log('handleUnlockedMetaMask: calling mtEther.accountQuery');
     mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
+	console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
 	index.acctInfo = _acctInfo;
 	index.publicKey = (!!index.acctInfo) ? index.acctInfo[mtEther.ACCTINFO_PUBLICKEY] : null;
 	console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(index.acctInfo));
-	console.log('handleUnlockedMetaMask: publicKey: ' + index.publicKey);
+	//console.log('handleUnlockedMetaMask: publicKey: ' + index.publicKey);
 	if (!index.publicKey || index.publicKey == '0x') {
 	    handleUnregisteredAcct();
 	} else {
@@ -272,15 +279,22 @@ function handleCreateMyStorePage() {
     rsRegisterStoreButton.disabled = true;
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
-	console.log('handleCreateMyStorePage: result = ' + result + ', len = ' + result.length);
+	console.log('handleCreateMyStorePage: result.length = ' + result.length);
 	var rsCreateStoreButton  = document.getElementById('rsCreateStoreButton');
 	var rsStoreNameArea = document.getElementById('rsStoreNameArea');
 	var rsStoreDescArea = document.getElementById('rsStoreDescArea');
 	var rsStoreImg = document.getElementById('rsStoreImg');
+	var rsRegionSelector = document.getElementById('rsRegionSelector');
 	var rsLoadImageButton = document.getElementById('rsLoadImageButton');
 	if (!!result && result.length > 0) {
 	    rsRegisterStoreButton.textContent = 'Re-Register My Store';
 	    rsCreateStoreButton.textContent = 'Modify Store';
+	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
+		console.log('handleCreateMyStorePage: err = ' + err);
+		console.log('handleCreateMyStorePage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
+		console.log('handleCreateMyStorePage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
+		rsRegionSelector.value = common.BNToHex256(common.numberToBN(vendorAcctInfo.serviceRegion));
+	    });
 	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
 		rsStoreNameArea.value = name;
 		rsStoreDescArea.value = desc;
@@ -293,6 +307,7 @@ function handleCreateMyStorePage() {
 	    rsStoreNameArea.value = '';
 	    rsStoreDescArea.value = '';
             rsStoreImg.src = '#';
+	    rsRegionSelector.value = 0;
 	}
     });
 }
@@ -313,7 +328,9 @@ function enableRegisterStoreButton() {
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
 function handleRegisterStore() {
-    var serviceRegionBN = new BN('000000', 2);
+    var rsRegionSelector = document.getElementById('rsRegionSelector');
+    var serviceRegionBN = common.numberToBN(rsRegionSelector.value);
+    console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
     var rsStoreNameArea = document.getElementById('rsStoreNameArea');
     var rsStoreDescArea = document.getElementById('rsStoreDescArea');
     var nameBytes = common.strToUtf8Bytes(rsStoreNameArea.value);
@@ -324,7 +341,7 @@ function handleRegisterStore() {
     var imageBytes = common.imageToBytes(rsStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
     //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
-    meEther.registerVendor(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    meEther.registerVendor(common.web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	var statusDiv = document.getElementById('statusDiv');
