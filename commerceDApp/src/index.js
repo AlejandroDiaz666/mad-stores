@@ -321,8 +321,9 @@ function handleRegisterStore() {
     var rsStoreImg = document.getElementById('rsStoreImg');
     //console.log('handleRegisterStore: rsStoreImg.src = ' + );
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
-    var imageBytes = common.strToUtf8Bytes(rsStoreImg.src);
-    console.log('handleRegisterStore: imageBytes = ' + imageBytes);
+    var imageBytes = common.imageToBytes(rsStoreImg.src);
+    //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
+    //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
     meEther.registerVendor(web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';

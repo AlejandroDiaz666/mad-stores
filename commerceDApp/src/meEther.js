@@ -180,7 +180,7 @@ var meEther = module.exports = {
 	var name = common.Utf8HexToStr(nameHex);
 	var desc = common.Utf8HexToStr(descHex);
         //image data is utf8 "data:image/png;base64," + base64ImageData;
-	var image = common.Utf8HexToStr(imageHex);
+	var image = common.hexToImage(imageHex);
 	cb(null, vendorAddr, name, desc, image)
     },
 
