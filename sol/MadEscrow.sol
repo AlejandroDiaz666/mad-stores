@@ -1,4 +1,4 @@
-pragma solidity ^0.4.25;
+pragma solidity ^0.5.0;
 
 
 // ---------------------------------------------------------------------------
@@ -6,7 +6,7 @@ pragma solidity ^0.4.25;
 // ---------------------------------------------------------------------------
 contract MessageTransport {
   function getFee(address _fromAddr, address _toAddr) public view returns(uint256 _fee);
-  function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes message) public payable returns (uint _recvMessageCount);
+  function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes memory message) public payable returns (uint _recvMessageCount);
 }
 
 
@@ -20,13 +20,20 @@ contract AMES {
   // -------------------------------------------------------------------------
   event StatEvent(string message);
   event RegisterVendorEvent(address indexed _vendorAddr, bytes name, bytes desc, bytes image);
-  event RegisterProductEvent(address indexed _vendorAddr, uint256 _region, uint256 _category, uint256 _productID, bytes desc, bytes image);
-  event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr, uint256 _productID, uint256 _surcharge, uint256 _msgNo);
-  event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
-  event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
-  event PurchaseRejectEvent(address indexed _vendorAddr, address customerAddr, uint256 _productID, uint256 _msgNo);
-  event DeliveryApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
-  event DeliveryRejectEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _productID, uint256 _msgNo);
+  event RegisterProductEvent(address indexed _vendorAddr, uint256 indexed _region, uint256 indexed _category,
+			     uint256 _productID, bytes name, bytes desc, bytes image);
+  event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr,
+			     uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _msgNo);
+  event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr,
+			    uint256 _escrowID, uint256 _productID, uint256 _msgNo);
+  event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr,
+			     uint256 _escrowID, uint256 _productID, uint256 _msgNo);
+  event PurchaseRejectEvent(address indexed _vendorAddr, address customerAddr,
+			    uint256 _escrowID, uint256 _productID, uint256 _msgNo);
+  event DeliveryApproveEvent(address indexed _vendorAddr, address indexed customerAddr,
+			     uint256 _escrowID, uint256 _productID, uint256 _msgNo);
+  event DeliveryRejectEvent(address indexed _vendorAddr, address indexed customerAddr,
+			    uint256 _escrowID, uint256 _productID, uint256 _msgNo);
 
   // -------------------------------------------------------------------------
   // defines
@@ -40,6 +47,7 @@ contract AMES {
   struct Product {
     uint256 price;
     uint256 quantity;
+    address vendorAddr;
   }
 
   // -------------------------------------------------------------------------
@@ -48,6 +56,7 @@ contract AMES {
   // -------------------------------------------------------------------------
   struct EscrowAccount {
     bool approved;                      // purchase has been approved by vendor
+    address customerAddr;
     uint256 productID;                  // escrow is for purchase of this product
     uint256 vendorBalance;              // amount that vendor has put into escrow
     uint256 customerBalance;            // amount that customer has put into escrow
@@ -59,8 +68,6 @@ contract AMES {
   struct VendorAccount {
     bool active;                        // if inactive, then no new orders are accepted
     uint256 serviceRegion;              // bitmask of geographical regions
-    mapping (uint256 => Product) products;
-    mapping (address => EscrowAccount) escrowAccounts;
   }
 
 
@@ -68,11 +75,15 @@ contract AMES {
   // data storage
   // -------------------------------------------------------------------------
   bool public isLocked;
-  address public owner;
+  address payable public owner;
   address public communityAddr;
   MessageTransport messageTransport;
+  uint256 public escrowCount;
+  uint256 public productCount;
   uint256 public communityBalance;
-  uint public contractSendGas = 100000;
+  uint256 public contractSendGas = 100000;
+  mapping (uint256 => Product) public products;
+  mapping (uint256 => EscrowAccount) public escrowAccounts;
   mapping (address => uint256) public balances;
   mapping (address => VendorAccount) public vendorAccounts;
 
@@ -112,7 +123,7 @@ contract AMES {
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _serviceRegion, bytes _name, bytes _desc, bytes _image) public {
+  function registerVendor(uint256 _serviceRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
     _vendorAccount.active = true;
     _vendorAccount.serviceRegion = _serviceRegion;
@@ -130,25 +141,31 @@ contract AMES {
   // -------------------------------------------------------------------------
   // register a Product
   // called by vendor
-  // cannot use productID of zero -- that is used to indicate an active escrow
+  // productID = 0 => register a new product, auto-assign product id
   // -------------------------------------------------------------------------
-  function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image) public {
+  function registerProduct(uint256 _productID, uint256 _category, uint256 _price, uint256 _quantity, bytes memory _name, bytes memory _desc, bytes memory _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
     require(_vendorAccount.active == true, "vendor account is not active");
-    require(_productID != 0);
-    Product storage _product = _vendorAccount.products[_productID];
+    if (_productID == 0)
+      _productID = ++productCount;
+    else
+      require(products[_productID].vendorAddr == msg.sender, "caller does not own this product");
+    Product storage _product = products[_productID];
     _product.price = _price;
     _product.quantity = _quantity;
-    emit RegisterProductEvent(msg.sender, _vendorAccount.serviceRegion, _category, _productID, _desc, _image);
+    _product.vendorAddr = msg.sender;
+    emit RegisterProductEvent(msg.sender, _vendorAccount.serviceRegion, _category, _productID, _name, _desc, _image);
     emit StatEvent("ok: product added");
   }
 
-  function productInfo(uint256 _productID) public view returns(uint256 _price, uint256 _quantity) {
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    require(_vendorAccount.active == true, "vendor account is not active");
-    Product storage _product = _vendorAccount.products[_productID];
+  function productInfo(uint256 _productID) public view returns(address _vendorAddr, uint256 _price, uint256 _quantity, bool _available) {
+    Product storage _product = products[_productID];
     _price = _product.price;
     _quantity = _product.quantity;
+    _vendorAddr = _product.vendorAddr;
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
+    uint256 _minVendorBond = (_price * 50) / 100;
+    _available = (_vendorAccount.active == true && _quantity != 0 && _price != 0 && balances[_vendorAddr] >= _minVendorBond);
   }
 
 
@@ -166,24 +183,36 @@ contract AMES {
   // -------------------------------------------------------------------------
   // deposit funds to purchase a Product
   // called by customer
+  // escrowID = 0 => create a new escrow, else use an existing escrow acct
   // an optional surchage (shipping & handling?) can be added to the nominal
   // price of the product. this function can also be called to add a surchage
   // to an already existing escrow.
   // you cannot deposit funds if the vendor is inactive.
   // -------------------------------------------------------------------------
-  function purchaseDeposit(address _vendorAddr, uint256 _productID, uint256 _surcharge, bytes _message) public payable {
+  function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    require(_vendorAccount.active == true, "vendor account is not active");
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
-    //you can use this function to open a new escrow, or to add funds to an existing escrow
-    require((_escrowAccount.customerBalance == 0 ||
-	     _escrowAccount.productID == _productID), "escrow already active with this vendor");
-    Product storage _product = _vendorAccount.products[_productID];
+    if (_escrowID == 0)
+      _escrowID = ++escrowCount;
+    else
+      require(escrowAccounts[_escrowID].customerAddr == msg.sender, "caller is not a party to this escrow");
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    //for new escrow set productID, ensure nz. for old escrow check passed productID
+    if (_escrowAccount.productID == 0) {
+      require(_productID != 0, "product ID cannot be zero");
+      _escrowAccount.productID = _productID;
+    } else {
+      require(_productID == escrowAccounts[_escrowID].productID, "product ID is not valid");
+      //_productID = _escrowAccount.productID;
+    }
+    Product storage _product = products[_productID];
     require(_product.quantity != 0, "product is not available");
     require(_product.price != 0, "product price is not valid");
-    //for an existing escrow, the additional funds is completely specified by the surchage.
-    //but for a new escrow, the surchage is added to the price
+    address _vendorAddr = _product.vendorAddr;
+    _escrowAccount.customerAddr = msg.sender;
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
+    require(_vendorAccount.active == true, "vendor account is not active");
+    //for an existing escrow, the funds added to the escrow in this transaction is completely specified by the surcharge.
+    //but for a new escrow, the surcharge is added to the base price of the product.
     uint256 _effectivePrice = _surcharge;
     if (_escrowAccount.customerBalance == 0)
       _effectivePrice += _product.price;
@@ -204,9 +233,8 @@ contract AMES {
     _escrowAccount.vendorBalance += _minVendorBond;
     _escrowAccount.customerBalance += _minCustomerBond;
     _escrowAccount.approved = false;
-    _escrowAccount.productID = _productID;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    emit PurchaseDepositEvent(_vendorAddr, msg.sender, _productID, _surcharge, _msgNo);
+    emit PurchaseDepositEvent(_vendorAddr, msg.sender, _escrowID, _productID, _surcharge, _msgNo);
     emit StatEvent("ok: purchase funds deposited");
   }
 
@@ -215,13 +243,15 @@ contract AMES {
   // cancel purchase of a product
   // called by customer -- only before purchase has been approved by vendor
   // -------------------------------------------------------------------------
-  function purchaseCancel(address _vendorAddr, bytes _message) public payable {
+  function purchaseCancel(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
-    require(_escrowAccount.customerBalance != 0, "no active escrow with this vendor");
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    require(_escrowAccount.customerAddr == msg.sender, "caller is not a party to this escrow");
+    uint256 _productID = _escrowAccount.productID;
+    Product storage _product = products[_productID];
+    address _vendorAddr = _product.vendorAddr;
+    require(_escrowAccount.customerBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved; funds are locked");
-    Product storage _product = _vendorAccount.products[_escrowAccount.productID];
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
     //deduct any message fees
@@ -229,13 +259,12 @@ contract AMES {
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
+    emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgNo);
     _product.quantity += 1;
     balances[_vendorAddr] += _escrowAccount.vendorBalance;
     balances[msg.sender] += _escrowAccount.customerBalance;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.customerBalance = 0;
-    _escrowAccount.productID = 0;
     emit StatEvent("ok: purchase canceled -- funds returned");
   }
 
@@ -245,21 +274,26 @@ contract AMES {
   // called by vendor
   // can only be called by an active vendor
   // -------------------------------------------------------------------------
-  function purchaseApprove(address _customerAddr, bytes _message) public payable {
+  function purchaseApprove(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    uint256 _productID = _escrowAccount.productID;
+    Product storage _product = products[_productID];
+    address _vendorAddr = _product.vendorAddr;
+    require(_vendorAddr == msg.sender, "caller is not a party to this escrow");
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
     require(_vendorAccount.active == true, "vendor account is not active");
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[_customerAddr];
-    require(_escrowAccount.vendorBalance != 0, "no active escrow with this customer");
+    address _customerAddr = _escrowAccount.customerAddr;
+    require(_escrowAccount.vendorBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved");
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
+    //add msg funds to pre-existing vendor balance
+    balances[_vendorAddr] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _customerAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _customerAddr, 0, _message);
-    emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowAccount.productID, _msgNo);
+    uint256 _fee = messageTransport.getFee(_vendorAddr, _customerAddr);
+    require(balances[_vendorAddr] >= _fee, "insufficient funds for message fee");
+    balances[_vendorAddr] -= _fee;
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, _customerAddr, 0, _message);
+    emit PurchaseApproveEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     _escrowAccount.approved = true;
     emit StatEvent("ok: purchase approved -- funds locked");
   }
@@ -270,27 +304,31 @@ contract AMES {
   // called by vendor
   // can be called by an inactive vendor
   // -------------------------------------------------------------------------
-  function purchaseReject(address _customerAddr, bytes _message) public payable {
+  function purchaseReject(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[_customerAddr];
-    require(_escrowAccount.vendorBalance != 0, "no active escrow with this customer");
-    require(_escrowAccount.approved != true, "purchase already approved; funds are locked");
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    uint256 _productID = _escrowAccount.productID;
+    Product storage _product = products[_productID];
+    address _vendorAddr = _product.vendorAddr;
+    require(_vendorAddr == msg.sender, "caller is not a party to this escrow");
+    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
+    require(_vendorAccount.active == true, "vendor account is not active");
+    address _customerAddr = _escrowAccount.customerAddr;
+    require(_escrowAccount.vendorBalance != 0, "escrow is not active");
+    require(_escrowAccount.approved != true, "purchase already approved");
+    //add msg funds to pre-existing vendor balance
+    balances[_vendorAddr] += msg.value;
     //deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _customerAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _customerAddr, 0, _message);
-    emit PurchaseRejectEvent(msg.sender, _customerAddr, _escrowAccount.productID, _msgNo);
-    Product storage _product = _vendorAccount.products[_escrowAccount.productID];
+    uint256 _fee = messageTransport.getFee(_vendorAddr, _customerAddr);
+    require(balances[_vendorAddr] >= _fee, "insufficient funds for message fee");
+    balances[_vendorAddr] -= _fee;
+    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, _customerAddr, 0, _message);
+    emit PurchaseRejectEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     _product.quantity += 1;
-    balances[msg.sender] += _escrowAccount.vendorBalance;
+    balances[_vendorAddr] += _escrowAccount.vendorBalance;
     balances[_customerAddr] += _escrowAccount.customerBalance;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.customerBalance = 0;
-    _escrowAccount.productID = 0;
     emit StatEvent("ok: purchase rejected -- funds returned");
   }
 
@@ -299,10 +337,13 @@ contract AMES {
   // acknowledge succesful delivery of a purchased item
   // called by customer
   // -------------------------------------------------------------------------
-  function deliveryApprove(address _vendorAddr, bytes _message) public payable {
+  function deliveryApprove(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    require(_escrowAccount.customerAddr == msg.sender, "caller is not a party to this escrow");
+    uint256 _productID = _escrowAccount.productID;
+    Product storage _product = products[_productID];
+    address _vendorAddr = _product.vendorAddr;
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
@@ -311,16 +352,14 @@ contract AMES {
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
+    emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     uint256 _price = (_escrowAccount.customerBalance - _escrowAccount.vendorBalance);
     uint256 _escrowFee = (_price * ESCROW_FEE_PCTX10) / 1000;
     communityBalance += _escrowFee;
     balances[_vendorAddr] += (_escrowAccount.customerBalance - _escrowFee);
     balances[msg.sender] += _escrowAccount.vendorBalance;
-
     _escrowAccount.customerBalance = 0;
     _escrowAccount.vendorBalance = 0;
-    _escrowAccount.productID = 0;
     _escrowAccount.approved = false;
     emit StatEvent("ok: delivery approved -- funds destributed");
   }
@@ -332,10 +371,13 @@ contract AMES {
   // product might have been delivered, but defective. so we do not return the
   // product to stock; that is we do not increment product quantity
   // -------------------------------------------------------------------------
-  function deliveryReject(address _vendorAddr, bytes _message) public payable {
+  function deliveryReject(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    EscrowAccount storage _escrowAccount = _vendorAccount.escrowAccounts[msg.sender];
+    EscrowAccount storage _escrowAccount = escrowAccounts[_escrowID];
+    require(_escrowAccount.customerAddr == msg.sender, "caller is not a party to this escrow");
+    uint256 _productID = _escrowAccount.productID;
+    Product storage _product = products[_productID];
+    address _vendorAddr = _product.vendorAddr;
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
     //add msg funds to pre-existing customer balance
     balances[msg.sender] += msg.value;
@@ -344,11 +386,10 @@ contract AMES {
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowAccount.productID, _msgNo);
+    emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     communityBalance += (_escrowAccount.customerBalance + _escrowAccount.vendorBalance);
     _escrowAccount.customerBalance = 0;
     _escrowAccount.vendorBalance = 0;
-    _escrowAccount.productID = 0;
     _escrowAccount.approved = false;
     emit StatEvent("ok: delivery rejected -- funds burned");
   }
@@ -371,7 +412,8 @@ contract AMES {
   function withdrawEscrowFees() public {
     uint _amount = communityBalance;
     communityBalance = 0;
-    if (!communityAddr.call.gas(contractSendGas).value(_amount)())
+    (bool success, ) = communityAddr.call.gas(contractSendGas).value(_amount)("");
+    if (!success)
       revert();
   }
 
