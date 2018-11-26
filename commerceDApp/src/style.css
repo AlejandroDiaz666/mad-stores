@@ -501,6 +501,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(155px, 154px, 0px);
     resize: none;
+    overflow: hidden;
 }
 /*
  * create store - reg store

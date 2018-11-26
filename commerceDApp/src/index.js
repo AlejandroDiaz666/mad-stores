@@ -344,16 +344,16 @@ function enableRegisterStoreButton() {
 //
 function handleCreateStoreDoRegister() {
     var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
-    var serviceRegionBN = common.numberToBN(rsRegionSelector.value);
+    var serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
     console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
     var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
     var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
     var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
     var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
     var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
-    //console.log('handleRegisterStore: rsStoreImg.src = ' + );
+    //console.log('handleRegisterStore: createStoreRegStoreStoreImg.src = ' + );
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
-    var imageBytes = common.imageToBytes(rsStoreImg.src);
+    var imageBytes = common.imageToBytes(createStoreRegStoreStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
     //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
     meEther.registerVendor(common.web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
