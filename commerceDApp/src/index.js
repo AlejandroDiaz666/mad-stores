@@ -23,6 +23,7 @@ var index = module.exports = {
 	console.log('index.main');
 	setMainButtonHandlers();
 	setRegisterStoreButtonHandlers();
+	setAddProductButtonHandlers();
 	beginTheBeguine(null);
     },
 
@@ -69,44 +70,67 @@ function setRegisterStoreButtonHandlers() {
     createStoreRegStoreButton.addEventListener('click', function() {
 	handleCreateStorePage();
     });
-    var createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
-    createStoreAddProductButton.addEventListener('click', function() {
-	handleAddProduct();
-    });
     //create-store / reg store steps
     var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
     createStoreRegStoreLoadImageButton.addEventListener('change', function() {
-	var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+	var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
 	if (createStoreRegStoreLoadImageButton.files && createStoreRegStoreLoadImageButton.files[0]) {
 	    console.log('createStoreRegStoreLoadImageButton: got ' + createStoreRegStoreLoadImageButton.files[0].name);
             var reader = new FileReader();
             reader.onload = (e) => {
 		//console.log('createStoreRegStoreLoadImageButton: e.target.result = ' + e.target.result);
 		//eg. createStoreRegStoreLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
-                createStoreRegStoreStoreImg.src = e.target.result;
+                createStoreRegStoreImg.src = e.target.result;
             };
             reader.readAsDataURL(createStoreRegStoreLoadImageButton.files[0]);
         } else {
-            createStoreRegStoreStoreImg.src = '#';
+            createStoreRegStoreImg.src = '#';
 	}
-	enableRegisterStoreButton();
+	enableRegisterStoreDoRegButton();
     });
     var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
-    createStoreRegStoreNameArea.addEventListener('input', function() {
-	enableRegisterStoreButton();
-    });
+    createStoreRegStoreNameArea.addEventListener('input', enableRegisterStoreDoRegButton);
     var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-    createStoreRegStoreDescArea.addEventListener('input', function() {
-	enableRegisterStoreButton();
+    createStoreRegStoreDescArea.addEventListener('input', enableRegisterStoreDoRegButton);
+    var createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    createStoreAddProdPriceArea.addEventListener('change', enableRegisterStoreDoRegButton);
+    var createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    createStoreAddProdQuantityArea.addEventListener('change', enableRegisterStoreDoRegButton);
+    var createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
+    createStoreRegStoreDoRegButton.addEventListener('click', handleCreateStoreDoReg);
+}
+
+
+function setAddProductButtonHandlers() {
+    var createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
+    createStoreAddProductButton.addEventListener('click', function() {
+	handleAddProduct();
     });
-    var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
-    createStoreRegStoreRegionSelector.addEventListener('change', function() {
-	enableRegisterStoreButton();
+    //create-store / add product steps
+    var createStoreAddProdLoadImageButton = document.getElementById('createStoreAddProdLoadImageButton');
+    createStoreAddProdLoadImageButton.addEventListener('change', function() {
+	var createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+	if (createStoreAddProdLoadImageButton.files && createStoreAddProdLoadImageButton.files[0]) {
+	    console.log('createStoreAddProdLoadImageButton: got ' + createStoreAddProdLoadImageButton.files[0].name);
+            var reader = new FileReader();
+            reader.onload = (e) => {
+		//console.log('createStoreAddProdLoadImageButton: e.target.result = ' + e.target.result);
+		//eg. createStoreAddProdLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
+                createStoreAddProdImg.src = e.target.result;
+            };
+            reader.readAsDataURL(createStoreAddProdLoadImageButton.files[0]);
+        } else {
+            createStoreAddProdImg.src = '#';
+	}
+	enableRegisterStoreDoAddButton();
     });
-    var createStoreRegStoreRegisterButton = document.getElementById('createStoreRegStoreRegisterButton');
-    createStoreRegStoreRegisterButton.addEventListener('click', function() {
-	handleCreateStoreDoRegister();
-    });
+    var createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    createStoreAddProdNameArea.addEventListener('input', enableRegisterStoreDoAddButton);
+    var createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    createStoreAddProdDescArea.addEventListener('input', enableRegisterStoreDoAddButton);
+
+    var createStoreAddProdRegisterButton = document.getElementById('createStoreAddProdRegisterButton');
+    createStoreAddProdRegisterButton.addEventListener('click', handleCreateStoreDoAdd);
 }
 
 
@@ -276,6 +300,9 @@ function handleRegisteredAcct(mode) {
    create store functions
    create-store is divided into three: reg-store, add-prod, edit-prod
    ------------------------------------------------------------------------------------------------------------------ */
+//
+// create-store - reg-store
+//
 function handleCreateStorePage() {
     setMenuButtonState('shopButton',          'Enabled');
     setMenuButtonState('dashboardButton',     'Enabled');
@@ -289,20 +316,20 @@ function handleCreateStorePage() {
     replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
     replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden',   'visibleB', null);
     replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
-    setMenuButtonState('createStoreRegStoreRegisterButton', 'Disabled');
+    setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
 	console.log('handleCreateMyStorePage: result.length = ' + result.length);
 	var createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
-	var createStoreRegStoreRegisterButton = document.getElementById('createStoreRegStoreRegisterButton');
+	var createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
 	var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
 	var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-	var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+	var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
 	var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
 	var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
 	if (!!result && result.length > 0) {
 	    createStoreRegStoreButton.textContent = 'Modify Store';
-	    createStoreRegStoreRegisterButton.textContent = 'Re-register My Store';
+	    createStoreRegStoreDoRegButton.textContent = 'Re-register My Store';
 	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
 		console.log('handleCreateMyStorePage: err = ' + err);
 		console.log('handleCreateMyStorePage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
@@ -313,36 +340,39 @@ function handleCreateStorePage() {
 		createStoreRegStoreNameArea.value = name;
 		createStoreRegStoreDescArea.value = desc;
 		//image is eg. 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...'
-		createStoreRegStoreStoreImg.src = image;
+		createStoreRegStoreImg.src = image;
 	    });
 	    setMenuButtonState('createStoreAddProductButton', 'Enabled');
 	} else {
 	    createStoreRegStoreButton.textContent = 'Create Store';
-	    createStoreRegStoreRegisterButton.textContent = 'Register My Store';
+	    createStoreRegStoreDoRegButton.textContent = 'Register My Store';
 	    createStoreRegStoreNameArea.value = '';
 	    createStoreRegStoreDescArea.value = '';
-            createStoreRegStoreStoreImg.src = '#';
+            createStoreRegStoreImg.src = '#';
 	    createStoreRegStoreRegionSelector.value = 0;
 	}
     });
 }
 
-function enableRegisterStoreButton() {
-    console.log('enableRegisterStoreButton');
+//
+// enable the do-register
+// called whenever any of the register-steps inputs changes
+//
+function enableRegisterStoreDoRegButton() {
     var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
     var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-    var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
+    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
     var enable = (createStoreRegStoreNameArea.value.trim().length > 0 != "" &&
 		  createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
-		  createStoreRegStoreStoreImg.src != '#') ? true : false;
-    setMenuButtonState('createStoreRegStoreRegisterButton', (enable) ? 'Enabled' : 'Disabled');
+		  createStoreRegStoreImg.src != '#') ? true : false;
+    setMenuButtonState('createStoreRegStoreDoRegButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
 
 //
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
-function handleCreateStoreDoRegister() {
+function handleCreateStoreDoReg() {
     var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
     var serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
     console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
@@ -350,10 +380,10 @@ function handleCreateStoreDoRegister() {
     var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
     var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
     var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
-    var createStoreRegStoreStoreImg = document.getElementById('createStoreRegStoreStoreImg');
-    //console.log('handleRegisterStore: createStoreRegStoreStoreImg.src = ' + );
+    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+    //console.log('handleRegisterStore: createStoreRegStoreImg.src = ' + );
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
-    var imageBytes = common.imageToBytes(createStoreRegStoreStoreImg.src);
+    var imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
     //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
     meEther.registerVendor(common.web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
@@ -366,7 +396,9 @@ function handleCreateStoreDoRegister() {
 }
 
 
-//sol: function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image);
+//
+// create-store - add-product
+//
 function handleAddProduct() {
     console.log('handleAddProduct');
     setMenuButtonState('createStoreRegStoreButton',    'Enabled');
@@ -377,6 +409,50 @@ function handleAddProduct() {
     replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
 }
+
+
+//
+// enable the do-add
+// called whenever any of the add-product-steps inputs changes
+//
+function enableRegisterStoreDoAddButton() {
+    var createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    var createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    var createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+    var enable = (createStoreAddProdNameArea.value.trim().length > 0 != "" &&
+		  createStoreAddProdDescArea.value.trim().length > 0 != "" &&
+		  createStoreAddProdImg.src != '#') ? true : false;
+    setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
+}
+
+
+//
+// user has clicked the add-new-product button. execute the transaction.
+//
+function handleCreateStoreDoAdd() {
+    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    var createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    var createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
+    var createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+    var productIdBN = new BN(0, 16);
+    var categoryBN = new BN(0, 16);
+    var priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
+    priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
+    var quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
+    var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
+    var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
+    var imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
+    meEther.registerProduct(common.web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+	console.log('txid = ' + txid);
+	metaMaskModal.style.display = 'none';
+	var statusDiv = document.getElementById('statusDiv');
+	waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', function() {
+	});
+    });
+}
+
 
 
 /* ------------------------------------------------------------------------------------------------------------------

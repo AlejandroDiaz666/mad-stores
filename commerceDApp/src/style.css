@@ -406,7 +406,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-180px, -7px, 0px);
 }
-#createStoreRegStoreRegisterButton {
+#createStoreRegStoreDoRegButton {
     width: auto;
     position: absolute;
     top: 145px;
@@ -571,7 +571,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(156px, 423px, 0px);
 }
-#createStoreRegStoreStoreImg {
+#createStoreRegStoreImg {
     width: 160px;
     height: 160px;
     position: absolute;
@@ -803,7 +803,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(156px, 563px, 0px);
 }
-#createStoreAddProdStoreImg {
+#createStoreAddProdImg {
     width: 160px;
     height: 160px;
     position: absolute;

@@ -21,7 +21,7 @@ var meEther = module.exports = {
     messageTxEventTopic0: null,
     messageRxEventTopic0: null,
     registerVendorABI: null,
-    sendMessageABI: null,
+    registerProductABI: null,
     withdrawABI: null,
 
 
@@ -30,8 +30,8 @@ var meEther = module.exports = {
 	var abiRegisterVendorFcn = meEther.abiEncodeRegisterVendor();
 	var abiParms = meEther.abiEncodeRegisterVendorParms(serviceRegionBN, nameBytes, descBytes, imageBytes);
         var sendData = "0x" + abiRegisterVendorFcn + abiParms;
-	console.log('sendData.length = ' + sendData.length);
-	console.log('sendData = ' + sendData);
+	//console.log('sendData.length = ' + sendData.length);
+	//console.log('sendData = ' + sendData);
 	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
@@ -61,7 +61,32 @@ var meEther = module.exports = {
     },
 
 
-    //function registerProduct(uint256 _category, uint256 _productID, uint256 _price, uint256 _quantity, bytes _desc, bytes _image) public {
+    //cb(err, txid)
+    //this fcn is also used to edit a product.
+    //productID = 0 => register new product, else edit existing product
+    registerProduct: function(web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, cb) {
+	var abiRegisterProductFcn = meEther.abiEncodeRegisterProduct();
+	var abiParms = meEther.abiEncodeRegisterVendorParms(productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes);
+        var sendData = "0x" + abiRegisterVendorFcn + abiParms;
+	console.log('sendData.length = ' + sendData.length);
+	console.log('sendData = ' + sendData);
+	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodeRegisterProduct: function() {
+	//function registerProduct(uint256 _productID, uint256 _category, uint256 _price, uint256 _quantity, bytes _name, bytes _desc, bytes _image)
+	if (!meEther.registerProductABI)
+	    meEther.registerProductABI = ethabi.methodID('registerProduct', [ 'uint256', 'uint256', 'uint256', 'uint256',
+									     'bytes', 'bytes', 'bytes' ]).toString('hex');
+	return(meEther.registerProductABI);
+    },
+
+    abiEncodeRegisterProductParms: function(productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes) {
+	encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'uint256', 'bytes', 'bytes', 'bytes' ],
+				   [ productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes ] ).toString('hex');
+	return(encoded);
+    },
+
 
 
     //cb(err, { activeFlag: bool, serviceRegion: uint256 } )
