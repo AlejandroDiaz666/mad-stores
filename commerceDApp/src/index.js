@@ -381,7 +381,7 @@ function handleCreateStoreDoReg() {
     var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
     var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
     var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
-    //console.log('handleRegisterStore: createStoreRegStoreImg.src = ' + );
+    //console.log('handleRegisterStore: createStoreRegStoreImg.src = ' + createStoreRegStoreImg.src);
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
     var imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
@@ -436,8 +436,8 @@ function handleCreateStoreDoAdd() {
     var createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     var createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
-    var productIdBN = new BN(0, 16);
-    var categoryBN = new BN(0, 16);
+    var productIdBN = new BN('0', 16);
+    var categoryBN = new BN('0', 16);
     var priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
     var quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);

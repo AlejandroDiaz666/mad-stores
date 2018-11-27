@@ -22,4 +22,11 @@ var escrowUtil = module.exports = {
 	ether.getLogs(options, cb);
     },
 
+
+    //cb(err, result)
+    //set regionBN, categoryVB, vendorAddr to null if don't want to search based on that parameter
+    getProductLogs: function(regionBN, categoryVB, vendorAddr, cb) {
+	cb(null, "");
+    },
+
 }

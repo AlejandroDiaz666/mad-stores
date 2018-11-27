@@ -121,13 +121,9 @@ var meEther = module.exports = {
     },
 
 
-
-
-
-
     //cb(null, vendorAddr, name, desc, image)
     //pass in in a single result object
-    //note: numbers may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
+    //note: numbers in result may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
     parseRegisterVendorEvent: function(result, cb) {
 	//RegisterVendorEvent(address indexed _vendorAddr, bytes name, bytes desc, bytes image);
 	//typical
@@ -178,76 +174,22 @@ var meEther = module.exports = {
     },
 
 
-    //cb(err, fromAddr, txCount, id, blockNumber, date);
+
+    //cb(null, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image)
     //pass in in a single result object
-    //note: numbers may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
-    parseMessageTxEvent: function(result, cb) {
-	//typical
-	//                  { "address" : "0x800bf6d2bb0156fd21a84ae20e1b9479dea0dca9",
-	//                    "topics"  : [
-	//                                  "0xa4b1fcc6b4f905c800aeac882ea4cbff09ab73cb784c8e0caad226fbeab35b63",
-	//                                  "0x00000000000000000000000053c619594a6f15cd59f32f76257787d5438cd016", -- _fromAddr
-	//                                  "0x0000000000000000000000000000000000000000000000000000000000000001"  -- _txCount
-	//                                ],
-	//                    "data"    : "0x000000000000000000000000f48ae436e4813c7dcd5cdeb305131d07ca022469"    -- _id
-	//                    "blockNumber" : "0x3d7f1d",
-	//                    "timeStamp"   : "0x5b9a2cf4",
-	//                    "gasPrice"    : "0x77359400",
-	//                    "gasUsed"     : "0x1afcf",
-	//                    "logIndex"    : "0x1a",
-	//                    "transactionHash"  : "0x266d1d418629668f5f23acc6b30c1283e9ea8d124e6f1aeac6e8e33f150e6747",
-	//                    "transactionIndex" : "0x15"
-	//                  }
-	//console.log('parseMessageTxEvent: result = ' + result);
-	//console.log('parseMessageTxEvent: string = ' + JSON.stringify(result));
-	var fromAddr = result.topics[1];
-	var txCount = result.topics[2];
-	//console.log('parseMessageTxEvent: fromAddr = ' + fromAddr);
-	//console.log('parseMessageTxEvent: txCount = ' + txCount);
-	//first 2 chars are '0x'; we want rightmost 20 out of 32 bytes
-	var msgId = result.data;
-	var blockNumber = parseInt(result.blockNumber);
-	//console.log('parseMessageTxEvent: blockNumber = ' + blockNumber);
-	var timeStamp = parseInt(result.timeStamp);
-	var date = (new Date(timeStamp * 1000)).toUTCString();
-	//console.log('parseMessageTxEvent: date = ' + date);
-	cb(null, fromAddr, txCount, msgId, blockNumber, date);
+    //note: numbers in result may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
+    parseRegisterProductEvent: function(result, cb) {
+	//RegisterProductEvent(address indexed _vendorAddr, uint256 indexed _region, uint256 indexed _category,
+	//                     uint256 _productID, bytes name, bytes desc, bytes image);
+	var vendorAddr = '0x7DfA67646B74b6e223b1779a3086c5C4F45782A2';
+	var regionBN = new BN('2', 16);
+	var categoryBN = new BN('3', 16);
+	var productIdBN = new BN('4', 16);
+	var name = 'Adidas Women\'s Running Shoes';
+	var desc = 'Finest running shoes in all of India. You won\'t beleive how light you feel when you\'re wearing these puppies!';
+	var image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgCAMAAAC8EZcfAAAC91BMV…GJsj+vSAy/mX9eQUC6g6Ympq/OzcN//5GXuzrdbX//8X/4dbeLAkhKdgAAAABJRU5ErkJgggAA';
+	cb(null, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
     },
 
-    //cb(null, toAddr, rxCount, id, blockNumber, date);
-    //pass in in a single result object
-    //note: numbers may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
-    parseMessageRxEvent: function(result, cb) {
-	//typical
-	//                  { "address" : "0x800bf6d2bb0156fd21a84ae20e1b9479dea0dca9",
-	//                    "topics"  : [
-	//                                  "0xa4b1fcc6b4f905c800aeac882ea4cbff09ab73cb784c8e0caad226fbeab35b63",
-	//                                  "0x00000000000000000000000053c619594a6f15cd59f32f76257787d5438cd016", -- _toAddr
-	//                                  "0x0000000000000000000000000000000000000000000000000000000000000001"  -- _rxCount
-	//                                ],
-	//                    "data"    : "0x000000000000000000000000f48ae436e4813c7dcd5cdeb305131d07ca022469"    -- _id
-	//                    "blockNumber" : "0x3d7f1d",
-	//                    "timeStamp"   : "0x5b9a2cf4",
-	//                    "gasPrice"    : "0x77359400",
-	//                    "gasUsed"     : "0x1afcf",
-	//                    "logIndex"    : "0x1a",
-	//                    "transactionHash"  : "0x266d1d418629668f5f23acc6b30c1283e9ea8d124e6f1aeac6e8e33f150e6747",
-	//                    "transactionIndex" : "0x15"
-	//                  }
-	//console.log('parseMessageRxEvent: result = ' + result);
-	//console.log('parseMessageRxEvent: string = ' + JSON.stringify(result));
-	var toAddr = result.topics[1];
-	var rxCount = result.topics[2];
-	//console.log('parseMessageRxEvent: toAddr = ' + toAddr);
-	//console.log('parseMessageRxEvent: rxCount = ' + rxCount);
-	//first 2 chars are '0x'; we want rightmost 20 out of 32 bytes
-	var msgId = result.data;
-	var blockNumber = parseInt(result.blockNumber);
-	//console.log('parseMessageRxEvent: blockNumber = ' + blockNumber);
-	var timeStamp = parseInt(result.timeStamp);
-	var date = (new Date(timeStamp * 1000)).toUTCString();
-	//console.log('parseMessageRxEvent: date = ' + date);
-	cb(null, toAddr, rxCount, msgId, blockNumber, date);
-    },
 
 };
