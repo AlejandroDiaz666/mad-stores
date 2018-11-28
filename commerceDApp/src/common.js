@@ -319,4 +319,132 @@ var common = module.exports = {
 	});
     },
 
+
+    /* ------------------------------------------------------------------------------------------------------------------
+       common display-related functions
+       ------------------------------------------------------------------------------------------------------------------ */
+    /*
+    addTileToCenterTableDiv: function() {
+	console.log('common.addTileToCenterTableDiv');
+	var img = document.createElement("img").classname = 'tileImg';
+	img.src="images/logo.png";
+	img.alt = 'tile image here';
+	var div = document.createElement("div");
+	var centerTableDiv = document.getElementById('centerTableDiv');
+	centerTableDiv.appendChild(img);
+    },
+    */
+
+    //
+    // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
+    // call this fcn with the error message and no txid.
+    //
+    waitForTXID: function(err, txid, desc, statusDiv, continuationMode, callback) {
+	//
+	common.setMenuButtonState('shopButton',          'Disabled');
+	common.setMenuButtonState('dashboardButton',     'Disabled');
+	common.setMenuButtonState('createStoreButton',   'Disabled');
+	common.setMenuButtonState('createStoreRegStoreButton',    'Disabled');
+	common.setMenuButtonState('createStoreAddProductButton',  'Disabled');
+	common.setMenuButtonState('createStoreEditProductButton', 'Disabled');
+	//status div starts out hidden
+	console.log('show status div');
+	statusDiv.style.display = "block";
+	var leftDiv = document.createElement("div");
+	leftDiv.className = 'visibleIB';
+	statusDiv.appendChild(leftDiv);
+	var rightDiv = document.createElement("div");
+	rightDiv.className = 'visibleIB';
+	statusDiv.appendChild(rightDiv);
+	var statusCtr = 0;
+	var statusText = document.createTextNode('No status yet...');
+	leftDiv.appendChild(statusText);
+	if (!!err || !txid) {
+	    if (!err)
+		err = 'No transaction hash was generated.';
+	    statusText.textContent = 'Error in ' + desc + ' transaction: ' + err;
+	    var reloadLink = document.createElement('a');
+	    reloadLink.addEventListener('click', function() {
+		handleUnlockedMetaMask(continuationMode);
+	    });
+	    reloadLink.href = 'javascript:null;';
+	    reloadLink.innerHTML = "<h2>Continue</h2>";
+	    reloadLink.disabled = false;
+	    rightDiv.appendChild(reloadLink);
+	    callback(err);
+	    return;
+	}
+	//
+	var viewTxLink = document.createElement('a');
+	viewTxLink.href = 'https://' + ether.etherscanioTxStatusHost + '/tx/' + txid;
+	viewTxLink.innerHTML = "<h2>View transaction</h2>";
+	viewTxLink.target = '_blank';
+	viewTxLink.disabled = false;
+	leftDiv.appendChild(viewTxLink);
+	//
+	//cleared in handleUnlockedMetaMask, after the user clicks 'continue'
+	common.waitingForTxid = true;
+	var timer = setInterval(function() {
+	    statusText.textContent = 'Waiting for ' + desc + ' transaction: ' + ++statusCtr + ' seconds...';
+	    if ((statusCtr & 0xf) == 0) {
+		common.web3.eth.getTransactionReceipt(txid, function(err, receipt) {
+		    console.log('common.waitForTXID: err = ' + err);
+		    console.log('common.waitForTXID: receipt = ' + receipt);
+		    if (!!err || !!receipt) {
+			if (!err && !!receipt && receipt.status == 0)
+			    err = "Transaction Failed with REVERT opcode";
+			statusText.textContent = (!!err) ? 'Error in ' + desc + ' transaction: ' + err : desc + ' transaction succeeded!';
+			console.log('transaction is in block ' + (!!receipt ? receipt.blockNumber : 'err'));
+			//statusText.textContent = desc + ' transaction succeeded!';
+			clearInterval(timer);
+			//
+			var reloadLink = document.createElement('a');
+			reloadLink.addEventListener('click', function() {
+			    beginTheBeguine(continuationMode);
+			});
+			reloadLink.href = 'javascript:null;';
+			reloadLink.innerHTML = "<h2>Continue</h2>";
+			reloadLink.disabled = false;
+			rightDiv.appendChild(reloadLink);
+			callback(err);
+			return;
+		    }
+		});
+	    }
+	}, 1000);
+    },
+
+    clearStatusDiv: function(statusDiv) {
+	while (statusDiv.hasChildNodes()) {
+	    statusDiv.removeChild(statusDiv.lastChild);
+	}
+	statusDiv.style.display = "none";
+    },
+
+
+    //state = 'Disabled' | 'Enabled' | 'Selected'
+    setMenuButtonState: function(buttonID, state) {
+	var button = document.getElementById(buttonID);
+	button.disabled = (state == 'Enabled') ? false : true;
+	var newClassName = 'menuBarButton' + state;
+	if (button.className.indexOf('menuBarButtonDisabled') >= 0)
+	    button.className = (button.className).replace('menuBarButtonDisabled', newClassName);
+	else if (button.className.indexOf('menuBarButtonEnabled') >= 0)
+	    button.className = (button.className).replace('menuBarButtonEnabled', newClassName);
+	else if (button.className.indexOf('menuBarButtonSelected') >= 0)
+	    button.className = (button.className).replace('menuBarButtonSelected', newClassName);
+	else
+	    button.className = (button.className).replace('menuBarButton', newClassName);
+    },
+
+
+    replaceElemClassFromTo: function(elemId, from, to, disabled) {
+	var elem = document.getElementById(elemId);
+	if (!elem)
+	    console.log('could not find elem: ' + elemId);
+	elem.className = (elem.className).replace(from, to);
+	elem.disabled = disabled;
+	return(elem);
+    },
+
 };
