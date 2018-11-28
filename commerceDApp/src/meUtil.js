@@ -9,7 +9,7 @@ var BN = require("bn.js");
 
 var escrowUtil = module.exports = {
 
-    //cb(err, result)
+    //cb(err, results)
     getVendorLogs: function(vendorAddr, cb) {
 	const options = {
 	    fromBlock: 0,
@@ -23,10 +23,21 @@ var escrowUtil = module.exports = {
     },
 
 
-    //cb(err, result)
+    //cb(err, results)
     //set regionBN, categoryVB, vendorAddr to null if don't want to search based on that parameter
-    getProductLogs: function(regionBN, categoryVB, vendorAddr, cb) {
-	cb(null, "");
+    getProductLogs: function(regionBN, categoryBN, vendorAddr, cb) {
+	cb(null, [ "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
+		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
+		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
+		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
+		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
+		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it" ]);
+    },
+
+    //cb(err, results)
+    //set regionBN, categoryVB, vendorAddr to null if don't want to search based on that parameter
+    getEscrowLogs: function(vendorAddr, customerAddr, stateBN, cb) {
+	cb(null, [ "this is a stub-result; call meEther.parseEscrowEvent to parse it" ]);
     },
 
 }

@@ -45,11 +45,7 @@ function ListEntry(listIdx, div, msgId, msgNo, addr, date, ref, content) {
 function setMainButtonHandlers() {
     var shopButton = document.getElementById('shopButton');
     shopButton.addEventListener('click', function() {
-	setMenuButtonState('shopButton',          'Selected');
-	setMenuButtonState('dashboardButton',     'Enabled');
-	setMenuButtonState('createStoreButton',   'Enabled');
-	replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
-	replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+	handleShopPage();
     });
     var dashboardButton = document.getElementById('dashboardButton');
     dashboardButton.addEventListener('click', function() {
@@ -75,10 +71,10 @@ function setRegisterStoreButtonHandlers() {
     createStoreRegStoreLoadImageButton.addEventListener('change', function() {
 	var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
 	if (createStoreRegStoreLoadImageButton.files && createStoreRegStoreLoadImageButton.files[0]) {
+	    console.log('createStoreRegStoreLoadImageButton: got ' + URL.createObjectURL(createStoreRegStoreLoadImageButton.files[0]));
 	    console.log('createStoreRegStoreLoadImageButton: got ' + createStoreRegStoreLoadImageButton.files[0].name);
             var reader = new FileReader();
             reader.onload = (e) => {
-		//console.log('createStoreRegStoreLoadImageButton: e.target.result = ' + e.target.result);
 		//eg. createStoreRegStoreLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
                 createStoreRegStoreImg.src = e.target.result;
             };
@@ -292,6 +288,39 @@ function handleRegisteredAcct(mode) {
     replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
     var statusDiv = document.getElementById('statusDiv');
     clearStatusDiv(statusDiv);
+}
+
+
+
+/* ------------------------------------------------------------------------------------------------------------------
+   shop functions
+   ------------------------------------------------------------------------------------------------------------------ */
+function handleShopPage() {
+    setMenuButtonState('shopButton',          'Selected');
+    setMenuButtonState('dashboardButton',     'Enabled');
+    setMenuButtonState('createStoreButton',   'Enabled');
+    replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
+    replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+
+    //
+    // after user enters earch parameters....
+    var regionBN = null;
+    var categoryBN = null;
+    var vendorAddr = null
+    meUtil.getProductLogs(regionBN, categoryBN, vendorAddr, function(err, results) {
+	if (!err) {
+	    for (var i = 0; i < results.length; ++i) {
+		var tileImg = document.getElementById('tile' + i + 'Img');
+		var tileName = document.getElementById('tile' + i + 'Name');
+		var tileText = document.getElementById('tile' + i + 'Text');
+		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
+		    tileImg.src = image;
+		    tileName.textContent = name.substring(0, 22);
+		    tileText.textContent = desc.substring(0, 70);
+		});
+	    }
+	}
+    });
 }
 
 
