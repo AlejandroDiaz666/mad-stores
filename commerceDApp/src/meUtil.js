@@ -24,14 +24,27 @@ var escrowUtil = module.exports = {
 
 
     //cb(err, results)
-    //set regionBN, categoryVB, vendorAddr to null if don't want to search based on that parameter
-    getProductLogs: function(regionBN, categoryBN, vendorAddr, cb) {
-	cb(null, [ "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
-		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
-		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
-		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
-		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it",
-		   "this is a stub-result; call meEther.parseRegisterProductEvent to parse it" ]);
+    //set vendorAddr, regionBN, categoryVB to null if don't want to search based on that parameter
+    getProductLogs: function(vendorAddr, regionBN, categoryBN, cb) {
+	const options = {
+	    fromBlock: 0,
+	    toBlock: 'latest',
+	    address: meEther.ME_CONTRACT_ADDR,
+	    topics: [ meEther.getRegisterProductEventTopic0() ]
+	}
+	//for topics that don't exist, if there are subsequent topics then push null to
+	//keep the topic numbers straight.
+	if (!!vendorAddr)
+	    options.topics.push('0x' + common.leftPadTo(vendorAddr.substring(2), 64, '0'));
+	else if (!!regionBN || !!categoryBN)
+	    options.topics.push(null);
+	if (!!regionBN)
+	    options.topics.push('0x' + common.leftPadTo(regionBN.toString(16), 64, '0'));
+	else if (!!categoryBN)
+	    options.topics.push(null);
+	if (!!categoryBN)
+	    options.topics.push('0x' + common.leftPadTo(categoryBN.toString(16), 64, '0'));
+	ether.getLogs(options, cb);
     },
 
     //cb(err, results)

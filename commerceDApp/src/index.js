@@ -23,6 +23,7 @@ var index = module.exports = {
 
     main: function() {
 	console.log('index.main');
+	setOptionsButtonHandlers();
 	setMainButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
@@ -30,6 +31,10 @@ var index = module.exports = {
     },
 
 };
+
+
+function setOptionsButtonHandlers() {
+}
 
 
 function ListEntry(listIdx, div, msgId, msgNo, addr, date, ref, content) {
@@ -158,38 +163,37 @@ function handleUnlockedMetaMask(mode) {
     common.localStoragePrefix = (common.web3.eth.accounts[0]).substring(2, 10) + '-';
     var accountArea = document.getElementById('accountArea');
     accountArea.value = 'Your account: ' + common.web3.eth.accounts[0];
+    ether.getBalance(common.web3, 'szabo', function(err, balance) {
+	const balanceArea = document.getElementById('balanceArea');
+	const balanceSzabo = parseInt(balance);
+	console.log('balanceSzabo = ' + balanceSzabo);
+	const balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
+	balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth';
+    });
     ether.getNetwork(common.web3, function(err, network) {
-	var networkArea = document.getElementById('networkArea');
+	const networkArea = document.getElementById('networkArea');
 	if (!!err) {
 	    networkArea.value = 'Error: ' + err;
 	} else {
 	    networkArea.value = 'Network: ' + network;
+	    mtEther.setNetwork(network);
 	    if (network.startsWith('Mainnet'))
 		networkArea.className = (networkArea.className).replace('attention', '');
 	    else if (networkArea.className.indexOf(' attention' < 0))
 		networkArea.className += ' attention';
 	}
-    });
-    //console.log('handleUnlockedMetaMask: calling ether.getBalance');
-    ether.getBalance(common.web3, 'szabo', function(err, balance) {
-	var balanceArea = document.getElementById('balanceArea');
-	var balanceSzabo = parseInt(balance);
-	console.log('handleUnlockedMetaMask: balanceSzabo = ' + balanceSzabo);
-	var balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
-	balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth';
-    });
-    //console.log('handleUnlockedMetaMask: calling mtEther.accountQuery');
-    mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
-	console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
-	common.acctInfo = _acctInfo;
-	common.publicKey = (!!common.acctInfo) ? common.acctInfo[mtEther.ACCTINFO_PUBLICKEY] : null;
-	console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(common.acctInfo));
-	//console.log('handleUnlockedMetaMask: publicKey: ' + common.publicKey);
-	if (!common.publicKey || common.publicKey == '0x') {
-	    handleUnregisteredAcct();
-	} else {
-	    handleRegisteredAcct(mode);
-	}
+	mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
+	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
+	    common.acctInfo = _acctInfo;
+	    common.publicKey = (!!common.acctInfo) ? common.acctInfo[mtEther.ACCTINFO_PUBLICKEY] : null;
+	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(common.acctInfo));
+	    //console.log('handleUnlockedMetaMask: publicKey: ' + common.publicKey);
+	    if (!common.publicKey || common.publicKey == '0x') {
+		handleUnregisteredAcct();
+	    } else {
+		handleRegisteredAcct(mode);
+	    }
+	});
     });
 }
 

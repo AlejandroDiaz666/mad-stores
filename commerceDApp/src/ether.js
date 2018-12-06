@@ -187,7 +187,7 @@ const ether = module.exports = {
 		cb(err, '');
 		return;
 	    }
-	    console.log('ether.getLogs: err = ' + err + ', str = ' + str);
+	    //console.log('ether.getLogs: err = ' + err + ', str = ' + str);
 	    //typical (etherscan.io)
 	    //  { "status"  : "1",
 	    //    "message" : "OK",
@@ -207,6 +207,17 @@ const ether = module.exports = {
 	    }
 	    cb(null, eventsResp.result);
 	});
+    },
+
+
+    //extract hex data from the data part of an event log
+    //offsetOfOffset is an offset into the hex, 0x-prefixed data string. at that offset is the bytes offset of the desired
+    //item. the item is prefixed with a 32 byte length.
+    extractHexData: function(data, offsetOfOffset) {
+	const itemOffset = parseInt(data.slice(offsetOfOffset, offsetOfOffset+64), 16);
+	const itemLen    = parseInt(data.slice(2+(2*itemOffset), 2+(2*itemOffset)+64), 16);
+	const itemHex = '0x' + data.slice(2+(2*itemOffset)+64, 2+(2*itemOffset)+64+(itemLen*2));
+	return(itemHex);
     },
 
 };

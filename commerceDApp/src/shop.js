@@ -41,13 +41,15 @@ function handleSearchProducts() {
     var regionBN = null;
     var categoryBN = null;
     var vendorAddr = null
-    meUtil.getProductLogs(regionBN, categoryBN, vendorAddr, function(err, results) {
+    console.log('handleSearchProducts: getting product logs');
+    meUtil.getProductLogs(vendorAddr, regionBN, categoryBN, function(err, results) {
 	if (!err) {
 	    for (var i = 0; i < results.length; ++i) {
 		var tileImg = document.getElementById('tile' + i + 'Img');
 		var tileName = document.getElementById('tile' + i + 'Name');
 		var tileText = document.getElementById('tile' + i + 'Text');
 		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
+		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
 		    tileImg.src = image;
 		    tileName.textContent = name.substring(0, 22);
 		    tileText.textContent = desc.substring(0, 70);

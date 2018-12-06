@@ -2,15 +2,15 @@
    create store functions
    create-store is divided into three: reg-store, add-prod, edit-prod
    ------------------------------------------------------------------------------------------------------------------ */
-var common = require('./common');
-var ether = require('./ether');
-var mtEther = require('./mtEther');
-var meEther = require('./meEther');
-var meUtil = require('./meUtil');
-var BN = require("bn.js");
+const common = require('./common');
+const ether = require('./ether');
+const mtEther = require('./mtEther');
+const meEther = require('./meEther');
+const meUtil = require('./meUtil');
+const BN = require("bn.js");
 
 
-var createStore = module.exports = {
+const createStore = module.exports = {
 
     handleCreateStorePage: function() {
 	common.setMenuButtonState('shopButton',          'Enabled');
@@ -30,18 +30,18 @@ var createStore = module.exports = {
 
 
 function setRegisterStoreButtonHandlers() {
-    var createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
+    const createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
     createStoreRegStoreButton.addEventListener('click', function() {
-	handleCreateStorePage();
+	handleRegStore();
     });
     //create-store / reg store steps
-    var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
+    const createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
     createStoreRegStoreLoadImageButton.addEventListener('change', function() {
-	var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+	const createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
 	if (createStoreRegStoreLoadImageButton.files && createStoreRegStoreLoadImageButton.files[0]) {
 	    console.log('createStoreRegStoreLoadImageButton: got ' + URL.createObjectURL(createStoreRegStoreLoadImageButton.files[0]));
 	    console.log('createStoreRegStoreLoadImageButton: got ' + createStoreRegStoreLoadImageButton.files[0].name);
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
 		//eg. createStoreRegStoreLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
                 createStoreRegStoreImg.src = e.target.result;
@@ -52,31 +52,31 @@ function setRegisterStoreButtonHandlers() {
 	}
 	enableRegisterStoreDoRegButton();
     });
-    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
     createStoreRegStoreNameArea.addEventListener('input', enableRegisterStoreDoRegButton);
-    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
     createStoreRegStoreDescArea.addEventListener('input', enableRegisterStoreDoRegButton);
-    var createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
     createStoreAddProdPriceArea.addEventListener('change', enableRegisterStoreDoRegButton);
-    var createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     createStoreAddProdQuantityArea.addEventListener('change', enableRegisterStoreDoRegButton);
-    var createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
+    const createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
     createStoreRegStoreDoRegButton.addEventListener('click', handleCreateStoreDoReg);
 }
 
 
 function setAddProductButtonHandlers() {
-    var createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
+    const createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
     createStoreAddProductButton.addEventListener('click', function() {
 	handleAddProduct();
     });
     //create-store / add product steps
-    var createStoreAddProdLoadImageButton = document.getElementById('createStoreAddProdLoadImageButton');
+    const createStoreAddProdLoadImageButton = document.getElementById('createStoreAddProdLoadImageButton');
     createStoreAddProdLoadImageButton.addEventListener('change', function() {
-	var createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+	const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
 	if (createStoreAddProdLoadImageButton.files && createStoreAddProdLoadImageButton.files[0]) {
 	    console.log('createStoreAddProdLoadImageButton: got ' + createStoreAddProdLoadImageButton.files[0].name);
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
 		//console.log('createStoreAddProdLoadImageButton: e.target.result = ' + e.target.result);
 		//eg. createStoreAddProdLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
@@ -88,13 +88,12 @@ function setAddProductButtonHandlers() {
 	}
 	enableRegisterStoreDoAddButton();
     });
-    var createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     createStoreAddProdNameArea.addEventListener('input', enableRegisterStoreDoAddButton);
-    var createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     createStoreAddProdDescArea.addEventListener('input', enableRegisterStoreDoAddButton);
-
-    var createStoreAddProdRegisterButton = document.getElementById('createStoreAddProdRegisterButton');
-    createStoreAddProdRegisterButton.addEventListener('click', handleCreateStoreDoAdd);
+    const createStoreAddProdDoAddButton = document.getElementById('createStoreAddProdDoAddButton');
+    createStoreAddProdDoAddButton.addEventListener('click', handleCreateStoreDoAdd);
 }
 
 
@@ -113,13 +112,13 @@ function handleRegStore() {
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
 	console.log('handleCreateMyStorePage: result.length = ' + result.length);
-	var createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
-	var createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
-	var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
-	var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-	var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
-	var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
-	var createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
+	const createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
+	const createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
+	const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+	const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+	const createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+	const createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
+	const createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
 	if (!!result && result.length > 0) {
 	    createStoreRegStoreButton.textContent = 'Modify Store';
 	    createStoreRegStoreDoRegButton.textContent = 'Re-register My Store';
@@ -152,12 +151,12 @@ function handleRegStore() {
 // called whenever any of the register-steps inputs changes
 //
 function enableRegisterStoreDoRegButton() {
-    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
-    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
-    var enable = (createStoreRegStoreNameArea.value.trim().length > 0 != "" &&
-		  createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
-		  createStoreRegStoreImg.src != '#') ? true : false;
+    const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    const createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+    const enable = (createStoreRegStoreNameArea.value.trim().length > 0 != "" &&
+		    createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
+		    createStoreRegStoreImg.src != '#') ? true : false;
     common.setMenuButtonState('createStoreRegStoreDoRegButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
@@ -166,23 +165,23 @@ function enableRegisterStoreDoRegButton() {
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
 function handleCreateStoreDoReg() {
-    var createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
-    var serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
+    const createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
+    const serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
     console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
-    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
-    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-    var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
-    var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
-    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+    const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
+    const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
+    const nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
+    const descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
+    const createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
     //console.log('handleRegisterStore: createStoreRegStoreImg.src = ' + createStoreRegStoreImg.src);
     //rsStoreImg.src is "data:image/png;base64," + base64ImageData;
-    var imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
+    const imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
     //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
     meEther.registerVendor(common.web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
-	var statusDiv = document.getElementById('statusDiv');
+	const statusDiv = document.getElementById('statusDiv');
 	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', function() {
 	});
     });
@@ -209,12 +208,12 @@ function handleAddProduct() {
 // called whenever any of the add-product-steps inputs changes
 //
 function enableRegisterStoreDoAddButton() {
-    var createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
-    var createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
-    var createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
-    var enable = (createStoreAddProdNameArea.value.trim().length > 0 != "" &&
-		  createStoreAddProdDescArea.value.trim().length > 0 != "" &&
-		  createStoreAddProdImg.src != '#') ? true : false;
+    const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+    const enable = (createStoreAddProdNameArea.value.trim().length > 0 != "" &&
+		    createStoreAddProdDescArea.value.trim().length > 0 != "" &&
+		    createStoreAddProdImg.src != '#') ? true : false;
     common.setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
@@ -223,24 +222,24 @@ function enableRegisterStoreDoAddButton() {
 // user has clicked the add-new-product button. execute the transaction.
 //
 function handleCreateStoreDoAdd() {
-    var createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
-    var createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
-    var createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
-    var createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
-    var createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
-    var createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
-    var productIdBN = new BN('0', 16);
-    var categoryBN = new BN('0', 16);
-    var priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
+    const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
+    const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+    const productIdBN = new BN('0', 16);
+    const categoryBN = new BN('0', 16);
+    const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
-    var quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
-    var nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
-    var descBytes = common.strToUtf8Bytes(createStoreRegStoreDescArea.value);
-    var imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
+    const quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
+    const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
+    const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
+    const imageBytes = common.imageToBytes(createStoreAddProdImg.src);
     meEther.registerProduct(common.web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
-	var statusDiv = document.getElementById('statusDiv');
+	const statusDiv = document.getElementById('statusDiv');
 	common.waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', function() {
 	});
     });

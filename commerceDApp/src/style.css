@@ -605,7 +605,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-180px, -7px, 0px);
 }
-#createStoreAddProdRegisterButton {
+#createStoreAddProdDoAddButton {
     width: auto;
     position: absolute;
     top: 145px;
