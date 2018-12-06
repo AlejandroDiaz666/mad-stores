@@ -2,14 +2,14 @@
 //
 // fcns related to ethereum, nonspecific to any particular contract
 //
-var common = require('./common');
-var ethUtils = require('ethereumjs-util');
-var ethtx = require('ethereumjs-tx');
-var ethabi = require('ethereumjs-abi');
-var Buffer = require('buffer/').Buffer;
-var BN = require("bn.js");
+const common = require('./common');
+const ethUtils = require('ethereumjs-util');
+const ethtx = require('ethereumjs-tx');
+const ethabi = require('ethereumjs-abi');
+const Buffer = require('buffer/').Buffer;
+const BN = require("bn.js");
 
-var ether = module.exports = {
+const ether = module.exports = {
 
     SZABO_PER_ETH:     1000000,
     GWEI_PER_ETH:      1000000000,
@@ -17,17 +17,23 @@ var ether = module.exports = {
     WEI_PER_SZABO:     1000000000000,
     WEI_PER_FINNEY:    1000000000000000,
     WEI_PER_ETH:       1000000000000000000,
+    etherscanioHost: '',
+    //tx status host for user to check status of transactions
+    etherscanioTxStatusHost: '',
     etherscanioHost_kovan: 'api-kovan.etherscan.io',
     etherscanioTxStatusHost_kovan: 'kovan.etherscan.io',
     etherscanioHost_ropsten: 'api-ropsten.etherscan.io',
     etherscanioTxStatusHost_ropsten: 'ropsten.etherscan.io',
     etherscanioHost_main: 'api.etherscan.io',
     etherscanioTxStatusHost_main: 'etherscan.io',
-
+    infuraioHost: 'kovan.infura.io',
+    infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
+    //node = 'etherscan.io' | 'infura.io'
+    node: 'etherscan.io',
 
     //cb(err, network)
     getNetwork: function(web3, cb) {
-	var network = 'Unknown Network';
+	let network = 'Unknown Network';
 	web3.version.getNetwork((err, netId) => {
 	    switch (netId) {
 	    case "1":
@@ -66,7 +72,7 @@ var ether = module.exports = {
     //convert an amount in wei to a comfortable representation
     //for example: 1000000000000 => '1 gwei'
     convertWeiToComfort: function(web3, wei) {
-	var units =
+	const units =
 	    (wei < ether.WEI_PER_GWEI)   ? 'Wei'   :
 	    (wei < ether.WEI_PER_SZABO)  ? 'Gwei'   :
 	    (wei < ether.WEI_PER_FINNEY) ? 'Szabo'  :
@@ -89,9 +95,9 @@ var ether = module.exports = {
 	} else {
 	    // Check each case
 	    addr = addr.replace('0x','');
-	    var addressHash = common.web3.sha3(addr.toLowerCase());
+	    let addressHash = common.web3.sha3(addr.toLowerCase());
 	    addressHash = addressHash.replace('0x','');
-	    for (var i = 0; i < 40; i++ ) {
+	    for (let i = 0; i < 40; i++ ) {
 		// the nth letter should be uppercase if the nth digit of casemap is 1
 		if ((parseInt(addressHash[i], 16) > 7 && addr[i].toUpperCase() !== addr[i]) || (parseInt(addressHash[i], 16) <= 7 && addr[i].toLowerCase() !== addr[i])) {
 		    console.log('addr = ' + addr + ', addressHash = ' + addressHash);
@@ -120,7 +126,7 @@ var ether = module.exports = {
     // units: 'szabo' | 'finney' | 'ether'
     //
     send: function(web3, to_addr, size, units, data, gasLimit, callback) {
-	var tx = {};
+	const tx = {};
 	tx.from = web3.eth.accounts[0];
 	tx.value = web3.toWei(size, units);
 	tx.to = to_addr,
@@ -136,53 +142,65 @@ var ether = module.exports = {
     //options: {
     //	fromBlock, toBlock, address, topics[]
     //
-    //this is the more correct way to get logs.... except that it's not reliable :(
-    /*
     getLogs: function(options, cb) {
-        const filter = common.web3.eth.filter(options);
-	filter.get(cb);
-	filter.stopWatching();
-    },
-    */
-    getLogs: function(options, cb) {
-	var url = 'https://' + ether.etherscanioHost   +
-	    '/api?module=logs&action=getLogs'          +
-	    '&fromBlock=' + options.fromBlock          +
-	    '&toBlock=' + options.toBlock              +
-	    '&address=' + options.address              +
-	    '&topic0=' + options.topics[0];
-	if (options.topics.length > 1) {
-	    if (!!options.topics[1])
-		url += '&topic1=' + options.topics[1];
-	    if (options.topics.length > 2) {
-		if (!!options.topics[2])
-		    url += '&topic2=' + options.topics[2];
-		if (options.topics.length > 3) {
-		    if (!!options.topics[3])
-			url += '&topic3=' + options.topics[3];
+	console.log('getLogs: ether.node = ' + ether.node);
+	if (ether.node == 'metamask') {
+            const filter = common.web3.eth.filter(options);
+	    filter.get(cb);
+	    filter.stopWatching();
+	    return;
+	}
+	let url;
+	if (ether.node == 'etherscan.io') {
+	    url = 'https://' + ether.etherscanioHost   +
+		'/api?module=logs&action=getLogs'          +
+		'&fromBlock=' + options.fromBlock          +
+		'&toBlock=' + options.toBlock              +
+		'&address=' + options.address              +
+		'&topic0=' + options.topics[0];
+	    if (options.topics.length > 1) {
+		if (!!options.topics[1])
+		    url += '&topic1=' + options.topics[1];
+		if (options.topics.length > 2) {
+		    if (!!options.topics[2])
+			url += '&topic2=' + options.topics[2];
+		    if (options.topics.length > 3) {
+			if (!!options.topics[3])
+			    url += '&topic3=' + options.topics[3];
+		    }
 		}
 	    }
+	    options = null;
+	} else {
+	    url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
+	    options.fromBlock = 'earliest';
+	    const paramsStr = JSON.stringify(options);
+	    console.log('ether.getLogs: paramsStr = ' + paramsStr);
+	    const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
+	    options = { method: 'post', body: body, headers: { 'Content-Type': 'application/json' } };
+	    console.log('ether.getLogs: body = ' + body);
 	}
-	common.fetch(url, function(str, err) {
+	common.fetch(url, options, function(str, err) {
 	    if (!str || !!err) {
-		var err = "error retreiving events: " + err;
+		const err = "error retreiving events: " + err;
 		console.log('ether.getLogs: ' + err);
 		cb(err, '');
 		return;
 	    }
-	    //typical
+	    console.log('ether.getLogs: err = ' + err + ', str = ' + str);
+	    //typical (etherscan.io)
 	    //  { "status"  : "1",
 	    //    "message" : "OK",
 	    //    "result"  : [...]
 	    //  }
-	    var eventsResp = JSON.parse(str);
-	    if (eventsResp.status == 0 && eventsResp.message == 'No records found') {
+	    const eventsResp = JSON.parse(str);
+	    if (ether.node == 'etherscan.io' && eventsResp.status == 0 && eventsResp.message == 'No records found') {
 		//this is not an err... just no events
 		cb(err, '');
 		return;
 	    }
-	    if (eventsResp.status != 1 || eventsResp.message != 'OK') {
-		var err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
+	    if (ether.node == 'etherscan.io' && (eventsResp.status != 1 || eventsResp.message != 'OK')) {
+		const err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
 		console.log('ether.getLogs: ' + err);
 		cb(err, '');
 		return;
