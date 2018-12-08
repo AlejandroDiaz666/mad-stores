@@ -381,7 +381,8 @@ function editProduct(product) {
     createStoreEditProdNameArea.value = product.name;
     createStoreEditProdDescArea.value = product.desc;
     createStoreEditProdImg.src = product.image;
-    //createStoreEditProdPriceArea.value = product.priceDigits();
-    //createStoreEditProdPriceUnits.value = product.priceUnits();
+    const numberAndUnits = ether.convertWeiToNumberAndUnits(product.priceBN);
+    createStoreEditProdPriceArea.value = numberAndUnits.number;
+    createStoreEditProdPriceUnits.selectedIndex = numberAndUnits.index;
     createStoreEditProdQuantityArea.value = product.quantityBN.toString(10);
 }

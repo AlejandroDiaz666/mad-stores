@@ -80,6 +80,47 @@ const ether = module.exports = {
 	return(web3.fromWei(wei, units).toString() + ' ' + units);
     },
 
+
+    convertWeiToNumberAndUnits: function(weiBN) {
+	const numberAndUnits = {};
+	let multiplyer;
+	console.log('convertWeiToNumberAndUnits: weiBN = ' + weiBN.toString(10));
+	if (weiBN.lt(new BN('3E8', 16))) {
+	    numberAndUnits.index = 0;
+	    numberAndUnits.multiplyer = '1';
+	    numberAndUnits.units = 'Wei';
+	} else if (weiBN.lt(new BN('F4240', 16))) {
+	    numberAndUnits.index = 1;
+	    numberAndUnits.multiplyer = '1000';
+	    numberAndUnits.units = 'Kwei';
+	} else if (weiBN.lt(new BN('3B9ACA00', 16))) {
+	    numberAndUnits.index = 2;
+	    numberAndUnits.multiplyer = '1000000';
+	    numberAndUnits.units = 'Mwei';
+	} else if (weiBN.lt(new BN('E8D4A51000', 16))) {
+	    numberAndUnits.index = 3;
+	    numberAndUnits.multiplyer = '1000000000';
+	    numberAndUnits.units = 'Gwei';
+	} else if (weiBN.lt(new BN('38D7EA4C68000', 16))) {
+	    numberAndUnits.index = 4;
+	    numberAndUnits.multiplyer = '1000000000000';
+	    numberAndUnits.units = 'Szabo';
+	} else if (weiBN.lt(new BN('DE0B6B3A7640000', 16))) {
+	    numberAndUnits.index = 5;
+	    numberAndUnits.multiplyer = '1000000000000000';
+	    numberAndUnits.units = 'Finney';
+	} else {
+	    numberAndUnits.index = 6;
+	    numberAndUnits.multiplyer = '1000000000000000000';
+	    numberAndUnits.units = 'Eth';
+	}
+	console.log('convertWeiToNumberAndUnits: units = ' + numberAndUnits.units);
+	console.log('convertWeiToNumberAndUnits: multiplyer = ' + numberAndUnits.multiplyer);
+	const multiplyerBN = new BN(numberAndUnits.multiplyer, 10);
+	numberAndUnits.number = weiBN.div(multiplyerBN).toString(10);
+	return(numberAndUnits);
+    },
+
     validateAddr: function (addr) {
 	if (!addr.startsWith('0x'))
 	    return(false);
