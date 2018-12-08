@@ -60,29 +60,35 @@ function handleSearchProducts() {
 		tileImgElem.id = 'tile' + i + 'Img';
 		tileImgElem.className = 'tileImg';
 		tileDiv.appendChild(tileImgElem);
-		const tileNameBgDiv = document.createElement('div');
-		tileNameBgDiv.id = 'tile' + i + 'NameBgDiv';
-		tileNameBgDiv.className = 'tileNameBg';
-		tileDiv.appendChild(tileNameBgDiv);
 		const tileNameSpan = document.createElement('span');
 		tileNameSpan.id = 'tile' + i + 'Name';
 		tileNameSpan.className = 'tileName';
 		tileDiv.appendChild(tileNameSpan);
-		const tileTextBgDiv = document.createElement('div');
-		tileTextBgDiv.id = 'tile' + i + 'TextBgDiv';
-		tileTextBgDiv.className = 'tileTextBg';
-		tileDiv.appendChild(tileTextBgDiv);
 		const tileTextSpan = document.createElement('span');
 		tileTextSpan.id = 'tile' + i + 'Text';
 		tileTextSpan.className = 'tileText';
 		tileDiv.appendChild(tileTextSpan);
+		const tilePriceSpan = document.createElement('span');
+		tilePriceSpan.id = 'tile' + i + 'Price';
+		tilePriceSpan.className = 'tilePrice';
+		tileDiv.appendChild(tilePriceSpan);
+		const tileQuantitySpan = document.createElement('span');
+		tileQuantitySpan.id = 'tile' + i + 'Quantity';
+		tileQuantitySpan.className = 'tileQuantity';
+		tileDiv.appendChild(tileQuantitySpan);
 		shopTilesDiv.appendChild(tileDiv);
 		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
 		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
 		    tileImgElem.src = image;
 		    tileNameSpan.textContent = name.substring(0, 22);
 		    tileTextSpan.textContent = desc.substring(0, 70);
-		    //const product = new Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
+		    const product = new meUtil.Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
+		    meEther.productPriceQuery(common.web3, productIdBN, function(err, productPriceInfo) {
+			console.log('productPriceInfo = ' + productPriceInfo);
+			product.setPriceInfo(productPriceInfo);
+			tilePriceSpan.textContent = 'Price: ' + ether.convertWeiToComfort(common.web3, productPriceInfo.price);
+			tileQuantitySpan.textContent = 'Quantity available: ' + productPriceInfo.quantity.substring(0, 22);
+		    });
 		    //tileDiv.addEventListener('click', () => editProduct(product))
 		});
 	    }

@@ -122,6 +122,32 @@ const meEther = module.exports = {
 	});
     },
 
+    //cb(err, { price: uing256, quantity: uint256, vendorAddr: address } )
+    productPriceQuery: function(web3, productIdBN, cb) {
+	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
+	const MEcontract = web3.eth.contract(ABIArray);
+	console.log('productPriceQuery: contract = ' + MEcontract);
+	console.log('productPriceQuery: contract addr = ' + meEther.ME_CONTRACT_ADDR);
+	console.log('productPriceQuery: productID = ' + common.BNToHex256(productIdBN));
+	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
+	console.log('contract: ' + MEContractInstance);
+	MEContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
+	    console.log('productPriceQuery: err = ' + err + ', resultObj = ' + resultObj);
+	    const productPriceInfo = {};
+	    if (!err) {
+		//result = { true, 0 }
+		const keys = [ 'price', 'quantity', 'vendorAddr'];
+		const resultArray = Array.from(resultObj);
+		console.log('productPriceQuery: resultArray = ' + resultArray);
+		for (let i = 0; i < resultArray.length; ++i) {
+		    productPriceInfo[keys[i]] = resultArray[i].toString();
+		    console.log('productPriceQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
+		}
+	    }
+	    cb(err, productPriceInfo);
+	});
+    },
+
 
     productQuery: function(web3, addr, cb) {
     },

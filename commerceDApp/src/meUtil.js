@@ -9,6 +9,25 @@ var BN = require("bn.js");
 
 var escrowUtil = module.exports = {
 
+    Product: function (vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
+	this.vendorAddr = vendorAddr;
+	this.regionBN = regionBN;
+	this.categoryBN = categoryBN;
+	this.productIdBN = productIdBN
+	this.name = name;
+	this.desc = desc;
+	this.image = image;
+	this.priceBN = this.quantityBN = null;
+	this.setPriceAndQuantity = function(priceBN, QuantityBN) {
+	    this.priceBN = priceBN;
+	    this.quantityBN = quantityBN;
+	};
+	this.setPriceInfo = function(priceInfo) {
+	    this.priceBN = common.numberToBN(priceInfo.price);
+	    this.quantityBN = common.numberToBN(priceInfo.quantity);
+	};
+    },
+
     //cb(err, results)
     getVendorLogs: function(vendorAddr, cb) {
 	const options = {

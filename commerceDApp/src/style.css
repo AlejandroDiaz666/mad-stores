@@ -285,7 +285,7 @@ h3 { font-size:18px; }
     display: grid;
     grid-template-columns: repeat(4, 260px);
     grid-auto-columns: minmax(260px, 260px);
-    grid-auto-rows: minmax(260px, 260px);
+    grid-auto-rows: minmax(335px, 335px);
     grid-column-gap: 10px;
     grid-row-gap: 10px;
     padding-left: 20px;
@@ -313,16 +313,6 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-80px, 5px, 0px);
 }
-.tileNameBg {
-    width: 240px;
-    height: 25px;
-    background-color: rgb(120, 120, 149);
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform-style: preserve-3d;
-    transform: translate3d(-120px, -90px, 0px);
-}
 .tileName {
     width: 240px;
     height: 25px;
@@ -331,22 +321,11 @@ h3 { font-size:18px; }
     left: 50%;
     top: 100%;
     transform-style: preserve-3d;
-    transform: translate3d(-120px, -90px, 0px);
+    transform: translate3d(-120px, -155px, 0px);
     text-align: center;
     font-family: lato;
     font-size: 20px;
     font-weight: bold;
-}
-
-.tileTextBg {
-    width: 240px;
-    height: 60px;
-    background-color: rgb(120, 120, 149);
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform-style: preserve-3d;
-    transform: translate3d(-120px, -60px, 0px);
 }
 .tileText {
     width: 240px;
@@ -356,7 +335,36 @@ h3 { font-size:18px; }
     left: 50%;
     top: 100%;
     transform-style: preserve-3d;
+    transform: translate3d(-120px, -125px, 0px);
+}
+.tilePrice {
+    width: 240px;
+    height: 20px;
+    background-color: rgb(100, 110, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -30px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px;
+}
+.tileQuantity {
+    width: 240px;
+    height: 25px;
+    background-color: rgb(100, 110, 149);
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
     transform: translate3d(-120px, -60px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 
