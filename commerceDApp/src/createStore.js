@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------------------------------------------------
    create store functions
-   create-store is divided into three: reg-store, add-prod, edit-prod
+   create-store is divided into three: reg-store, add/edit-prod, view-prod
    ------------------------------------------------------------------------------------------------------------------ */
 const common = require('./common');
 const ether = require('./ether');
@@ -12,27 +12,46 @@ const BN = require("bn.js");
 
 const createStore = module.exports = {
 
+    products: [],
+
     handleCreateStorePage: function() {
 	common.setMenuButtonState('shopButton',          'Enabled');
 	common.setMenuButtonState('dashboardButton',     'Enabled');
 	common.setMenuButtonState('createStoreButton',   'Selected');
 	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
 	common.replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
-	handleRegStore();
+	regStoreSubPage();
     },
 
     setButtonHandlers: function() {
 	setRegisterStoreButtonHandlers();
 	setAddProductButtonHandlers();
+	setViewProductsButtonHandlers();
     },
 
 };
 
 
+function Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
+    this.vendorAddr = vendorAddr;
+    this.regionBN = regionBN;
+    this.categoryBN = categoryBN;
+    this.productIdBN = productIdBN
+    this.name = name;
+    this.desc = desc;
+    this.image = image;
+    this.priceBN = this.quantityBN = null;
+    this.setPriceAndQuantity = function(priceBN, QuantityBN) {
+	this.priceBN = priceBN;
+	this.quantityBN = quantityBN;
+    };
+}
+
+
 function setRegisterStoreButtonHandlers() {
     const createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
     createStoreRegStoreButton.addEventListener('click', function() {
-	handleRegStore();
+	regStoreSubPage();
     });
     //create-store / reg store steps
     const createStoreRegStoreLoadImageButton = document.getElementById('createStoreRegStoreLoadImageButton');
@@ -68,7 +87,7 @@ function setRegisterStoreButtonHandlers() {
 function setAddProductButtonHandlers() {
     const createStoreAddProductButton = document.getElementById('createStoreAddProductButton');
     createStoreAddProductButton.addEventListener('click', function() {
-	handleAddProduct();
+	addProductSubPage();
     });
     //create-store / add product steps
     const createStoreAddProdLoadImageButton = document.getElementById('createStoreAddProdLoadImageButton');
@@ -97,21 +116,30 @@ function setAddProductButtonHandlers() {
 }
 
 
+function setViewProductsButtonHandlers() {
+    const createStoreViewProductsButton = document.getElementById('createStoreViewProductsButton');
+    createStoreViewProductsButton.addEventListener('click', function() {
+	viewProductsSubPage();
+    });
+}
+
+
 //
 // create-store - reg-store
 //
-function handleRegStore() {
-    common.setMenuButtonState('createStoreRegStoreButton',    'Selected');
-    common.setMenuButtonState('createStoreAddProductButton',  'Disabled');
-    common.setMenuButtonState('createStoreEditProductButton', 'Disabled');
+function regStoreSubPage() {
+    common.setMenuButtonState('createStoreRegStoreButton',     'Selected');
+    common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
+    common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
-	console.log('handleCreateMyStorePage: result.length = ' + result.length);
+	console.log('regStoreSubPage: result.length = ' + result.length);
 	const createStoreRegStoreButton = document.getElementById('createStoreRegStoreButton');
 	const createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
 	const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
@@ -123,9 +151,9 @@ function handleRegStore() {
 	    createStoreRegStoreButton.textContent = 'Modify Store';
 	    createStoreRegStoreDoRegButton.textContent = 'Re-register My Store';
 	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
-		console.log('handleCreateMyStorePage: err = ' + err);
-		console.log('handleCreateMyStorePage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
-		console.log('handleCreateMyStorePage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
+		console.log('regStorePageSubPage: err = ' + err);
+		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
+		console.log('regStorePageSubPage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
 		createStoreRegStoreRegionSelector.value = common.BNToHex256(common.numberToBN(vendorAcctInfo.serviceRegion));
 	    });
 	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
@@ -135,6 +163,7 @@ function handleRegStore() {
 		createStoreRegStoreImg.src = image;
 	    });
 	    common.setMenuButtonState('createStoreAddProductButton', 'Enabled');
+	    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
 	} else {
 	    createStoreRegStoreButton.textContent = 'Create Store';
 	    createStoreRegStoreDoRegButton.textContent = 'Register My Store';
@@ -190,16 +219,40 @@ function handleCreateStoreDoReg() {
 
 //
 // create-store - add-product
+// this code is also used to edit a product:
+//  productId = null => add a new product
 //
-function handleAddProduct() {
-    console.log('handleAddProduct');
-    common.setMenuButtonState('createStoreRegStoreButton',    'Enabled');
-    common.setMenuButtonState('createStoreAddProductButton',  'Selected');
-    common.setMenuButtonState('createStoreEditProductButton', 'Disabled');
+function addProductSubPage(product) {
+    console.log('addProductSubPage');
+    common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
+    common.setMenuButtonState('createStoreAddProductButton',   'Selected');
+    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
+    common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
+    const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
+    const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
+    const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+    const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
+    const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    if (!!product) {
+	createStoreAddProdNameArea.value = product.name;
+	createStoreAddProdDescArea.value = product.desc;
+	createStoreAddProdImg.src = product.image;
+	createStoreAddProdPriceArea.value = product.priceDigits();
+	createStoreAddProdPriceUnits.value = product.priceUnits();
+	createStoreAddProdQuantityArea.value = product.quantity;
+    } else {
+	createStoreAddProdNameArea.value = '';
+	createStoreAddProdDescArea.value = '';
+	createStoreAddProdImg.src = '#';
+	createStoreAddProdPriceArea.value = '';
+	createStoreAddProdQuantityArea.value = '';
+	productIdBN = new BN('0', 16);
+    }
 }
 
 
@@ -221,14 +274,20 @@ function enableRegisterStoreDoAddButton() {
 //
 // user has clicked the add-new-product button. execute the transaction.
 //
-function handleCreateStoreDoAdd() {
+function handleCreateStoreDoAdd(productIdBN) {
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
     const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
-    const productIdBN = new BN('0', 16);
+    let product;
+    if (!!productIdBN) {
+	product = products[productIdBN];
+    } else {
+	productIdBN = new BN('0', 16);
+	product = products[productIdBN];
+    }
     const categoryBN = new BN('0', 16);
     const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
@@ -243,4 +302,95 @@ function handleCreateStoreDoAdd() {
 	common.waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', function() {
 	});
     });
+}
+
+
+
+//
+// create-store - view-products
+//
+function viewProductsSubPage() {
+    console.log('viewProductsSubPage');
+    common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
+    common.setMenuButtonState('createStoreAddProductButton',   'Enabled');
+    common.setMenuButtonState('createStoreViewProductsButton', 'Selected');
+    common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
+    common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
+
+
+    // after user enters earch parameters....
+    var regionBN = null;
+    var categoryBN = null;
+    var vendorAddr = null; //should be my addr
+    console.log('viewProductsSubPage: getting product logs');
+    const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
+    while (createStoreViewProdsTilesDiv.hasChildNodes()) {
+	console.log('createStoreViewProdsTilesDiv.lastChild = ' + createStoreViewProdsTilesDiv.lastChild);
+	console.log('createStoreViewProdsTilesDiv.lastChild = ' + createStoreViewProdsTilesDiv.lastChild.toString());
+	createStoreViewProdsTilesDiv.removeChild(createStoreViewProdsTilesDiv.lastChild);
+    }
+    meUtil.getProductLogs(vendorAddr, regionBN, categoryBN, function(err, results) {
+	if (!err) {
+	    for (var i = 0; i < results.length; ++i) {
+		const tileDiv = document.createElement('div');
+		tileDiv.id = 'tile' + i + 'Div';
+		tileDiv.className = 'tileDiv';
+		const tileImgElem = document.createElement('img');
+		tileImgElem.id = 'tile' + i + 'Img';
+		tileImgElem.className = 'tileImg';
+		tileDiv.appendChild(tileImgElem);
+		const tileNameBgDiv = document.createElement('div');
+		tileNameBgDiv.id = 'tile' + i + 'NameBgDiv';
+		tileNameBgDiv.className = 'tileNameBg';
+		tileDiv.appendChild(tileNameBgDiv);
+		const tileNameSpan = document.createElement('span');
+		tileNameSpan.id = 'tile' + i + 'Name';
+		tileNameSpan.className = 'tileName';
+		tileDiv.appendChild(tileNameSpan);
+		const tileTextBgDiv = document.createElement('div');
+		tileTextBgDiv.id = 'tile' + i + 'TextBgDiv';
+		tileTextBgDiv.className = 'tileTextBg';
+		tileDiv.appendChild(tileTextBgDiv);
+		const tileTextSpan = document.createElement('span');
+		tileTextSpan.id = 'tile' + i + 'Text';
+		tileTextSpan.className = 'tileText';
+		tileDiv.appendChild(tileTextSpan);
+		createStoreViewProdsTilesDiv.appendChild(tileDiv);
+		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
+		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
+		    tileImgElem.src = image;
+		    tileNameSpan.textContent = name.substring(0, 22);
+		    tileTextSpan.textContent = desc.substring(0, 70);
+		    const product = new Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
+		    tileDiv.addEventListener('click', () => editProduct(product))
+		});
+	    }
+	}
+    });
+}
+
+
+//
+// create-store - view-products -- edit-product
+//
+function editProduct(product) {
+    console.log('edit product ' + product.productIdBN.toString(10));
+    common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'hidden',   'visibleB', null);
+    const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
+    const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
+    const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
+    const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
+    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
+    const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
+    createStoreEditProdNameArea.value = product.name;
+    createStoreEditProdDescArea.value = product.desc;
+    createStoreEditProdImg.src = product.image;
+    createStoreEditProdPriceArea.value = product.priceDigits();
+    createStoreEditProdPriceUnits.value = product.priceUnits();
+    createStoreEditProdQuantityArea.value = product.quantity;
 }

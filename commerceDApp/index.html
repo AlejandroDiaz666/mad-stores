@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544128174_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544262222_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544128174_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544262222_.js"></script>
 
   </head>
 
@@ -278,7 +278,7 @@
 	<div id="createStoreMenuBarDiv" style="clear:both">
 	  <button id="createStoreRegStoreButton" class="createStoreMenuButton menuBarButton" type="button">Create Store</button>
 	  <button id="createStoreAddProductButton" class="createStoreMenuButton menuBarButton" type="button">Add Product</button>
-	  <button id="createStoreEditProductButton" class="createStoreMenuButton menuBarButton" type="button">Edit Product</button>
+	  <button id="createStoreViewProductsButton" class="createStoreMenuButton menuBarButton" type="button">View Products</button>
 	</div>
 	<!-- reg store -->
 	<div id="createStoreRegStoreNote" class="hidden">
@@ -292,7 +292,13 @@
 	    Simply enter a brief, and also a more complete description of the product; enter the price per item, and the number of items you have avilable; and upload a photo of the product. When you are all done click the 'add-this-product' button.</p>
 	  <button id="createStoreAddProdDoAddButton" class="menuBarButton" type="button">Add this Product</button>
 	</div>
+	<!-- view products -->
+	<div id="createStoreViewProdsNote" class="hidden">
+	  <p id="createStoreViewProdsNoteText">To modify a product, or to set the price or quantity of a product, first select the product to edit.</p>
+	</div>
+
       </div>
+
       <div class="centerDiv">
 	<!-- reg store -->
 	<div id="createStoreRegStoreStepsDiv" class="hidden">
@@ -375,6 +381,60 @@
 	  <p id="createStoreAddProdStep4NoText" class="rsStepNoText">4</p>
 	  <input id="createStoreAddProdLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
 	  <img id="createStoreAddProdImg" alt="160x160 .png image"/>
+	</div>
+
+	<!-- view products -->
+	<div id="createStoreViewProdsDiv" class="hidden">
+	  <div id="createStoreViewProdsTilesDiv" class="tilesDiv">
+	  </div>
+	</div>
+	<div id="createStoreEditProdStepsDiv" class="hidden">
+	  <!-- step 1 -->
+	  <div id="createStoreEditProdStep1NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreEditProdStep1InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreEditProdStep1InstrText" class="rsStepInstrText"><p>Enter a name and a short description of this product</p></span>
+	  <p id="createStoreEditProdStep1NoText" class="rsStepNoText">1</p>
+	  <textarea id="createStoreEditProdNameArea" rows="1" cols="42" placeholder="Name of this product"></textarea>
+	  <textarea id="createStoreEditProdDescArea" rows="3" cols="70" placeholder="Description of product, including any special ordering instructions"></textarea>
+	  <!-- step 2 -->
+	  <div id="createStoreEditProdStep2NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreEditProdStep2InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreEditProdStep2InstrText" class="rsStepInstrText">
+	    <p>Enter the price for each unit sold. The price should include shipping charges.</p>
+	  </span>
+	  <p id="createStoreEditProdStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="createStoreEditProdPriceArea" rows="1" cols="12"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder="Price"></textarea>
+	  <select id="createStoreEditProdPriceUnits">
+	    <option value="1">Wei</option>
+	    <option value="1000">Kwei</option>
+	    <option value="1000000">Mwei</option>
+	    <option value="1000000000">Gwei</option>
+	    <option value="1000000000000">Szabo</option>
+	    <option value="1000000000000000">Finney</option>
+	    <option value="10000000000000000">Eth</option>
+	  </select>
+	  <!-- step 3 -->
+	  <div id="createStoreEditProdStep3NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreEditProdStep3InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreEditProdStep3InstrText" class="rsStepInstrText">
+	    <p>Enter the quantity of items that are available for purchase</p>
+	  </span>
+	  <p id="createStoreEditProdStep3NoText" class="rsStepNoText">3</p>
+	  <p id="createStoreEditProdStep2NoText" class="rsStepNoText">2</p>
+	  <textarea id="createStoreEditProdQuantityArea" rows="1" cols="12"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder="Quantity"></textarea>
+	  <!-- step 4 -->
+	  <div id="createStoreEditProdStep4NoBg" class="rsStepNoBg"></div>
+	  <div id="createStoreEditProdStep4InstrBg" class="rsStepInstrBg"></div>
+	  <span id="createStoreEditProdStep4InstrText" class="rsStepInstrText">
+	    <p>Load a photo of this product</p>
+	  </span>
+	  <p id="createStoreEditProdStep4NoText" class="rsStepNoText">4</p>
+	  <input id="createStoreEditProdLoadImageButton" type="file" name="filename" accept="image/gif, image/jpeg, image/png"/>
+	  <img id="createStoreEditProdImg" alt="160x160 .png image"/>
 	</div>
 
       </div>
