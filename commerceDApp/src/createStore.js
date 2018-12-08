@@ -136,6 +136,7 @@ function regStoreSubPage() {
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
@@ -232,6 +233,7 @@ function addProductSubPage(product) {
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
@@ -320,7 +322,6 @@ function viewProductsSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-
 
     // after user enters earch parameters....
     var regionBN = null;

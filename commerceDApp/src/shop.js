@@ -41,18 +41,49 @@ function handleSearchProducts() {
     var regionBN = null;
     var categoryBN = null;
     var vendorAddr = null
+
+    const shopTilesDiv = document.getElementById('shopTilesDiv');
+    while (shopTilesDiv.hasChildNodes()) {
+	console.log('shopTilesDiv.lastChild = ' + shopTilesDiv.lastChild);
+	console.log('shopTilesDiv.lastChild = ' + shopTilesDiv.lastChild.toString());
+	shopTilesDiv.removeChild(shopTilesDiv.lastChild);
+    }
+
     console.log('handleSearchProducts: getting product logs');
     meUtil.getProductLogs(vendorAddr, regionBN, categoryBN, function(err, results) {
 	if (!err) {
 	    for (var i = 0; i < results.length; ++i) {
-		var tileImg = document.getElementById('tile' + i + 'Img');
-		var tileName = document.getElementById('tile' + i + 'Name');
-		var tileText = document.getElementById('tile' + i + 'Text');
+		const tileDiv = document.createElement('div');
+		tileDiv.id = 'tile' + i + 'Div';
+		tileDiv.className = 'tileDiv';
+		const tileImgElem = document.createElement('img');
+		tileImgElem.id = 'tile' + i + 'Img';
+		tileImgElem.className = 'tileImg';
+		tileDiv.appendChild(tileImgElem);
+		const tileNameBgDiv = document.createElement('div');
+		tileNameBgDiv.id = 'tile' + i + 'NameBgDiv';
+		tileNameBgDiv.className = 'tileNameBg';
+		tileDiv.appendChild(tileNameBgDiv);
+		const tileNameSpan = document.createElement('span');
+		tileNameSpan.id = 'tile' + i + 'Name';
+		tileNameSpan.className = 'tileName';
+		tileDiv.appendChild(tileNameSpan);
+		const tileTextBgDiv = document.createElement('div');
+		tileTextBgDiv.id = 'tile' + i + 'TextBgDiv';
+		tileTextBgDiv.className = 'tileTextBg';
+		tileDiv.appendChild(tileTextBgDiv);
+		const tileTextSpan = document.createElement('span');
+		tileTextSpan.id = 'tile' + i + 'Text';
+		tileTextSpan.className = 'tileText';
+		tileDiv.appendChild(tileTextSpan);
+		shopTilesDiv.appendChild(tileDiv);
 		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
 		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
-		    tileImg.src = image;
-		    tileName.textContent = name.substring(0, 22);
-		    tileText.textContent = desc.substring(0, 70);
+		    tileImgElem.src = image;
+		    tileNameSpan.textContent = name.substring(0, 22);
+		    tileTextSpan.textContent = desc.substring(0, 70);
+		    //const product = new Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
+		    //tileDiv.addEventListener('click', () => editProduct(product))
 		});
 	    }
 	}
