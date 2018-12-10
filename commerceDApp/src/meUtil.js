@@ -39,13 +39,13 @@ var meUtil = module.exports = {
 
 
     //
-    // fcn(product)
-    // errCB(err)
+    // fcn(err, product)
+    // cb(err, noProducts, lastProductIdBN)
     //
-    // fcn is called once for each product
-    // errcb is called in case of err
+    // fcn is called once for each product; err in case of an error specific to that product
+    // cb is called once to indicate the number of products
     //
-    getProducts: function(vendorAddr, regionBN, categoryBN, maxPriceBN, errCb, productFcn) {
+    getProducts: function(vendorAddr, regionBN, categoryBN, maxPriceBN, productStartIdxBN, maxProducts, cb, productFcn) {
 	if (!vendorAddr)
 	    vendorAddr = '0x0';
 	if (!regionBN)
@@ -54,17 +54,17 @@ var meUtil = module.exports = {
 	    categoryBN = new BN('0', 16);
 	if (!maxPriceBN)
 	    maxPriceBN = new BN('0', 16);
-	const productStartIdxBN = new BN('1', 16);
-	const maxProducts = 20;
 	meEther.getCertainProducts(vendorAddr, categoryBN, regionBN, maxPriceBN, productStartIdxBN, maxProducts, function(err, productIDs) {
 	    if (!!err) {
-		errCb(err);
+		cb(err, 0);
 		return;
 	    }
 	    for (var i = 0; i < productIDs.length; ++i) {
 		if (!productIDs[i] || productIDs[i] == '0') {
 		    // productID == 0 => all done
-		    errCb(null);
+		    const lastProductIdBN = common.numberToBN((i > 0) ? productIDs[i - 1] : 0);
+		    console.log('getProducts: short batch. lastProductIdBN = ' + lastProductIdBN.toString(10));
+		    cb(null, i, lastProductIdBN);
 		    return;
 		}
 		console.log('getProducts: call getProductLogs(product #' + i + ', productID = ' + productIDs[i] + ')');
@@ -84,15 +84,19 @@ var meUtil = module.exports = {
 			meEther.productInfoQuery(common.web3, productIdBN, function(err, productPriceInfo) {
 			    if (!!err) {
 				console.log('getProducts: product #' + i + ', productID = ' + productIDs[i] + ', err = ' + err);
+				productFcn(err, product);
 				return;
 			    }
 			    console.log('productPriceInfo = ' + productPriceInfo);
 			    product.setProductInfo(productPriceInfo);
-			    productFcn(product);
+			    productFcn(null, product);
 			});
 		    });
 		});
 	    }
+	    const lastProductIdBN = common.numberToBN(productIDs[productIDs.length - 1]);
+	    console.log('getProducts: complete. lastProductIdBN = ' + lastProductIdBN.toString(10));
+	    cb(null, productIDs.length, lastProductIdBN);
 	});
     },
 

@@ -367,6 +367,22 @@ h3 { font-size:18px; }
     font-weight: bold;
 }
 
+#shopNextPrevDiv,
+#createStoreNextPrevDiv {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translateX(-50%);
+}
+#shopPrevButton,
+#createStorePrevButton {
+}
+#shopNextButton,
+#createStoreNextButton {
+}
+
+
 
 
 /*

@@ -332,6 +332,8 @@ function viewProductsSubPage() {
     var categoryBN = null;
     var maxPriceBN = null;
     var vendorAddr = null; //should be my addr
+    const productStartIdxBN = new BN('1', 16);
+    const maxProducts = 100;
     console.log('viewProductsSubPage: getting product logs');
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     while (createStoreViewProdsTilesDiv.hasChildNodes()) {
@@ -339,9 +341,11 @@ function viewProductsSubPage() {
 	console.log('createStoreViewProdsTilesDiv.lastChild = ' + createStoreViewProdsTilesDiv.lastChild.toString());
 	createStoreViewProdsTilesDiv.removeChild(createStoreViewProdsTilesDiv.lastChild);
     }
-    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, function(err) {
+    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, productStartIdxBN, maxProducts, function(err, noProducts, lastProductIdBN) {
 	console.log('viewProductsSubPage: err = ' + err);
-    }, function(product) {
+    }, function(err, product) {
+	if (!!err)
+	    return;
 	console.log('viewProductsSubPage: product = ' + JSON.stringify(product));
 	const id = product.productIdBN.toString(10);
 	const tileDiv = document.createElement('div');

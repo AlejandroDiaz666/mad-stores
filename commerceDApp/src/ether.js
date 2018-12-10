@@ -224,7 +224,8 @@ const ether = module.exports = {
 	}
 	common.fetch(url, options, function(str, err) {
 	    if (!str || !!err) {
-		const err = "error retreiving events: " + err;
+		if (!err)
+		    err = 'getLogs: error retreiving events';
 		console.log('ether.getLogs: ' + err);
 		cb(err, '');
 		return;
