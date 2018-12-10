@@ -13,15 +13,14 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract BMES {
+contract CMES {
 
   // -------------------------------------------------------------------------
   // events
   // -------------------------------------------------------------------------
   event StatEvent(string message);
   event RegisterVendorEvent(address indexed _vendorAddr, bytes name, bytes desc, bytes image);
-  event RegisterProductEvent(address indexed _vendorAddr, uint256 indexed _region, uint256 indexed _category,
-			     uint256 _productID, bytes name, bytes desc, bytes image);
+  event RegisterProductEvent(uint256 indexed _productID, bytes name, bytes desc, bytes image);
   event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr,
 			     uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _msgNo);
   event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr,
@@ -47,6 +46,8 @@ contract BMES {
   struct Product {
     uint256 price;
     uint256 quantity;
+    uint256 category;
+    uint256 serviceRegions;
     address vendorAddr;
   }
 
@@ -67,7 +68,7 @@ contract BMES {
   // -------------------------------------------------------------------------
   struct VendorAccount {
     bool active;                        // if inactive, then no new orders are accepted
-    uint256 serviceRegion;              // bitmask of geographical regions
+    uint256 serviceRegions;             // bitmask of geographical regions
   }
 
 
@@ -120,13 +121,32 @@ contract BMES {
   }
 
 
+  // _maxProducts >= 1
+  // note that array will always have _maxProducts entries. ignore productID = 0
+  //
+  function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+			      uint256 _productStartIdx, uint256 _maxProducts) public view returns(uint256[] memory _productIDs) {
+    uint count = 0;
+    _productIDs = new uint256[](_maxProducts);
+    for (uint _productID = _productStartIdx; _productID <= productCount; ++_productID)
+      if ((_vendorAddr == address(0) ||  products[_productID].vendorAddr      == _vendorAddr) &&
+	  (_category   == 0          ||  products[_productID].category        == _category  ) &&
+	  (_region     == 0          || (products[_productID].serviceRegions & _region) != 0) &&
+	  (_maxPrice   == 0          ||  products[_productID].price           <= _maxPrice  ) ) {
+	_productIDs[count] = _productID;
+	if (++count >= _maxProducts)
+	  break;
+      }
+  }
+
+
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _serviceRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
+  function registerVendor(uint256 _serviceRegions, bytes memory _name, bytes memory _desc, bytes memory _image) public {
     VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
     _vendorAccount.active = true;
-    _vendorAccount.serviceRegion = _serviceRegion;
+    _vendorAccount.serviceRegions = _serviceRegions;
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }
@@ -153,8 +173,10 @@ contract BMES {
     Product storage _product = products[_productID];
     _product.price = _price;
     _product.quantity = _quantity;
+    _product.category = _category;
     _product.vendorAddr = msg.sender;
-    emit RegisterProductEvent(msg.sender, _vendorAccount.serviceRegion, _category, _productID, _name, _desc, _image);
+    _product.serviceRegions = _vendorAccount.serviceRegions;
+    emit RegisterProductEvent(_productID, _name, _desc, _image);
     emit StatEvent("ok: product added");
   }
 

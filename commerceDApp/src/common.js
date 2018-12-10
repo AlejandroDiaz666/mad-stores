@@ -69,6 +69,14 @@ const common = module.exports = {
 	return(numberStr);
     },
 
+
+    //Hex256 string will be '0x' followed by 64 hex digits
+    NumberToHex256: function(number) {
+	if (typeof(number) !== 'number')
+	    console.log('NumberToHex256: Warning!! input is (' + typeof(number) + ') ' + number);
+	return('0x' + common.leftPadTo(number.toString(16), 64, '0'));
+    },
+
     //Hex256 string will be '0x' followed by 64 hex digits
     BNToHex256: function(xBN) {
 	return('0x' + common.leftPadTo(xBN.toString(16), 64, '0'));
@@ -332,18 +340,13 @@ const common = module.exports = {
     },
     */
 
+
     //
     // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
     // call this fcn with the error message and no txid.
     //
-    waitForTXID: function(err, txid, desc, statusDiv, continuationMode, callback) {
+    waitForTXID: function(err, txid, desc, statusDiv, continuationMode, txStatusHost, callback) {
 	//
-	common.setMenuButtonState('shopButton',          'Disabled');
-	common.setMenuButtonState('dashboardButton',     'Disabled');
-	common.setMenuButtonState('createStoreButton',   'Disabled');
-	common.setMenuButtonState('createStoreRegStoreButton',    'Disabled');
-	common.setMenuButtonState('createStoreAddProductButton',  'Disabled');
-	common.setMenuButtonState('createStoreEditProductButton', 'Disabled');
 	//status div starts out hidden
 	console.log('show status div');
 	statusDiv.style.display = "block";
@@ -373,7 +376,7 @@ const common = module.exports = {
 	}
 	//
 	var viewTxLink = document.createElement('a');
-	viewTxLink.href = 'https://' + ether.etherscanioTxStatusHost + '/tx/' + txid;
+	viewTxLink.href = 'https://' + txStatusHost + '/tx/' + txid;
 	viewTxLink.innerHTML = "<h2>View transaction</h2>";
 	viewTxLink.target = '_blank';
 	viewTxLink.disabled = false;
@@ -410,6 +413,7 @@ const common = module.exports = {
 	    }
 	}, 1000);
     },
+
 
     clearStatusDiv: function(statusDiv) {
 	while (statusDiv.hasChildNodes()) {

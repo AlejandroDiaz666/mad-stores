@@ -40,6 +40,7 @@ function handleSearchProducts() {
     // after user enters earch parameters....
     var regionBN = null;
     var categoryBN = null;
+    var maxPriceBN = null;
     var vendorAddr = null
 
     const shopTilesDiv = document.getElementById('shopTilesDiv');
@@ -50,48 +51,40 @@ function handleSearchProducts() {
     }
 
     console.log('handleSearchProducts: getting product logs');
-    meUtil.getProductLogs(vendorAddr, regionBN, categoryBN, function(err, results) {
-	if (!err) {
-	    for (var i = 0; i < results.length; ++i) {
-		const tileDiv = document.createElement('div');
-		tileDiv.id = 'tile' + i + 'Div';
-		tileDiv.className = 'tileDiv';
-		const tileImgElem = document.createElement('img');
-		tileImgElem.id = 'tile' + i + 'Img';
-		tileImgElem.className = 'tileImg';
-		tileDiv.appendChild(tileImgElem);
-		const tileNameSpan = document.createElement('span');
-		tileNameSpan.id = 'tile' + i + 'Name';
-		tileNameSpan.className = 'tileName';
-		tileDiv.appendChild(tileNameSpan);
-		const tileTextSpan = document.createElement('span');
-		tileTextSpan.id = 'tile' + i + 'Text';
-		tileTextSpan.className = 'tileText';
-		tileDiv.appendChild(tileTextSpan);
-		const tilePriceSpan = document.createElement('span');
-		tilePriceSpan.id = 'tile' + i + 'Price';
-		tilePriceSpan.className = 'tilePrice';
-		tileDiv.appendChild(tilePriceSpan);
-		const tileQuantitySpan = document.createElement('span');
-		tileQuantitySpan.id = 'tile' + i + 'Quantity';
-		tileQuantitySpan.className = 'tileQuantity';
-		tileDiv.appendChild(tileQuantitySpan);
-		shopTilesDiv.appendChild(tileDiv);
-		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
-		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
-		    tileImgElem.src = image;
-		    tileNameSpan.textContent = name.substring(0, 22);
-		    tileTextSpan.textContent = desc.substring(0, 70);
-		    const product = new meUtil.Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
-		    meEther.productPriceQuery(common.web3, productIdBN, function(err, productPriceInfo) {
-			console.log('productPriceInfo = ' + productPriceInfo);
-			product.setPriceInfo(productPriceInfo);
-			tilePriceSpan.textContent = 'Price: ' + ether.convertWeiToComfort(common.web3, productPriceInfo.price);
-			tileQuantitySpan.textContent = 'Quantity available: ' + productPriceInfo.quantity.substring(0, 22);
-		    });
-		    //tileDiv.addEventListener('click', () => editProduct(product))
-		});
-	    }
-	}
+    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, function(err) {
+	console.log('viewProductsSubPage: err = ' + err);
+    }, function(product) {
+	const id = product.productIdBN.toString(10);
+	const tileDiv = document.createElement('div');
+	tileDiv.id = 'tile' + id + 'Div';
+	tileDiv.className = 'tileDiv';
+	const tileImgElem = document.createElement('img');
+	tileImgElem.id = 'tile' + id + 'Img';
+	tileImgElem.className = 'tileImg';
+	tileDiv.appendChild(tileImgElem);
+	const tileNameSpan = document.createElement('span');
+	tileNameSpan.id = 'tile' + id + 'Name';
+	tileNameSpan.className = 'tileName';
+	tileDiv.appendChild(tileNameSpan);
+	const tileTextSpan = document.createElement('span');
+	tileTextSpan.id = 'tile' + id + 'Text';
+	tileTextSpan.className = 'tileText';
+	tileDiv.appendChild(tileTextSpan);
+	const tilePriceSpan = document.createElement('span');
+	tilePriceSpan.id = 'tile' + id + 'Price';
+	tilePriceSpan.className = 'tilePrice';
+	tileDiv.appendChild(tilePriceSpan);
+	const tileQuantitySpan = document.createElement('span');
+	tileQuantitySpan.id = 'tile' + id + 'Quantity';
+	tileQuantitySpan.className = 'tileQuantity';
+	tileDiv.appendChild(tileQuantitySpan);
+	tileImgElem.src = product.image;
+	tileNameSpan.textContent = product.name.substring(0, 22);
+	tileTextSpan.textContent = product.desc.substring(0, 70);
+	const priceNumberAndUnits = ether.convertWeiBNToNumberAndUnits(product.priceBN);
+	tilePriceSpan.textContent = 'Price: ' + priceNumberAndUnits.number.toString(10) + ' ' + priceNumberAndUnits.units;
+	tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+	shopTilesDiv.appendChild(tileDiv);
+	//tileDiv.addEventListener('click', () => editProduct(product))
     });
 }

@@ -14,8 +14,8 @@ const keccak = require('keccakjs');
 const meEther = module.exports = {
 
     //ropsten
-    ME_CONTRACT_ADDR: '0x6D6e8314BC319b3315bC51B7941E43AdEDf25B26',
-    ME_CONTRACT_ABI:  '[{"constant":false,"inputs":[{"name":"_messageTransport","type":"address"}],"name":"setMessageTransport","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"communityAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseCancel","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_serviceRegion","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"escrowCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdrawEscrowFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"products","outputs":[{"name":"price","type":"uint256"},{"name":"quantity","type":"uint256"},{"name":"vendorAddr","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"communityBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"vendorAccounts","outputs":[{"name":"active","type":"bool"},{"name":"serviceRegion","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_productID","type":"uint256"}],"name":"productInfo","outputs":[{"name":"_vendorAddr","type":"address"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_available","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_productID","type":"uint256"},{"name":"_category","type":"uint256"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerProduct","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"contractSendGas","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_productID","type":"uint256"},{"name":"_surcharge","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseDeposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"unregisterVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"productCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"depositFunds","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"escrowAccounts","outputs":[{"name":"approved","type":"bool"},{"name":"customerAddr","type":"address"},{"name":"productID","type":"uint256"},{"name":"vendorBalance","type":"uint256"},{"name":"customerBalance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_messageTransport","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"StatEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterVendorEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"_region","type":"uint256"},{"indexed":true,"name":"_category","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterProductEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_surcharge","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseDepositEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseCancelEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseRejectEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryRejectEvent","type":"event"}]',
+    ME_CONTRACT_ADDR: '0x5897aeD6C23142C7F7C7E9937426123E180e6ae0',
+    ME_CONTRACT_ABI:  '[{"constant":false,"inputs":[{"name":"_messageTransport","type":"address"}],"name":"setMessageTransport","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"communityAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseCancel","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_serviceRegions","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"escrowCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_maxPrice","type":"uint256"},{"name":"_productStartIdx","type":"uint256"},{"name":"_maxProducts","type":"uint256"}],"name":"getCertainProducts","outputs":[{"name":"_productIDs","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdrawEscrowFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"products","outputs":[{"name":"price","type":"uint256"},{"name":"quantity","type":"uint256"},{"name":"category","type":"uint256"},{"name":"serviceRegions","type":"uint256"},{"name":"vendorAddr","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"communityBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"vendorAccounts","outputs":[{"name":"active","type":"bool"},{"name":"serviceRegions","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_productID","type":"uint256"}],"name":"productInfo","outputs":[{"name":"_vendorAddr","type":"address"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_available","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_productID","type":"uint256"},{"name":"_category","type":"uint256"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerProduct","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"contractSendGas","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_productID","type":"uint256"},{"name":"_surcharge","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseDeposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"unregisterVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"productCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"depositFunds","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"escrowAccounts","outputs":[{"name":"approved","type":"bool"},{"name":"customerAddr","type":"address"},{"name":"productID","type":"uint256"},{"name":"vendorBalance","type":"uint256"},{"name":"customerBalance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_messageTransport","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"StatEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterVendorEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_productID","type":"uint256"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterProductEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_surcharge","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseDepositEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseCancelEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"PurchaseRejectEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgNo","type":"uint256"}],"name":"DeliveryRejectEvent","type":"event"}]',
     registerVendorEventTopic0: null,
     registerProductEventTopic0: null,
     messageEventTopic0: null,
@@ -66,6 +66,8 @@ const meEther = module.exports = {
     //this fcn is also used to edit a product.
     //productID = 0 => register new product, else edit existing product
     registerProduct: function(web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, cb) {
+	if (!productIdBN)
+	    productIdBN = new BN('0', 16);
 	const abiRegisterProductFcn = meEther.abiEncodeRegisterProduct();
 	const abiParms = meEther.abiEncodeRegisterProductParms(productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes);
         const sendData = "0x" + abiRegisterProductFcn + abiParms;
@@ -91,9 +93,8 @@ const meEther = module.exports = {
     getRegisterProductEventTopic0: function() {
 	if (!meEther.registerProductEventTopic0) {
 	    const keccak256 = new keccak(256);
-	    //RegisterProductEvent(address indexed _vendorAddr, uint256 indexed _region, uint256 indexed _category,
-	    //                     uint256 _productID, bytes name, bytes desc, bytes image);
-	    keccak256.update("RegisterProductEvent(address,uint256,uint256,uint256,bytes,bytes,bytes)");
+	    //RegisterProductEvent(uint256 indexed _productID, bytes name, bytes desc, bytes image);
+	    keccak256.update("RegisterProductEvent(uint256,bytes,bytes,bytes)");
 	    meEther.registerProductEventTopic0 = '0x' + keccak256.digest('hex');
 	}
 	console.log('registerProductEventTopic0 = ' + meEther.registerProductEventTopic0);
@@ -122,26 +123,42 @@ const meEther = module.exports = {
 	});
     },
 
-    //cb(err, { price: uing256, quantity: uint256, vendorAddr: address } )
-    productPriceQuery: function(web3, productIdBN, cb) {
+
+    //cb(err, productIDs[])
+    getCertainProducts: function(vendorAddr, categoryBN, regionBN, maxPriceBN, productStartIdxBN, maxProducts, cb) {
 	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
 	const MEcontract = web3.eth.contract(ABIArray);
-	console.log('productPriceQuery: contract = ' + MEcontract);
-	console.log('productPriceQuery: contract addr = ' + meEther.ME_CONTRACT_ADDR);
-	console.log('productPriceQuery: productID = ' + common.BNToHex256(productIdBN));
+	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
+	console.log('contract: ' + MEContractInstance);
+	MEContractInstance.getCertainProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
+					      common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxProducts), (err, result) => {
+						  console.log('getCertainProducts: err = ' + err + ', result = ' + result);
+						  cb(err, result);
+					      });
+    },
+
+
+
+    //cb(err, { price: uint256, quantity: uint256, category: uint256, serviceRegions: uint256, vendorAddr: address } )
+    productInfoQuery: function(web3, productIdBN, cb) {
+	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
+	const MEcontract = web3.eth.contract(ABIArray);
+	console.log('productInfoQuery: contract = ' + MEcontract);
+	console.log('productInfoQuery: contract addr = ' + meEther.ME_CONTRACT_ADDR);
+	console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN));
 	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
 	console.log('contract: ' + MEContractInstance);
 	MEContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
-	    console.log('productPriceQuery: err = ' + err + ', resultObj = ' + resultObj);
+	    console.log('productInfoQuery: err = ' + err + ', resultObj = ' + resultObj);
 	    const productPriceInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
-		const keys = [ 'price', 'quantity', 'vendorAddr'];
+		const keys = [ 'price', 'quantity', 'category', 'serviceRegions', 'vendorAddr'];
 		const resultArray = Array.from(resultObj);
-		console.log('productPriceQuery: resultArray = ' + resultArray);
+		console.log('productInfoQuery: resultArray = ' + resultArray);
 		for (let i = 0; i < resultArray.length; ++i) {
 		    productPriceInfo[keys[i]] = resultArray[i].toString();
-		    console.log('productPriceQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
+		    console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
 		}
 	    }
 	    cb(err, productPriceInfo);
@@ -220,14 +237,11 @@ const meEther = module.exports = {
 	//                   { "address"    :  "0x6d6e8314bc319b3315bc51b7941e43adedf25b26",
 	//                     "topics"     : [
 	//                                     "0xe5cf209e623f9e36231ee0a288bb82ce7372e79dd57c5356f0a64e3a5a575db6",
-	//                                     "0x000000000000000000000000f84e459c7e3bea1ec0814ce1a345cccb88ab56c2", -- vendorAddr
-	//                                     "0x0000000000000000000000000000000000000000000000000000000000000003", -- region
-	//                                     "0x0000000000000000000000000000000000000000000000000000000000000000"  -- category
+	//                                     "0x0000000000000000000000000000000000000000000000000000000000000003", -- productId
 	//                                    ],
-	//                     "data":         "0x0000000000000000000000000000000000000000000000000000000000000001   -- productId
-	//                                        0000000000000000000000000000000000000000000000000000000000000080   -- offset to name
-	//                                        00000000000000000000000000000000000000000000000000000000000000c0   -- offset to desc
-	//                                        0000000000000000000000000000000000000000000000000000000000000140   -- offset to image
+	//                     "data":         "0x0000000000000000000000000000000000000000000000000000000000000060   -- offset to name
+	//                                        00000000000000000000000000000000000000000000000000000000000000a0   -- offset to desc
+	//                                        0000000000000000000000000000000000000000000000000000000000000120   -- offset to image
 	//                                        000000000000000000000000000000000000000000000000000000000000000c   -- length of name
 	//                                        546573742053746f726520300000000000000000000000000000000000000000   -- name
 	//                                        0000000000000000000000000000000000000000000000000000000000000046   -- length of desc
@@ -243,18 +257,16 @@ const meEther = module.exports = {
 	//                    }
 	//
 	//first 2 chars are '0x'; we want rightmost 20 out of 32 bytes
-	const vendorAddr = result.topics[1].substring(2+(12*2));
-	const regionBN = common.numberToBN(result.topics[2]);
-	const categoryBN = common.numberToBN(result.topics[3]);
-	const productIdBN = common.numberToBN(result.data.slice(0, 2+64));
-	const nameHex = ether.extractHexData(result.data, 2+64);
-	const descHex = ether.extractHexData(result.data, 2+128);
-	const imageHex = ether.extractHexData(result.data, 2+192);
+	const productIdBN = common.numberToBN(result.topics[1]);
+	const nameHex = ether.extractHexData(result.data, 2+0);
+	const descHex = ether.extractHexData(result.data, 2+64);
+	const imageHex = ether.extractHexData(result.data, 2+128);
 	const name = common.Utf8HexToStr(nameHex);
+	console.log('parseRegisterProductEvent: nameHex = ' + nameHex + ', name = ' + name);
 	const desc = common.Utf8HexToStr(descHex);
         //image data is utf8 "data:image/png;base64," + base64ImageData;
 	const image = common.hexToImage(imageHex);
-	cb(null, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
+	cb(null, productIdBN, name, desc, image);
     },
 
 

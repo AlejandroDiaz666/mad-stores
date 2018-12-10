@@ -12,8 +12,6 @@ const BN = require("bn.js");
 
 const createStore = module.exports = {
 
-    products: [],
-
     handleCreateStorePage: function() {
 	common.setMenuButtonState('shopButton',          'Enabled');
 	common.setMenuButtonState('dashboardButton',     'Enabled');
@@ -64,7 +62,7 @@ function setRegisterStoreButtonHandlers() {
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     createStoreAddProdQuantityArea.addEventListener('change', enableRegisterStoreDoRegButton);
     const createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
-    createStoreRegStoreDoRegButton.addEventListener('click', handleCreateStoreDoReg);
+    createStoreRegStoreDoRegButton.addEventListener('click', registerStoreDoReg);
 }
 
 
@@ -89,14 +87,14 @@ function setAddProductButtonHandlers() {
         } else {
             createStoreAddProdImg.src = '#';
 	}
-	enableRegisterStoreDoAddButton();
+	enableAddProductDoAddButton();
     });
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
-    createStoreAddProdNameArea.addEventListener('input', enableRegisterStoreDoAddButton);
+    createStoreAddProdNameArea.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
-    createStoreAddProdDescArea.addEventListener('input', enableRegisterStoreDoAddButton);
+    createStoreAddProdDescArea.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdDoAddButton = document.getElementById('createStoreAddProdDoAddButton');
-    createStoreAddProdDoAddButton.addEventListener('click', handleCreateStoreDoAdd);
+    createStoreAddProdDoAddButton.addEventListener('click', () => addProductDoAdd(null));
 }
 
 
@@ -105,6 +103,30 @@ function setViewProductsButtonHandlers() {
     createStoreViewProductsButton.addEventListener('click', function() {
 	viewProductsSubPage();
     });
+    //create-store / edit product steps
+    const createStoreEditProdLoadImageButton = document.getElementById('createStoreEditProdLoadImageButton');
+    createStoreEditProdLoadImageButton.addEventListener('change', function() {
+	const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
+	if (createStoreEditProdLoadImageButton.files && createStoreEditProdLoadImageButton.files[0]) {
+	    console.log('createStoreEditProdLoadImageButton: got ' + createStoreEditProdLoadImageButton.files[0].name);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+		//console.log('createStoreEditProdLoadImageButton: e.target.result = ' + e.target.result);
+		//eg. createStoreEditProdLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
+                createStoreEditProdImg.src = e.target.result;
+            };
+            reader.readAsDataURL(createStoreEditProdLoadImageButton.files[0]);
+        } else {
+            createStoreEditProdImg.src = '#';
+	}
+	enableViewProdsDoEditButton();
+    });
+    const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
+    createStoreEditProdNameArea.addEventListener('input', enableViewProdsDoEditButton);
+    const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
+    createStoreEditProdDescArea.addEventListener('input', enableViewProdsDoEditButton);
+    const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
+    createStoreViewProdsDoEditButton.addEventListener('click', () => editProdDoEdit(createStoreViewProdsDoEditButton.productIdBN));
 }
 
 
@@ -117,6 +139,7 @@ function regStoreSubPage() {
     common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreViewProdsNote',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
@@ -178,7 +201,7 @@ function enableRegisterStoreDoRegButton() {
 //
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
-function handleCreateStoreDoReg() {
+function registerStoreDoReg() {
     const createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
     const serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
     console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
@@ -196,7 +219,13 @@ function handleCreateStoreDoReg() {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
-	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', function() {
+	common.setMenuButtonState('shopButton',          'Disabled');
+	common.setMenuButtonState('dashboardButton',     'Disabled');
+	common.setMenuButtonState('createStoreButton',   'Disabled');
+	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
+	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
+	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
+	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -204,16 +233,16 @@ function handleCreateStoreDoReg() {
 
 //
 // create-store - add-product
-// this code is also used to edit a product:
-//  productId = null => add a new product
 //
-function addProductSubPage(product) {
+function addProductSubPage() {
     console.log('addProductSubPage');
     common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
     common.setMenuButtonState('createStoreAddProductButton',   'Selected');
     common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'hidden',   'visibleB', null);
+    common.replaceElemClassFromTo('createStoreViewProdsNote',  'visibleB', 'hidden',   null);
+
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
@@ -224,21 +253,11 @@ function addProductSubPage(product) {
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
     const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
-    if (!!product) {
-	createStoreAddProdNameArea.value = product.name;
-	createStoreAddProdDescArea.value = product.desc;
-	createStoreAddProdImg.src = product.image;
-	createStoreAddProdPriceArea.value = product.priceDigits();
-	createStoreAddProdPriceUnits.value = product.priceUnits();
-	createStoreAddProdQuantityArea.value = product.quantity;
-    } else {
-	createStoreAddProdNameArea.value = '';
-	createStoreAddProdDescArea.value = '';
-	createStoreAddProdImg.src = '#';
-	createStoreAddProdPriceArea.value = '';
-	createStoreAddProdQuantityArea.value = '';
-	productIdBN = new BN('0', 16);
-    }
+    createStoreAddProdNameArea.value = '';
+    createStoreAddProdDescArea.value = '';
+    createStoreAddProdImg.src = '#';
+    createStoreAddProdPriceArea.value = '';
+    createStoreAddProdQuantityArea.value = '';
 }
 
 
@@ -246,12 +265,12 @@ function addProductSubPage(product) {
 // enable the do-add
 // called whenever any of the add-product-steps inputs changes
 //
-function enableRegisterStoreDoAddButton() {
+function enableAddProductDoAddButton() {
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
-    const enable = (createStoreAddProdNameArea.value.trim().length > 0 != "" &&
-		    createStoreAddProdDescArea.value.trim().length > 0 != "" &&
+    const enable = (createStoreAddProdNameArea.value.trim().length > 0 &&
+		    createStoreAddProdDescArea.value.trim().length > 0 &&
 		    createStoreAddProdImg.src != '#') ? true : false;
     common.setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
 }
@@ -260,20 +279,13 @@ function enableRegisterStoreDoAddButton() {
 //
 // user has clicked the add-new-product button. execute the transaction.
 //
-function handleCreateStoreDoAdd(productIdBN) {
+function addProductDoAdd(productIdBN) {
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
     const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
-    let product;
-    if (!!productIdBN) {
-	product = products[productIdBN];
-    } else {
-	productIdBN = new BN('0', 16);
-	product = products[productIdBN];
-    }
     const categoryBN = new BN('0', 16);
     const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
@@ -285,7 +297,7 @@ function handleCreateStoreDoAdd(productIdBN) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
-	common.waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', function() {
+	common.waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -302,14 +314,18 @@ function viewProductsSubPage() {
     common.setMenuButtonState('createStoreViewProductsButton', 'Selected');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStoreViewProdsNote',  'hidden',   'visibleB', null);
+
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-
+    const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
+    createStoreViewProdsDoEditButton.disabled = true;
     // after user enters earch parameters....
     var regionBN = null;
     var categoryBN = null;
+    var maxPriceBN = null;
     var vendorAddr = null; //should be my addr
     console.log('viewProductsSubPage: getting product logs');
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
@@ -318,49 +334,42 @@ function viewProductsSubPage() {
 	console.log('createStoreViewProdsTilesDiv.lastChild = ' + createStoreViewProdsTilesDiv.lastChild.toString());
 	createStoreViewProdsTilesDiv.removeChild(createStoreViewProdsTilesDiv.lastChild);
     }
-    meUtil.getProductLogs(vendorAddr, regionBN, categoryBN, function(err, results) {
-	if (!err) {
-	    for (var i = 0; i < results.length; ++i) {
-		const tileDiv = document.createElement('div');
-		tileDiv.id = 'tile' + i + 'Div';
-		tileDiv.className = 'tileDiv';
-		const tileImgElem = document.createElement('img');
-		tileImgElem.id = 'tile' + i + 'Img';
-		tileImgElem.className = 'tileImg';
-		tileDiv.appendChild(tileImgElem);
-		const tileNameSpan = document.createElement('span');
-		tileNameSpan.id = 'tile' + i + 'Name';
-		tileNameSpan.className = 'tileName';
-		tileDiv.appendChild(tileNameSpan);
-		const tileTextSpan = document.createElement('span');
-		tileTextSpan.id = 'tile' + i + 'Text';
-		tileTextSpan.className = 'tileText';
-		tileDiv.appendChild(tileTextSpan);
-		const tilePriceSpan = document.createElement('span');
-		tilePriceSpan.id = 'tile' + i + 'Price';
-		tilePriceSpan.className = 'tilePrice';
-		tileDiv.appendChild(tilePriceSpan);
-		const tileQuantitySpan = document.createElement('span');
-		tileQuantitySpan.id = 'tile' + i + 'Quantity';
-		tileQuantitySpan.className = 'tileQuantity';
-		tileDiv.appendChild(tileQuantitySpan);
-		createStoreViewProdsTilesDiv.appendChild(tileDiv);
-		meEther.parseRegisterProductEvent(results[i], function(err, vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image) {
-		    console.log('got prodoct = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
-		    tileImgElem.src = image;
-		    tileNameSpan.textContent = name.substring(0, 22);
-		    tileTextSpan.textContent = desc.substring(0, 70);
-		    const product = new meUtil.Product(vendorAddr, regionBN, categoryBN, productIdBN, name, desc, image);
-		    meEther.productPriceQuery(common.web3, productIdBN, function(err, productPriceInfo) {
-			console.log('productPriceInfo = ' + productPriceInfo);
-			product.setPriceInfo(productPriceInfo);
-			tilePriceSpan.textContent = 'Price: ' + ether.convertWeiToComfort(common.web3, productPriceInfo.price);
-			tileQuantitySpan.textContent = 'Quantity available: ' + productPriceInfo.quantity.substring(0, 22);
-		    });
-		    tileDiv.addEventListener('click', () => editProduct(product))
-		});
-	    }
-	}
+    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, function(err) {
+	console.log('viewProductsSubPage: err = ' + err);
+    }, function(product) {
+	console.log('viewProductsSubPage: product = ' + JSON.stringify(product));
+	const id = product.productIdBN.toString(10);
+	const tileDiv = document.createElement('div');
+	tileDiv.id = 'tile' + id + 'Div';
+	tileDiv.className = 'tileDiv';
+	const tileImgElem = document.createElement('img');
+	tileImgElem.id = 'tile' + id + 'Img';
+	tileImgElem.className = 'tileImg';
+	tileDiv.appendChild(tileImgElem);
+	const tileNameSpan = document.createElement('span');
+	tileNameSpan.id = 'tile' + id + 'Name';
+	tileNameSpan.className = 'tileName';
+	tileDiv.appendChild(tileNameSpan);
+	const tileTextSpan = document.createElement('span');
+	tileTextSpan.id = 'tile' + id + 'Text';
+	tileTextSpan.className = 'tileText';
+	tileDiv.appendChild(tileTextSpan);
+	const tilePriceSpan = document.createElement('span');
+	tilePriceSpan.id = 'tile' + id + 'Price';
+	tilePriceSpan.className = 'tilePrice';
+	tileDiv.appendChild(tilePriceSpan);
+	const tileQuantitySpan = document.createElement('span');
+	tileQuantitySpan.id = 'tile' + id + 'Quantity';
+	tileQuantitySpan.className = 'tileQuantity';
+	tileDiv.appendChild(tileQuantitySpan);
+	tileImgElem.src = product.image;
+	tileNameSpan.textContent = product.name.substring(0, 22);
+	tileTextSpan.textContent = product.desc.substring(0, 70);
+	const priceNumberAndUnits = ether.convertWeiBNToNumberAndUnits(product.priceBN);
+	tilePriceSpan.textContent = 'Price: ' + priceNumberAndUnits.number.toString(10) + ' ' + priceNumberAndUnits.units;
+	tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+	createStoreViewProdsTilesDiv.appendChild(tileDiv);
+	tileDiv.addEventListener('click', () => viewProdsEditProduct(product))
     });
 }
 
@@ -368,8 +377,10 @@ function viewProductsSubPage() {
 //
 // create-store - view-products -- edit-product
 //
-function editProduct(product) {
+function viewProdsEditProduct(product) {
     console.log('edit product ' + product.productIdBN.toString(10));
+    //so the user can go back to view products
+    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'hidden',   'visibleB', null);
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
@@ -381,8 +392,55 @@ function editProduct(product) {
     createStoreEditProdNameArea.value = product.name;
     createStoreEditProdDescArea.value = product.desc;
     createStoreEditProdImg.src = product.image;
-    const numberAndUnits = ether.convertWeiToNumberAndUnits(product.priceBN);
+    const numberAndUnits = ether.convertWeiBNToNumberAndUnits(product.priceBN);
     createStoreEditProdPriceArea.value = numberAndUnits.number;
     createStoreEditProdPriceUnits.selectedIndex = numberAndUnits.index;
     createStoreEditProdQuantityArea.value = product.quantityBN.toString(10);
+    const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
+    createStoreViewProdsDoEditButton.productIdBN = product.productIdBN;
+    common.setMenuButtonState('createStoreViewProdsDoEditButton', 'Disabled');
+}
+
+//
+// enable the do-edit
+// called whenever any of the edit-product-steps inputs changes
+//
+function enableViewProdsDoEditButton() {
+    const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
+    const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
+    const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
+    const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
+    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
+    const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
+    const enable = (createStoreEditProdNameArea.value.trim().length > 0 &&
+		    createStoreEditProdDescArea.value.trim().length > 0 &&
+		    createStoreEditProdImg.src != '#') ? true : false;
+    common.setMenuButtonState('createStoreViewProdsDoEditButton', (enable) ? 'Enabled' : 'Disabled');
+}
+
+
+//
+// user has clicked the edit-product button. execute the transaction.
+//
+function editProdDoEdit(productIdBN) {
+    const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
+    const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
+    const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
+    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
+    const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
+    const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
+    const categoryBN = new BN('0', 16);
+    const priceBN = common.numberToBN(createStoreEditProdPriceArea.value);
+    priceBN.imul(common.numberToBN(createStoreEditProdPriceUnits.value));
+    const quantityBN = common.numberToBN(createStoreEditProdQuantityArea.value);
+    const nameBytes = common.strToUtf8Bytes(createStoreEditProdNameArea.value);
+    const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);
+    const imageBytes = common.imageToBytes(createStoreEditProdImg.src);
+    meEther.registerProduct(common.web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+	console.log('txid = ' + txid);
+	metaMaskModal.style.display = 'none';
+	const statusDiv = document.getElementById('statusDiv');
+	common.waitForTXID(err, txid, 'Modify-Product', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
+	});
+    });
 }

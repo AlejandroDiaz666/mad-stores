@@ -595,9 +595,10 @@ h3 { font-size:18px; }
 
 
 /*
- * create store - add product
+ * create store - add/edit product
  */
-#createStoreAddProdNote {
+#createStoreAddProdNote,
+#createStoreViewProdsNote {
     width: 410px;
     height: 140px;
     position: absolute;
@@ -608,7 +609,8 @@ h3 { font-size:18px; }
     background-image: none;
     background-color: rgb(126, 212, 246);
 }
-#createStoreAddProdNoteText {
+#createStoreAddProdNoteText,
+#createStoreViewProdsNoteText {
     width: 370px;
     height: 120px;
     position: absolute;
@@ -617,7 +619,8 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-180px, -7px, 0px);
 }
-#createStoreAddProdDoAddButton {
+#createStoreAddProdDoAddButton,
+#createStoreViewProdsDoEditButton {
     width: auto;
     position: absolute;
     top: 145px;
