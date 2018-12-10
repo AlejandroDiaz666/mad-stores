@@ -145,6 +145,8 @@ function regStoreSubPage() {
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
+    const statusDiv = document.getElementById('statusDiv');
+    common.clearStatusDiv(statusDiv);
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
 	console.log('regStoreSubPage: result.length = ' + result.length);
@@ -225,7 +227,7 @@ function registerStoreDoReg() {
 	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
 	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
 	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
-	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
+	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, regStoreSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -242,11 +244,13 @@ function addProductSubPage() {
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsNote',  'visibleB', 'hidden',   null);
-
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
+    const statusDiv = document.getElementById('statusDiv');
+    common.clearStatusDiv(statusDiv);
+    //
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
@@ -297,7 +301,7 @@ function addProductDoAdd(productIdBN) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
-	common.waitForTXID(err, txid, 'Register-Product', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
+	common.waitForTXID(err, txid, 'Register-Product', statusDiv, viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -315,11 +319,12 @@ function viewProductsSubPage() {
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsNote',  'hidden',   'visibleB', null);
-
     common.replaceElemClassFromTo('createStoreRegStoreStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
+    const statusDiv = document.getElementById('statusDiv');
+    common.clearStatusDiv(statusDiv);
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.disabled = true;
     // after user enters earch parameters....
@@ -440,7 +445,7 @@ function editProdDoEdit(productIdBN) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
-	common.waitForTXID(err, txid, 'Modify-Product', statusDiv, 'send', ether.etherscanioTxStatusHost, function() {
+	common.waitForTXID(err, txid, 'Modify-Product', statusDiv, viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }

@@ -345,7 +345,7 @@ const common = module.exports = {
     // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
     // call this fcn with the error message and no txid.
     //
-    waitForTXID: function(err, txid, desc, statusDiv, continuationMode, txStatusHost, callback) {
+    waitForTXID: function(err, txid, desc, statusDiv, continueFcn, txStatusHost, callback) {
 	//
 	//status div starts out hidden
 	console.log('show status div');
@@ -364,9 +364,7 @@ const common = module.exports = {
 		err = 'No transaction hash was generated.';
 	    statusText.textContent = 'Error in ' + desc + ' transaction: ' + err;
 	    var reloadLink = document.createElement('a');
-	    reloadLink.addEventListener('click', function() {
-		handleUnlockedMetaMask(continuationMode);
-	    });
+	    reloadLink.addEventListener('click', continueFcn);
 	    reloadLink.href = 'javascript:null;';
 	    reloadLink.innerHTML = "<h2>Continue</h2>";
 	    reloadLink.disabled = false;
@@ -399,9 +397,7 @@ const common = module.exports = {
 			clearInterval(timer);
 			//
 			var reloadLink = document.createElement('a');
-			reloadLink.addEventListener('click', function() {
-			    beginTheBeguine(continuationMode);
-			});
+			reloadLink.addEventListener('click',  continueFcn);
 			reloadLink.href = 'javascript:null;';
 			reloadLink.innerHTML = "<h2>Continue</h2>";
 			reloadLink.disabled = false;
