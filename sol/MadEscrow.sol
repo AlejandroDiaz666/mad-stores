@@ -55,6 +55,17 @@ contract DMES {
   }
 
   // -------------------------------------------------------------------------
+  // Vendor Account structure
+  // for keeping track of vendor reputation
+  // -------------------------------------------------------------------------
+  struct VendorAccount {
+    uint256 escrowsOpened;
+    uint256 escrowsBurned;
+    uint256 serviceRegion;
+    bool activeFlag;
+  }
+
+  // -------------------------------------------------------------------------
   // Escrow Account structure
   // an escrow account between two parties
   // -------------------------------------------------------------------------
@@ -89,6 +100,7 @@ contract DMES {
   //topLevelCategory ProductIdx to productID
   mapping (uint8 => uint256) public categoryProductCounts;
   mapping (uint8 => mapping(uint256 => uint256)) public categoryProducts;
+  mapping (address => VendorAccount) public vendorAccounts;
   mapping (uint256 => EscrowAccount) public escrowAccounts;
   mapping (address => uint256) public balances;
 
@@ -252,8 +264,9 @@ contract DMES {
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(bytes memory _name, bytes memory _desc, bytes memory _image) public {
-    //TODO: need to setup reputation!!!
+  function registerVendor(uint256 _defaultServiceRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
+    vendorAccounts[msg.sender].activeFlag = true;
+    vendorAccounts[msg.sender].serviceRegion = _defaultServiceRegion;
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }
