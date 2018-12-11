@@ -45,7 +45,7 @@ var meUtil = module.exports = {
     // fcn is called once for each product; err in case of an error specific to that product
     // cb is called once to indicate the number of products
     //
-    getProducts: function(vendorAddr, regionBN, categoryBN, maxPriceBN, productStartIdxBN, maxProducts, cb, productFcn) {
+    getProducts: function(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxProducts, cb, productFcn) {
 	if (!vendorAddr)
 	    vendorAddr = '0x0';
 	if (!regionBN)
@@ -54,7 +54,8 @@ var meUtil = module.exports = {
 	    categoryBN = new BN('0', 16);
 	if (!maxPriceBN)
 	    maxPriceBN = new BN('0', 16);
-	meEther.getCertainProducts(vendorAddr, categoryBN, regionBN, maxPriceBN, productStartIdxBN, maxProducts, function(err, productIDs) {
+	meEther.getCertainProducts(vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable,
+				   productStartIdxBN, maxProducts, function(err, productIDs) {
 	    if (!!err) {
 		cb(err, 0);
 		return;

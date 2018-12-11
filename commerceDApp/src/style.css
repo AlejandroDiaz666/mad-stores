@@ -1140,5 +1140,8 @@ h3 { font-size:18px; }
 DIV.finalresultstable {
     background-color: #60ff60;
     padding: 2px;
-    margin: 2px;
+    margin: 20px;
+    position: absolute;
+    left: 0%;
+    width: 100%;
 }

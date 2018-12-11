@@ -77,7 +77,8 @@ function displayProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, productSt
     }
     console.log('displayProducts: getting product logs. productStartIdxBN = ' + productStartIdxBN.toString(10));
     const maxProducts = 8;
-    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, productStartIdxBN, maxProducts, function(err, noProducts, lastProductIdBN) {
+    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, true,
+		       productStartIdxBN, maxProducts, function(err, noProducts, lastProductIdBN) {
 	console.log('displayProducts: err = ' + err);
 	const shopPrevButton = document.getElementById('shopPrevButton');
 	const shopNextButton = document.getElementById('shopNextButton');

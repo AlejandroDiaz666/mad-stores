@@ -291,13 +291,14 @@ function addProductDoAdd(productIdBN) {
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
     const categoryBN = new BN('0', 16);
+    const regionBN = new BN('0', 16);
     const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
     const quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
     const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreAddProdImg.src);
-    meEther.registerProduct(common.web3, productIdBN, categoryBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
@@ -341,7 +342,7 @@ function viewProductsSubPage() {
 	console.log('createStoreViewProdsTilesDiv.lastChild = ' + createStoreViewProdsTilesDiv.lastChild.toString());
 	createStoreViewProdsTilesDiv.removeChild(createStoreViewProdsTilesDiv.lastChild);
     }
-    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, productStartIdxBN, maxProducts, function(err, noProducts, lastProductIdBN) {
+    meUtil.getProducts(vendorAddr, regionBN, categoryBN, maxPriceBN, false, productStartIdxBN, maxProducts, function(err, noProducts, lastProductIdBN) {
 	console.log('viewProductsSubPage: err = ' + err);
     }, function(err, product) {
 	if (!!err)
