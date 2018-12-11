@@ -13,7 +13,7 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract CMES {
+contract DMES {
 
   // -------------------------------------------------------------------------
   // events
@@ -47,8 +47,11 @@ contract CMES {
     uint256 price;
     uint256 quantity;
     uint256 category;
-    uint256 serviceRegions;
+    uint256 categoryProductIdx;
+    uint256 region;
+    uint256 regionProductIdx;
     address vendorAddr;
+
   }
 
   // -------------------------------------------------------------------------
@@ -63,14 +66,6 @@ contract CMES {
     uint256 customerBalance;            // amount that customer has put into escrow
   }
 
-  // -------------------------------------------------------------------------
-  // Vendor Account structure
-  // -------------------------------------------------------------------------
-  struct VendorAccount {
-    bool active;                        // if inactive, then no new orders are accepted
-    uint256 serviceRegions;             // bitmask of geographical regions
-  }
-
 
   // -------------------------------------------------------------------------
   // data storage
@@ -83,10 +78,19 @@ contract CMES {
   uint256 public productCount;
   uint256 public communityBalance;
   uint256 public contractSendGas = 100000;
+  //productID to product
   mapping (uint256 => Product) public products;
+  //vendorProductIdx to productID
+  mapping (address => uint256) public vendorProductCounts;
+  mapping (address => mapping(uint256 => uint256)) public vendorProducts;
+  //topLevelRegion ProductIdx to productID
+  mapping (uint8 => uint256) public regionProductCounts;
+  mapping (uint256 => mapping(uint256 => uint256)) public regionProducts;
+  //topLevelCategory ProductIdx to productID
+  mapping (uint8 => uint256) public categoryProductCounts;
+  mapping (uint8 => mapping(uint256 => uint256)) public categoryProducts;
   mapping (uint256 => EscrowAccount) public escrowAccounts;
   mapping (address => uint256) public balances;
-  mapping (address => VendorAccount) public vendorAccounts;
 
 
   // -------------------------------------------------------------------------
@@ -121,40 +125,157 @@ contract CMES {
   }
 
 
+
+  // -------------------------------------------------------------------------
+  // see if a product matches search criteria
+  // category & region are semi hierarchical. the top 8 bits are interpreted as a number specifiying the
+  // top-level-category or top-level-region. if specified, then these must match exactly. the lower 248
+  // bits are a bitmask of sub-categories or sub-regions. if specified then we only look for some overlap
+  // between the product bitmap and the search parameter.
+  // -------------------------------------------------------------------------
+  function isCertainProduct(uint256 _productID, address _vendorAddr, uint256 _category,
+			    uint256 _region, uint256 _maxPrice, bool _onlyAvailable) internal view returns(bool) {
+    uint8 _tlc = uint8(_category >> 248);
+    uint256 _llcBits = _category & ((2 ** 248) - 1);
+    uint8 _tlr = uint8(_region >> 248);
+    uint256 _llrBits = _region & ((2 ** 248) - 1);
+    Product storage _product = products[_productID];
+    uint8 _productTlc = uint8(_product.category >> 248);
+    uint256 _productLlcBits = _product.category & ((2 ** 248) - 1);
+    uint8 _productTlr = uint8(_product.region >> 248);
+    uint256 _productLlrBits = _product.region & ((2 ** 248) - 1);
+    if ((_vendorAddr == address(0) ||  _product.vendorAddr                == _vendorAddr) &&
+	(_tlc        == 0          ||  _productTlc                        == _tlc       ) &&
+	(_llcBits    == 0          || (_productLlcBits & _llcBits)        != 0          ) &&
+	(_tlr        == 0          ||  _productTlr                        == _tlc       ) &&
+	(_llrBits    == 0          || (_productLlrBits & _llrBits)        != 0          ) &&
+	(_maxPrice   == 0          ||  _product.price                     <= _maxPrice  ) ) {
+      uint256 _minVendorBond = (_product.price * 50) / 100;
+      if (!_onlyAvailable || (_product.quantity != 0 && _product.price != 0 && balances[_product.vendorAddr] >= _minVendorBond))
+	return(true);
+    }
+    return(false);
+  }
+
+
   // _maxProducts >= 1
-  // note that array will always have _maxProducts entries. ignore productID = 0
+  // note that array will always have _maxResults entries. ignore productID = 0
+  // this is a general purpose get-products fcn. it's main use will be when not looking up products by vendor address, category, or region.
+  // if you're performing a search based on any of those parameters then it will be more efficient to call the most specific variant: getVendorProducts,
+  // getCategoryProducts, or getRegionProducts. if searching based on 2 or more parameters then compare vendorProductCounts[_vendorAddr] to
+  // categoryProductCounts[_tlc], to regionProductCounts[_tlr], and call the function that corresponds to the smallest number of products.
   //
   function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
-			      uint256 _productStartIdx, uint256 _maxProducts) public view returns(uint256[] memory _productIDs) {
-    uint count = 0;
-    _productIDs = new uint256[](_maxProducts);
-    for (uint _productID = _productStartIdx; _productID <= productCount; ++_productID)
-      if ((_vendorAddr == address(0) ||  products[_productID].vendorAddr      == _vendorAddr) &&
-	  (_category   == 0          ||  products[_productID].category        == _category  ) &&
-	  (_region     == 0          || (products[_productID].serviceRegions & _region) != 0) &&
-	  (_maxPrice   == 0          ||  products[_productID].price           <= _maxPrice  ) ) {
-	_productIDs[count] = _productID;
-	if (++count >= _maxProducts)
+			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256[] memory _productIDs) {
+    uint _count = 0;
+    _productIDs = new uint256[](_maxResults);
+    for (uint _productID = _productStartIdx; _productID <= productCount; ++_productID) {
+      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+	_productIDs[_count] = _productID;
+	if (++_count >= _maxResults)
 	  break;
       }
+    }
+  }
+
+  // _maxResults >= 1
+  // _vendorAddr != 0
+  // note that array will always have _maxResults entries. ignore productID = 0
+  // if category is specified, then top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have
+  // any overlap with product llc bits.
+  //
+  function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    require(_vendorAddr != address(0), "address must be specified");
+    uint _count = 0;
+    _productIDs = new uint256[](_maxResults);
+    uint256 _vendorProductCount = vendorProductCounts[_vendorAddr];
+    mapping(uint256 => uint256) storage _vendorProducts = vendorProducts[_vendorAddr];
+    for (_idx = _productStartIdx; _idx <= _vendorProductCount; ++_idx) {
+      uint _productID = _vendorProducts[_idx];
+      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+	_productIDs[_count] = _productID;
+	if (++_count >= _maxResults)
+	  break;
+      }
+    }
+  }
+
+  // _maxResults >= 1
+  // _category != 0
+  // note that array will always have _maxResults entries. ignore productID = 0
+  // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
+  //
+  function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+			       uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    require(_category != 0, "category must be specified");
+    uint _count = 0;
+    uint8 _tlc = uint8(_category >> 248);
+    _productIDs = new uint256[](_maxResults);
+    uint256 _categoryProductCount = categoryProductCounts[_tlc];
+    mapping(uint256 => uint256) storage _categoryProducts = categoryProducts[_tlc];
+    for (_idx = _productStartIdx; _idx <= _categoryProductCount; ++_idx) {
+      uint _productID = _categoryProducts[_idx];
+      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+	_productIDs[_count] = _productID;
+	if (++_count >= _maxResults)
+	  break;
+      }
+    }
+  }
+
+
+  // _maxResults >= 1
+  // _region != 0
+  // note that array will always have _maxResults entries. ignore productID = 0
+  // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
+  //
+  function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    require(_category != 0, "category must be specified");
+    uint _count = 0;
+    uint8 _tlr = uint8(_region >> 248);
+    _productIDs = new uint256[](_maxResults);
+    uint256 _regionProductCount = regionProductCounts[_tlr];
+    mapping(uint256 => uint256) storage _regionProducts = regionProducts[_tlr];
+    for (_idx = _productStartIdx; _idx <= _regionProductCount; ++_idx) {
+      uint _productID = _regionProducts[_idx];
+      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+	_productIDs[_count] = _productID;
+	if (++_count >= _maxResults)
+	  break;
+      }
+    }
   }
 
 
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _serviceRegions, bytes memory _name, bytes memory _desc, bytes memory _image) public {
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    _vendorAccount.active = true;
-    _vendorAccount.serviceRegions = _serviceRegions;
+  function registerVendor(bytes memory _name, bytes memory _desc, bytes memory _image) public {
+    //TODO: need to setup reputation!!!
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }
 
-  function unregisterVendor() public {
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    _vendorAccount.active = false;
-    emit StatEvent("ok: vendor unregistered");
+
+  //if top level category/region changes we leave a hole in the oldTl[cr] map, and allocate a new entry in the newTl[cr] map
+  function updateTlcTlr(uint256 _productID, uint8 _newTlc, uint8 _newTlr) internal returns(uint256 _categoryProductIdx, uint256 _regionProductIdx) {
+    Product storage _product = products[_productID];
+    uint8 _oldTlc = uint8(_product.category >> 248);
+    if (_oldTlc == _newTlc) {
+      _categoryProductIdx = _product.categoryProductIdx;
+    } else {
+      categoryProducts[_oldTlc][_product.categoryProductIdx] = 0;
+      _categoryProductIdx = ++categoryProductCounts[_newTlc];
+    }
+    uint8 _oldTlr = uint8(_product.region >> 248);
+    if (_oldTlr == _newTlr) {
+      _regionProductIdx = _product.regionProductIdx;
+    } else {
+      regionProducts[_oldTlr][_product.regionProductIdx] = 0;
+      _regionProductIdx = ++regionProductCounts[_newTlr];
+    }
   }
 
 
@@ -163,31 +284,43 @@ contract CMES {
   // called by vendor
   // productID = 0 => register a new product, auto-assign product id
   // -------------------------------------------------------------------------
-  function registerProduct(uint256 _productID, uint256 _category, uint256 _price, uint256 _quantity, bytes memory _name, bytes memory _desc, bytes memory _image) public {
-    VendorAccount storage _vendorAccount = vendorAccounts[msg.sender];
-    require(_vendorAccount.active == true, "vendor account is not active");
-    if (_productID == 0)
+  function registerProduct(uint256 _productID, uint256 _category, uint256 _region, uint256 _price, uint256 _quantity,
+			   bytes memory _name, bytes memory _desc, bytes memory _image) public {
+    uint256 _categoryProductIdx;
+    uint256 _regionProductIdx;
+    uint8 _newTlc = uint8(_category >> 248);
+    uint8 _newTlr = uint8(_region >> 248);
+    if (_productID == 0) {
       _productID = ++productCount;
-    else
+      uint256 _vendorProductIdx = ++vendorProductCounts[msg.sender];
+      vendorProducts[msg.sender][_vendorProductIdx] = _productID;
+      _categoryProductIdx = ++categoryProductCounts[_newTlc];
+      _regionProductIdx = ++regionProductCounts[_newTlr];
+    } else {
       require(products[_productID].vendorAddr == msg.sender, "caller does not own this product");
+      (_categoryProductIdx, _regionProductIdx) = updateTlcTlr(_productID, _newTlc, _newTlr);
+    }
     Product storage _product = products[_productID];
     _product.price = _price;
     _product.quantity = _quantity;
     _product.category = _category;
+    _product.categoryProductIdx = _categoryProductIdx;
+    _product.region = _region;
+    _product.regionProductIdx = _regionProductIdx;
     _product.vendorAddr = msg.sender;
-    _product.serviceRegions = _vendorAccount.serviceRegions;
+    categoryProducts[_newTlc][_categoryProductIdx] = _productID;
+    regionProducts[_newTlr][_regionProductIdx] = _productID;
     emit RegisterProductEvent(_productID, _name, _desc, _image);
-    emit StatEvent("ok: product added");
   }
+
 
   function productInfo(uint256 _productID) public view returns(address _vendorAddr, uint256 _price, uint256 _quantity, bool _available) {
     Product storage _product = products[_productID];
     _price = _product.price;
     _quantity = _product.quantity;
     _vendorAddr = _product.vendorAddr;
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
     uint256 _minVendorBond = (_price * 50) / 100;
-    _available = (_vendorAccount.active == true && _quantity != 0 && _price != 0 && balances[_vendorAddr] >= _minVendorBond);
+    _available = (_quantity != 0 && _price != 0 && balances[_vendorAddr] >= _minVendorBond);
   }
 
 
@@ -209,7 +342,6 @@ contract CMES {
   // an optional surchage (shipping & handling?) can be added to the nominal
   // price of the product. this function can also be called to add a surchage
   // to an already existing escrow.
-  // you cannot deposit funds if the vendor is inactive.
   // -------------------------------------------------------------------------
   function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
@@ -231,8 +363,6 @@ contract CMES {
     require(_product.price != 0, "product price is not valid");
     address _vendorAddr = _product.vendorAddr;
     _escrowAccount.customerAddr = msg.sender;
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    require(_vendorAccount.active == true, "vendor account is not active");
     //for an existing escrow, the funds added to the escrow in this transaction is completely specified by the surcharge.
     //but for a new escrow, the surcharge is added to the base price of the product.
     uint256 _effectivePrice = _surcharge;
@@ -294,7 +424,6 @@ contract CMES {
   // -------------------------------------------------------------------------
   // approve of a purchase
   // called by vendor
-  // can only be called by an active vendor
   // -------------------------------------------------------------------------
   function purchaseApprove(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
@@ -303,8 +432,6 @@ contract CMES {
     Product storage _product = products[_productID];
     address _vendorAddr = _product.vendorAddr;
     require(_vendorAddr == msg.sender, "caller is not a party to this escrow");
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    require(_vendorAccount.active == true, "vendor account is not active");
     address _customerAddr = _escrowAccount.customerAddr;
     require(_escrowAccount.vendorBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved");
@@ -324,7 +451,6 @@ contract CMES {
   // -------------------------------------------------------------------------
   // reject a purchase
   // called by vendor
-  // can be called by an inactive vendor
   // -------------------------------------------------------------------------
   function purchaseReject(uint256 _escrowID, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
@@ -333,8 +459,6 @@ contract CMES {
     Product storage _product = products[_productID];
     address _vendorAddr = _product.vendorAddr;
     require(_vendorAddr == msg.sender, "caller is not a party to this escrow");
-    VendorAccount storage _vendorAccount = vendorAccounts[_vendorAddr];
-    require(_vendorAccount.active == true, "vendor account is not active");
     address _customerAddr = _escrowAccount.customerAddr;
     require(_escrowAccount.vendorBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved");
