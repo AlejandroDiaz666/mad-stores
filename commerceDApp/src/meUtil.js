@@ -14,12 +14,15 @@ var meUtil = module.exports = {
 	this.name = name;
 	this.desc = desc;
 	this.image = image;
+	console.log('Product: productIdBN = 0x' + productIdBN.toString(16) + ', name = ' + name);
 	this.priceBN = this.quantityBN = this.categoryBN = this.serviceRegionsBN = this.vendorAddr = null;
 	this.setProductInfo = function(productInfo) {
 	    this.priceBN = common.numberToBN(productInfo.price);
 	    this.quantityBN = common.numberToBN(productInfo.quantity);
+	    //console.log('Product.setProductInfo: productInfo.category = ' + productInfo.category);
 	    this.categoryBN = common.numberToBN(productInfo.category);
-	    this.serviceRegionsBN = common.numberToBN(productInfo.serviceRegions);
+	    console.log('Product.setProductInfo: categoryBN = 0x' + this.categoryBN.toString(16));
+	    this.serviceRegionsBN = common.numberToBN(productInfo.region);
 	    this.vendorAddr = productInfo.vendorAddr;
 	};
     },
@@ -75,10 +78,11 @@ var meUtil = module.exports = {
 	    getProducts(productSearchFilter, function(err, noProducts, productSearchResults) {
 		noNewProducts = noProducts;
 		console.log('displayProducts: complete. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
-		//if all the products have already been added, then that means that at the time the last one
-		//was added we still didn't have noNewProducts; so we need to draw now.
+		//if all the products have already been added, then that means that the last individual product callback already occurred -- and at the time
+		//the aggregate callback had not occurred, so noNewProducts was still greater than noToDisplay, which in prevented us from calling drawProducts.
+		//so we need to draw now.
 		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noToDisplay, () => {
+		    drawProducts(div, listener, startIdx, noNewProducts, () => {
 			if (!!cb) {
 			    const prevEnable = (startIdx > noToDisplay);
 			    const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
@@ -93,7 +97,7 @@ var meUtil = module.exports = {
 		//to the list. once the last product is added we need to draw.
 		console.log('displayProducts: product. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
 		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noToDisplay, () => {
+		    drawProducts(div, listener, startIdx, noNewProducts, () => {
 			if (!!cb) {
 			    const prevEnable = (startIdx > noToDisplay);
 			    const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
@@ -116,10 +120,7 @@ var meUtil = module.exports = {
 
 
 function drawProducts(div, listener, startIdx, noToDisplay, cb) {
-    console.log('drawProducts: div = ' + div);
     while (div.hasChildNodes()) {
-	console.log('drawProducts: div.lastChild = ' + div.lastChild);
-	console.log('drawProducts: div.lastChild = ' + div.lastChild.toString());
 	div.removeChild(div.lastChild);
     }
     for (let i = 0; i < noToDisplay; ++i) {
@@ -128,7 +129,7 @@ function drawProducts(div, listener, startIdx, noToDisplay, cb) {
 	    console.log('drawProducts: : bad index, ' + idx);
 	    break;
 	}
-	product = meUtil.productSearchResults[i];
+	const product = meUtil.productSearchResults[i];
 	const id = product.productIdBN.toString(10);
 	const tileDiv = document.createElement('div');
 	tileDiv.id = 'tile' + id + 'Div';
@@ -160,7 +161,9 @@ function drawProducts(div, listener, startIdx, noToDisplay, cb) {
 	tilePriceSpan.textContent = 'Price: ' + priceNumberAndUnits.number.toString(10) + ' ' + priceNumberAndUnits.units;
 	tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
 	if (!!listener)
-	    tileDiv.addEventListener('click', () => listener(product))
+	    tileDiv.addEventListener('click', function() {
+		listener(product);
+	    });
 	div.appendChild(tileDiv);
     }
 }

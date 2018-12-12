@@ -53,6 +53,12 @@ const common = module.exports = {
 	if (numberStr.startsWith('0x')) {
 	    base = 16;
 	    numberStr = numberStr.substring(2);
+	} else if (numberStr.indexOf('.') == 1) {
+	    const expIdx = numberStr.indexOf('e+');
+	    if (expIdx >= 0) {
+		numberStr = numberStr.substring(0, 1) + numberStr.substring(2, expIdx);
+		console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
+	    }
 	}
 	return(new BN(numberStr, base));
     },

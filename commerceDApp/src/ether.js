@@ -85,7 +85,7 @@ const ether = module.exports = {
     convertWeiBNToNumberAndUnits: function(weiBN) {
 	const numberAndUnits = {};
 	let multiplyer;
-	console.log('convertWeiToNumberAndUnits: weiBN = ' + weiBN.toString(10));
+	//console.log('convertWeiToNumberAndUnits: weiBN = ' + weiBN.toString(10));
 	if (weiBN.lt(new BN('3E8', 16))) {
 	    numberAndUnits.index = 0;
 	    numberAndUnits.multiplyer = '1';
@@ -115,8 +115,8 @@ const ether = module.exports = {
 	    numberAndUnits.multiplyer = '1000000000000000000';
 	    numberAndUnits.units = 'Eth';
 	}
-	console.log('convertWeiToNumberAndUnits: units = ' + numberAndUnits.units);
-	console.log('convertWeiToNumberAndUnits: multiplyer = ' + numberAndUnits.multiplyer);
+	//console.log('convertWeiToNumberAndUnits: units = ' + numberAndUnits.units);
+	//console.log('convertWeiToNumberAndUnits: multiplyer = ' + numberAndUnits.multiplyer);
 	const multiplyerBN = new BN(numberAndUnits.multiplyer, 10);
 	numberAndUnits.number = weiBN.div(multiplyerBN).toNumber();
 	return(numberAndUnits);

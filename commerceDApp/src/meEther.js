@@ -114,7 +114,7 @@ const meEther = module.exports = {
 	    const vendorAccountInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
-		const keys = [ 'activeFlag', 'serviceRegion' ];
+		const keys = [ 'escrowsOpened', 'escrowsBurned', 'serviceRegion', 'activeFlag' ];
 		const resultArray = Array.from(resultObj);
 		for (let i = 0; i < resultArray.length; ++i)
 		    vendorAccountInfo[keys[i]] = resultArray[i];
@@ -143,22 +143,18 @@ const meEther = module.exports = {
     productInfoQuery: function(web3, productIdBN, cb) {
 	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
 	const MEcontract = web3.eth.contract(ABIArray);
-	console.log('productInfoQuery: contract = ' + MEcontract);
-	console.log('productInfoQuery: contract addr = ' + meEther.ME_CONTRACT_ADDR);
-	console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN));
 	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
-	console.log('contract: ' + MEContractInstance);
 	MEContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
-	    console.log('productInfoQuery: err = ' + err + ', resultObj = ' + resultObj);
+	    console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN) + ', err = ' + err + ', result = ' + resultObj.toString());
 	    const productPriceInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
-		const keys = [ 'price', 'quantity', 'category', 'serviceRegions', 'vendorAddr'];
+		const keys = [ 'price', 'quantity', 'category', 'categoryProductIdx', 'region', 'regionProductIdx', 'vendorAddr' ];
 		const resultArray = Array.from(resultObj);
-		console.log('productInfoQuery: resultArray = ' + resultArray);
+		//console.log('productInfoQuery: resultArray = ' + resultArray);
 		for (let i = 0; i < resultArray.length; ++i) {
-		    productPriceInfo[keys[i]] = resultArray[i].toString();
-		    console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
+		    productPriceInfo[keys[i]] = resultArray[i];
+		    //console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
 		}
 	    }
 	    cb(err, productPriceInfo);

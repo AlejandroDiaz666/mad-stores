@@ -692,7 +692,7 @@ h3 { font-size:18px; }
 #createStoreEditProdStep2InstrBg,
 #createStoreEditProdStep3InstrBg,
 #createStoreEditProdStep4InstrBg {
-   width: 295px;
+   width: 635px;
    height: 70px;
    position: absolute;
    top: 0%;
@@ -780,7 +780,7 @@ h3 { font-size:18px; }
 }
 #createStoreAddProdStep2InstrText,
 #createStoreEditProdStep2InstrText {
-    width: 260px;
+    width: 500px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 210px, 0px);
@@ -803,6 +803,16 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(277px, 295px, 0px);
 }
+#createStoreAddProdQuantityArea,
+#createStoreEditProdQuantityArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(390px, 295px, 0px);
+    resize: none;
+}
+
 /*
  * create store - add product
  * step 3
@@ -824,13 +834,13 @@ h3 { font-size:18px; }
 }
 #createStoreAddProdStep3InstrText,
 #createStoreEditProdStep3InstrText {
-    width: 260px;
+    width: 500px;
     font-size: 16px;
     transform-style: preserve-3d;
     transform: translate3d(129px, 337px, 0px);
 }
-#createStoreAddProdQuantityArea,
-#createStoreEditProdQuantityArea {
+#createStoreAddProdTlcSel,
+#createStoreEditProdTlcSel {
     position: absolute;
     border: 1px solid black;
     left: 50%;
@@ -838,6 +848,16 @@ h3 { font-size:18px; }
     transform: translate3d(154px, 421px, 0px);
     resize: none;
 }
+#createStoreAddProdLlcBitsSel,
+#createStoreEditProdLlcBitsSel {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(390px, 421px, 0px);
+    resize: none;
+}
+
 /*
  * create store - add product
  * step 4
@@ -845,24 +865,24 @@ h3 { font-size:18px; }
 #createStoreAddProdStep4NoBg,
 #createStoreEditProdStep4NoBg {
    transform-style: preserve-3d;
-   transform: translate3d(70px, 487px, 0px);
+   transform: translate3d(70px, 497px, 0px);
 }
 #createStoreAddProdStep4NoText,
 #createStoreEditProdStep4NoText {
     transform-style: preserve-3d;
-    transform: translate3d(95px, 475px, 0px);
+    transform: translate3d(95px, 485px, 0px);
 }
 #createStoreAddProdStep4InstrBg,
 #createStoreEditProdStep4InstrBg {
     transform-style: preserve-3d;
-    transform: translate3d(100px, 487px, 0px);
+    transform: translate3d(100px, 497px, 0px);
 }
 #createStoreAddProdStep4InstrText,
 #createStoreEditProdStep4InstrText {
     width: 260px;
     font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(129px, 477px, 0px);
+    transform: translate3d(129px, 487px, 0px);
 }
 #createStoreAddProdLoadImageButton,
 #createStoreEditProdLoadImageButton {
@@ -871,7 +891,7 @@ h3 { font-size:18px; }
     left: 50%;
     top: 0%;
     transform-style: preserve-3d;
-    transform: translate3d(156px, 563px, 0px);
+    transform: translate3d(156px, 573px, 0px);
 }
 #createStoreAddProdImg,
 #createStoreEditProdImg {
@@ -881,7 +901,7 @@ h3 { font-size:18px; }
     border: 1px solid black;
     left: 50%;
     transform-style: preserve-3d;
-    transform: translate3d(424px, 486px, 0px);
+    transform: translate3d(424px, 573px, 0px);
 }
 
 

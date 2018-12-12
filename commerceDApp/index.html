@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544570752_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544592399_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544570752_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544592399_.js"></script>
 
   </head>
 
@@ -329,7 +329,6 @@
 	    <p>Enter the quantity of items that are available for purchase</p>
 	  </span>
 	  <p id="createStoreAddProdStep3NoText" class="rsStepNoText">3</p>
-	  <p id="createStoreAddProdStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="createStoreAddProdQuantityArea" rows="1" cols="12"
 		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
 		    placeholder="Quantity"></textarea>
@@ -361,7 +360,8 @@
 	  <div id="createStoreEditProdStep2NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreEditProdStep2InstrBg" class="rsStepInstrBg"></div>
 	  <span id="createStoreEditProdStep2InstrText" class="rsStepInstrText">
-	    <p>Enter the price for each unit sold. The price should include shipping charges.</p>
+	    <p>Enter the price for each unit sold. The price should include shipping charges.</br>
+	      Also enter the quantity of items that are available for purchase</p>
 	  </span>
 	  <p id="createStoreEditProdStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="createStoreEditProdPriceArea" rows="1" cols="12"
@@ -376,17 +376,21 @@
 	    <option value="1000000000000000">Finney</option>
 	    <option value="1000000000000000000">Eth</option>
 	  </select>
+	  <textarea id="createStoreEditProdQuantityArea" rows="1" cols="12"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder="Quantity"></textarea>
 	  <!-- step 3 -->
 	  <div id="createStoreEditProdStep3NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreEditProdStep3InstrBg" class="rsStepInstrBg"></div>
 	  <span id="createStoreEditProdStep3InstrText" class="rsStepInstrText">
-	    <p>Enter the quantity of items that are available for purchase</p>
+	    <p>Select a Top-Level category, and also at least one sub-category for this product.</br>
+	      If applicable, you can select several sub-categories.</p>
 	  </span>
 	  <p id="createStoreEditProdStep3NoText" class="rsStepNoText">3</p>
-	  <p id="createStoreEditProdStep2NoText" class="rsStepNoText">2</p>
-	  <textarea id="createStoreEditProdQuantityArea" rows="1" cols="12"
-		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
-		    placeholder="Quantity"></textarea>
+	  <select id="createStoreEditProdTlcSel">
+	  </select>
+	  <select id="createStoreEditProdLlcBitsSel" multiple="t" size="4">
+	  </select>
 	  <!-- step 4 -->
 	  <div id="createStoreEditProdStep4NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreEditProdStep4InstrBg" class="rsStepInstrBg"></div>
