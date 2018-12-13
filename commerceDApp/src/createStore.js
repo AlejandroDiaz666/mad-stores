@@ -366,7 +366,7 @@ function viewProductsSubPage() {
     var vendorAddr = null; //should be my addr
     const onlyAvailable = false; //should be true, but now testing
     const productStartIdxBN = new BN('1', 16);
-    const productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable, 100);
+    const productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     meUtil.displayProducts(productSearchFilter, createStoreViewProdsTilesDiv, viewProdsEditProduct, 0, 100, null);
 }

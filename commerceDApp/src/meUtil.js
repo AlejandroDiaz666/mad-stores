@@ -27,7 +27,7 @@ var meUtil = module.exports = {
 	};
     },
 
-    ProductSearchFilter: function(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable, maxProducts) {
+    ProductSearchFilter: function(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable) {
 	if (!vendorAddr)
 	    vendorAddr = '0x0';
 	if (!regionBN)
@@ -41,8 +41,6 @@ var meUtil = module.exports = {
 	this.categoryBN = categoryBN;
 	this.maxPriceBN = maxPriceBN;
 	this.onlyAvailable = onlyAvailable;
-	this.maxProducts = maxProducts;
-	this.productStartIdxBN = new BN('1', 16);
 	meUtil.productSearchResults = [];
     },
 
@@ -66,29 +64,30 @@ var meUtil = module.exports = {
     //cb(prevEnable, nextEnable)
     //listener(product)
     displayProducts: function(productSearchFilter, div, listener, startIdx, noToDisplay, cb) {
+	console.log('displayProducts: startIdx = ' + startIdx + ',  productSearchResults.length = ' + meUtil.productSearchResults.length + ', noToDisplay = ' + noToDisplay);
 	if (!!meUtil.productSearchResults && startIdx < meUtil.productSearchResults.length - noToDisplay) {
-	    drawProducts(div, listener, startIdx, noToDisplay, () => {
-		const prevEnable = (startIdx > noToDisplay);
-		const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
-		if (!!cb)
-		    cb(nextEnable, nextEnable);
-	    });
+	    drawProducts(div, listener, startIdx, noToDisplay);
+	    if (!!cb) {
+		const prevEnable = (startIdx >= noToDisplay);
+		const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
+		cb(prevEnable, nextEnable);
+	    }
 	} else {
 	    let noNewProducts = noToDisplay + 1;
-	    getProducts(productSearchFilter, function(err, noProducts, productSearchResults) {
+	    getProducts(productSearchFilter, noToDisplay, function(err, noProducts, productSearchResults) {
 		noNewProducts = noProducts;
 		console.log('displayProducts: complete. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
 		//if all the products have already been added, then that means that the last individual product callback already occurred -- and at the time
 		//the aggregate callback had not occurred, so noNewProducts was still greater than noToDisplay, which in prevented us from calling drawProducts.
 		//so we need to draw now.
 		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noNewProducts, () => {
-			if (!!cb) {
-			    const prevEnable = (startIdx > noToDisplay);
-			    const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
-			    cb(nextEnable, nextEnable);
-			}
-		    });
+		    drawProducts(div, listener, startIdx, noNewProducts);
+		    if (!!cb) {
+			const prevEnable = (startIdx >= noToDisplay);
+			const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
+			console.log('displayProducts: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
+			cb(prevEnable, nextEnable);
+		    }
 		}
 	    }, function(err, product) {
 		if (!!err)
@@ -97,13 +96,12 @@ var meUtil = module.exports = {
 		//to the list. once the last product is added we need to draw.
 		console.log('displayProducts: product. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
 		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noNewProducts, () => {
-			if (!!cb) {
-			    const prevEnable = (startIdx > noToDisplay);
-			    const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
-			    cb(nextEnable, nextEnable);
-			}
-		    });
+		    drawProducts(div, listener, startIdx, noNewProducts);
+		    if (!!cb) {
+			const prevEnable = (startIdx >= noToDisplay);
+			const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
+			cb(prevEnable, nextEnable);
+		    }
 		}
 	    });
 	}
@@ -119,7 +117,7 @@ var meUtil = module.exports = {
 }
 
 
-function drawProducts(div, listener, startIdx, noToDisplay, cb) {
+function drawProducts(div, listener, startIdx, noToDisplay) {
     while (div.hasChildNodes()) {
 	div.removeChild(div.lastChild);
     }
@@ -129,7 +127,7 @@ function drawProducts(div, listener, startIdx, noToDisplay, cb) {
 	    console.log('drawProducts: : bad index, ' + idx);
 	    break;
 	}
-	const product = meUtil.productSearchResults[i];
+	const product = meUtil.productSearchResults[idx];
 	const id = product.productIdBN.toString(10);
 	const tileDiv = document.createElement('div');
 	tileDiv.id = 'tile' + id + 'Div';
@@ -177,14 +175,15 @@ function drawProducts(div, listener, startIdx, noToDisplay, cb) {
 // cb is called once with the number of products retreived from this call, and the entire array of
 // products (including products from prior calls)
 //
-function getProducts(productSearchFilter, cb, productFcn) {
+function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
+    const productStartIdxBN = new BN(meUtil.productSearchResults.length + 1);
     meEther.getCertainProducts(productSearchFilter.vendorAddr,
 			       productSearchFilter.categoryBN,
 			       productSearchFilter.regionBN,
 			       productSearchFilter.maxPriceBN,
 			       productSearchFilter.onlyAvailable,
-			       productSearchFilter.productStartIdxBN,
-			       productSearchFilter.maxProducts,
+			       productStartIdxBN,
+			       maxProducts,
       function(err, productIDs) {
 	  if (!!err) {
 	      cb(err, 0, meUtil.productSearchResults);

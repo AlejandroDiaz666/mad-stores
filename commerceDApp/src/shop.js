@@ -26,9 +26,11 @@ var shop = module.exports = {
 	    shopDoSearch();
 	});
 	const shopNextButton = document.getElementById('shopNextButton');
+	console.log('setButtonHandlers: shopNextButton = ' + shopNextButton);
 	shopNextButton.addEventListener('click', function() {
 	    shop.displayedProductsStartIdx += shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
+	    console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
 	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, null, shop.displayedProductsStartIdx, shop.productsPerPage,
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
@@ -78,10 +80,11 @@ function shopDoSearch() {
     const maxPriceBN = null;
     const onlyAvailable = false; //should be true, but now testing
     shop.displayedProductsStartIdx = 0;
-    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable, shop.productsPerPage);
+    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');
     meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, null, shop.displayedProductsStartIdx, shop.productsPerPage,
 			   function(prevEnable, nextEnable) {
+			       console.log('shopDoSearch: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
 			       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 			       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
 			   });
