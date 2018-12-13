@@ -65,7 +65,7 @@ var meUtil = module.exports = {
     //listener(product)
     displayProducts: function(productSearchFilter, div, listener, startIdx, noToDisplay, cb) {
 	console.log('displayProducts: startIdx = ' + startIdx + ',  productSearchResults.length = ' + meUtil.productSearchResults.length + ', noToDisplay = ' + noToDisplay);
-	if (!!meUtil.productSearchResults && startIdx < meUtil.productSearchResults.length - noToDisplay) {
+	if (!!meUtil.productSearchResults && startIdx < meUtil.productSearchResults.length) {
 	    drawProducts(div, listener, startIdx, noToDisplay);
 	    if (!!cb) {
 		const prevEnable = (startIdx >= noToDisplay);
