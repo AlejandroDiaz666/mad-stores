@@ -95,6 +95,14 @@ function setAddProductButtonHandlers() {
     createStoreAddProdNameArea.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     createStoreAddProdDescArea.addEventListener('input', enableAddProductDoAddButton);
+    const createStoreAddProdTlcSel = document.getElementById('createStoreAddProdTlcSel');
+    const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
+    createStoreAddProdTlcSel.addEventListener('change', () => {
+	const categoryBN = common.numberToBN(createStoreAddProdTlcSel.value).iushln(248);
+	categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel);
+	enableAddProductDoAddButton();
+    }, {passive: true} );
+    createStoreAddProdLlcBitsSel.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdDoAddButton = document.getElementById('createStoreAddProdDoAddButton');
     createStoreAddProdDoAddButton.addEventListener('click', () => addProductDoAdd(null));
 }
