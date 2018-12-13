@@ -8,7 +8,7 @@ const categories = module.exports = {
     //top level categories, followed by sub-categories
     bigList: [
 	{ tlc: 'None',
-	  llcBits: [ 'None'
+	  llcBits: [
 		   ] },
 	{ tlc: 'Vehicles',
 	  llcBits: [ 'Aircraft',
@@ -27,7 +27,15 @@ const categories = module.exports = {
 	{ tlc: 'Electronics',
 	  llcBits: [ ] },
 	{ tlc: 'Collectibles',
-	  llcBits: [ ] },
+	  llcBits: [ 'Antiques',
+		     'Art',
+		     'Coins, Metals & Paper Money',
+		     'Collectible Comics',
+		     'Entertainment Memorabilia',
+		     'Pottery & Glass',
+		     'Sports Memorabilia',
+		     'Stamps'
+		   ] },
 	{ tlc: 'Security & Protection',
 	  llcBits: [ ] },
 	{ tlc: 'Home & Garden',
@@ -37,9 +45,58 @@ const categories = module.exports = {
 	{ tlc: 'Pharmaceuticals',
 	  llcBits: [ ] },
 	{ tlc: 'Sporting Goods',
-	  llcBits: [ ] },
+	  llcBits: [ 'Artificial Grass',
+		     'Baseball',
+		     'Fitness & Body Building',
+		     'Football',
+		     'Gambling',
+		     'Golf',
+		     'Hockey',
+		     'Indoor Sports',
+		     'Other Sports Products',
+		     'Outdoor Sports',
+		     'Soccer',
+		     'Sports Flooring',
+		     'Sports Gloves',
+		     'Sports Safety',
+		     'Sports Souvenirs',
+		     'Team Sports',
+		     'Tennis',
+		     'Water Sports',
+		     'Winter Sports',
+		     'Camping & Hiking',
+		     'Scooters',
+		     'Gym Equipment',
+		     'Swimming & Diving',
+	  ] },
 	{ tlc: 'Toys & Hobbies',
-	  llcBits: [ ] },
+	  llcBits: [ 'Action Figures',
+		     'Baby Toys',
+		     'Balloons',
+		     'Candy Toys',
+		     'Classic Toys',
+		     'Dolls',
+		     'Educational Toys',
+		     'Electronic Toys',
+		     'Glass Marbles',
+		     'Inflatable Toys',
+		     'Light-Up Toys',
+		     'Noise Makers',
+		     'Other Toys & Hobbies',
+		     'Outdoor Play Structures',
+		     'Outdoor Toys',
+		     'Plastic Toys',
+		     'Pretend Play & Preschool',
+		     'Solar Toys',
+		     'Toy Accessories',
+		     'Toy Animals',
+		     'Toy Guns',
+		     'Toy Parts',
+		     'Toy Robots',
+		     'Toy Vehicles',
+		     'Wind Up Toys',
+		     'Wooden Toys',
+	  ] },
 	{ tlc: 'Business & Industrial',
 	  llcBits: [ ] },
 	{ tlc: 'Professional Services',
@@ -142,15 +199,21 @@ const categories = module.exports = {
     addLlcBitsOptionsElems: function(tlcIdx, selectCategoryBN, parentElem) {
 	while (parentElem.hasChildNodes())
 	    parentElem.removeChild(parentElem.lastChild);
+	const option0 = document.createElement("option");
+	option0.value = '0';
+	option0.text = 'None';
+	parentElem.appendChild(option0);
 	console.log('addLlcBitsOptionsElems: tlcIdx = ' + tlcIdx);
 	llcList = categories.bigList[tlcIdx].llcBits;
 	//console.log('addLlcBitsOptionsElems: tlcIdx = ' + tlcIdx + ', llcList.length = ' + llcList.length);
 	for (let i = 0; i < llcList.length; ++i) {
 	    var option = document.createElement("option");
 	    //console.log('addLlcBitsOptionsElems: add option ' + (1 << i).toString(10) + ' = ' + llcList[i]);
-	    const optionValueBN = new BN('1', 16).iushln(i);
-	    option.value = optionValueBN.toString(10);
 	    option.text = llcList[i];
+	    //console.log('addLlcBitsOptionsElems: i = ' + i);
+	    const optionValueBN = new BN('1', 16).iushln(i);
+	    //console.log('addLlcBitsOptionsElems: optionValueBN = 0x' + optionValueBN.toString(16));
+	    option.value = '0x' + optionValueBN.toString(16);
 	    if (!selectCategoryBN.uand(optionValueBN).isZero())
 		option.selected = true;
 	    parentElem.appendChild(option);

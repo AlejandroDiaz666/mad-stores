@@ -71,8 +71,8 @@ const meEther = module.exports = {
 	const abiRegisterProductFcn = meEther.abiEncodeRegisterProduct();
 	const abiParms = meEther.abiEncodeRegisterProductParms(productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes);
         const sendData = "0x" + abiRegisterProductFcn + abiParms;
-	console.log('sendData.length = ' + sendData.length);
-	console.log('sendData = ' + sendData);
+	//console.log('sendData.length = ' + sendData.length);
+	//console.log('sendData = ' + sendData);
 	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
@@ -173,7 +173,7 @@ const meEther = module.exports = {
     withdraw: function(web3, cb) {
 	const abiWithdrawFcn = meEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
-	console.log('sendData = ' + sendData);
+	console.log('meEther.withdraw: sendData = ' + sendData);
 	ether.send(web3, meEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 

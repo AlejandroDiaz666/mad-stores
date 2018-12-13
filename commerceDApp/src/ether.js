@@ -158,7 +158,7 @@ const ether = module.exports = {
     //
     getBalance: function(web3, units, cb) {
 	web3.eth.getBalance(web3.eth.accounts[0], function (err, balance) {
-	    console.log('get_balance bal = ' + balance.toString() + ', type = ' + typeof(balance));
+	    console.log('ether.getBalance: bal = ' + balance.toString() + ', type = ' + typeof(balance));
 	    cb(null, web3.fromWei(balance, units).toString());
 	});
     },
@@ -175,7 +175,7 @@ const ether = module.exports = {
 	tx.data = data;
 	if (gasLimit > 0)
 	    tx.gas = gasLimit;
-	console.log('calling sendTransaction');
+	console.log('ether.send: calling sendTransaction');
 	web3.eth.sendTransaction(tx, callback)
     },
 
@@ -185,7 +185,7 @@ const ether = module.exports = {
     //	fromBlock, toBlock, address, topics[]
     //
     getLogs: function(options, cb) {
-	console.log('getLogs: ether.node = ' + ether.node);
+	console.log('ether.getLogs: ether.node = ' + ether.node);
 	if (ether.node == 'metamask') {
             const filter = common.web3.eth.filter(options);
 	    filter.get(cb);

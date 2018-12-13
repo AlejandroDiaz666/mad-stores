@@ -275,8 +275,8 @@ function addProductSubPage() {
     createStoreAddProdPriceArea.value = '';
     createStoreAddProdQuantityArea.value = '';
     const categoryBN = new BN('0', 16);
-    categories.addTlcOptionsElems(categoryBN, createStoreEditProdTlcSel);
-    categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, categoryBN, createStoreEditProdLlcBitsSel);
+    categories.addTlcOptionsElems(categoryBN, createStoreAddProdTlcSel);
+    categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel);
 }
 
 
@@ -291,6 +291,7 @@ function enableAddProductDoAddButton() {
     const enable = (createStoreAddProdNameArea.value.trim().length > 0 &&
 		    createStoreAddProdDescArea.value.trim().length > 0 &&
 		    createStoreAddProdImg.src != '#') ? true : false;
+    console.log('enableAddProductDoAddButton: createStoreAddProdImg.src = ' + createStoreAddProdImg.src);
     common.setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
@@ -436,7 +437,7 @@ function editProdDoEdit(productIdBN) {
 	const llcBitsBn = common.numberToBN(createStoreEditProdLlcBitsSel.selectedOptions[i].value);
 	categoryBN.iuor(llcBitsBn);
     }
-    console.log('editProdDoEdit: categoryBN = 0x' + categoryBN.toString(16));
+    console.log('editProdDoEdit: categoryBN = 0x' + categoryBN.toString(16) + ' = ' + categoryBN.toString(10));
     const regionBN = createStore.defaultRegionBN;
     const priceBN = common.numberToBN(createStoreEditProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreEditProdPriceUnits.value));
