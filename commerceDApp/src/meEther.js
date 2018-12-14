@@ -140,6 +140,8 @@ const meEther = module.exports = {
 						     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
 							 console.log('getVendorProducts: err = ' + err + ', result = ' + result);
 							 const products = result.toString().split(",");
+							 //first entry is idx of last product
+							 products.shift();
 							 cb(err, products);
 						     });
 
@@ -153,6 +155,8 @@ const meEther = module.exports = {
 						       common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
 							   console.log('getCategoryProducts: err = ' + err + ', result = ' + result);
 							   const products = result.toString().split(",");
+							   //first entry is idx of last product
+							   products.shift();
 							   cb(err, products);
 						       });
 
@@ -165,6 +169,8 @@ const meEther = module.exports = {
 					     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
 						 console.log('getRegionProducts: err = ' + err + ', result = ' + result);
 						 const products = result.toString().split(",");
+						 //first entry is idx of last product
+						 products.shift();
 						 cb(err, products);
 					     });
 
