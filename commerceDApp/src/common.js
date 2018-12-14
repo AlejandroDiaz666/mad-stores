@@ -63,7 +63,7 @@ const common = module.exports = {
 	    }
 	}
 	const bn = new BN(numberStr, base);
-	console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16));
+	//console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16));
 	return(bn);
     },
 

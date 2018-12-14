@@ -42,6 +42,7 @@ var meUtil = module.exports = {
 	this.maxPriceBN = maxPriceBN;
 	this.onlyAvailable = onlyAvailable;
 	this.previousSearch = null;
+	this.lastSearchLastIdxBN = new BN('0', 16);
 	meUtil.productSearchResults = [];
     },
 
@@ -173,37 +174,6 @@ function drawProducts(div, listener, startIdx, noToDisplay) {
 
 
 //
-// productIDs -- array of product ID's for which we are creating products in meUtil.productSearchResults[]
-// product    -- the current product that we are working on. already has name, desc, image
-// endLength  -- when meUtil.productSearchResults is this long, then were done
-// cb(err, noProducts, products[]) -- called when we're all done
-// productFcn(err, product) -- called after each product
-//
-// this is a helper for getProducts. once the product {name,desc,image} have been set, here we get the rest of the product info.
-// then we call the single-product callback, and if this is the last product we call the completed callback.
-//
-function getProductInfo(productIDs, product, endLength, cb, productFcn) {
-    console.log('getProductInfo: working on product = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
-    meEther.productInfoQuery(common.web3, product.productIdBN, function(err, productInfo) {
-	if (!!err) {
-	    console.log('getProductInfo: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
-	    meUtil.productSearchResults.push(null);
-	    productFcn(err, product);
-	    if (meUtil.productSearchResults.length >= endLength)
-		cb(null, productIDs.length, meUtil.productSearchResults);
-	    return;
-	}
-	console.log('productInfo = ' + productInfo);
-	product.setProductInfo(productInfo);
-	meUtil.productSearchResults.push(product);
-	productFcn(null, product);
-	if (meUtil.productSearchResults.length >= endLength)
-	    cb(null, productIDs.length, meUtil.productSearchResults);
-    });
-}
-
-
-//
 // fcn(err, product)
 // cb(err, noProducts, products[])
 //
@@ -212,8 +182,7 @@ function getProductInfo(productIDs, product, endLength, cb, productFcn) {
 // products (including products from prior calls)
 //
 function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
-    const productStartIdxBN = new BN(meUtil.productSearchResults.length + 1);
-    efficientGetCertainProducts(productSearchFilter, productStartIdxBN, maxProducts, function(err, productIDs) {
+    efficientGetCertainProducts(productSearchFilter, maxProducts, function(err, productIDs) {
 	if (!!err) {
 	    cb(err, 0, meUtil.productSearchResults);
 	    return;
@@ -257,59 +226,101 @@ function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
 
 
 //cb(err, productIDs)
+//
+// this is a heloer for getProducts
 // this fcn finds the most efficient way to search a list of products. searches can be performed via getCertainProducts, getVendorProducts, getRegionProducts,
 // or getCategoryProducts. the most efficient way to search is to use the call that searches through the smallest set of products.
 //
-function efficientGetCertainProducts(productSearchFilter, productStartIdxBN, maxProducts, cb) {
+function efficientGetCertainProducts(productSearchFilter, maxProducts, cb) {
+    selectEddicientSearch(productSearchFilter, function(err, searchFcn, searchFcnId) {
+	if (!!err) {
+	    cb(err, null);
+	    return;
+	}
+	const searchStartIdxBN = productSearchFilter.lastSearchLastIdxBN.addn(1);
+	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+		  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, searchStartIdxBN,
+		  maxProducts, function(err, nextSearchIdx, products) {
+		      if (!err)
+			  productSearchFilter.lastSearchLastIdxBN = common.numberToBN(nextSearchIdx);
+		      cb(err, products);
+		  });
+    });
+}
+
+
+//cb(err, searchFcn, searchFcnId)
+function selectEddicientSearch(productSearchFilter, cb) {
     if (productSearchFilter.previousSearch == 'vendorAddr' || productSearchFilter.vendorAddr != '0x0') {
 	//this is probably the most efficient.... how many products could one vendor have?
-	productSearchFilter.previousSearch = 'vendorAddr';
-	meEther.getVendorProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-				  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+	cb(null, meEther.getVendorProducts, 'vendorAddr');
     } else if ((productSearchFilter.previousSearch == 'region'                                   ) ||
 	       (productSearchFilter.categoryBN.isZero() && !productSearchFilter.regionBN.isZero())) {
-	productSearchFilter.previousSearch = 'region';
-	meEther.getRegionProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-				  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+	cb(null, meEther.getRegionProducts, 'region');
     } else if ((productSearchFilter.previousSearch == 'category'                               ) ||
 	       (!productSearchFilter.categoryBN.isZero() && productSearchFilter.regionBN.isZero())) {
-	productSearchFilter.previousSearch = 'category';
-	meEther.getCategoryProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-				    productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+	cb(null, meEther.getCategoryProducts, 'category');
     } else if ((productSearchFilter.previousSearch == 'general'                                  ) ||
 	       (productSearchFilter.categoryBN.isZero() && productSearchFilter.regionBN.isZero())) {
 	//search everything!
-	productSearchFilter.previousSearch = 'general';
-	meEther.getCertainProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-				   productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+	cb(null, meEther.getCertainProducts, 'general');
     } else {
 	//see which of search condition entails seraching the least entries
 	const regionTlcBN = productSearchFilter.regionBN.ushrn(248);
 	const categoryTlcBN = productSearchFilter.categoryBN.ushrn(248);
 	meEther.regionProductCount(regionTlcBN, function(err, regionCountBN) {
 	    if (!!err) {
-		cb(err, null);
+		cb(err, null, null);
 		return;
 	    }
 	    meEther.categoryProductCount(categoryTlcBN, function(err, categoryCountBN) {
 		if (!!err) {
-		    cb(err, null);
+		    cb(err, null, null);
 		    return;
 		}
 		console.log('efficientGetCertainProducts: regionCountBN = ' + regionCountBN.toString(10) + ', categoryCountBN = ' + categoryCountBN.toString(10));
-		if (regionCountBN.lt(categoryCountBN)) {
-		    productSearchFilter.previousSearch = 'region';
-		    meEther.getRegionProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-					      productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
-		} else {
-		    productSearchFilter.previousSearch = 'category';
-		    meEther.getCategoryProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-						productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
-		}
+		if (regionCountBN.lt(categoryCountBN))
+		    cb(null, meEther.getRegionProducts, 'region');
+		else
+		    cb(null, meEther.getCategoryProducts, 'category');
 	    });
 	});
     }
 }
+
+
+//
+// productIDs -- array of product ID's for which we are creating products in meUtil.productSearchResults[]
+// product    -- the current product that we are working on. already has name, desc, image
+// endLength  -- when meUtil.productSearchResults is this long, then were done
+// cb(err, noProducts, products[]) -- called when we're all done
+// productFcn(err, product) -- called after each product
+//
+// this is a helper for getProducts. once the product {name,desc,image} have been set, here we get the rest of the product info.
+// then we call the single-product callback, and if this is the last product we call the completed callback.
+//
+function getProductInfo(productIDs, product, endLength, cb, productFcn) {
+    console.log('getProductInfo: working on product = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+    meEther.productInfoQuery(common.web3, product.productIdBN, function(err, productInfo) {
+	if (!!err) {
+	    console.log('getProductInfo: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
+	    meUtil.productSearchResults.push(null);
+	    productFcn(err, product);
+	    if (meUtil.productSearchResults.length >= endLength)
+		cb(null, productIDs.length, meUtil.productSearchResults);
+	    return;
+	}
+	product.setProductInfo(productInfo);
+	console.log('getProductInfo: product = 0x' + product.productIdBN + ', category = 0x' + product.categoryBN.toString(16));
+	meUtil.productSearchResults.push(product);
+	productFcn(null, product);
+	if (meUtil.productSearchResults.length >= endLength)
+	    cb(null, productIDs.length, meUtil.productSearchResults);
+    });
+}
+
+
+
 
 
 //cb(err, productIdBN, results)
