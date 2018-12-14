@@ -196,13 +196,18 @@ const categories = module.exports = {
 	console.log('addTlcOptionsElems: parentElem.value = ' + parentElem.value);
     },
 
-    addLlcBitsOptionsElems: function(tlcIdx, selectCategoryBN, parentElem) {
+    //option0 has a value of zero. if option0Text is non-null then option0 is displayed with the specified text
+    //at any rate, option0 is always disabled -- it cannot be selected
+    addLlcBitsOptionsElems: function(tlcIdx, selectCategoryBN, parentElem, option0Text) {
 	while (parentElem.hasChildNodes())
 	    parentElem.removeChild(parentElem.lastChild);
-	const option0 = document.createElement("option");
-	option0.value = '0';
-	option0.text = 'None';
-	parentElem.appendChild(option0);
+	if (!!option0Text) {
+	    const option0 = document.createElement("option");
+	    option0.value = '0';
+	    option0.text = option0Text;
+	    option0.disabled = true;
+	    parentElem.appendChild(option0);
+	}
 	console.log('addLlcBitsOptionsElems: tlcIdx = ' + tlcIdx);
 	llcList = categories.bigList[tlcIdx].llcBits;
 	//console.log('addLlcBitsOptionsElems: tlcIdx = ' + tlcIdx + ', llcList.length = ' + llcList.length);

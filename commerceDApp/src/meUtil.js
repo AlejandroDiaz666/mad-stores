@@ -41,6 +41,7 @@ var meUtil = module.exports = {
 	this.categoryBN = categoryBN;
 	this.maxPriceBN = maxPriceBN;
 	this.onlyAvailable = onlyAvailable;
+	this.previousSearch = null;
 	meUtil.productSearchResults = [];
     },
 
@@ -177,70 +178,119 @@ function drawProducts(div, listener, startIdx, noToDisplay) {
 //
 function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
     const productStartIdxBN = new BN(meUtil.productSearchResults.length + 1);
-    meEther.getCertainProducts(productSearchFilter.vendorAddr,
-			       productSearchFilter.categoryBN,
-			       productSearchFilter.regionBN,
-			       productSearchFilter.maxPriceBN,
-			       productSearchFilter.onlyAvailable,
-			       productStartIdxBN,
-			       maxProducts,
-      function(err, productIDs) {
-	  if (!!err) {
-	      cb(err, 0, meUtil.productSearchResults);
-	      return;
-	  }
-	  const endLength = meUtil.productSearchResults.length + productIDs.length;
-	  for (var i = 0; i < productIDs.length; ++i) {
-	      if (!productIDs[i] || productIDs[i] == '0') {
-		  // productID == 0 => all done
-		  const lastProductIdBN = common.numberToBN((i > 0) ? productIDs[i - 1] : 0);
-		  console.log('getProducts: short batch. lastProductIdBN = ' + lastProductIdBN.toString(10));
-		  cb(null, i, meUtil.productSearchResults);
-		  return;
-	      }
-	      console.log('getProducts: call getProductLogs(product #' + i + ', productID = ' + productIDs[i] + ')');
-	      getProductLogs(common.numberToBN(productIDs[i]), function(err, productIdBN, results) {
-		  if (!!err) {
-		      console.log('getProducts: product #' + i + ', productID = ' + productIdBN.toString(10) + ', err = ' + err);
-		      meUtil.productSearchResults.push(null);
-		      productFcn(err, null);
-		      if (meUtil.productSearchResults.length >= endLength)
-			  cb(null, productIDs.length, meUtil.productSearchResults);
-		      return;
-		  }
-		  const result = results[results.length - 1];
-		  if (!result) {
-		      console.log('getProducts: unable to parse product info. product #' + i +
-				  ', productID = ' + productIdBN.toString(10) + ', result = ' + result);
-		      meUtil.productSearchResults.push(null);
-		      productFcn('unable to parse product info', null);
-		      if (meUtil.productSearchResults.length >= endLength)
-			  cb(null, productIDs.length, meUtil.productSearchResults);
-		      return;
-		  }
-		  meEther.parseRegisterProductEvent(result, function(err, productIdBN, name, desc, image) {
-		      console.log('getProducts: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
-		      const product = new meUtil.Product(productIdBN, name, desc, image);
-		      meEther.productInfoQuery(common.web3, productIdBN, function(err, productInfo) {
-			  if (!!err) {
-			      console.log('getProducts: product #' + i + ', productID = ' + productIDs[i] + ', err = ' + err);
-			      meUtil.productSearchResults.push(null);
-			      productFcn(err, product);
-			      if (meUtil.productSearchResults.length >= endLength)
-				  cb(null, productIDs.length, meUtil.productSearchResults);
-			      return;
-			  }
-			  console.log('productInfo = ' + productInfo);
-			  product.setProductInfo(productInfo);
-			  meUtil.productSearchResults.push(product);
-			  productFcn(null, product);
-			  if (meUtil.productSearchResults.length >= endLength)
-			      cb(null, productIDs.length, meUtil.productSearchResults);
-		      });
-		  });
-	      });
-	  }
-      });
+    efficientGetCertainProducts(productSearchFilter, productStartIdxBN, maxProducts, function(err, productIDs) {
+	if (!!err) {
+	    cb(err, 0, meUtil.productSearchResults);
+	    return;
+	}
+	const endLength = meUtil.productSearchResults.length + productIDs.length;
+	for (var i = 0; i < productIDs.length; ++i) {
+	    if (!productIDs[i] || productIDs[i] == '0') {
+		// productID == 0 => all done
+		const lastProductIdBN = common.numberToBN((i > 0) ? productIDs[i - 1] : 0);
+		console.log('getProducts: short batch. lastProductIdBN = ' + lastProductIdBN.toString(10));
+		cb(null, i, meUtil.productSearchResults);
+		return;
+	    }
+	    console.log('getProducts: call getProductLogs(product #' + i + ', productID = ' + productIDs[i] + ')');
+	    getProductLogs(common.numberToBN(productIDs[i]), function(err, productIdBN, results) {
+		if (!!err) {
+		    console.log('getProducts: product #' + i + ', productID = ' + productIdBN.toString(10) + ', err = ' + err);
+		    meUtil.productSearchResults.push(null);
+		    productFcn(err, null);
+		    if (meUtil.productSearchResults.length >= endLength)
+			cb(null, productIDs.length, meUtil.productSearchResults);
+		    return;
+		}
+		const result = results[results.length - 1];
+		if (!result) {
+		    console.log('getProducts: unable to parse product info. product #' + i +
+				', productID = ' + productIdBN.toString(10) + ', result = ' + result);
+		    meUtil.productSearchResults.push(null);
+		    productFcn('unable to parse product info', null);
+		    if (meUtil.productSearchResults.length >= endLength)
+			cb(null, productIDs.length, meUtil.productSearchResults);
+		    return;
+		}
+		meEther.parseRegisterProductEvent(result, function(err, productIdBN, name, desc, image) {
+		    console.log('getProducts: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
+		    const product = new meUtil.Product(productIdBN, name, desc, image);
+		    meEther.productInfoQuery(common.web3, productIdBN, function(err, productInfo) {
+			if (!!err) {
+			    console.log('getProducts: product #' + i + ', productID = ' + productIDs[i] + ', err = ' + err);
+			    meUtil.productSearchResults.push(null);
+			    productFcn(err, product);
+			    if (meUtil.productSearchResults.length >= endLength)
+				cb(null, productIDs.length, meUtil.productSearchResults);
+			    return;
+			}
+			console.log('productInfo = ' + productInfo);
+			product.setProductInfo(productInfo);
+			meUtil.productSearchResults.push(product);
+			productFcn(null, product);
+			if (meUtil.productSearchResults.length >= endLength)
+			    cb(null, productIDs.length, meUtil.productSearchResults);
+		    });
+		});
+	    });
+	}
+    });
+}
+
+
+//cb(err, productIDs)
+// this fcn finds the most efficient way to search a list of products. searches can be performed via getCertainProducts, getVendorProducts, getRegionProducts,
+// or getCategoryProducts. the most efficient way to search is to use the call that searches through the smallest set of products.
+//
+function efficientGetCertainProducts(productSearchFilter, productStartIdxBN, maxProducts, cb) {
+    if (productSearchFilter.previousSearch == 'vendorAddr' || productSearchFilter.vendorAddr != '0x0') {
+	//this is probably the most efficient.... how many products could one vendor have?
+	productSearchFilter.previousSearch = 'vendorAddr';
+	meEther.getVendorProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+				  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+    } else if ((productSearchFilter.previousSearch == 'region'                                   ) ||
+	       (productSearchFilter.categoryBN.isZero() && !productSearchFilter.regionBN.isZero())) {
+	productSearchFilter.previousSearch = 'region';
+	meEther.getRegionProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+				  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+    } else if ((productSearchFilter.previousSearch == 'category'                               ) ||
+	       (!productSearchFilter.categoryBN.isZero() && productSearchFilter.regionBN.isZero())) {
+	productSearchFilter.previousSearch = 'category';
+	meEther.getCategoryProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+				    productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+    } else if ((productSearchFilter.previousSearch == 'general'                                  ) ||
+	       (productSearchFilter.categoryBN.isZero() && productSearchFilter.regionBN.isZero())) {
+	//search everything!
+	productSearchFilter.previousSearch = 'general';
+	meEther.getCertainProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+				   productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+    } else {
+	//see which of search condition entails seraching the least entries
+	const regionTlcBN = productSearchFilter.regionBN.ushrn(248);
+	const categoryTlcBN = productSearchFilter.categoryBN.ushrn(248);
+	meEther.regionProductCount(regionTlcBN, function(err, regionCountBN) {
+	    if (!!err) {
+		cb(err, null);
+		return;
+	    }
+	    meEther.categoryProductCount(categoryTlcBN, function(err, categoryCountBN) {
+		if (!!err) {
+		    cb(err, null);
+		    return;
+		}
+		console.log('efficientGetCertainProducts: regionCountBN = ' + regionCountBN.toString(10) + ', categoryCountBN = ' + categoryCountBN.toString(10));
+		if (regionCountBN.lt(categoryCountBN)) {
+		    productSearchFilter.previousSearch = 'region';
+		    meEther.getRegionProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+					      productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+		} else {
+		    productSearchFilter.previousSearch = 'category';
+		    meEther.getCategoryProducts(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
+						productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, productStartIdxBN, maxProducts, cb);
+		}
+	    });
+	});
+    }
 }
 
 

@@ -99,7 +99,7 @@ function setAddProductButtonHandlers() {
     const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
     createStoreAddProdTlcSel.addEventListener('change', () => {
 	const categoryBN = common.numberToBN(createStoreAddProdTlcSel.value).iushln(248);
-	categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel);
+	categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel, 'None');
 	enableAddProductDoAddButton();
     }, {passive: true} );
     createStoreAddProdLlcBitsSel.addEventListener('input', enableAddProductDoAddButton);
@@ -139,7 +139,7 @@ function setViewProductsButtonHandlers() {
     const createStoreEditProdLlcBitsSel = document.getElementById('createStoreEditProdLlcBitsSel');
     createStoreEditProdTlcSel.addEventListener('change', () => {
 	const categoryBN = common.numberToBN(createStoreEditProdTlcSel.value).iushln(248);
-	categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, categoryBN, createStoreEditProdLlcBitsSel);
+	categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, categoryBN, createStoreEditProdLlcBitsSel, 'None');
 	enableViewProdsDoEditButton();
     }, {passive: true} );
     createStoreEditProdLlcBitsSel.addEventListener('input', enableViewProdsDoEditButton);
@@ -267,6 +267,7 @@ function addProductSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
+    common.setMenuButtonState('createStoreAddProdDoAddButton', 'Disabled');
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     //
@@ -277,6 +278,7 @@ function addProductSubPage() {
     const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
+    const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
     createStoreAddProdNameArea.value = '';
     createStoreAddProdDescArea.value = '';
     createStoreAddProdImg.src = '#';
@@ -284,7 +286,7 @@ function addProductSubPage() {
     createStoreAddProdQuantityArea.value = '';
     const categoryBN = new BN('0', 16);
     categories.addTlcOptionsElems(categoryBN, createStoreAddProdTlcSel);
-    categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel);
+    categories.addLlcBitsOptionsElems(createStoreAddProdTlcSel.value, categoryBN, createStoreAddProdLlcBitsSel, 'None');
 }
 
 
@@ -296,9 +298,16 @@ function enableAddProductDoAddButton() {
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
+    const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
+    const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
+    const createStoreAddProdTlcSel = document.getElementById('createStoreAddProdTlcSel');
+    const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
     const enable = (createStoreAddProdNameArea.value.trim().length > 0 &&
 		    createStoreAddProdDescArea.value.trim().length > 0 &&
-		    createStoreAddProdImg.src != '#') ? true : false;
+		    createStoreAddProdImg.src != '#'                   &&
+		    createStoreAddProdTlcSel.value != 0                &&
+		    createStoreAddProdLlcBitsSel.value != 0              ) ? true : false;
     console.log('enableAddProductDoAddButton: createStoreAddProdImg.src = ' + createStoreAddProdImg.src);
     common.setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
 }
@@ -398,7 +407,7 @@ function viewProdsEditProduct(product) {
     console.log('viewProdsEditProduct: product.categoryBN = 0x' + product.categoryBN.toString(16));
     categories.addTlcOptionsElems(product.categoryBN, createStoreEditProdTlcSel);
     const createStoreEditProdLlcBitsSel = document.getElementById('createStoreEditProdLlcBitsSel');
-    categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, product.categoryBN, createStoreEditProdLlcBitsSel);
+    categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, product.categoryBN, createStoreEditProdLlcBitsSel, 'None');
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.productIdBN = product.productIdBN;
     common.setMenuButtonState('createStoreViewProdsDoEditButton', 'Disabled');

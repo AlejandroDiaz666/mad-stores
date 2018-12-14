@@ -6,7 +6,8 @@ var ether = require('./ether');
 var mtEther = require('./mtEther');
 var meEther = require('./meEther');
 var meUtil = require('./meUtil');
-var BN = require("bn.js");
+const categories = require('./categories');
+const BN = require("bn.js");
 
 
 var shop = module.exports = {
@@ -17,6 +18,11 @@ var shop = module.exports = {
 	common.setMenuButtonState('createStoreButton',   'Selected');
 	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
 	common.replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
+	const categoryBN = new BN('0', 16);
+	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
+	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
+	categories.addTlcOptionsElems(categoryBN, shopCategoryTlcSel);
+	categories.addLlcBitsOptionsElems(shopCategoryTlcSel.value, categoryBN, shopCategoryLlcBitsSel, null);
 	handleSearchProducts();
     },
 
@@ -47,6 +53,17 @@ var shop = module.exports = {
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
 				   });
 	});
+	//
+	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
+	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
+	shopCategoryTlcSel.addEventListener('change', () => {
+	    const categoryBN = common.numberToBN(shopCategoryTlcSel.value).iushln(248);
+	    categories.addLlcBitsOptionsElems(shopCategoryTlcSel.value, categoryBN, shopCategoryLlcBitsSel, null);
+	    //enable search button?
+	}, {passive: true} );
+	//enable search button?
+	//shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
+
     },
 
     productsPerPage: 8,
@@ -76,9 +93,18 @@ function shopDoSearch() {
     common.replaceElemClassFromTo('shopNextPrevDiv',  'hidden',   'visibleB', null);
     const vendorAddr = null
     const regionBN = null;
-    const categoryBN = null;
     const maxPriceBN = null;
     const onlyAvailable = false; //should be true, but now testing
+    //
+    const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
+    const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
+    const categoryBN = common.numberToBN(shopCategoryTlcSel.value).iushln(248);
+    for (let i = 0; i < shopCategoryLlcBitsSel.selectedOptions.length; ++i) {
+	const llcBitsBn = common.numberToBN(shopCategoryLlcBitsSel.selectedOptions[i].value);
+	categoryBN.iuor(llcBitsBn);
+    }
+    console.log('shopDoSearch: categoryBN = 0x' + categoryBN.toString(16));
+    //
     shop.displayedProductsStartIdx = 0;
     shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');

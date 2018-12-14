@@ -24,6 +24,7 @@ const meEther = module.exports = {
     registerVendorABI: null,
     registerProductABI: null,
     withdrawABI: null,
+    MEContractInstance: null,
 
 
     //cb(err, txid)
@@ -96,21 +97,17 @@ const meEther = module.exports = {
 	    //RegisterProductEvent(uint256 indexed _productID, bytes name, bytes desc, bytes image);
 	    keccak256.update("RegisterProductEvent(uint256,bytes,bytes,bytes)");
 	    meEther.registerProductEventTopic0 = '0x' + keccak256.digest('hex');
+	    //console.log('registerProductEventTopic0 = ' + meEther.registerProductEventTopic0);
 	}
-	console.log('registerProductEventTopic0 = ' + meEther.registerProductEventTopic0);
 	return(meEther.registerProductEventTopic0);
     },
 
 
     //cb(err, { activeFlag: bool, serviceRegion: uint256 } )
     vendorAccountQuery: function(web3, addr, cb) {
-	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
-	const MEcontract = web3.eth.contract(ABIArray);
-	console.log('contract: ' + MEcontract);
-	console.log('contract addr: ' + meEther.ME_CONTRACT_ADDR);
-	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
-	console.log('contract: ' + MEContractInstance);
-	MEContractInstance.vendorAccounts(addr, (err, resultObj) => {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.vendorAccounts(addr, (err, resultObj) => {
 	    const vendorAccountInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
@@ -125,26 +122,91 @@ const meEther = module.exports = {
 
 
     //cb(err, productIDs[])
-    getCertainProducts: function(vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxProducts, cb) {
-	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
-	const MEcontract = web3.eth.contract(ABIArray);
-	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
-	console.log('contract: ' + MEContractInstance);
-	MEContractInstance.getCertainProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
-					      common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxProducts), onlyAvailable, (err, result) => {
-						  console.log('getCertainProducts: err = ' + err + ', result = ' + result);
-						  cb(err, result);
-					      });
+    getCertainProducts: function(vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxResults, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.getCertainProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
+						      common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+							  console.log('getCertainProducts: err = ' + err + ', result = ' + result);
+							  const products = result.toString().split(",");
+							  cb(err, products);
+						      });
     },
 
+    getVendorProducts: function (vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxResults, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.getVendorProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
+						     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+							 console.log('getVendorProducts: err = ' + err + ', result = ' + result);
+							 const products = result.toString().split(",");
+							 cb(err, products);
+						     });
+
+    },
+
+    getCategoryProducts: function (vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxResults, cb) {
+	console.log('getCategoryProducts: categoryBN = 0x' + categoryBN.toString(16));
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.getCategoryProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
+						       common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+							   console.log('getCategoryProducts: err = ' + err + ', result = ' + result);
+							   const products = result.toString().split(",");
+							   cb(err, products);
+						       });
+
+    },
+
+    getRegionProducts: function (vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxResults, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	MEContractInstance.getRegionProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
+					     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+						 console.log('getRegionProducts: err = ' + err + ', result = ' + result);
+						 const products = result.toString().split(",");
+						 cb(err, products);
+					     });
+
+    },
+
+
+    //cb(err, countBN);
+    regionProductCount: function(regionTlcBN, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.regionProductCounts(common.BNToHex256(regionTlcBN), (err, resultObj) => {
+	    if (!!err)
+		cb(err, null);
+	    else {
+		const countBN = common.numberToBN(resultObj);
+		console.log('regionProductCount: err = ' + err + ', count[' + common.BNToHex256(regionTlcBN) + '], result = ' + countBN.toString(10));
+		cb(err, countBN);
+	    }
+	});
+    },
+
+    //cb(err, countBN);
+    categoryProductCount: function(categoryTlcBN, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.categoryProductCounts(common.BNToHex256(categoryTlcBN), (err, resultObj) => {
+	    if (!!err)
+		cb(err, null);
+	    else {
+		const countBN = common.numberToBN(resultObj);
+		console.log('categoryProductCount: err = ' + err + ', count[' + common.BNToHex256(categoryTlcBN) + '], result = ' + countBN.toString(10));
+		cb(err, countBN);
+	    }
+	});
+    },
 
 
     //cb(err, { price: uint256, quantity: uint256, category: uint256, serviceRegions: uint256, vendorAddr: address } )
     productInfoQuery: function(web3, productIdBN, cb) {
-	const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
-	const MEcontract = web3.eth.contract(ABIArray);
-	const MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
-	MEContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
 	    console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN) + ', err = ' + err + ', result = ' + resultObj.toString());
 	    const productPriceInfo = {};
 	    if (!err) {
@@ -280,3 +342,11 @@ const meEther = module.exports = {
 	cb(null, vendorAddr, customerAddr, escrowIdBN, prodictIdBN, state, msgNo, date);
     },
 };
+
+function initContractInstance() {
+    const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
+    const MEcontract = web3.eth.contract(ABIArray);
+    console.log('meEther.initContractInstance: contract: ' + MEcontract);
+    console.log('meEther.initContractInstance: contract addr: ' + meEther.ME_CONTRACT_ADDR);
+    meEther.MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
+}

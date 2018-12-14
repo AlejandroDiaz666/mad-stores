@@ -56,15 +56,15 @@ const common = module.exports = {
 	} else if (numberStr.indexOf('.') == 1) {
 	    const expIdx = numberStr.indexOf('e+');
 	    if (expIdx >= 0) {
-		console.log('numberToBN: idx of e+ = ' + expIdx);
-		console.log('numberToBN: numberStr.substring(2, expIdx) = ' + numberStr.substring(2, expIdx));
+		//console.log('numberToBN: idx of e+ = ' + expIdx);
+		//console.log('numberToBN: numberStr.substring(2, expIdx) = ' + numberStr.substring(2, expIdx));
 		let endPart = numberStr.substring(2, expIdx);
 		numberStr = numberStr.substring(0, 1) + numberStr.substring(2, expIdx);
-		console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
-		console.log('numberToBN: should be = ' + numberStr.substring(0, 1) + endPart);
 	    }
 	}
-	return(new BN(numberStr, base));
+	const bn = new BN(numberStr, base);
+	console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16));
+	return(bn);
     },
 
     stripNonNumber: function(number) {
