@@ -77,7 +77,7 @@ var meUtil = module.exports = {
 	    let noNewProducts = noToDisplay + 1;
 	    getProducts(productSearchFilter, noToDisplay, function(err, noProducts, productSearchResults) {
 		noNewProducts = noProducts;
-		console.log('displayProducts: complete. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
+		console.log('displayProducts: got all products. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
 		//if all the products have already been added, then that means that the last individual product callback already occurred -- and at the time
 		//the aggregate callback had not occurred, so noNewProducts was still greater than noToDisplay, which in prevented us from calling drawProducts.
 		//so we need to draw now.
@@ -95,7 +95,7 @@ var meUtil = module.exports = {
 		    console.log('displayProducts: single product err = ' + err);
 		//if noNewProducts has already been set, then we we're just waiting for the last product to be added
 		//to the list. once the last product is added we need to draw.
-		console.log('displayProducts: product. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
+		console.log('displayProducts: got one product. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
 		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
 		    drawProducts(div, listener, startIdx, noNewProducts);
 		    if (!!cb) {
@@ -129,6 +129,10 @@ function drawProducts(div, listener, startIdx, noToDisplay) {
 	    break;
 	}
 	const product = meUtil.productSearchResults[idx];
+	if (!product) {
+	    console.log('drawProducts: : no product at index, ' + idx + ', productSearchResults.length = ' + meUtil.productSearchResults.length);
+	    break;
+	}
 	const id = product.productIdBN.toString(10);
 	const tileDiv = document.createElement('div');
 	tileDiv.id = 'tile' + id + 'Div';
@@ -169,6 +173,37 @@ function drawProducts(div, listener, startIdx, noToDisplay) {
 
 
 //
+// productIDs -- array of product ID's for which we are creating products in meUtil.productSearchResults[]
+// product    -- the current product that we are working on. already has name, desc, image
+// endLength  -- when meUtil.productSearchResults is this long, then were done
+// cb(err, noProducts, products[]) -- called when we're all done
+// productFcn(err, product) -- called after each product
+//
+// this is a helper for getProducts. once the product {name,desc,image} have been set, here we get the rest of the product info.
+// then we call the single-product callback, and if this is the last product we call the completed callback.
+//
+function getProductInfo(productIDs, product, endLength, cb, productFcn) {
+    console.log('getProductInfo: working on product = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+    meEther.productInfoQuery(common.web3, product.productIdBN, function(err, productInfo) {
+	if (!!err) {
+	    console.log('getProductInfo: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
+	    meUtil.productSearchResults.push(null);
+	    productFcn(err, product);
+	    if (meUtil.productSearchResults.length >= endLength)
+		cb(null, productIDs.length, meUtil.productSearchResults);
+	    return;
+	}
+	console.log('productInfo = ' + productInfo);
+	product.setProductInfo(productInfo);
+	meUtil.productSearchResults.push(product);
+	productFcn(null, product);
+	if (meUtil.productSearchResults.length >= endLength)
+	    cb(null, productIDs.length, meUtil.productSearchResults);
+    });
+}
+
+
+//
 // fcn(err, product)
 // cb(err, noProducts, products[])
 //
@@ -204,33 +239,16 @@ function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
 		}
 		const result = results[results.length - 1];
 		if (!result) {
-		    console.log('getProducts: unable to parse product info. product #' + i +
-				', productID = ' + productIdBN.toString(10) + ', result = ' + result);
-		    meUtil.productSearchResults.push(null);
-		    productFcn('unable to parse product info', null);
-		    if (meUtil.productSearchResults.length >= endLength)
-			cb(null, productIDs.length, meUtil.productSearchResults);
+		    console.log('getProducts: no event log for product #' + i + ', productID = ' + productIdBN.toString(10) + ', result = ' + result);
+		    //since it's just a missing event log, we create a dummy product and indicate that we were unable to find the log entry.
+		    const product = new meUtil.Product(productIdBN, 'No data yet', 'Event log for this product is not accessible yet', 'images/product-err.jpg');
+		    getProductInfo(productIDs, product, endLength, cb, productFcn);
 		    return;
 		}
 		meEther.parseRegisterProductEvent(result, function(err, productIdBN, name, desc, image) {
 		    console.log('getProducts: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
 		    const product = new meUtil.Product(productIdBN, name, desc, image);
-		    meEther.productInfoQuery(common.web3, productIdBN, function(err, productInfo) {
-			if (!!err) {
-			    console.log('getProducts: product #' + i + ', productID = ' + productIDs[i] + ', err = ' + err);
-			    meUtil.productSearchResults.push(null);
-			    productFcn(err, product);
-			    if (meUtil.productSearchResults.length >= endLength)
-				cb(null, productIDs.length, meUtil.productSearchResults);
-			    return;
-			}
-			console.log('productInfo = ' + productInfo);
-			product.setProductInfo(productInfo);
-			meUtil.productSearchResults.push(product);
-			productFcn(null, product);
-			if (meUtil.productSearchResults.length >= endLength)
-			    cb(null, productIDs.length, meUtil.productSearchResults);
-		    });
+		    getProductInfo(productIDs, product, endLength, cb, productFcn);
 		});
 	    });
 	}

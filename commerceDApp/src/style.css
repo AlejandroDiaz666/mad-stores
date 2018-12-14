@@ -1159,9 +1159,11 @@ h3 { font-size:18px; }
 }
 DIV.finalresultstable {
     background-color: #60ff60;
-    padding: 2px;
+    padding: 8px;
     margin: 20px;
     position: absolute;
     left: 0%;
-    width: 100%;
+    width: 95%;
+    top: 100%;
+    transform: translateY(-135%);
 }

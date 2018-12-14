@@ -390,6 +390,13 @@ const common = module.exports = {
 	viewTxLink.disabled = false;
 	leftDiv.appendChild(viewTxLink);
 	//
+	var noteDiv = document.createElement("div");
+	//noteDiv.className = 'hidden';
+	noteDiv.className = 'visibleB';
+	var noteText = document.createTextNode('Note: it may take several minutes for changes to be reflected...');
+	noteDiv.appendChild(noteText);
+	statusDiv.appendChild(noteDiv);
+	//
 	//cleared in handleUnlockedMetaMask, after the user clicks 'continue'
 	common.waitingForTxid = true;
 	var timer = setInterval(function() {
@@ -403,6 +410,7 @@ const common = module.exports = {
 			    err = "Transaction Failed with REVERT opcode";
 			statusText.textContent = (!!err) ? 'Error in ' + desc + ' transaction: ' + err : desc + ' transaction succeeded!';
 			console.log('transaction is in block ' + (!!receipt ? receipt.blockNumber : 'err'));
+			noteDiv.className = 'visibleB';
 			//statusText.textContent = desc + ' transaction succeeded!';
 			clearInterval(timer);
 			//

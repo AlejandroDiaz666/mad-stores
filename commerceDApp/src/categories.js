@@ -47,6 +47,7 @@ const categories = module.exports = {
 	{ tlc: 'Sporting Goods',
 	  llcBits: [ 'Artificial Grass',
 		     'Baseball',
+		     'Cycling',
 		     'Fitness & Body Building',
 		     'Football',
 		     'Gambling',

@@ -13,7 +13,7 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract DMES {
+contract EMES {
 
   // -------------------------------------------------------------------------
   // events
@@ -181,6 +181,7 @@ contract DMES {
 			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256[] memory _productIDs) {
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
+    //note: first productID is 1
     for (uint _productID = _productStartIdx; _productID <= productCount; ++_productID) {
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
@@ -203,7 +204,8 @@ contract DMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _vendorProductCount = vendorProductCounts[_vendorAddr];
     mapping(uint256 => uint256) storage _vendorProducts = vendorProducts[_vendorAddr];
-    for (_idx = _productStartIdx; _idx <= _vendorProductCount; ++_idx) {
+    //note first productID is at vendorProducts[0];
+    for (_idx = _productStartIdx; _idx < _vendorProductCount; ++_idx) {
       uint _productID = _vendorProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
@@ -226,7 +228,8 @@ contract DMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _categoryProductCount = categoryProductCounts[_tlc];
     mapping(uint256 => uint256) storage _categoryProducts = categoryProducts[_tlc];
-    for (_idx = _productStartIdx; _idx <= _categoryProductCount; ++_idx) {
+    //note first productID is at categoryProducts[0];
+    for (_idx = _productStartIdx; _idx < _categoryProductCount; ++_idx) {
       uint _productID = _categoryProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
@@ -250,7 +253,8 @@ contract DMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _regionProductCount = regionProductCounts[_tlr];
     mapping(uint256 => uint256) storage _regionProducts = regionProducts[_tlr];
-    for (_idx = _productStartIdx; _idx <= _regionProductCount; ++_idx) {
+    //note first productID is at regionProducts[0];
+    for (_idx = _productStartIdx; _idx < _regionProductCount; ++_idx) {
       uint _productID = _regionProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
