@@ -13,7 +13,7 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract EMES {
+contract FMES {
 
   // -------------------------------------------------------------------------
   // events
@@ -204,8 +204,8 @@ contract EMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _vendorProductCount = vendorProductCounts[_vendorAddr];
     mapping(uint256 => uint256) storage _vendorProducts = vendorProducts[_vendorAddr];
-    //note first productID is at vendorProducts[0];
-    for (_idx = _productStartIdx; _idx < _vendorProductCount; ++_idx) {
+    //note first productID is at vendorProducts[1];
+    for (_idx = _productStartIdx; _idx <= _vendorProductCount; ++_idx) {
       uint _productID = _vendorProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
@@ -228,8 +228,8 @@ contract EMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _categoryProductCount = categoryProductCounts[_tlc];
     mapping(uint256 => uint256) storage _categoryProducts = categoryProducts[_tlc];
-    //note first productID is at categoryProducts[0];
-    for (_idx = _productStartIdx; _idx < _categoryProductCount; ++_idx) {
+    //note first productID is at categoryProducts[1];
+    for (_idx = _productStartIdx; _idx <= _categoryProductCount; ++_idx) {
       uint _productID = _categoryProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
@@ -253,8 +253,8 @@ contract EMES {
     _productIDs = new uint256[](_maxResults);
     uint256 _regionProductCount = regionProductCounts[_tlr];
     mapping(uint256 => uint256) storage _regionProducts = regionProducts[_tlr];
-    //note first productID is at regionProducts[0];
-    for (_idx = _productStartIdx; _idx < _regionProductCount; ++_idx) {
+    //note first productID is at regionProducts[1];
+    for (_idx = _productStartIdx; _idx <= _regionProductCount; ++_idx) {
       uint _productID = _regionProducts[_idx];
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
