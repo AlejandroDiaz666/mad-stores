@@ -59,8 +59,8 @@ contract FMES {
   // for keeping track of vendor reputation
   // -------------------------------------------------------------------------
   struct VendorAccount {
-    uint256 escrowsOpened;
-    uint256 escrowsBurned;
+    uint256 deliveriesApproved;
+    uint256 deliveriesRejected;
     uint256 serviceRegion;
     bool activeFlag;
   }
@@ -178,17 +178,19 @@ contract FMES {
   // categoryProductCounts[_tlc], to regionProductCounts[_tlr], and call the function that corresponds to the smallest number of products.
   //
   function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
-			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256[] memory _productIDs) {
+			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
     //note: first productID is 1
-    for (uint _productID = _productStartIdx; _productID <= productCount; ++_productID) {
+    uint _productID = _productStartIdx;
+    for ( ; _productID <= productCount; ++_productID) {
       if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
 	_productIDs[_count] = _productID;
 	if (++_count >= _maxResults)
 	  break;
       }
     }
+    _idx = _productID;
   }
 
   // _maxResults >= 1
@@ -515,6 +517,7 @@ contract FMES {
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
+    ++vendorAccounts[_vendorAddr].deliveriesRejected;
     emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     uint256 _price = (_escrowAccount.customerBalance - _escrowAccount.vendorBalance);
     uint256 _escrowFee = (_price * ESCROW_FEE_PCTX10) / 1000;
@@ -549,6 +552,7 @@ contract FMES {
     require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
     balances[msg.sender] -= _fee;
     uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
+    ++vendorAccounts[_vendorAddr].deliveriesRejected;
     emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     communityBalance += (_escrowAccount.customerBalance + _escrowAccount.vendorBalance);
     _escrowAccount.customerBalance = 0;
