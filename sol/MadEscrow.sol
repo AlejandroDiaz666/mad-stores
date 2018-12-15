@@ -13,7 +13,7 @@ contract MessageTransport {
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract FMES {
+contract GMES {
 
   // -------------------------------------------------------------------------
   // events
@@ -159,7 +159,7 @@ contract FMES {
     if ((_vendorAddr == address(0) ||  _product.vendorAddr                == _vendorAddr) &&
 	(_tlc        == 0          ||  _productTlc                        == _tlc       ) &&
 	(_llcBits    == 0          || (_productLlcBits & _llcBits)        != 0          ) &&
-	(_tlr        == 0          ||  _productTlr                        == _tlc       ) &&
+	(_tlr        == 0          ||  _productTlr                        == _tlr       ) &&
 	(_llrBits    == 0          || (_productLlrBits & _llrBits)        != 0          ) &&
 	(_maxPrice   == 0          ||  _product.price                     <= _maxPrice  ) ) {
       uint256 _minVendorBond = (_product.price * 50) / 100;
