@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544809518_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1544845337_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544809518_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1544845337_.js"></script>
 
   </head>
 
@@ -82,12 +82,15 @@
 		<td>
 	      	  <textarea id="regionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
 		</td>
-		<td><select id="regionSelector">
-		    <option value="000000001">All Regions</option>
-		    <option value="000000001">North America</option>
-		    <option value="000000002">South America</option>
-		    <option value="000000003">Eastern Botswana</option>
-		    <option value="000000004">Western Botswana</option>
+		<td>
+		  <select id="shopRegionTlrSel">
+		  </select>
+		</td>
+	      </tr>
+	      <tr>
+		<td/>
+		<td>
+		  <select id="shopRegionLlrBitsSel" multiple="t" size="4">
 		  </select>
 		</td>
 	      </tr>
@@ -276,16 +279,13 @@
 	  <div id="createStoreRegStoreStep2NoBg" class="rsStepNoBg"></div>
 	  <div id="createStoreRegStoreStep2InstrBg" class="rsStepInstrBg"></div>
 	  <span id="createStoreRegStoreStep2InstrText" class="rsStepInstrText">
-	    <p>Select a service region to indicate the geographical area that you serve, or to which you can ship</p>
+	    <p>Select a Top-Level region to indicate the geographical area that you serve, or to which you can ship.&nbsp;
+	      If applicable, you can select one or several sub-regions to further limit the area that you serve.</p>
 	  </span>
 	  <p id="createStoreRegStoreStep2NoText" class="rsStepNoText">2</p>
-	  <textarea id="createStoreRegStoreRegionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
-	  <select id="createStoreRegStoreRegionSelector">
-	    <option value="0x0000000000000000000000000000000000000000000000000000000000000000">All Regions</option>
-	    <option value="0x0000000000000000000000000000000000000000000000000000000000000001">North America</option>
-	    <option value="0x0000000000000000000000000000000000000000000000000000000000000002">South America</option>
-	    <option value="0x0000000000000000000000000000000000000000000000000000000000000003">Eastern Botswana</option>
-	    <option value="0x8000000000000000000000000000000000000000000000000000000000000000">Western Botswana</option>
+	  <select id="createStoreRegStoreTlrSel">
+	  </select>
+	  <select id="createStoreRegStoreLlrBitsSel" multiple="t" size="4">
 	  </select>
 	  <!-- step 3 -->
 	  <div id="createStoreRegStoreStep3NoBg" class="rsStepNoBg"></div>

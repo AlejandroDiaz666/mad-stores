@@ -7,6 +7,7 @@ var mtEther = require('./mtEther');
 var meEther = require('./meEther');
 var meUtil = require('./meUtil');
 const categories = require('./categories');
+const regions = require('./regions');
 const BN = require("bn.js");
 
 
@@ -23,6 +24,10 @@ var shop = module.exports = {
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
 	categories.addTlcOptionsElems(categoryBN, shopCategoryTlcSel);
 	categories.addLlcBitsOptionsElems(shopCategoryTlcSel.value, categoryBN, shopCategoryLlcBitsSel, null);
+	const shopRegionTlrSel = document.getElementById('shopRegionTlrSel');
+	const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
+	regions.addTlrOptionsElems(categoryBN, shopRegionTlrSel);
+	regions.addLlrBitsOptionsElems(shopRegionTlrSel.value, categoryBN, shopRegionLlrBitsSel, null);
 	handleSearchProducts();
     },
 
@@ -61,9 +66,15 @@ var shop = module.exports = {
 	    categories.addLlcBitsOptionsElems(shopCategoryTlcSel.value, categoryBN, shopCategoryLlcBitsSel, null);
 	    //enable search button?
 	}, {passive: true} );
+	const shopRegionTlrSel = document.getElementById('shopRegionTlrSel');
+	const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
+	shopRegionTlrSel.addEventListener('change', () => {
+	    const categoryBN = common.numberToBN(shopRegionTlrSel.value).iushln(248);
+	    regions.addLlrBitsOptionsElems(shopRegionTlrSel.value, categoryBN, shopRegionLlrBitsSel, null);
+	    //enable search button?
+	}, {passive: true} );
 	//enable search button?
 	//shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
-
     },
 
     productsPerPage: 8,
@@ -92,7 +103,6 @@ function shopDoSearch() {
     // after user enters earch parameters....
     common.replaceElemClassFromTo('shopNextPrevDiv',  'hidden',   'visibleB', null);
     const vendorAddr = null
-    const regionBN = null;
     const maxPriceBN = null;
     const onlyAvailable = false; //should be true, but now testing
     //
@@ -104,6 +114,14 @@ function shopDoSearch() {
 	categoryBN.iuor(llcBitsBn);
     }
     console.log('shopDoSearch: categoryBN = 0x' + categoryBN.toString(16));
+    const shopRegionTlrSel = document.getElementById('shopRegionTlrSel');
+    const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
+    const regionBN = common.numberToBN(shopRegionTlrSel.value).iushln(248);
+    for (let i = 0; i < shopRegionLlrBitsSel.selectedOptions.length; ++i) {
+	const llrBitsBn = common.numberToBN(shopRegionLlrBitsSel.selectedOptions[i].value);
+	regionBN.iuor(llrBitsBn);
+    }
+    console.log('shopDoSearch: regionBN = 0x' + regionBN.toString(16));
     //
     shop.displayedProductsStartIdx = 0;
     shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);

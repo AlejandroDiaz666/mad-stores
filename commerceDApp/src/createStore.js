@@ -8,6 +8,7 @@ const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
 const categories = require('./categories');
+const regions = require('./regions');
 const BN = require("bn.js");
 
 
@@ -66,6 +67,14 @@ function setRegisterStoreButtonHandlers() {
     createStoreAddProdPriceArea.addEventListener('change', enableRegisterStoreDoRegButton);
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     createStoreAddProdQuantityArea.addEventListener('change', enableRegisterStoreDoRegButton);
+    const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
+    const createStoreRegStoreLlrBitsSel = document.getElementById('createStoreRegStoreLlrBitsSel');
+    createStoreRegStoreTlrSel.addEventListener('change', () => {
+	const regionBN = common.numberToBN(createStoreRegStoreTlrSel.value).iushln(248);
+	regions.addLlrBitsOptionsElems(createStoreRegStoreTlrSel.value, regionBN, createStoreRegStoreLlrBitsSel, 'All Regions');
+	enableRegisterStoreDoRegButton();
+    }, {passive: true} );
+    createStoreRegStoreLlrBitsSel.addEventListener('input', enableRegisterStoreDoRegButton);
     const createStoreRegStoreDoRegButton = document.getElementById('createStoreRegStoreDoRegButton');
     createStoreRegStoreDoRegButton.addEventListener('click', registerStoreDoReg);
 }
@@ -209,7 +218,11 @@ function regStoreSubPage() {
 		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
 		console.log('regStorePageSubPage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
 		createStore.defaultRegionBN = common.numberToBN(vendorAcctInfo.serviceRegion);
-		createStoreRegStoreRegionSelector.value = common.BNToHex256(createStore.defaultRegionBN);
+		const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
+		console.log('regStorePageSubPage: defaultRegionBN = 0x' + createStore.defaultRegionBN.toString(16));
+		regions.addTlrOptionsElems(createStore.defaultRegionBN, createStoreRegStoreTlrSel);
+		const createStoreRegStoreLlrBitsSel = document.getElementById('createStoreRegStoreLlrBitsSel');
+		regions.addLlrBitsOptionsElems(createStoreRegStoreTlrSel.value, createStore.defaultRegionBN, createStoreRegStoreLlrBitsSel, 'None');
 	    });
 	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
 		createStoreRegStoreNameArea.value = name;
@@ -225,7 +238,12 @@ function regStoreSubPage() {
 	    createStoreRegStoreNameArea.value = '';
 	    createStoreRegStoreDescArea.value = '';
             createStoreRegStoreImg.src = '#';
-	    createStoreRegStoreRegionSelector.value = 0;
+	    createStore.defaultRegionBN = new BN('0', 16);
+	    const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
+	    console.log('regStorePageSubPage: defaultRegionBN = 0x' + createStore.defaultRegionBN.toString(16));
+	    regions.addTlrOptionsElems(createStore.defaultRegionBN, createStoreRegStoreTlrSel);
+	    const createStoreRegStoreLlrBitsSel = document.getElementById('createStoreRegStoreLlrBitsSel');
+	    regions.addLlrBitsOptionsElems(createStoreRegStoreTlrSel.value, createStore.defaultRegionBN, createStoreRegStoreLlrBitsSel, 'None');
 	}
     });
 }
@@ -238,9 +256,13 @@ function enableRegisterStoreDoRegButton() {
     const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
     const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
     const createStoreRegStoreImg = document.getElementById('createStoreRegStoreImg');
+    const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
+    const createStoreRegStoreLlrBitsSel = document.getElementById('createStoreRegStoreLlrBitsSel');
+    //it's ok for createStoreRegStoreLlrBitsSel.value = zero
     const enable = (createStoreRegStoreNameArea.value.trim().length > 0 != "" &&
 		    createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
-		    createStoreRegStoreImg.src != '#') ? true : false;
+		    createStoreRegStoreImg.src != '#'                         &&
+		    createStoreRegStoreTlrSel.value != 0                         ) ? true : false;
     common.setMenuButtonState('createStoreRegStoreDoRegButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
@@ -249,9 +271,6 @@ function enableRegisterStoreDoRegButton() {
 // user has clicked the (re-)register-my-store button. execute the transaction.
 //
 function registerStoreDoReg() {
-    const createStoreRegStoreRegionSelector = document.getElementById('createStoreRegStoreRegionSelector');
-    const serviceRegionBN = common.numberToBN(createStoreRegStoreRegionSelector.value);
-    console.log('handleRegisterStore: serviceRegionBN.toString(hex) = ' + serviceRegionBN.toString(16));
     const createStoreRegStoreNameArea = document.getElementById('createStoreRegStoreNameArea');
     const createStoreRegStoreDescArea = document.getElementById('createStoreRegStoreDescArea');
     const nameBytes = common.strToUtf8Bytes(createStoreRegStoreNameArea.value);
@@ -262,7 +281,15 @@ function registerStoreDoReg() {
     const imageBytes = common.imageToBytes(createStoreRegStoreImg.src);
     //console.log('handleRegisterStore: imageBytes = ' + imageBytes);
     //console.log('handleRegisterStore: imageBytes.length = ' + imageBytes.length);
-    meEther.registerVendor(common.web3, serviceRegionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
+    const createStoreRegStoreLlrBitsSel = document.getElementById('createStoreRegStoreLlrBitsSel');
+    const regionBN = common.numberToBN(createStoreRegStoreTlrSel.value).iushln(248);
+    for (let i = 0; i < createStoreRegStoreLlrBitsSel.selectedOptions.length; ++i) {
+	const llcBitsBn = common.numberToBN(createStoreRegStoreLlrBitsSel.selectedOptions[i].value);
+	regionBN.iuor(llcBitsBn);
+    }
+    console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
+    meEther.registerVendor(common.web3, regionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
@@ -400,7 +427,7 @@ function viewProductsSubPage() {
     var regionBN = null;
     var categoryBN = null;
     var maxPriceBN = null;
-    var vendorAddr = null; //should be my addr
+    var vendorAddr = common.web3.eth.accounts[0];
     const onlyAvailable = false; //should be true, but now testing
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     createStore.displayedProductsStartIdx = 0;
@@ -489,6 +516,7 @@ function editProdDoEdit(productIdBN) {
     }
     console.log('editProdDoEdit: categoryBN = 0x' + categoryBN.toString(16) + ' = ' + categoryBN.toString(10));
     const regionBN = createStore.defaultRegionBN;
+    console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
     const priceBN = common.numberToBN(createStoreEditProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreEditProdPriceUnits.value));
     const quantityBN = common.numberToBN(createStoreEditProdQuantityArea.value);
