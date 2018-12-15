@@ -61,7 +61,7 @@ contract GMES {
   struct VendorAccount {
     uint256 deliveriesApproved;
     uint256 deliveriesRejected;
-    uint256 serviceRegion;
+    uint256 region;
     bool activeFlag;
   }
 
@@ -249,7 +249,7 @@ contract GMES {
   //
   function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    require(_category != 0, "category must be specified");
+    require(_region != 0, "region must be specified");
     uint _count = 0;
     uint8 _tlr = uint8(_region >> 248);
     _productIDs = new uint256[](_maxResults);
@@ -270,9 +270,9 @@ contract GMES {
   // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
-  function registerVendor(uint256 _defaultServiceRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
+  function registerVendor(uint256 _defaultRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
     vendorAccounts[msg.sender].activeFlag = true;
-    vendorAccounts[msg.sender].serviceRegion = _defaultServiceRegion;
+    vendorAccounts[msg.sender].region = _defaultRegion;
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
     emit StatEvent("ok: vendor registered");
   }

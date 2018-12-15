@@ -216,8 +216,8 @@ function regStoreSubPage() {
 	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
 		console.log('regStorePageSubPage: err = ' + err);
 		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
-		console.log('regStorePageSubPage: vendorAcctInfo.serviceRegion = ' + vendorAcctInfo.serviceRegion);
-		createStore.defaultRegionBN = common.numberToBN(vendorAcctInfo.serviceRegion);
+		console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
+		createStore.defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
 		const createStoreRegStoreTlrSel = document.getElementById('createStoreRegStoreTlrSel');
 		console.log('regStorePageSubPage: defaultRegionBN = 0x' + createStore.defaultRegionBN.toString(16));
 		regions.addTlrOptionsElems(createStore.defaultRegionBN, createStoreRegStoreTlrSel);
@@ -385,7 +385,8 @@ function addProductDoAdd(productIdBN) {
 	categoryBN.iuor(llcBitsBn);
     }
     console.log('addProductDoAdd: categoryBN = 0x' + categoryBN.toString(16));
-    const regionBN = new BN('0', 16);
+    const regionBN = createStore.defaultRegionBN;
+    console.log('addProdDoAdd: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
     const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
     priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
     const quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);

@@ -15,14 +15,15 @@ var meUtil = module.exports = {
 	this.desc = desc;
 	this.image = image;
 	console.log('Product: productIdBN = 0x' + productIdBN.toString(16) + ', name = ' + name);
-	this.priceBN = this.quantityBN = this.categoryBN = this.serviceRegionsBN = this.vendorAddr = null;
+	this.priceBN = this.quantityBN = this.categoryBN = this.regionBN = this.vendorAddr = null;
 	this.setProductInfo = function(productInfo) {
 	    this.priceBN = common.numberToBN(productInfo.price);
 	    this.quantityBN = common.numberToBN(productInfo.quantity);
 	    //console.log('Product.setProductInfo: productInfo.category = ' + productInfo.category);
 	    this.categoryBN = common.numberToBN(productInfo.category);
 	    console.log('Product.setProductInfo: categoryBN = 0x' + this.categoryBN.toString(16));
-	    this.serviceRegionsBN = common.numberToBN(productInfo.region);
+	    this.regionBN = common.numberToBN(productInfo.region);
+	    console.log('Product.setProductInfo: regionBN = 0x' + this.regionBN.toString(16));
 	    this.vendorAddr = productInfo.vendorAddr;
 	};
     },
