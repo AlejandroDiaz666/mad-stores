@@ -584,7 +584,7 @@ h3 { font-size:18px; }
 }
 #createStoreRegStoreStep3NoText {
     transform-style: preserve-3d;
-    transform: translate3d(95px, 435px, 0px);
+    transform: translate3d(95px, 445px, 0px);
 }
 #createStoreRegStoreStep3InstrBg {
     transform-style: preserve-3d;
@@ -594,7 +594,7 @@ h3 { font-size:18px; }
     width: 460px;
     font-size: 16px;
     transform-style: preserve-3d;
-    transform: translate3d(129px, 437px, 0px);
+    transform: translate3d(129px, 457px, 0px);
 }
 #createStoreRegStoreLoadImageButton {
     width: 20em;
