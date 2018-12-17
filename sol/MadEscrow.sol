@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 
+import './iERC20Token.sol';
 // ---------------------------------------------------------------------------
 //  interface to message transport
 // ---------------------------------------------------------------------------
@@ -8,12 +9,15 @@ contract MessageTransport {
   function getFee(address _fromAddr, address _toAddr) public view returns(uint256 _fee);
   function sendMessage(address _fromAddr, address _toAddr, uint mimeType, bytes memory message) public payable returns (uint _recvMessageCount);
 }
+contract FeesToken {
+  function payDai(uint256 _daiAmount) external payable;
+}
 
 
 // ---------------------------------------------------------------------------
 //  MadEscrow Contract
 // ---------------------------------------------------------------------------
-contract GMES {
+contract IMES {
 
   // -------------------------------------------------------------------------
   // events
@@ -82,12 +86,13 @@ contract GMES {
   // data storage
   // -------------------------------------------------------------------------
   bool public isLocked;
+  address public daiTokenAddr;
   address payable public owner;
-  address public communityAddr;
+  address public feesTokenAddr;
   MessageTransport messageTransport;
   uint256 public escrowCount;
   uint256 public productCount;
-  uint256 public communityBalance;
+  uint256 public retainedFees;
   uint256 public contractSendGas = 100000;
   //productID to product
   mapping (uint256 => Product) public products;
@@ -121,15 +126,16 @@ contract GMES {
   // -------------------------------------------------------------------------
   //  constructor and tune
   // -------------------------------------------------------------------------
-  constructor(address _messageTransport) public {
+  constructor(address _messageTransport, address _feesTokenAddr, address _daiTokenAddr) public {
     owner = msg.sender;
     messageTransport = MessageTransport(_messageTransport);
+    feesTokenAddr = _feesTokenAddr;
+    daiTokenAddr = _daiTokenAddr;
   }
-  function tune(uint256 _contractSendGas) public ownerOnly {
-    contractSendGas = _contractSendGas;
-  }
-  function setMessageTransport(address _messageTransport) public ownerOnly {
+  //for debug only...
+  function setMessageTransport(address _messageTransport, address _daiTokenAddr) public ownerOnly {
     messageTransport = MessageTransport(_messageTransport);
+    daiTokenAddr = _daiTokenAddr;
   }
 
   function lock() public ownerOnly {
@@ -156,12 +162,14 @@ contract GMES {
     uint256 _productLlcBits = _product.category & ((2 ** 248) - 1);
     uint8 _productTlr = uint8(_product.region >> 248);
     uint256 _productLlrBits = _product.region & ((2 ** 248) - 1);
-    if ((_vendorAddr == address(0) ||  _product.vendorAddr                == _vendorAddr) &&
-	(_tlc        == 0          ||  _productTlc                        == _tlc       ) &&
-	(_llcBits    == 0          || (_productLlcBits & _llcBits)        != 0          ) &&
-	(_tlr        == 0          ||  _productTlr                        == _tlr       ) &&
-	(_llrBits    == 0          || (_productLlrBits & _llrBits)        != 0          ) &&
-	(_maxPrice   == 0          ||  _product.price                     <= _maxPrice  ) ) {
+    //note that productLlrBits == 0 => all sub-regions
+    if ((_vendorAddr     == address(0) ||  _product.vendorAddr                == _vendorAddr) &&
+	(_tlc            == 0          ||  _productTlc                        == _tlc       ) &&
+	(_llcBits        == 0          || (_productLlcBits & _llcBits)        != 0          ) &&
+	(_tlr            == 0          ||  _productTlr                        == _tlr       ) &&
+	(_llrBits        == 0          ||
+	 _productLlrBits == 0          || (_productLlrBits & _llrBits)        != 0          ) &&
+	(_maxPrice       == 0          ||  _product.price                     <= _maxPrice  ) ) {
       uint256 _minVendorBond = (_product.price * 50) / 100;
       if (!_onlyAvailable || (_product.quantity != 0 && _product.price != 0 && balances[_product.vendorAddr] >= _minVendorBond))
 	return(true);
@@ -268,6 +276,23 @@ contract GMES {
 
 
   // -------------------------------------------------------------------------
+  // deposit funds
+  // called by vendor to deposit funds that will be used as a bond
+  // called by customer to deposit funds for later purchases
+  // transfer must already be approved
+  // -------------------------------------------------------------------------
+  function depositFunds(uint256 _daiAmount) public {
+    require(iERC20Token(daiTokenAddr).transferFrom(msg.sender, address(this), _daiAmount), "failed to transfer dai");
+    balances[msg.sender] += _daiAmount;
+    emit StatEvent("ok: funds deposited");
+  }
+  //default payable function. we don't accept eth
+  function () external payable {
+    revert();
+  }
+
+
+  // -------------------------------------------------------------------------
   // register a VendorAccount
   // -------------------------------------------------------------------------
   function registerVendor(uint256 _defaultRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
@@ -344,17 +369,6 @@ contract GMES {
 
 
   // -------------------------------------------------------------------------
-  // deposit bond funds
-  // called by vendor
-  // can also be called by customer to deposit funds for later use
-  // -------------------------------------------------------------------------
-  function depositFunds() public payable {
-    balances[msg.sender] += msg.value;
-    emit StatEvent("ok: funds deposited");
-  }
-
-
-  // -------------------------------------------------------------------------
   // deposit funds to purchase a Product
   // called by customer
   // escrowID = 0 => create a new escrow, else use an existing escrow acct
@@ -391,12 +405,6 @@ contract GMES {
       _product.quantity -= 1;
     uint256 _minVendorBond = (_effectivePrice * 50) / 100;
     uint256 _minCustomerBond = _effectivePrice + _minVendorBond;
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
-    //first deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
     require(balances[msg.sender] >= _minCustomerBond, "insufficient deposit funds");
     require(balances[_vendorAddr] >= _minVendorBond, "vendor has not deposited enough bond funds");
     balances[_vendorAddr] -= _minVendorBond;
@@ -404,7 +412,10 @@ contract GMES {
     _escrowAccount.vendorBalance += _minVendorBond;
     _escrowAccount.customerBalance += _minCustomerBond;
     _escrowAccount.approved = false;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
     emit PurchaseDepositEvent(_vendorAddr, msg.sender, _escrowID, _productID, _surcharge, _msgNo);
     emit StatEvent("ok: purchase funds deposited");
   }
@@ -423,19 +434,16 @@ contract GMES {
     address _vendorAddr = _product.vendorAddr;
     require(_escrowAccount.customerBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved; funds are locked");
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
-    //deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgNo);
     _product.quantity += 1;
     balances[_vendorAddr] += _escrowAccount.vendorBalance;
     balances[msg.sender] += _escrowAccount.customerBalance;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.customerBalance = 0;
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
+    emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgNo);
     emit StatEvent("ok: purchase canceled -- funds returned");
   }
 
@@ -454,15 +462,12 @@ contract GMES {
     address _customerAddr = _escrowAccount.customerAddr;
     require(_escrowAccount.vendorBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved");
-    //add msg funds to pre-existing vendor balance
-    balances[_vendorAddr] += msg.value;
-    //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr, _customerAddr);
-    require(balances[_vendorAddr] >= _fee, "insufficient funds for message fee");
-    balances[_vendorAddr] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, _customerAddr, 0, _message);
-    emit PurchaseApproveEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     _escrowAccount.approved = true;
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
+    emit PurchaseApproveEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     emit StatEvent("ok: purchase approved -- funds locked");
   }
 
@@ -481,19 +486,16 @@ contract GMES {
     address _customerAddr = _escrowAccount.customerAddr;
     require(_escrowAccount.vendorBalance != 0, "escrow is not active");
     require(_escrowAccount.approved != true, "purchase already approved");
-    //add msg funds to pre-existing vendor balance
-    balances[_vendorAddr] += msg.value;
-    //deduct any message fees
-    uint256 _fee = messageTransport.getFee(_vendorAddr, _customerAddr);
-    require(balances[_vendorAddr] >= _fee, "insufficient funds for message fee");
-    balances[_vendorAddr] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(_vendorAddr, _customerAddr, 0, _message);
-    emit PurchaseRejectEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     _product.quantity += 1;
     balances[_vendorAddr] += _escrowAccount.vendorBalance;
     balances[_customerAddr] += _escrowAccount.customerBalance;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.customerBalance = 0;
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
+    emit PurchaseRejectEvent(_vendorAddr, _customerAddr, _escrowID, _productID, _msgNo);
     emit StatEvent("ok: purchase rejected -- funds returned");
   }
 
@@ -510,24 +512,23 @@ contract GMES {
     Product storage _product = products[_productID];
     address _vendorAddr = _product.vendorAddr;
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
-    //deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    ++vendorAccounts[_vendorAddr].deliveriesRejected;
-    emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     uint256 _price = (_escrowAccount.customerBalance - _escrowAccount.vendorBalance);
     uint256 _escrowFee = (_price * ESCROW_FEE_PCTX10) / 1000;
-    communityBalance += _escrowFee;
+    retainedFees += _escrowFee;
     balances[_vendorAddr] += (_escrowAccount.customerBalance - _escrowFee);
     balances[msg.sender] += _escrowAccount.vendorBalance;
     _escrowAccount.customerBalance = 0;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.approved = false;
+    ++vendorAccounts[_vendorAddr].deliveriesApproved;
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
+    emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     emit StatEvent("ok: delivery approved -- funds destributed");
+
+
   }
 
 
@@ -545,20 +546,19 @@ contract GMES {
     Product storage _product = products[_productID];
     address _vendorAddr = _product.vendorAddr;
     require(_escrowAccount.approved == true, "purchase has not been approved yet");
-    //add msg funds to pre-existing customer balance
-    balances[msg.sender] += msg.value;
-    //deduct any message fees
-    uint256 _fee = messageTransport.getFee(msg.sender, _vendorAddr);
-    require(balances[msg.sender] >= _fee, "insufficient funds for message fee");
-    balances[msg.sender] -= _fee;
-    uint256 _msgNo = messageTransport.sendMessage.value(_fee)(msg.sender, _vendorAddr, 0, _message);
-    ++vendorAccounts[_vendorAddr].deliveriesRejected;
-    emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
-    communityBalance += (_escrowAccount.customerBalance + _escrowAccount.vendorBalance);
+    retainedFees += (_escrowAccount.customerBalance + _escrowAccount.vendorBalance);
     _escrowAccount.customerBalance = 0;
     _escrowAccount.vendorBalance = 0;
     _escrowAccount.approved = false;
+    ++vendorAccounts[_vendorAddr].deliveriesRejected;
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgNo = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, 0, _message);
+    emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _escrowAccount.productID, _msgNo);
     emit StatEvent("ok: delivery rejected -- funds burned");
+
+
   }
 
 
@@ -569,19 +569,18 @@ contract GMES {
   function withdraw() public {
     uint _amount = balances[msg.sender];
     balances[msg.sender] = 0;
-    msg.sender.transfer(_amount);
+    require(iERC20Token(daiTokenAddr).transfer(msg.sender, _amount), "failed to transfer dai");
   }
 
 
   // -------------------------------------------------------------------------
-  // withdraw escrow fees to the community address
+  // withdraw escrow fees to the token address
   // -------------------------------------------------------------------------
   function withdrawEscrowFees() public {
-    uint _amount = communityBalance;
-    communityBalance = 0;
-    (bool success, ) = communityAddr.call.gas(contractSendGas).value(_amount)("");
-    if (!success)
-      revert();
+    uint _amount = retainedFees;
+    retainedFees = 0;
+    require(iERC20Token(daiTokenAddr).approve(feesTokenAddr, _amount), "failed to transfer dai");
+    FeesToken(feesTokenAddr).payDai(_amount);
   }
 
 
