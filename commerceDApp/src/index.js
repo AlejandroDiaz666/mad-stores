@@ -168,7 +168,9 @@ function handleUnlockedMetaMask(mode) {
 	const balanceSzabo = parseInt(balance);
 	console.log('balanceSzabo = ' + balanceSzabo);
 	const balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
-	balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth';
+	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	    balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth, ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
+	});
     });
     ether.getNetwork(common.web3, function(err, network) {
 	const networkArea = document.getElementById('networkArea');
@@ -230,7 +232,7 @@ function handleRegisteredAcct(mode) {
     meEther.balanceQuery(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
 	console.log('handleRegisteredAcct: daiBalanceBN = ' + daiBalanceBN.toString(10));
 	const daiBalanceArea = document.getElementById('daiBalanceArea');
-	daiBalanceArea.value = 'Contract Account Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN) + ' Dai';
+	daiBalanceArea.value = 'MadEscrow Wrapped Dai: ' + meEther.daiBNToUsdStr(daiBalanceBN) + ' Wrapped Dai';
     });
     shop.handleShopPage();
 }
