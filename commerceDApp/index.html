@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545027999_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545117721_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545027999_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545117721_.js"></script>
 
   </head>
 
@@ -41,8 +41,8 @@
 	<div id="outstandingOrdersAreaDiv">
 	  <textarea id="outstandingOrdersArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
-	<div id="escrowBalanceAreaDiv">
-	  <textarea id="escrowBalanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	<div id="daiBalanceAreaDiv">
+	  <textarea id="daiBalanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
       </div>
     </div>
@@ -314,17 +314,9 @@
 	  </span>
 	  <p id="createStoreAddProdStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="createStoreAddProdPriceArea" rows="1" cols="12"
-		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
 		    placeholder="Price"></textarea>
-	  <select id="createStoreAddProdPriceUnits">
-	    <option value="1">Wei</option>
-	    <option value="1000">Kwei</option>
-	    <option value="1000000">Mwei</option>
-	    <option value="1000000000">Gwei</option>
-	    <option value="1000000000000">Szabo</option>
-	    <option value="1000000000000000">Finney</option>
-	    <option value="1000000000000000000">Eth</option>
-	  </select>
+	  <textarea id="createStoreAddProdPriceUnits" rows="1" disabled="disabled">Dai</textarea>
 	  <textarea id="createStoreAddProdQuantityArea" rows="1" cols="12"
 		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
 		    placeholder="Quantity"></textarea>
@@ -373,17 +365,9 @@
 	  </span>
 	  <p id="createStoreEditProdStep2NoText" class="rsStepNoText">2</p>
 	  <textarea id="createStoreEditProdPriceArea" rows="1" cols="12"
-		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
 		    placeholder="Price"></textarea>
-	  <select id="createStoreEditProdPriceUnits">
-	    <option value="1">Wei</option>
-	    <option value="1000">Kwei</option>
-	    <option value="1000000">Mwei</option>
-	    <option value="1000000000">Gwei</option>
-	    <option value="1000000000000">Szabo</option>
-	    <option value="1000000000000000">Finney</option>
-	    <option value="1000000000000000000">Eth</option>
-	  </select>
+	  <textarea id="createStoreEditProdPriceUnits" rows="1" disabled="disabled">Dai</textarea>
 	  <textarea id="createStoreEditProdQuantityArea" rows="1" cols="12"
 		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
 		    placeholder="Quantity"></textarea>

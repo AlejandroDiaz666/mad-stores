@@ -233,8 +233,22 @@ const meEther = module.exports = {
     },
 
 
-    productQuery: function(web3, addr, cb) {
+    //cb(err, balanceBN)
+    balanceQuery: function(web3, acctAddr, cb) {
+	if (!meEther.MEContractInstance)
+	    initContractInstance();
+	meEther.MEContractInstance.balances(acctAddr, (err, resultObj) => {
+	    console.log('balanceQuery: acctAddr = ' +acctAddr + ', err = ' + err + ', result = ' + resultObj.toString());
+	    if (!!err) {
+		cb(err, null);
+		return;
+	    }
+	    const balanceBN = common.numberToBN(resultObj);
+	    cb(err, balanceBN);
+	});
     },
+
+
     escrowQuery: function(web3, addr, cb) {
     },
 
@@ -350,6 +364,33 @@ const meEther = module.exports = {
 	var date = (new Date(timeStamp * 1000)).toUTCString();
 	cb(null, vendorAddr, customerAddr, escrowIdBN, prodictIdBN, state, msgNo, date);
     },
+
+
+    //produces a price string, eg. nominal USD, with 2 decimals from price, which is demoninated in
+    //cononical dai (ie, 18 decimals)
+    daiBNToUsdStr: function(daiBN) {
+	//real dai is 18 decimals... not 6
+	//const daiBNx16 = daiBN.divn(10000000000000000);
+	//const cents = daiBNx16.toNumber();
+	const daiBNx4 = daiBN.divn(10000);
+	const cents = daiBNx4.toNumber();
+	const usd = cents / 100;
+	console.log('daiBNToUsdStr: daiBN = ' + daiBN.toString(10) + ' => ' + usd.toString(10));
+	return(usd.toFixed(2));
+    },
+
+    //produces a Dai BN (ie, 18 decimals) from nominal dai, AKA USD
+    usdStrToDaiBN: function(usdStr) {
+	const cents = parseFloat(usdStr) * 100;
+	//real dai is 18 decimals... not 6
+	//const daiBNx16 = new BN(cents);
+	//const daiBN = daiBNx16.muln(10000000000000000);
+	const daiBNx4 = new BN(cents);
+	const daiBN = daiBNx4.muln(10000);
+	console.log('usdStrToDaiBN: cents = ' + cents + ', daiBN = ' + daiBN.toString(10));
+	return(daiBN);
+    },
+
 };
 
 function initContractInstance() {

@@ -128,7 +128,7 @@ h3 { font-size:18px; }
     float: left;
 }
 
-#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #outstandingOrdersAreaDiv, #escrowBalanceAreaDiv  {
+#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #outstandingOrdersAreaDiv, #daiBalanceAreaDiv  {
     display: block;
     padding-top: 0px;
     padding-right: 0px;
@@ -138,7 +138,7 @@ h3 { font-size:18px; }
     min-width: 20%;
     background-color: #e3eceb;
 }
-#networkArea, #accountArea, #balanceArea, #outstandingOrdersArea, #escrowBalanceArea {
+#networkArea, #accountArea, #balanceArea, #outstandingOrdersArea, #daiBalanceArea {
     float: right;
     padding: 0px;
     margin: 0px;
@@ -801,12 +801,13 @@ h3 { font-size:18px; }
 }
 #createStoreAddProdPriceUnits,
 #createStoreEditProdPriceUnits {
-    width: 5em;
+    width: 4em;
     position: absolute;
     left: 50%;
     top: 0%;
     transform-style: preserve-3d;
     transform: translate3d(277px, 295px, 0px);
+    resize: none;
 }
 #createStoreAddProdQuantityArea,
 #createStoreEditProdQuantityArea {

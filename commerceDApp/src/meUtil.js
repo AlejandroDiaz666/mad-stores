@@ -162,8 +162,7 @@ function drawProducts(div, listener, startIdx, noToDisplay) {
 	tileImgElem.src = product.image;
 	tileNameSpan.textContent = product.name.substring(0, 22);
 	tileTextSpan.textContent = product.desc.substring(0, 70);
-	const priceNumberAndUnits = ether.convertWeiBNToNumberAndUnits(product.priceBN);
-	tilePriceSpan.textContent = 'Price: ' + priceNumberAndUnits.number.toString(10) + ' ' + priceNumberAndUnits.units;
+	tilePriceSpan.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
 	tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
 	if (!!listener)
 	    tileDiv.addEventListener('click', function() {

@@ -226,5 +226,11 @@ function handleRegisteredAcct(mode) {
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
     var statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
+    //
+    meEther.balanceQuery(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	console.log('handleRegisteredAcct: daiBalanceBN = ' + daiBalanceBN.toString(10));
+	const daiBalanceArea = document.getElementById('daiBalanceArea');
+	daiBalanceArea.value = 'Contract Account Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN) + ' Dai';
+    });
     shop.handleShopPage();
 }

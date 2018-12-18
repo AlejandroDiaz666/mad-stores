@@ -107,6 +107,8 @@ function setAddProductButtonHandlers() {
     createStoreAddProdNameArea.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     createStoreAddProdDescArea.addEventListener('input', enableAddProductDoAddButton);
+    const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
+    createStoreAddProdPriceArea.addEventListener('input', enableAddProductDoAddButton);
     const createStoreAddProdTlcSel = document.getElementById('createStoreAddProdTlcSel');
     const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
     createStoreAddProdTlcSel.addEventListener('change', () => {
@@ -147,6 +149,8 @@ function setViewProductsButtonHandlers() {
     createStoreEditProdNameArea.addEventListener('input', enableViewProdsDoEditButton);
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     createStoreEditProdDescArea.addEventListener('input', enableViewProdsDoEditButton);
+    const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
+    createStoreEditProdPriceArea.addEventListener('input', enableViewProdsDoEditButton);
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
     const createStoreEditProdLlcBitsSel = document.getElementById('createStoreEditProdLlcBitsSel');
     createStoreEditProdTlcSel.addEventListener('change', () => {
@@ -329,7 +333,6 @@ function addProductSubPage() {
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
-    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
     const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
@@ -353,7 +356,6 @@ function enableAddProductDoAddButton() {
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
-    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreAddProdTlcSel = document.getElementById('createStoreAddProdTlcSel');
     const createStoreAddProdLlcBitsSel = document.getElementById('createStoreAddProdLlcBitsSel');
@@ -374,7 +376,6 @@ function addProductDoAdd(productIdBN) {
     const createStoreAddProdNameArea = document.getElementById('createStoreAddProdNameArea');
     const createStoreAddProdDescArea = document.getElementById('createStoreAddProdDescArea');
     const createStoreAddProdPriceArea = document.getElementById('createStoreAddProdPriceArea');
-    const createStoreAddProdPriceUnits = document.getElementById('createStoreAddProdPriceUnits');
     const createStoreAddProdQuantityArea = document.getElementById('createStoreAddProdQuantityArea');
     const createStoreAddProdImg = document.getElementById('createStoreAddProdImg');
     const createStoreAddProdTlcSel = document.getElementById('createStoreAddProdTlcSel');
@@ -387,8 +388,7 @@ function addProductDoAdd(productIdBN) {
     console.log('addProductDoAdd: categoryBN = 0x' + categoryBN.toString(16));
     const regionBN = createStore.defaultRegionBN;
     console.log('addProdDoAdd: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
-    const priceBN = common.numberToBN(createStoreAddProdPriceArea.value);
-    priceBN.imul(common.numberToBN(createStoreAddProdPriceUnits.value));
+    const priceBN = meEther.usdStrToDaiBN(createStoreAddProdPriceArea.value);
     const quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
     const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
@@ -455,14 +455,11 @@ function viewProdsEditProduct(product) {
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
     const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
-    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
     const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
     createStoreEditProdNameArea.value = product.name;
     createStoreEditProdDescArea.value = product.desc;
     createStoreEditProdImg.src = product.image;
-    const numberAndUnits = ether.convertWeiBNToNumberAndUnits(product.priceBN);
-    createStoreEditProdPriceArea.value = numberAndUnits.number;
-    createStoreEditProdPriceUnits.selectedIndex = numberAndUnits.index;
+    createStoreEditProdPriceArea.value = meEther.daiBNToUsdStr(product.priceBN);
     createStoreEditProdQuantityArea.value = product.quantityBN.toString(10);
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
     console.log('viewProdsEditProduct: product.categoryBN = 0x' + product.categoryBN.toString(16));
@@ -484,7 +481,6 @@ function enableViewProdsDoEditButton() {
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
     const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
-    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
     const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
     const createStoreEditProdLlcBitsSel = document.getElementById('createStoreEditProdLlcBitsSel');
@@ -505,7 +501,6 @@ function editProdDoEdit(productIdBN) {
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdPriceArea = document.getElementById('createStoreEditProdPriceArea');
-    const createStoreEditProdPriceUnits = document.getElementById('createStoreEditProdPriceUnits');
     const createStoreEditProdQuantityArea = document.getElementById('createStoreEditProdQuantityArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
     const createStoreEditProdTlcSel = document.getElementById('createStoreEditProdTlcSel');
@@ -518,8 +513,7 @@ function editProdDoEdit(productIdBN) {
     console.log('editProdDoEdit: categoryBN = 0x' + categoryBN.toString(16) + ' = ' + categoryBN.toString(10));
     const regionBN = createStore.defaultRegionBN;
     console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
-    const priceBN = common.numberToBN(createStoreEditProdPriceArea.value);
-    priceBN.imul(common.numberToBN(createStoreEditProdPriceUnits.value));
+    const priceBN = meEther.usdStrToDaiBN(createStoreEditProdPriceArea.value);
     const quantityBN = common.numberToBN(createStoreEditProdQuantityArea.value);
     const nameBytes = common.strToUtf8Bytes(createStoreEditProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);
