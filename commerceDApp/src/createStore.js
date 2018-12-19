@@ -190,6 +190,9 @@ function setViewProductsButtonHandlers() {
 // create-store - reg-store
 //
 function regStoreSubPage() {
+    common.setMenuButtonState('shopButton',                    'Enabled');
+    common.setMenuButtonState('dashboardButton',               'Enabled');
+    common.setMenuButtonState('createStoreButton',             'Selected');
     common.setMenuButtonState('createStoreRegStoreButton',     'Selected');
     common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
     common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
@@ -397,6 +400,12 @@ function addProductDoAdd(productIdBN) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
 	const statusDiv = document.getElementById('statusDiv');
+	common.setMenuButtonState('shopButton',          'Disabled');
+	common.setMenuButtonState('dashboardButton',     'Disabled');
+	common.setMenuButtonState('createStoreButton',   'Disabled');
+	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
+	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
+	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
 	common.waitForTXID(err, txid, 'Register-Product', statusDiv, viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
@@ -409,6 +418,9 @@ function addProductDoAdd(productIdBN) {
 //
 function viewProductsSubPage() {
     console.log('viewProductsSubPage');
+    common.setMenuButtonState('shopButton',                    'Enabled');
+    common.setMenuButtonState('dashboardButton',               'Enabled');
+    common.setMenuButtonState('createStoreButton',             'Selected');
     common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
     common.setMenuButtonState('createStoreAddProductButton',   'Enabled');
     common.setMenuButtonState('createStoreViewProductsButton', 'Selected');
