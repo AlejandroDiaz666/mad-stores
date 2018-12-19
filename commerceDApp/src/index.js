@@ -171,6 +171,11 @@ function handleUnlockedMetaMask(mode) {
 	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
 	    balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth, ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
 	});
+	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	    console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	    const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
+	    wdaiBalanceArea.value = 'Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
+	});
     });
     ether.getNetwork(common.web3, function(err, network) {
 	const networkArea = document.getElementById('networkArea');
@@ -228,11 +233,5 @@ function handleRegisteredAcct(mode) {
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
     var statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
-    //
-    meEther.balanceQuery(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
-	console.log('handleRegisteredAcct: daiBalanceBN = ' + daiBalanceBN.toString(10));
-	const daiBalanceArea = document.getElementById('daiBalanceArea');
-	daiBalanceArea.value = 'MadEscrow Wrapped Dai: ' + meEther.daiBNToUsdStr(daiBalanceBN) + ' Wrapped Dai';
-    });
     shop.handleShopPage();
 }

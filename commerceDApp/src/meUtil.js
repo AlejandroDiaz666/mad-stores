@@ -55,7 +55,7 @@ var meUtil = module.exports = {
 	const options = {
 	    fromBlock: 0,
 	    toBlock: 'latest',
-	    address: meEther.ME_CONTRACT_ADDR,
+	    address: meEther.MS_CONTRACT_ADDR,
 	    topics: [ meEther.getRegisterVendorEventTopic0() ]
 	}
 	if (!!vendorAddr)
@@ -328,7 +328,7 @@ function getProductLogs(productIdBN, cb) {
     const options = {
 	fromBlock: 0,
 	toBlock: 'latest',
-	address: meEther.ME_CONTRACT_ADDR,
+	address: meEther.MS_CONTRACT_ADDR,
 	topics: [ meEther.getRegisterProductEventTopic0(), common.BNToHex256(productIdBN) ]
     }
     ether.getLogs(options, function(err, results) {
