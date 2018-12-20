@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545301715_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545336838_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545301715_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545336838_.js"></script>
 
   </head>
 
@@ -49,14 +49,23 @@
       </div>
       <div id="wrapDialogDiv" class="hidden">
 	<p id="wrapDialogInstr">Enter the amount of Dia that you would like to wrap:</p>
+	<p id="wrapDialogNote" class="visibleIB">Note: You be required to sign two transactions.</p>
 	<p id="wrapDialogErr" class="hidden">Error: You do not have that much Dai</p>
 	<textarea id="wrapDialogArea" rows="1" cols="10"
 		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
 		    placeholder="amount"></textarea>
 	<button id="wrapDialogCancelButton" type="button">Cancel</button>
 	<button id="wrapDialogDoButton" type="button">Wrap Dai</button>
-	</div>
+      </div>
       <div id="unwrapDialogDiv" class="hidden">
+	<p id="unwrapDialogInstr">Enter the amount of W-Dia that you would like to unwrap:</p>
+	<p id="unwrapDialogNote" class="visibleIB">Note: do not unwrap to a contract address.</p>
+	<p id="unwrapDialogErr" class="hidden">Error: You do not have that much W-Dai</p>
+	<textarea id="unwrapDialogArea" rows="1" cols="10"
+		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
+		    placeholder="amount"></textarea>
+	<button id="unwrapDialogCancelButton" type="button">Cancel</button>
+	<button id="unwrapDialogDoButton" type="button">Unwrap W-Dai</button>
 	</div>
     </div>
 

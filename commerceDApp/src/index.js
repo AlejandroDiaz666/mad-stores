@@ -23,11 +23,17 @@ var index = module.exports = {
 
     main: function() {
 	console.log('index.main');
-	setOptionsButtonHandlers();
-	setMainButtonHandlers();
+	index.setButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
 	beginTheBeguine(null);
+    },
+
+    setButtonHandlers: function() {
+	setOptionsButtonHandlers();
+	setMainButtonHandlers();
+	setWrapButtonHandlers();
+	setUnwrapButtonHandlers();
     },
 
 };
@@ -66,6 +72,11 @@ function setMainButtonHandlers() {
     createStoreButton.addEventListener('click', function() {
 	createStore.handleCreateStorePage();
     });
+}
+
+function setWrapButtonHandlers() {
+    const wrapButton = document.getElementById('wrapButton');
+    const unwrapButton = document.getElementById('unwrapButton');
     const wrapDialogDoButton = document.getElementById('wrapDialogDoButton');
     const wrapDialogArea = document.getElementById('wrapDialogArea');
     wrapDialogDoButton.addEventListener('click', function() {
@@ -75,6 +86,7 @@ function setMainButtonHandlers() {
 	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
 	    console.log('wrapDialogDoButton: daiBalanceBN = ' + daiBalanceBN.toString(10));
 	    if (daiBalanceBN.lt(daiAmountBN)) {
+		common.replaceElemClassFromTo('wrapDialogNote', 'visibleIB', 'hidden', null);
 		common.replaceElemClassFromTo('wrapDialogErr', 'hidden', 'visibleIB', null);
 		wrapDialogDoButton.disabled = false;
 	    } else {
@@ -82,6 +94,8 @@ function setMainButtonHandlers() {
 		metaMaskModal.style.display = 'block';
 		const allDoneFcn = () => {
 		    common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
+		    wrapButton.disabled = false;
+		    unwrapButton.disabled = false;
 		    common.clearStatusDiv(statusDiv);
 		    updateDaiAndWDai();
 		};
@@ -102,20 +116,81 @@ function setMainButtonHandlers() {
     });
     wrapDialogArea.addEventListener('input', function() {
 	console.log('wrapDialogArea change event');
+	common.replaceElemClassFromTo('wrapDialogNote', 'hidden', 'visibleIB', null);
 	common.replaceElemClassFromTo('wrapDialogErr', 'visibleIB', 'hidden', null);
 	wrapDialogDoButton.disabled = false;
-    });
-    var wrapButton = document.getElementById('wrapButton');
-    wrapButton.addEventListener('click', function() {
-	common.replaceElemClassFromTo('wrapDialogDiv', 'hidden', 'visibleB', null);
-	wrapDialogDoButton.disabled = true;
-	wrapDialogArea.value = '';
     });
     const wrapDialogCancelButton = document.getElementById('wrapDialogCancelButton');
     wrapDialogCancelButton.addEventListener('click', function() {
 	common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
+	wrapButton.disabled = false;
+	unwrapButton.disabled = false;
     });
-    //meEther.wrapDai(daiAmountBN, approveCb, wrapDaiCb);
+    wrapButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('wrapDialogNote', 'hidden', 'visibleIB', null);
+	common.replaceElemClassFromTo('wrapDialogErr', 'visibleIB', 'hidden', null);
+	common.replaceElemClassFromTo('wrapDialogDiv', 'hidden', 'visibleB', null);
+	wrapButton.disabled = true;
+	unwrapButton.disabled = true;
+	wrapDialogDoButton.disabled = true;
+	wrapDialogArea.value = '';
+    });
+}
+
+function setUnwrapButtonHandlers() {
+    const wrapButton = document.getElementById('wrapButton');
+    const unwrapButton = document.getElementById('unwrapButton');
+    const unwrapDialogDoButton = document.getElementById('unwrapDialogDoButton');
+    const unwrapDialogArea = document.getElementById('unwrapDialogArea');
+    unwrapDialogDoButton.addEventListener('click', function() {
+	unwrapDialogDoButton.disabled = true;
+	const wdaiAmountBN = meEther.usdStrToDaiBN(unwrapDialogArea.value);
+	console.log('unwrapDialogDoButton: wdaiAmountBN = ' + wdaiAmountBN.toString(10));
+	meEther.getWdaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	    console.log('unwrapDialogDoButton: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	    if (wdaiBalanceBN.lt(wdaiAmountBN)) {
+		common.replaceElemClassFromTo('unwrapDialogNote', 'visibleIB', 'hidden', null);
+		common.replaceElemClassFromTo('unwrapDialogErr', 'hidden', 'visibleIB', null);
+		unwrapDialogDoButton.disabled = false;
+	    } else {
+		const metaMaskModal = document.getElementById('metaMaskModal');
+		metaMaskModal.style.display = 'block';
+		const allDoneFcn = () => {
+		    common.replaceElemClassFromTo('unwrapDialogDiv', 'visibleB', 'hidden', null);
+		    wrapButton.disabled = false;
+		    unwrapButton.disabled = false;
+		    common.clearStatusDiv(statusDiv);
+		    updateDaiAndWDai();
+		};
+		const statusDiv = document.getElementById('statusDiv');
+		meEther.unwrapDai(daiAmountBN, function(err, txid) {
+		    metaMaskModal.style.display = 'none';
+		    common.waitForTXID(err, txid, 'unwrap Dai', statusDiv, allDoneFcn, ether.etherscanioTxStatusHost, null);
+		});
+	    }
+	});
+    });
+    unwrapDialogArea.addEventListener('input', function() {
+	console.log('unwrapDialogArea change event');
+	common.replaceElemClassFromTo('unwrapDialogNote', 'hidden', 'visibleIB', null);
+	common.replaceElemClassFromTo('unwrapDialogErr', 'visibleIB', 'hidden', null);
+	unwrapDialogDoButton.disabled = false;
+    });
+    const unwrapDialogCancelButton = document.getElementById('unwrapDialogCancelButton');
+    unwrapDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('unwrapDialogDiv', 'visibleB', 'hidden', null);
+	wrapButton.disabled = false;
+	unwrapButton.disabled = false;
+    });
+    unwrapButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('unwrapDialogNote', 'hidden', 'visibleIB', null);
+	common.replaceElemClassFromTo('unwrapDialogErr', 'visibleIB', 'hidden', null);
+	common.replaceElemClassFromTo('unwrapDialogDiv', 'hidden', 'visibleB', null);
+	wrapButton.disabled = true;
+	unwrapButton.disabled = true;
+	unwrapDialogDoButton.disabled = true;
+	unwrapDialogArea.value = '';
+    });
 }
 
 

@@ -174,7 +174,7 @@ h3 { font-size:18px; }
     border: 1px solid #888;
     background-color: #9cd9db;
 }
-#wrapDialogInstr {
+#wrapDialogInstr, #unwrapDialogInstr {
     position: absolute;
     top: 10px;
     left: 50%;
@@ -183,7 +183,8 @@ h3 { font-size:18px; }
     font-size: 16px;
     transform: translateX(-50%);
 }
-#wrapDialogErr {
+#wrapDialogErr, #wrapDialogNote,
+#unwrapDialogErr, #unwrapDialogNote {
     position: absolute;
     top: 50px;
     left: 50%;
@@ -191,10 +192,16 @@ h3 { font-size:18px; }
     width: 60%;
     font-size: 16px;
     transform: translateX(-50%);
+}
+#wrapDialogNote, #unwrapDialogNote {
+    color: inherit;
+    font-weight: normal;
+}
+#wrapDialogErr, #unwrapDialogErr {
     color: red;
     font-weight: bold;
 }
-#wrapDialogArea {
+#wrapDialogArea, #unwrapDialogArea {
     resize: none;
     position: absolute;
     top: 60%;
@@ -202,16 +209,16 @@ h3 { font-size:18px; }
     transform: translateX(-50%);
     width: 6em;
 }
-#wrapDialogCancelButton {
+#wrapDialogCancelButton, #unwrapDialogCancelButton {
     position: absolute;
     top: 80%;
-    left: 30%;
+    left: 35%;
     transform: translateX(-50%);
 }
-#wrapDialogDoButton {
+#wrapDialogDoButton, #unwrapDialogDoButton {
     position: absolute;
     top: 80%;
-    left: 70%;
+    left: 65%;
     transform: translateX(-50%);
 }
 

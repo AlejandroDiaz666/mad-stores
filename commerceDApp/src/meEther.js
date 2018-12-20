@@ -34,6 +34,9 @@ const meEther = module.exports = {
     approveABI: null,
 
 
+    // ---------------------------------------------------------------------------------------------------------
+    // registerVendor
+    // ---------------------------------------------------------------------------------------------------------
     //cb(err, txid)
     registerVendor: function(web3, regionBN, nameBytes, descBytes, imageBytes, cb) {
 	const abiRegisterVendorFcn = meEther.abiEncodeRegisterVendor();
@@ -57,7 +60,6 @@ const meEther = module.exports = {
 	return(encoded);
     },
 
-
     getRegisterVendorEventTopic0: function() {
 	if (!meEther.registerVendorEventTopic0) {
 	    const keccak256 = new keccak(256);
@@ -69,7 +71,27 @@ const meEther = module.exports = {
 	return(meEther.registerVendorEventTopic0);
     },
 
+    //cb(err, { activeFlag: bool, region: uint256 } )
+    vendorAccountQuery: function(web3, addr, cb) {
+	if (!meEther.MSContractInstance)
+	    initMSContractInstance();
+	meEther.MSContractInstance.vendorAccounts(addr, (err, resultObj) => {
+	    const vendorAccountInfo = {};
+	    if (!err) {
+		//result = { true, 0 }
+		const keys = [ 'deliveriesApproved', 'deliveriesRejected', 'region', 'activeFlag' ];
+		const resultArray = Array.from(resultObj);
+		for (let i = 0; i < resultArray.length; ++i)
+		    vendorAccountInfo[keys[i]] = resultArray[i];
+	    }
+	    cb(err, vendorAccountInfo);
+	});
+    },
 
+
+    // ---------------------------------------------------------------------------------------------------------
+    // registerProduct
+    // ---------------------------------------------------------------------------------------------------------
     //cb(err, txid)
     //this fcn is also used to edit a product.
     //productID = 0 => register new product, else edit existing product
@@ -109,24 +131,26 @@ const meEther = module.exports = {
 	return(meEther.registerProductEventTopic0);
     },
 
-
-    //cb(err, { activeFlag: bool, region: uint256 } )
-    vendorAccountQuery: function(web3, addr, cb) {
+    //cb(err, { price: uint256, quantity: uint256, category: uint256, region: uint256, vendorAddr: address } )
+    productInfoQuery: function(web3, productIdBN, cb) {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
-	meEther.MSContractInstance.vendorAccounts(addr, (err, resultObj) => {
-	    const vendorAccountInfo = {};
+	meEther.MSContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
+	    console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN) + ', err = ' + err + ', result = ' + resultObj.toString());
+	    const productPriceInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
-		const keys = [ 'deliveriesApproved', 'deliveriesRejected', 'region', 'activeFlag' ];
+		const keys = [ 'price', 'quantity', 'category', 'categoryProductIdx', 'region', 'regionProductIdx', 'vendorAddr' ];
 		const resultArray = Array.from(resultObj);
-		for (let i = 0; i < resultArray.length; ++i)
-		    vendorAccountInfo[keys[i]] = resultArray[i];
+		//console.log('productInfoQuery: resultArray = ' + resultArray);
+		for (let i = 0; i < resultArray.length; ++i) {
+		    productPriceInfo[keys[i]] = resultArray[i];
+		    //console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
+		}
 	    }
-	    cb(err, vendorAccountInfo);
+	    cb(err, productPriceInfo);
 	});
     },
-
 
     //cb(err, lastSearchIdx, productIDs[])
     getCertainProducts: function(vendorAddr, categoryBN, regionBN, maxPriceBN, onlyAvailable, productStartIdxBN, maxResults, cb) {
@@ -186,7 +210,6 @@ const meEther = module.exports = {
 						     });
     },
 
-
     //cb(err, countBN);
     regionProductCount: function(regionTlcBN, cb) {
 	if (!meEther.MSContractInstance)
@@ -218,45 +241,9 @@ const meEther = module.exports = {
     },
 
 
-    //cb(err, { price: uint256, quantity: uint256, category: uint256, region: uint256, vendorAddr: address } )
-    productInfoQuery: function(web3, productIdBN, cb) {
-	if (!meEther.MSContractInstance)
-	    initMSContractInstance();
-	meEther.MSContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
-	    console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN) + ', err = ' + err + ', result = ' + resultObj.toString());
-	    const productPriceInfo = {};
-	    if (!err) {
-		//result = { true, 0 }
-		const keys = [ 'price', 'quantity', 'category', 'categoryProductIdx', 'region', 'regionProductIdx', 'vendorAddr' ];
-		const resultArray = Array.from(resultObj);
-		//console.log('productInfoQuery: resultArray = ' + resultArray);
-		for (let i = 0; i < resultArray.length; ++i) {
-		    productPriceInfo[keys[i]] = resultArray[i];
-		    //console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
-		}
-	    }
-	    cb(err, productPriceInfo);
-	});
-    },
-
-
-    //cb(err, balanceBN)
-    //this retuens the amount of dai in the madescrow contract, aka wrapped-dai
-    getWDaiBalance: function(web3, acctAddr, cb) {
-	if (!meEther.MEContractInstance)
-	    initMEContractInstance();
-	meEther.MEContractInstance.balances(acctAddr, (err, resultObj) => {
-	    console.log('balanceQuery: acctAddr = ' +acctAddr + ', err = ' + err + ', result = ' + resultObj.toString());
-	    if (!!err) {
-		cb(err, null);
-		return;
-	    }
-	    const balanceBN = common.numberToBN(resultObj);
-	    cb(err, balanceBN);
-	});
-    },
-
-
+    // ---------------------------------------------------------------------------------------------------------
+    // wrapDai
+    // ---------------------------------------------------------------------------------------------------------
     //cb(err, balanceBN)
     //this retuens the amount of actual dai owned by this address
     getDaiBalance: function(web3, acctAddr, cb) {
@@ -272,7 +259,6 @@ const meEther = module.exports = {
 	    cb(err, balanceBN);
 	});
     },
-
 
     //approveCb(err, txid)
     //wrapping dai is a 2-part process: first wrapDaiApprove, then wrapDaiTransfer
@@ -292,7 +278,6 @@ const meEther = module.exports = {
         const sendData = "0x" + abiWrapDaiFcn + abiParms;
 	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
     },
-
 
     abiEncodeApprove: function() {
 	//function approve(address spender, uint value) public returns (bool ok);
@@ -318,6 +303,55 @@ const meEther = module.exports = {
 	encoded = ethabi.rawEncode([ 'uint256' ], [ amountBN ] ).toString('hex');
 	return(encoded);
     },
+
+
+    // ---------------------------------------------------------------------------------------------------------
+    // unwrapDai
+    // ---------------------------------------------------------------------------------------------------------
+    //cb(err, balanceBN)
+    //this retuens the amount of dai in the madescrow contract, aka wrapped-dai
+    getWDaiBalance: function(web3, acctAddr, cb) {
+	if (!meEther.MEContractInstance)
+	    initMEContractInstance();
+	meEther.MEContractInstance.balances(acctAddr, (err, resultObj) => {
+	    console.log('balanceQuery: acctAddr = ' +acctAddr + ', err = ' + err + ', result = ' + resultObj.toString());
+	    if (!!err) {
+		cb(err, null);
+		return;
+	    }
+	    const balanceBN = common.numberToBN(resultObj);
+	    cb(err, balanceBN);
+	});
+    },
+
+    //transferCb(err, txid)
+    unwrapDai: function(wdaiAmountBN, transferCb) {
+	const abiUnwrapDaiFcn = meEther.abiEncodeUnwrapDai();
+	const abiParms = meEther.abiEncodeUnwrapDaiParms(wdaiAmountBN);
+        const sendData = "0x" + abiUnwrapDaiFcn + abiParms;
+	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
+    },
+
+    abiEncodeUnwrapDai: function() {
+	//function unwrapDai(uint256 _wdaiAmount)
+
+	// next version of MadEscrow will take wdaiAmount parm...
+	//if (!meEther.unwrapDaiABI)
+	//    meEther.unwrapDaiABI = ethabi.methodID('unwrapDai', [ 'uint256' ]).toString('hex');
+	if (!meEther.unwrapDaiABI)
+	    meEther.unwrapDaiABI = ethabi.methodID('unwrapDai', [ ]).toString('hex');
+	return(meEther.unwrapDaiABI);
+    },
+
+    abiEncodeUnwrapDaiParms: function(amountBN) {
+	// next version of MadEscrow will take wdaiAmount parm...
+	//encoded = ethabi.rawEncode([ 'uint256' ], [ amountBN ] ).toString('hex');
+	encoded = '';
+	return(encoded);
+    },
+
+
+
 
     escrowQuery: function(web3, addr, cb) {
     },
