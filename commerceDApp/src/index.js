@@ -146,7 +146,7 @@ function setUnwrapButtonHandlers() {
 	unwrapDialogDoButton.disabled = true;
 	const wdaiAmountBN = meEther.usdStrToDaiBN(unwrapDialogArea.value);
 	console.log('unwrapDialogDoButton: wdaiAmountBN = ' + wdaiAmountBN.toString(10));
-	meEther.getWdaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	    console.log('unwrapDialogDoButton: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	    if (wdaiBalanceBN.lt(wdaiAmountBN)) {
 		common.replaceElemClassFromTo('unwrapDialogNote', 'visibleIB', 'hidden', null);
@@ -163,7 +163,7 @@ function setUnwrapButtonHandlers() {
 		    updateDaiAndWDai();
 		};
 		const statusDiv = document.getElementById('statusDiv');
-		meEther.unwrapDai(daiAmountBN, function(err, txid) {
+		meEther.unwrapDai(wdaiAmountBN, function(err, txid) {
 		    metaMaskModal.style.display = 'none';
 		    common.waitForTXID(err, txid, 'unwrap Dai', statusDiv, allDoneFcn, ether.etherscanioTxStatusHost, null);
 		});
