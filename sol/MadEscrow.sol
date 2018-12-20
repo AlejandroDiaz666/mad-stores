@@ -198,13 +198,12 @@ contract MadEscrow is iERC20Token, SafeMath {
   // withdraw funds at any time
   // do not send to a contract!
   // -------------------------------------------------------------------------
-  function unwrapDai() public {
-    uint _daiAmount = balances[msg.sender];
-    balances[msg.sender] = 0;
-    totalSupply = safeSub(totalSupply, _daiAmount);
-    require(daiTokenContract.transfer(msg.sender, _daiAmount), "failed to transfer dai");
+  function unwrapDai(uint256 _wdaiAmount) public {
+    require(_wdaiAmount <= balances[msg.sender], "insufficient w-dai");
+    balances[msg.sender] = safeSub(balances[msg.sender], _wdaiAmount);
+    totalSupply = safeSub(totalSupply, _wdaiAmount);
+    require(daiTokenContract.transfer(msg.sender, _wdaiAmount), "failed to transfer dai");
   }
-
 
 
   // -------------------------------------------------------------------------------------------------------
