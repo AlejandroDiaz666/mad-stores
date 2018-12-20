@@ -66,6 +66,56 @@ function setMainButtonHandlers() {
     createStoreButton.addEventListener('click', function() {
 	createStore.handleCreateStorePage();
     });
+    const wrapDialogDoButton = document.getElementById('wrapDialogDoButton');
+    const wrapDialogArea = document.getElementById('wrapDialogArea');
+    wrapDialogDoButton.addEventListener('click', function() {
+	wrapDialogDoButton.disabled = true;
+	const daiAmountBN = meEther.usdStrToDaiBN(wrapDialogArea.value);
+	console.log('wrapDialogDoButton: daiAmountBN = ' + daiAmountBN.toString(10));
+	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	    console.log('wrapDialogDoButton: daiBalanceBN = ' + daiBalanceBN.toString(10));
+	    if (daiBalanceBN.lt(daiAmountBN)) {
+		common.replaceElemClassFromTo('wrapDialogErr', 'hidden', 'visibleIB', null);
+		wrapDialogDoButton.disabled = false;
+	    } else {
+		const metaMaskModal = document.getElementById('metaMaskModal');
+		metaMaskModal.style.display = 'block';
+		const allDoneFcn = () => {
+		    common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
+		    common.clearStatusDiv(statusDiv);
+		    updateDaiAndWDai();
+		};
+		const statusDiv = document.getElementById('statusDiv');
+		meEther.wrapDaiApprove(daiAmountBN, function(err, approveTxid) {
+		    metaMaskModal.style.display = 'none';
+		    common.waitForTXID(err, approveTxid, 'approve (Dai transfer)', statusDiv, null, ether.etherscanioTxStatusHost, function() {
+			common.clearStatusDiv(statusDiv);
+			metaMaskModal.style.display = 'block';
+			meEther.wrapDaiTransfer(daiAmountBN, function(err, wrapDaiTxid) {
+			    metaMaskModal.style.display = 'none';
+			    common.waitForTXID(err, wrapDaiTxid, 'wrap Dai', statusDiv, allDoneFcn, ether.etherscanioTxStatusHost, null);
+			});
+		    });
+		});
+	    }
+	});
+    });
+    wrapDialogArea.addEventListener('input', function() {
+	console.log('wrapDialogArea change event');
+	common.replaceElemClassFromTo('wrapDialogErr', 'visibleIB', 'hidden', null);
+	wrapDialogDoButton.disabled = false;
+    });
+    var wrapButton = document.getElementById('wrapButton');
+    wrapButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('wrapDialogDiv', 'hidden', 'visibleB', null);
+	wrapDialogDoButton.disabled = true;
+	wrapDialogArea.value = '';
+    });
+    const wrapDialogCancelButton = document.getElementById('wrapDialogCancelButton');
+    wrapDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
+    });
+    //meEther.wrapDai(daiAmountBN, approveCb, wrapDaiCb);
 }
 
 
@@ -168,15 +218,9 @@ function handleUnlockedMetaMask(mode) {
 	const balanceSzabo = parseInt(balance);
 	console.log('balanceSzabo = ' + balanceSzabo);
 	const balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
-	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
-	    balanceArea.value = 'Balance: ' + balanceETH.toString(10) + ' Eth, ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
-	});
-	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
-	    console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
-	    const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
-	    wdaiBalanceArea.value = 'Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
-	});
+	balanceArea.value = '  Eth Balance: ' + balanceETH.toString(10) + ' Eth'
     });
+    updateDaiAndWDai();
     ether.getNetwork(common.web3, function(err, network) {
 	const networkArea = document.getElementById('networkArea');
 	if (!!err) {
@@ -201,6 +245,21 @@ function handleUnlockedMetaMask(mode) {
 		handleRegisteredAcct(mode);
 	    }
 	});
+    });
+}
+
+//
+// handle unregistered account
+//
+function updateDaiAndWDai() {
+    meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	const daiBalanceArea = document.getElementById('daiBalanceArea');
+	daiBalanceArea.value = '  Dai Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
+    });
+    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
+	wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
     });
 }
 

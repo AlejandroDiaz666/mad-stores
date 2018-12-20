@@ -296,6 +296,8 @@ function registerStoreDoReg() {
 	regionBN.iuor(llcBitsBn);
     }
     console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
+    const metaMaskModal = document.getElementById('metaMaskModal');
+    metaMaskModal.style.display = 'block';
     meEther.registerVendor(common.web3, regionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
@@ -396,6 +398,8 @@ function addProductDoAdd(productIdBN) {
     const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreAddProdImg.src);
+    const metaMaskModal = document.getElementById('metaMaskModal');
+    metaMaskModal.style.display = 'block';
     meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';
@@ -530,6 +534,8 @@ function editProdDoEdit(productIdBN) {
     const nameBytes = common.strToUtf8Bytes(createStoreEditProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreEditProdImg.src);
+    const metaMaskModal = document.getElementById('metaMaskModal');
+    metaMaskModal.style.display = 'block';
     meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	metaMaskModal.style.display = 'none';

@@ -30,7 +30,8 @@ const meEther = module.exports = {
     withdrawABI: null,
     MSContractInstance: null,
     MEContractInstance: null,
-    daiInstance: null,
+    daiContractInstance: null,
+    approveABI: null,
 
 
     //cb(err, txid)
@@ -259,9 +260,9 @@ const meEther = module.exports = {
     //cb(err, balanceBN)
     //this retuens the amount of actual dai owned by this address
     getDaiBalance: function(web3, acctAddr, cb) {
-	if (!meEther.daiInstance)
-	    initDaiInstance();
-	meEther.daiInstance.balanceOf(acctAddr, (err, resultObj) => {
+	if (!meEther.daiContractInstance)
+	    initDaiContractInstance();
+	meEther.daiContractInstance.balanceOf(acctAddr, (err, resultObj) => {
 	    console.log('getDaiBalance: acctAddr = ' + acctAddr + ', err = ' + err + ', result = ' + resultObj.toString());
 	    if (!!err) {
 		cb(err, null);
@@ -272,6 +273,51 @@ const meEther = module.exports = {
 	});
     },
 
+
+    //approveCb(err, txid)
+    //wrapping dai is a 2-part process: first wrapDaiApprove, then wrapDaiTransfer
+    wrapDaiApprove: function(daiAmountBN, approveCb) {
+	const abiApproveFcn = meEther.abiEncodeApprove();
+	const abiParms = meEther.abiEncodeApproveParms(meEther.ME_CONTRACT_ADDR, daiAmountBN);
+        const sendData = "0x" + abiApproveFcn + abiParms;
+	//console.log('sendData.length = ' + sendData.length);
+	//console.log('sendData = ' + sendData);
+	ether.send(web3, meEther.DAI_CONTRACT_ADDR, 0, 'wei', sendData, 0, approveCb);
+    },
+
+    //transferCb(err, txid)
+    wrapDaiTransfer: function(daiAmountBN, transferCb) {
+	const abiWrapDaiFcn = meEther.abiEncodeWrapDai();
+	const abiParms = meEther.abiEncodeWrapDaiParms(daiAmountBN);
+        const sendData = "0x" + abiWrapDaiFcn + abiParms;
+	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
+    },
+
+
+    abiEncodeApprove: function() {
+	//function approve(address spender, uint value) public returns (bool ok);
+	if (!meEther.approveABI)
+	    meEther.approveABI = ethabi.methodID('approve', [ 'address', 'uint256' ]).toString('hex');
+	return(meEther.approveABI);
+    },
+
+    abiEncodeApproveParms: function(spender, amountBN) {
+	encoded = ethabi.rawEncode([ 'address', 'uint256' ],
+				   [ spender, amountBN ] ).toString('hex');
+	return(encoded);
+    },
+
+    abiEncodeWrapDai: function() {
+	//function wrapDai(uint256 _daiAmount)
+	if (!meEther.wrapDaiABI)
+	    meEther.wrapDaiABI = ethabi.methodID('wrapDai', [ 'uint256' ]).toString('hex');
+	return(meEther.wrapDaiABI);
+    },
+
+    abiEncodeWrapDaiParms: function(amountBN) {
+	encoded = ethabi.rawEncode([ 'uint256' ], [ amountBN ] ).toString('hex');
+	return(encoded);
+    },
 
     escrowQuery: function(web3, addr, cb) {
     },
@@ -433,10 +479,10 @@ function initMEContractInstance() {
     meEther.MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
 }
 
-function initDaiInstance() {
+function initDaiContractInstance() {
     const ABIArray = JSON.parse(meEther.ERC20_ABI);
     const daiContract = web3.eth.contract(ABIArray);
     //this will change....
-    console.log('meEther.initDaiInstance: contract addr: ' + meEther.MS_CONTRACT_ADDR);
-    meEther.daiInstance = daiContract.at(meEther.MS_CONTRACT_ADDR);
+    console.log('meEther.initDaiInstance: contract addr: ' + meEther.DAI_CONTRACT_ADDR);
+    meEther.daiContractInstance = daiContract.at(meEther.DAI_CONTRACT_ADDR);
 }

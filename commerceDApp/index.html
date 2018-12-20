@@ -5,9 +5,9 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545199582_.css">
+    <link rel="stylesheet" type="text/css" href="css/style_TIMESTAMP_1545301715_.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300|Roboto:300i" rel="stylesheet">
-    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545199582_.js"></script>
+    <script type="text/javascript" src="bundle/index_TIMESTAMP_1545301715_.js"></script>
 
   </head>
 
@@ -28,23 +28,36 @@
       <span id="mainTitleSpan">
 	<h3>MAD Escrow Stores -- Based on Turms Anonymous Message Transport</h3>
       </span>
-      <div style="float:right;">
+      <div id="rightAcctInfo">
 	<div id="networkAreaDiv">
 	  <textarea id="networkArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
-	<div id="accountDiv">
+	<div id="accountAreaDiv">
 	  <textarea id="accountArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
 	<div id="balanceAreaDiv">
 	  <textarea id="balanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
-	<div id="outstandingOrdersAreaDiv">
-	  <textarea id="outstandingOrdersArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
+	<div id="daiBalanceAreaDiv">
+	  <button id="wrapButton" type="button" class="navButton">Wrap Dai</button>
+	  <textarea id="daiBalanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
 	<div id="wdaiBalanceAreaDiv">
+	  <button id="unwrapButton" type="button" class="navButton">Unwrap W-Dai</button>
 	  <textarea id="wdaiBalanceArea" rows="1" cols="55" readonly="readonly">&nbsp;</textarea>
 	</div>
       </div>
+      <div id="wrapDialogDiv" class="hidden">
+	<p id="wrapDialogInstr">Enter the amount of Dia that you would like to wrap:</p>
+	<p id="wrapDialogErr" class="hidden">Error: You do not have that much Dai</p>
+	<textarea id="wrapDialogArea" rows="1" cols="10"
+		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
+		    placeholder="amount"></textarea>
+	<button id="wrapDialogCancelButton" type="button">Cancel</button>
+	<button id="wrapDialogDoButton" type="button">Wrap Dai</button>
+	</div>
+      <div id="unwrapDialogDiv" class="hidden">
+	</div>
     </div>
 
     <div id="topMenuBarDiv" style="clear:both">
@@ -400,6 +413,7 @@
 	  <button id="createStorePrevButton" class="menuBarButton" type="button">Prev</button>
 	  <button id="createStoreNextButton" class="menuBarButton" type="button">Next</button>
 	</div>
+      </div>
     </div>
 
     <p>&nbsp;</p>

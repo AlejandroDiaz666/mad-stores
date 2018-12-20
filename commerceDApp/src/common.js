@@ -354,6 +354,7 @@ const common = module.exports = {
     //
     // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
     // call this fcn with the error message and no txid.
+    // the callback is called after the transaction is mined.
     //
     waitForTXID: function(err, txid, desc, statusDiv, continueFcn, txStatusHost, callback) {
 	//
@@ -373,13 +374,16 @@ const common = module.exports = {
 	    if (!err)
 		err = 'No transaction hash was generated.';
 	    statusText.textContent = 'Error in ' + desc + ' transaction: ' + err;
-	    var reloadLink = document.createElement('a');
-	    reloadLink.addEventListener('click', continueFcn);
-	    reloadLink.href = 'javascript:null;';
-	    reloadLink.innerHTML = "<h2>Continue</h2>";
-	    reloadLink.disabled = false;
-	    rightDiv.appendChild(reloadLink);
-	    callback(err);
+	    if (!!continueFcn) {
+		var reloadLink = document.createElement('a');
+		reloadLink.addEventListener('click', continueFcn);
+		reloadLink.href = 'javascript:null;';
+		reloadLink.innerHTML = "<h2>Continue</h2>";
+		reloadLink.disabled = false;
+		rightDiv.appendChild(reloadLink);
+	    }
+	    if (!!callback)
+		callback(err);
 	    return;
 	}
 	//
@@ -414,13 +418,16 @@ const common = module.exports = {
 			//statusText.textContent = desc + ' transaction succeeded!';
 			clearInterval(timer);
 			//
-			var reloadLink = document.createElement('a');
-			reloadLink.addEventListener('click',  continueFcn);
-			reloadLink.href = 'javascript:null;';
-			reloadLink.innerHTML = "<h2>Continue</h2>";
-			reloadLink.disabled = false;
-			rightDiv.appendChild(reloadLink);
-			callback(err);
+			if (!!continueFcn) {
+			    var reloadLink = document.createElement('a');
+			    reloadLink.addEventListener('click',  continueFcn);
+			    reloadLink.href = 'javascript:null;';
+			    reloadLink.innerHTML = "<h2>Continue</h2>";
+			    reloadLink.disabled = false;
+			    rightDiv.appendChild(reloadLink);
+			}
+			if (!!callback)
+			    callback(err);
 			return;
 		    }
 		});

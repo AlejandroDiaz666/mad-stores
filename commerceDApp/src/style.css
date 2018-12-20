@@ -84,7 +84,7 @@ h3 { font-size:18px; }
 #metaMaskModal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 2; /* Sit on top */
     left: 55%;
     top: 15%;
     width: 300px;
@@ -98,7 +98,7 @@ h3 { font-size:18px; }
 #newMsgModal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 2; /* Sit on top */
     left: 80%;
     top: 22%;
     width: 270px;
@@ -121,14 +121,17 @@ h3 { font-size:18px; }
     font-family: 'Lato', sans-serif;
     background-color: #e3eceb;
     margin-top:0px;
-    height: 80px;
+    height: 85px;
 }
 
 #mainTitleSpan {
     float: left;
 }
 
-#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #outstandingOrdersAreaDiv, #wdaiBalanceAreaDiv  {
+#rightAcctInfo {
+    float:right;
+}
+#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #daiBalanceAreaDiv, #wdaiBalanceAreaDiv  {
     display: block;
     padding-top: 0px;
     padding-right: 0px;
@@ -137,14 +140,83 @@ h3 { font-size:18px; }
     margin: 0px;
     min-width: 20%;
     background-color: #e3eceb;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    height: 17px;
 }
-#networkArea, #accountArea, #balanceArea, #outstandingOrdersArea, #wdaiBalanceArea {
+#networkArea, #accountArea, #balanceArea, #daiBalanceArea, #wdaiBalanceArea {
     float: right;
     padding: 0px;
     margin: 0px;
     min-width: 20%;
     resize: none;
 }
+#wrapButton, #unwrapButton {
+    display: inline-block;
+    margin-right: 0px;
+    position: relative;
+    top: 0%;
+    left: 0%;
+    width: 10em;
+    font-size: 9px;
+    transform: translateY(-24%);
+}
+#wrapDialogDiv, #unwrapDialogDiv {
+    position: relative;
+    z-index: 1;
+    left: 50%;
+    top: 150px;
+    width: 300px;
+    height: 150px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    background-color: #9cd9db;
+}
+#wrapDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#wrapDialogErr {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    margin: 10px;
+    width: 60%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: red;
+    font-weight: bold;
+}
+#wrapDialogArea {
+    resize: none;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6em;
+}
+#wrapDialogCancelButton {
+    position: absolute;
+    top: 80%;
+    left: 30%;
+    transform: translateX(-50%);
+}
+#wrapDialogDoButton {
+    position: absolute;
+    top: 80%;
+    left: 70%;
+    transform: translateX(-50%);
+}
+
+
+
 
 #topMenuBarDiv, #botMenuBarDiv {
     display: block;
