@@ -78,9 +78,11 @@ function setWrapButtonHandlers() {
     const wrapButton = document.getElementById('wrapButton');
     const unwrapButton = document.getElementById('unwrapButton');
     const wrapDialogDoButton = document.getElementById('wrapDialogDoButton');
+    const wrapDialogCancelButton = document.getElementById('wrapDialogCancelButton');
     const wrapDialogArea = document.getElementById('wrapDialogArea');
     wrapDialogDoButton.addEventListener('click', function() {
 	wrapDialogDoButton.disabled = true;
+	wrapDialogCancelButton.disabled = true;
 	const daiAmountBN = meEther.usdStrToDaiBN(wrapDialogArea.value);
 	console.log('wrapDialogDoButton: daiAmountBN = ' + daiAmountBN.toString(10));
 	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
@@ -89,6 +91,7 @@ function setWrapButtonHandlers() {
 		common.replaceElemClassFromTo('wrapDialogNote', 'visibleIB', 'hidden', null);
 		common.replaceElemClassFromTo('wrapDialogErr', 'hidden', 'visibleIB', null);
 		wrapDialogDoButton.disabled = false;
+		wrapDialogCancelButton.disabled = false;
 	    } else {
 		const metaMaskModal = document.getElementById('metaMaskModal');
 		metaMaskModal.style.display = 'block';
@@ -120,7 +123,6 @@ function setWrapButtonHandlers() {
 	common.replaceElemClassFromTo('wrapDialogErr', 'visibleIB', 'hidden', null);
 	wrapDialogDoButton.disabled = false;
     });
-    const wrapDialogCancelButton = document.getElementById('wrapDialogCancelButton');
     wrapDialogCancelButton.addEventListener('click', function() {
 	common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
 	wrapButton.disabled = false;
@@ -133,6 +135,7 @@ function setWrapButtonHandlers() {
 	wrapButton.disabled = true;
 	unwrapButton.disabled = true;
 	wrapDialogDoButton.disabled = true;
+	wrapDialogCancelButton.disabled = false;
 	wrapDialogArea.value = '';
     });
 }
@@ -141,9 +144,11 @@ function setUnwrapButtonHandlers() {
     const wrapButton = document.getElementById('wrapButton');
     const unwrapButton = document.getElementById('unwrapButton');
     const unwrapDialogDoButton = document.getElementById('unwrapDialogDoButton');
+    const unwrapDialogCancelButton = document.getElementById('unwrapDialogCancelButton');
     const unwrapDialogArea = document.getElementById('unwrapDialogArea');
     unwrapDialogDoButton.addEventListener('click', function() {
 	unwrapDialogDoButton.disabled = true;
+	unwrapDialogCancelButton.disabled = true;
 	const wdaiAmountBN = meEther.usdStrToDaiBN(unwrapDialogArea.value);
 	console.log('unwrapDialogDoButton: wdaiAmountBN = ' + wdaiAmountBN.toString(10));
 	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
@@ -152,6 +157,7 @@ function setUnwrapButtonHandlers() {
 		common.replaceElemClassFromTo('unwrapDialogNote', 'visibleIB', 'hidden', null);
 		common.replaceElemClassFromTo('unwrapDialogErr', 'hidden', 'visibleIB', null);
 		unwrapDialogDoButton.disabled = false;
+		unwrapDialogCancelButton.disabled = false;
 	    } else {
 		const metaMaskModal = document.getElementById('metaMaskModal');
 		metaMaskModal.style.display = 'block';
@@ -176,7 +182,6 @@ function setUnwrapButtonHandlers() {
 	common.replaceElemClassFromTo('unwrapDialogErr', 'visibleIB', 'hidden', null);
 	unwrapDialogDoButton.disabled = false;
     });
-    const unwrapDialogCancelButton = document.getElementById('unwrapDialogCancelButton');
     unwrapDialogCancelButton.addEventListener('click', function() {
 	common.replaceElemClassFromTo('unwrapDialogDiv', 'visibleB', 'hidden', null);
 	wrapButton.disabled = false;
@@ -189,6 +194,7 @@ function setUnwrapButtonHandlers() {
 	wrapButton.disabled = true;
 	unwrapButton.disabled = true;
 	unwrapDialogDoButton.disabled = true;
+	unwrapDialogCancelButton.disabled = false;
 	unwrapDialogArea.value = '';
     });
 }
