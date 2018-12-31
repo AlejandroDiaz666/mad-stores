@@ -317,7 +317,7 @@ function handleUnlockedMetaMask(mode) {
 	mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
 	    common.acctInfo = _acctInfo;
-	    common.publicKey = (!!common.acctInfo) ? common.acctInfo[mtEther.ACCTINFO_PUBLICKEY] : null;
+	    common.publicKey = (!!common.acctInfo) ? common.acctInfo.publicKey : null;
 	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(common.acctInfo));
 	    //console.log('handleUnlockedMetaMask: publicKey: ' + common.publicKey);
 	    if (!common.publicKey || common.publicKey == '0x') {

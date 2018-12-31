@@ -8,6 +8,7 @@ const ethtx = require('ethereumjs-tx');
 const ethabi = require('ethereumjs-abi');
 const Buffer = require('buffer/').Buffer;
 const BN = require("bn.js");
+var ENS = require('ethereum-ens');
 
 const ether = module.exports = {
 
@@ -18,6 +19,7 @@ const ether = module.exports = {
     WEI_PER_FINNEY:    1000000000000000,
     WEI_PER_ETH:       1000000000000000000,
     etherscanioHost: '',
+    infuraioHost: '',
     //tx status host for user to check status of transactions
     etherscanioTxStatusHost: '',
     etherscanioHost_kovan: 'api-kovan.etherscan.io',
@@ -26,10 +28,13 @@ const ether = module.exports = {
     etherscanioTxStatusHost_ropsten: 'ropsten.etherscan.io',
     etherscanioHost_main: 'api.etherscan.io',
     etherscanioTxStatusHost_main: 'etherscan.io',
-    infuraioHost: 'kovan.infura.io',
+    infuraioHost_kovan: 'kovan.infura.io',
+    infuraioHost_ropsten: 'ropsten.infura.io',
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
     //node = 'etherscan.io' | 'infura.io'
     node: 'etherscan.io',
+    ens: null,
+
 
     //cb(err, network)
     getNetwork: function(web3, cb) {
@@ -41,6 +46,7 @@ const ether = module.exports = {
 		console.log('This is mainnet')
 		ether.etherscanioHost = ether.etherscanioHost_main;
 		ether.etherscanioTxStatusHost = ether.etherscanioTxStatusHost_main;
+		ether.infuraioHost = ether.infuraioHost_main;
 		break
 	    case "2":
 		network = 'Morden test network';
@@ -51,6 +57,7 @@ const ether = module.exports = {
 		console.log('This is the ropsten test network.')
 		ether.etherscanioHost = ether.etherscanioHost_ropsten;
 		ether.etherscanioTxStatusHost = ether.etherscanioTxStatusHost_ropsten;
+		ether.infuraioHost = ether.infuraioHost_ropsten;
 		break
 	    case "4":
 		network = 'Rinkeby test network';
@@ -61,6 +68,7 @@ const ether = module.exports = {
 		console.log('This is the Kovan test network.')
 		ether.etherscanioHost = ether.etherscanioHost_kovan;
 		ether.etherscanioTxStatusHost = ether.etherscanioTxStatusHost_kovan;
+		ether.infuraioHost = ether.infuraioHost_kovan;
 		break
 	    default:
 		console.log('This is an unknown network.')
@@ -72,11 +80,13 @@ const ether = module.exports = {
     //convert an amount in wei to a comfortable representation
     //for example: 1000000000000 => '1 gwei'
     convertWeiToComfort: function(web3, wei) {
+	console.log('convertWeiToComfort: wei = ' + wei);
 	const units =
 	    (wei < ether.WEI_PER_GWEI)   ? 'Wei'   :
 	    (wei < ether.WEI_PER_SZABO)  ? 'Gwei'   :
 	    (wei < ether.WEI_PER_FINNEY) ? 'Szabo'  :
-	    (wei < ether.WEI_PER_ETH)    ? 'Finney' : 'Eth';
+            (wei < ether.WEI_PER_ETH)    ? 'Finney' : 'Eth';
+	console.log('convertWeiToComfort: wei = ' + wei + ', units = ' + units);
 	return(web3.fromWei(wei, units).toString() + ' ' + units);
     },
 
@@ -158,7 +168,7 @@ const ether = module.exports = {
     //
     getBalance: function(web3, units, cb) {
 	web3.eth.getBalance(web3.eth.accounts[0], function (err, balance) {
-	    console.log('ether.getBalance: bal = ' + balance.toString() + ', type = ' + typeof(balance));
+	    console.log('get_balance bal = ' + balance.toString() + ', type = ' + typeof(balance));
 	    cb(null, web3.fromWei(balance, units).toString());
 	});
     },
@@ -230,7 +240,7 @@ const ether = module.exports = {
 		cb(err, '');
 		return;
 	    }
-	    //console.log('ether.getLogs: err = ' + err + ', str = ' + str);
+	    console.log('ether.getLogs: err = ' + err + ', str = ' + str);
 	    //typical (etherscan.io)
 	    //  { "status"  : "1",
 	    //    "message" : "OK",
@@ -253,6 +263,41 @@ const ether = module.exports = {
     },
 
 
+    // cb(err, result)
+    // fromBlock, toBlock, address, topics[]
+    //
+    //
+    // this is a hacky hack to get events logs mathcing a) one signature (in topic0), plus any one of 3
+    // id's (in topics 1,2,3). because of the different ways of specifying 'or' conditions in eth_getlogs
+    // we re-jigger the options according to which node we're using.
+    //
+    getLogs3: function(options, cb) {
+	console.log('getLogs3: ether.node = ' + ether.node);
+	if (ether.node == 'metamask')
+	    metamaskGetLogs3(options, cb);
+	else if (ether.node == 'etherscan.io')
+	    etherscanGetLogs3(options, cb);
+	else
+	    infuraGetLogs3(options, cb);
+    },
+
+
+    //cb(err, addr)
+    ensLookup: function(addrIn, cb) {
+	if (!ether.ens)
+	    ether.ens = new ENS(common.web3.currentProvider);
+	if (addrIn.startsWith('0x') || !addrIn.endsWith('.eth')) {
+	    cb('Error: invalid Ethereum address.', null);
+	    return;
+	}
+	ether.ens.resolver(addrIn).addr().then((addr) => {
+	    cb(null, addr);
+	}, (err) => {
+	    cb(err, null);
+	});
+    },
+
+
     //extract hex data from the data part of an event log
     //offsetOfOffset is an offset into the hex, 0x-prefixed data string. at that offset is the bytes offset of the desired
     //item. the item is prefixed with a 32 byte length.
@@ -264,3 +309,148 @@ const ether = module.exports = {
     },
 
 };
+
+
+//cb(err, result)
+// options:
+// {
+//   fromBlock, toBlock, address, topics[]
+// }
+//
+function metamaskGetLogs3(options, cb) {
+    const topic0 = options.topics[0];
+    const topic1 = options.topics[1];
+    const topic2 = options.topics[2];
+    const topic3 = options.topics[3];
+    options.topics = [];
+    options.topics[0] = topic0;
+    options.topics[1] = [];
+    if (!!topic1)
+	options.topics[1].push(topic1);
+    if (!!topic2)
+	options.topics[1].push(topic2);
+    if (!!topic3)
+	options.topics[1].push(topic3);
+    const paramsStr = JSON.stringify(options);
+    //console.log('metamaskGetLogs3: topic1 = ' + topic1);
+    //console.log('metamaskGetLogs3: topic2 = ' + topic2);
+    //console.log('metamaskGetLogs3: topic3 = ' + topic3);
+    console.log('metamaskGetLogs3: options = ' + paramsStr);
+    const filter = common.web3.eth.filter(options);
+    filter.get(cb);
+	filter.stopWatching();
+    return;
+}
+
+
+//cb(err, result)
+// options:
+// {
+//   fromBlock, toBlock, address, topics[]
+// }
+//
+function infuraGetLogs3(options, cb) {
+    let topic0 = options.topics[0];
+    let topic1 = options.topics[1];
+    let topic2 = options.topics[2];
+    let topic3 = options.topics[3];
+    options.topics = [];
+    options.topics[0] = topic0;
+    options.topics[1] = [];
+    if (!!topic1)
+	options.topics[1].push(topic1);
+    if (!!topic2)
+	options.topics[1].push(topic2);
+    if (!!topic3)
+	options.topics[1].push(topic3);
+    console.log('infuraGetLogs3: ether.node = ' + ether.node);
+    let url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
+    options.fromBlock = 'earliest';
+    const paramsStr = JSON.stringify(options);
+    console.log('infuraGetLogs3: paramsStr = ' + paramsStr);
+    const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
+    options = { method: 'post', body: body, headers: { 'Content-Type': 'application/json' } };
+    console.log('infuraGetLogs3: body = ' + body);
+    //
+    common.fetch(url, options, function(str, err) {
+	if (!str || !!err) {
+	    const err = "error retreiving events: " + err;
+	    console.log('infuraGetLogs3: ' + err);
+	    cb(err, '');
+	    return;
+	}
+	console.log('infuraGetLogs3: err = ' + err + ', str = ' + str);
+	const eventsResp = JSON.parse(str);
+	cb(null, eventsResp.result);
+    });
+}
+
+
+//cb(err, result)
+//options:
+// {
+//	fromBlock, toBlock, address, topics[], topic1_2_opr, topic2_3_opr
+// }
+//
+// note: because of the brain-dead mechanism that etherscan.io uses to specify required topic combinations, it's entirely
+// possible that they will return results that don't match topic0. there doesn't seem to be any reliable way to specify
+// topic0 && (topic1 || topic2 || topic3)
+function etherscanGetLogs3(options, cb) {
+    console.log('etherscanGetLogs3');
+    let url = 'https://' + ether.etherscanioHost   +
+	'/api?module=logs&action=getLogs'          +
+	'&fromBlock=' + options.fromBlock          +
+	'&toBlock=' + options.toBlock              +
+	'&address=' + options.address              +
+	'&topic0=' + options.topics[0];
+    if (options.topics.length > 1) {
+	if (!!options.topics[1]) {
+	    url += '&topic1=' + options.topics[1];
+	    url += '&topic0_1_opr=and';
+	}
+	if (options.topics.length > 2) {
+	    if (!!options.topics[2]) {
+		url += '&topic2=' + options.topics[2];
+		url += '&topic1_2_opr=or';
+		url += '&topic0_2_opr=and';
+	    }
+	}
+	if (options.topics.length > 3) {
+	    if (!!options.topics[3]) {
+		url += '&topic3=' + options.topics[3];
+		url += '&topic1_3_opr=or';
+		url += '&topic2_3_opr=or';
+		url += '&topic0_3_opr=and';
+	    }
+	}
+    }
+    options = null;
+    //
+    common.fetch(url, options, function(str, err) {
+	if (!str || !!err) {
+	    const err = "error retreiving events: " + err;
+	    console.log('etherscanGetLogs3: ' + err);
+	    cb(err, '');
+	    return;
+	}
+	console.log('etherscanGetLogs3: err = ' + err + ', str = ' + str);
+	//typical (etherscan.io)
+	//  { "status"  : "1",
+	//    "message" : "OK",
+	//    "result"  : [...]
+	//  }
+	const eventsResp = JSON.parse(str);
+	if (eventsResp.status == 0 && eventsResp.message == 'No records found') {
+	    //this is not an err... just no events
+	    cb(err, '');
+	    return;
+	}
+	if (eventsResp.status != 1 || eventsResp.message != 'OK') {
+	    const err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
+	    console.log('etherscanGetLogs3: ' + err);
+	    cb(err, '');
+	    return;
+	}
+	cb(null, eventsResp.result);
+    });
+}

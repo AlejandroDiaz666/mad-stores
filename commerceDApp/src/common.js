@@ -45,7 +45,7 @@ const common = module.exports = {
     },
 
 
-    //number can be a numver or a string, with or without '0x'
+    //number can be a number or a string, with or without '0x'
     numberToBN: function(number) {
 	//first ensure passed parm is a string
 	let numberStr = number.toString();
@@ -80,17 +80,21 @@ const common = module.exports = {
     },
 
 
+    //number can be a number or a string, with or without '0x'
     //Hex256 string will be '0x' followed by 64 hex digits
-    NumberToHex256: function(number) {
-	if (typeof(number) !== 'number')
-	    console.log('NumberToHex256: Warning!! input is (' + typeof(number) + ') ' + number);
-	return('0x' + common.leftPadTo(number.toString(16), 64, '0'));
+    numberToHex256: function(number) {
+	if (typeof(number) === 'number')
+	    return('0x' + common.leftPadTo(number.toString(16), 64, '0'));
+	const bn = common.numberToBN(number);
+	return(common.BNToHex256(bn));
     },
+
 
     //Hex256 string will be '0x' followed by 64 hex digits
     BNToHex256: function(xBN) {
 	return('0x' + common.leftPadTo(xBN.toString(16), 64, '0'));
     },
+
 
     hexToAscii: function(hexStr) {
 	console.log('hexToAscii');

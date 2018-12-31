@@ -157,7 +157,7 @@ const meEther = module.exports = {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.getCertainProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
-						      common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+						      common.BNToHex256(productStartIdxBN), common.numberToHex256(maxResults), onlyAvailable, (err, result) => {
 							  console.log('getCertainProducts: err = ' + err + ', result = ' + result);
 							  const products = result.toString().split(",");
 							  //first entry is idx of last product
@@ -171,7 +171,7 @@ const meEther = module.exports = {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.getVendorProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
-						     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+						     common.BNToHex256(productStartIdxBN), common.numberToHex256(maxResults), onlyAvailable, (err, result) => {
 							 console.log('getVendorProducts: err = ' + err + ', result = ' + result);
 							 const products = result.toString().split(",");
 							 //first entry is idx of last product
@@ -187,7 +187,7 @@ const meEther = module.exports = {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.getCategoryProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
-						       common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+						       common.BNToHex256(productStartIdxBN), common.numberToHex256(maxResults), onlyAvailable, (err, result) => {
 							   console.log('getCategoryProducts: err = ' + err + ', result = ' + result);
 							   const products = result.toString().split(",");
 							   //first entry is idx of last product
@@ -201,7 +201,7 @@ const meEther = module.exports = {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.getRegionProducts(vendorAddr, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), common.BNToHex256(maxPriceBN),
-						     common.BNToHex256(productStartIdxBN), common.NumberToHex256(maxResults), onlyAvailable, (err, result) => {
+						     common.BNToHex256(productStartIdxBN), common.numberToHex256(maxResults), onlyAvailable, (err, result) => {
 							 console.log('getRegionProducts: err = ' + err + ', result = ' + result);
 							 const products = result.toString().split(",");
 							 //first entry is idx of last product
