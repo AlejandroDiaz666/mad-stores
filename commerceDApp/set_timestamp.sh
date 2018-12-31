@@ -1,18 +1,16 @@
 #!/bin/bash
 now=$(date +%s)
-for f in *.html; do
+for f in build/*.html; do
     sed -i "s/_TIMESTAMP_[^_]*_/_TIMESTAMP_${now}_/" $f
 done
-rm -f bundle/*_TIMESTAMP_*
-for f in bundle/*.js; do
+rm -f build/bundle/*_TIMESTAMP_*
+for f in build/bundle/*.js; do
     g=$(echo $f | sed "s/bundle\/\([^\.]*\)\.js/bundle\/\1_TIMESTAMP_${now}_\.js/")
     cp $f $g
 done
-if [ ! -d css ]; then
-    mkdir css
-fi
-rm -f css/*_TIMESTAMP_*
-for f in src/*.css; do
-    g=$(echo $f | sed "s/src\/\([^\.]*\)\.css/css\/\1_TIMESTAMP_${now}_\.css/")
+rm -f build/css/*_TIMESTAMP_*
+for f in build/css/*.css; do
+    g=$(echo $f | sed "s/css\/\([^\.]*\)\.css/css\/\1_TIMESTAMP_${now}_\.css/")
     cp $f $g
 done
+echo "build date: ${now}" >build/build-date

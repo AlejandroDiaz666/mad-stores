@@ -1,18 +1,55 @@
 SRCDIR := src
-BUNDLEDIR := bundle
-SRCFILES := $(wildcard $(SRCDIR)/*.js)
-BUNDLEFILES := $(patsubst $(SRCDIR)/%.js,$(BUNDLEDIR)/%.js,$(SRCFILES))
+CSSSRCDIR := $(SRCDIR)
+IMGSRCDIR := images
+HTMSRCDIR := .
+HTMBLDDIR := build
+CSSBLDDIR := build/css
+IMGBLDDIR := build/images
+BUNDLEDIR := build/bundle
+JSSRCFILES := $(wildcard $(SRCDIR)/*.js)
+IMGSRCFILES := $(wildcard $(IMGSRCDIR)/*.jpg) $(wildcard $(IMGSRCDIR)/*.png)
+HTMSRCFILES := $(wildcard $(HTMSRCDIR)/*.html)
+CSSSRCFILES := $(wildcard $(CSSSRCDIR)/*.css)
+BUNDLEFILES := $(patsubst $(SRCDIR)/%.js,$(BUNDLEDIR)/%.js,$(JSSRCFILES))
+IMGBLDFILES := $(patsubst $(IMGSRCDIR)/%,$(IMGBLDDIR)/%,$(IMGSRCFILES))
+CSSBLDFILES := $(patsubst $(CSSSRCDIR)/%,$(CSSBLDDIR)/%,$(CSSSRCFILES))
+
+
+all:	$(HTMBLDDIR)/index.html
+
+clean:
+	rm -rf build/*
+
+
+$(CSSBLDDIR)/style.css : $(CSSSRCDIR)/style.css
+	if [ ! -d $(CSSBLDDIR) ]; then mkdir -p $(CSSBLDDIR); fi
+	cp $< $@
+
+$(IMGBLDDIR)/%.jpg : $(IMGSRCDIR)/%.jpg
+	if [ ! -d $(IMGBLDDIR) ]; then mkdir -p $(IMGBLDDIR); fi
+	cp $< $@
+
+$(IMGBLDDIR)/%.png : $(IMGSRCDIR)/%.png
+	if [ ! -d $(IMGBLDDIR) ]; then mkdir -p $(IMGBLDDIR); fi
+	cp $< $@
 
 $(BUNDLEDIR)/%.js : $(SRCDIR)/%.js
 	browserify $< -o $@
 
-ALL:	$(BUNDLEFILES) \
-	fake
+$(BUNDLEDIR)/index.js: $(SRCDIR)/index.js \
+	$(BUNDLEDIR)/ether.js \
+	$(BUNDLEDIR)/mtEther.js \
+	$(BUNDLEDIR)/meEther.js \
+	$(BUNDLEDIR)/common.js \
+	$(BUNDLEDIR)/meUtil.js \
+	$(BUNDLEDIR)/shop.js \
+	$(BUNDLEDIR)/createStore.js \
+	$(BUNDLEDIR)/categories.js \
+	$(BUNDLEDIR)/regions.js
 
-bundle/index.js: src/index.js bundle/ether.js bundle/mtEther.js bundle/meEther.js \
-	bundle/common.js bundle/meUtil.js bundle/shop.js bundle/createStore.js \
-	bundle/categories.js bundle/regions.js
-
-
-fake:	bundle/index.js src/style.css
+$(HTMBLDDIR)/index.html : $(HTMSRCDIR)/index.html \
+	$(CSSBLDFILES) \
+	$(IMGBLDFILES) \
+	$(BUNDLEFILES)
+	cp $< $@
 	./set_timestamp.sh
