@@ -31,8 +31,8 @@ const ether = module.exports = {
     infuraioHost_kovan: 'kovan.infura.io',
     infuraioHost_ropsten: 'ropsten.infura.io',
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
-    //node = 'etherscan.io' | 'infura.io'
-    node: 'etherscan.io',
+    //node = 'etherscan.io' | 'infura.io' | 'metamask'
+    node: 'metamask',
     ens: null,
 
 

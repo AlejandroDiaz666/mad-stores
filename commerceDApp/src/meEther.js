@@ -131,7 +131,7 @@ const meEther = module.exports = {
 	return(meEther.registerProductEventTopic0);
     },
 
-    //cb(err, { price: uint256, quantity: uint256, category: uint256, region: uint256, vendorAddr: address } )
+    //cb(err, productIdBN, { price: uint256, quantity: uint256, category: uint256, region: uint256, vendorAddr: address } )
     productInfoQuery: function(web3, productIdBN, cb) {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
@@ -148,7 +148,7 @@ const meEther = module.exports = {
 		    //console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
 		}
 	    }
-	    cb(err, productPriceInfo);
+	    cb(err, productIdBN, productPriceInfo);
 	});
     },
 

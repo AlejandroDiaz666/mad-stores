@@ -374,11 +374,19 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
-.tileDiv {
+.tileDivHidden {
+    display: none;
     position: relative;
     top: 0px;
     left: 0px;
+    background-color: rgb(150, 150, 179);
+    border: 1px solid rgb(150, 150, 179);
+}
+.tileDivShow {
     display: inline-block;
+    position: relative;
+    top: 0px;
+    left: 0px;
     background-color: rgb(150, 150, 179);
     border: 1px solid rgb(150, 150, 179);
 }

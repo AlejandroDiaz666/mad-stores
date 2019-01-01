@@ -64,50 +64,49 @@ var meUtil = module.exports = {
     },
 
 
-    //cb(prevEnable, nextEnable)
-    //listener(product)
+    //
+    // gets products according to the passed productSearchFilter, if necessary (we might already have the products cached)
+    // displays noToDisplay products in the passed div. onclick for each product calls listener(product)
+    //
+    // cb(prevEnable, nextEnable)
+    // listener(product)
+    //
     displayProducts: function(productSearchFilter, div, listener, startIdx, noToDisplay, cb) {
 	console.log('displayProducts: startIdx = ' + startIdx + ',  productSearchResults.length = ' + meUtil.productSearchResults.length + ', noToDisplay = ' + noToDisplay);
-	if (!!meUtil.productSearchResults && startIdx < meUtil.productSearchResults.length) {
-	    drawProducts(div, listener, startIdx, noToDisplay);
-	    if (!!cb) {
-		const prevEnable = (startIdx >= noToDisplay);
-		const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
-		cb(prevEnable, nextEnable);
+	clearProducts(div);
+	drawProductTiles(div, listener, startIdx, noToDisplay);
+	if (!!meUtil.productSearchResults) {
+	    while (noToDisplay > 0 && startIdx < meUtil.productSearchResults.length) {
+		drawProduct(startIdx);
+		++startIdx;
+		--noToDisplay;
 	    }
-	} else {
-	    let noNewProducts = noToDisplay + 1;
-	    getProducts(productSearchFilter, noToDisplay, function(err, noProducts, productSearchResults) {
-		noNewProducts = noProducts;
-		console.log('displayProducts: got all products. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
-		//if all the products have already been added, then that means that the last individual product callback already occurred -- and at the time
-		//the aggregate callback had not occurred, so noNewProducts was still greater than noToDisplay, which in prevented us from calling drawProducts.
-		//so we need to draw now.
-		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noNewProducts);
-		    if (!!cb) {
-			const prevEnable = (startIdx >= noToDisplay);
-			const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
-			console.log('displayProducts: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
-			cb(prevEnable, nextEnable);
-		    }
+	    if (noToDisplay <= 0) {
+		if (!!cb) {
+		    const prevEnable = (startIdx >= noToDisplay);
+		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
+		    cb(prevEnable, nextEnable);
 		}
-	    }, function(err, product) {
-		if (!!err)
-		    console.log('displayProducts: single product err = ' + err);
-		//if noNewProducts has already been set, then we we're just waiting for the last product to be added
-		//to the list. once the last product is added we need to draw.
-		console.log('displayProducts: got one product. err = ' + err + ', noNewProducts = ' + noNewProducts + ', meUtil.productSearchResults.length = ' + meUtil.productSearchResults.length);
-		if (meUtil.productSearchResults.length >= startIdx + noNewProducts) {
-		    drawProducts(div, listener, startIdx, noNewProducts);
-		    if (!!cb) {
-			const prevEnable = (startIdx >= noToDisplay);
-			const nextEnable = (meUtil.productSearchResults.length > startIdx + noToDisplay);
-			cb(prevEnable, nextEnable);
-		    }
+		return;
+	    }
+	}
+	const newProductsNeeded = startIdx + noToDisplay - meUtil.productSearchResults.length;
+	console.log('displayProducts: need ' + newProductsNeeded + ' more products, starting with ' + startIdx);
+	efficientGetCertainProducts(productSearchFilter, newProductsNeeded, function(err, productIds) {
+	    if (!!err) {
+		cb(false, false);
+		return;
+	    }
+	    console.log('displayProducts: calling getSaveAndDrawProducts(productIds = ' + productIds + ', startIdx = ' + startIdx);
+	    getSaveAndDrawProducts(productIds, 0, startIdx, function() {
+		if (!!cb) {
+		    const prevEnable = (startIdx >= noToDisplay);
+		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
+		    console.log('displayProducts: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
+		    cb(prevEnable, nextEnable);
 		}
 	    });
-	}
+	});
     },
 
 
@@ -117,122 +116,18 @@ var meUtil = module.exports = {
 	cb(null, [ "this is a stub-result; call meEther.parseEscrowEvent to parse it" ]);
     },
 
-}
-
-
-function drawProducts(div, listener, startIdx, noToDisplay) {
-    while (div.hasChildNodes()) {
-	div.removeChild(div.lastChild);
-    }
-    for (let i = 0; i < noToDisplay; ++i) {
-	const idx = startIdx + i;
-	if (idx >= meUtil.productSearchResults.length) {
-	    console.log('drawProducts: : bad index, ' + idx);
-	    break;
-	}
-	const product = meUtil.productSearchResults[idx];
-	if (!product) {
-	    console.log('drawProducts: : no product at index, ' + idx + ', productSearchResults.length = ' + meUtil.productSearchResults.length);
-	    break;
-	}
-	const id = product.productIdBN.toString(10);
-	const tileDiv = document.createElement('div');
-	tileDiv.id = 'tile' + id + 'Div';
-	tileDiv.className = 'tileDiv';
-	const tileImgElem = document.createElement('img');
-	tileImgElem.id = 'tile' + id + 'Img';
-	tileImgElem.className = 'tileImg';
-	tileDiv.appendChild(tileImgElem);
-	const tileNameSpan = document.createElement('span');
-	tileNameSpan.id = 'tile' + id + 'Name';
-	tileNameSpan.className = 'tileName';
-	tileDiv.appendChild(tileNameSpan);
-	const tileTextSpan = document.createElement('span');
-	tileTextSpan.id = 'tile' + id + 'Text';
-	tileTextSpan.className = 'tileText';
-	tileDiv.appendChild(tileTextSpan);
-	const tilePriceSpan = document.createElement('span');
-	tilePriceSpan.id = 'tile' + id + 'Price';
-	tilePriceSpan.className = 'tilePrice';
-	tileDiv.appendChild(tilePriceSpan);
-	const tileQuantitySpan = document.createElement('span');
-	tileQuantitySpan.id = 'tile' + id + 'Quantity';
-	tileQuantitySpan.className = 'tileQuantity';
-	tileDiv.appendChild(tileQuantitySpan);
-	tileImgElem.src = product.image;
-	tileNameSpan.textContent = product.name.substring(0, 22);
-	tileTextSpan.textContent = product.desc.substring(0, 70);
-	tilePriceSpan.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
-	tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
-	if (!!listener)
-	    tileDiv.addEventListener('click', function() {
-		listener(product);
-	    });
-	div.appendChild(tileDiv);
-    }
-}
+};
 
 
 //
-// fcn(err, product)
-// cb(err, noProducts, products[])
-//
-// fcn is called once for each product; err is set in case of an error specific to that product.
-// cb is called once with the number of products retreived from this call, and the entire array of
-// products (including products from prior calls)
-//
-function getProducts(productSearchFilter, maxProducts, cb, productFcn) {
-    efficientGetCertainProducts(productSearchFilter, maxProducts, function(err, productIDs) {
-	if (!!err) {
-	    cb(err, 0, meUtil.productSearchResults);
-	    return;
-	}
-	const endLength = meUtil.productSearchResults.length + productIDs.length;
-	for (var i = 0; i < productIDs.length; ++i) {
-	    if (!productIDs[i] || productIDs[i] == '0') {
-		// productID == 0 => all done
-		const lastProductIdBN = common.numberToBN((i > 0) ? productIDs[i - 1] : 0);
-		console.log('getProducts: short batch. lastProductIdBN = ' + lastProductIdBN.toString(10));
-		cb(null, i, meUtil.productSearchResults);
-		return;
-	    }
-	    console.log('getProducts: call getProductLogs(product #' + i + ', productID = ' + productIDs[i] + ')');
-	    getProductLogs(common.numberToBN(productIDs[i]), function(err, productIdBN, results) {
-		if (!!err) {
-		    console.log('getProducts: product #' + i + ', productID = ' + productIdBN.toString(10) + ', err = ' + err);
-		    meUtil.productSearchResults.push(null);
-		    productFcn(err, null);
-		    if (meUtil.productSearchResults.length >= endLength)
-			cb(null, productIDs.length, meUtil.productSearchResults);
-		    return;
-		}
-		const result = results[results.length - 1];
-		if (!result) {
-		    console.log('getProducts: no event log for product #' + i + ', productID = ' + productIdBN.toString(10) + ', result = ' + result);
-		    //since it's just a missing event log, we create a dummy product and indicate that we were unable to find the log entry.
-		    const product = new meUtil.Product(productIdBN, 'No data yet', 'Event log for this product is not accessible yet', 'images/product-err.jpg');
-		    getProductInfo(productIDs, product, endLength, cb, productFcn);
-		    return;
-		}
-		meEther.parseRegisterProductEvent(result, function(err, productIdBN, name, desc, image) {
-		    console.log('getProducts: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
-		    const product = new meUtil.Product(productIdBN, name, desc, image);
-		    getProductInfo(productIDs, product, endLength, cb, productFcn);
-		});
-	    });
-	}
-    });
-}
-
-
-//cb(err, productIDs)
-//
-// this is a heloer for getProducts
+// this is a helper for displayProducts
 // this fcn finds the most efficient way to search a list of products. searches can be performed via getCertainProducts, getVendorProducts, getRegionProducts,
 // or getCategoryProducts. the most efficient way to search is to use the call that searches through the smallest set of products.
 //
-function efficientGetCertainProducts(productSearchFilter, maxProducts, cb) {
-    selectEddicientSearch(productSearchFilter, function(err, searchFcn, searchFcnId) {
+// cb(err, productIds)
+//
+function efficientGetCertainProducts(productSearchFilter, maxNewProducts, cb) {
+    selectEfficientSearch(productSearchFilter, function(err, searchFcn, searchFcnId) {
 	if (!!err) {
 	    cb(err, null);
 	    return;
@@ -240,9 +135,11 @@ function efficientGetCertainProducts(productSearchFilter, maxProducts, cb) {
 	const searchStartIdxBN = productSearchFilter.lastSearchLastIdxBN.addn(1);
 	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
 		  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, searchStartIdxBN,
-		  maxProducts, function(err, nextSearchIdx, products) {
-		      if (!err)
-			  productSearchFilter.lastSearchLastIdxBN = common.numberToBN(nextSearchIdx);
+		  maxNewProducts, function(err, lastSearchIdx, products) {
+		      if (!err) {
+			  productSearchFilter.lastSearchLastIdxBN = common.numberToBN(lastSearchIdx);
+			  console.log('efficientGetCertainProducts: lastSearchIdx = ' + lastSearchIdx + ', products = ' + products);
+		      }
 		      cb(err, products);
 		  });
     });
@@ -250,7 +147,7 @@ function efficientGetCertainProducts(productSearchFilter, maxProducts, cb) {
 
 
 //cb(err, searchFcn, searchFcnId)
-function selectEddicientSearch(productSearchFilter, cb) {
+function selectEfficientSearch(productSearchFilter, cb) {
     if (productSearchFilter.previousSearch == 'vendorAddr' || productSearchFilter.vendorAddr != '0x0') {
 	//this is probably the most efficient.... how many products could one vendor have?
 	cb(null, meEther.getVendorProducts, 'vendorAddr');
@@ -289,49 +186,224 @@ function selectEddicientSearch(productSearchFilter, cb) {
 }
 
 
+
 //
-// productIDs -- array of product ID's for which we are creating products in meUtil.productSearchResults[]
-// product    -- the current product that we are working on. already has name, desc, image
-// endLength  -- when meUtil.productSearchResults is this long, then were done
-// cb(err, noProducts, products[]) -- called when we're all done
-// productFcn(err, product) -- called after each product
+// this is a helper for displayProducts
+// recursive fcn, get, save & draw 3 products at a time. recursive to get, save & draw the rest
+// products are saved to meUtil.productSearchResults[] in getSaveAndParse3Products
 //
-// this is a helper for getProducts. once the product {name,desc,image} have been set, here we get the rest of the product info.
-// then we call the single-product callback, and if this is the last product we call the completed callback.
 //
-function getProductInfo(productIDs, product, endLength, cb, productFcn) {
-    console.log('getProductInfo: working on product = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
-    meEther.productInfoQuery(common.web3, product.productIdBN, function(err, productInfo) {
-	if (!!err) {
-	    console.log('getProductInfo: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
-	    meUtil.productSearchResults.push(null);
-	    productFcn(err, product);
-	    if (meUtil.productSearchResults.length >= endLength)
-		cb(null, productIDs.length, meUtil.productSearchResults);
-	    return;
-	}
-	product.setProductInfo(productInfo);
-	console.log('getProductInfo: product = 0x' + product.productIdBN + ', category = 0x' + product.categoryBN.toString(16));
-	meUtil.productSearchResults.push(product);
-	productFcn(null, product);
-	if (meUtil.productSearchResults.length >= endLength)
-	    cb(null, productIDs.length, meUtil.productSearchResults);
-    });
+// listIdx: idx into productIds
+// productIdx: idx into meUtil.productSearchResults
+//
+function getSaveAndDrawProducts(productIds, listIdx, productIdx, cb) {
+    const threeProductIds = [];
+    const productCookies = {};
+    console.log('getSaveAndDrawProducts: enter: listIdx = ' + listIdx + ', productIdx = ' + productIdx)
+    for (let i = 0; i < 3 && listIdx < productIds.length; ++i, ++listIdx, ++productIdx) {
+	if (common.numberToBN(productIds[listIdx]).isZero())
+	    break;
+	console.log('getAndDrawProducts: productId = ' + productIds[listIdx] + ' goes to listIdx = ' + listIdx);
+	const productId = common.numberToHex256(productIds[listIdx]);
+	const productCookie = { idx: productIdx, id: productId };
+	threeProductIds.push(productId);
+	productCookies[productId] = productCookie;
+    }
+    if (threeProductIds.length == 0) {
+	console.log('getSaveAndDrawProducts: no products from idx ' + productIdx + ' on');
+	cb();
+    } else {
+	//gets up to 3 log entries; second cb when all done
+	let productsToDisplay = 4;
+	let noProductsDisplayed = 0;
+	getSaveAndParse3Products(threeProductIds, productCookies, function(err, cookie, product) {
+	    if (!!err || !product)
+		console.log('getSaveAndDrawProducts: Product data not found for product id ' + cookie.id);
+	    drawProduct(cookie.idx);
+	    ++noProductsDisplayed;
+	    console.log('getSaveAndDrawProducts: got productCb. err = ' + err + ', productsToDisplay = ' + productsToDisplay + ', noProductsDisplayed = ' + noProductsDisplayed);
+	    if (noProductsDisplayed >= productsToDisplay) {
+		console.log('getSaveAndDrawProducts: exit: listIdx = ' + listIdx + ', productIdx = ' + productIdx);
+		const done = (listIdx < productIds.length && !common.numberToBN(productIds[listIdx]).isZero()) ? false : true;
+	    (done) ? cb() : getSaveAndDrawProducts(productIds, listIdx, productIdx, cb);
+	    }
+	}, function(noProductsProcessed) {
+	    productsToDisplay = noProductsProcessed;
+	    console.log('getSaveAndDrawProducts: got doneCb. listIdx = ' + listIdx + ', noProductsProcessed = ' + noProductsProcessed + ', noProductsDisplayed = ' + noProductsDisplayed);
+	    if (noProductsDisplayed >= productsToDisplay) {
+		console.log('getSaveAndDrawProducts: exit: listIdx = ' + listIdx + ', productIdx = ' + productIdx);
+		const done = (listIdx < productIds.length && !common.numberToBN(productIds[listIdx]).isZero()) ? false : true;
+		(done) ? cb() : getSaveAndDrawProducts(productIds, listIdx, productIdx, cb);
+	    }
+	});
+    }
 }
 
 
 
-
-
-//cb(err, productIdBN, results)
-function getProductLogs(productIdBN, cb) {
+//
+// gets up to 3 products specified in productIds[]
+// products are saved to meUtil.productSearchResults[]
+//
+// productCb(err, cookie, product)
+// doneCb(noProductsProcessed)
+//
+// note: product = { productIdBN, name, desc, image, priceBN, quantityBN, categoryBN, regionBN, vendorAddr }
+//
+function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb) {
+    console.log('getAndParseIdMsgs: enter productIds = ' + productIds);
     const options = {
 	fromBlock: 0,
 	toBlock: 'latest',
 	address: meEther.MS_CONTRACT_ADDR,
-	topics: [ meEther.getRegisterProductEventTopic0(), common.BNToHex256(productIdBN) ]
+	topics: [ meEther.getRegisterProductEventTopic0() ]
+    };
+    if (productIds.length > 0) {
+	if (!!productIds[0])
+	    options.topics.push(productIds[0]);
+	if (options.topics.length > 1) {
+	    if (!!productIds[1])
+		options.topics.push(productIds[1]);
+	    if (options.topics.length > 2) {
+		if (!!productIds[2])
+		    options.topics.push(productIds[2]);
+	    }
+	}
     }
-    ether.getLogs(options, function(err, results) {
-	cb(err, productIdBN, results);
+    console.log('getSaveAndParse3Products: options = ' + JSON.stringify(options));
+    ether.getLogs3(options, function(err, productResults) {
+	console.log('getSaveAndParse3Products: err = ' + err + ', productResults.length = ' + productResults.length);
+	if (!!err || !productResults || productResults.length == 0) {
+	    if (!!err)
+		console.log('getSaveAndParse3Products: err = ' + err);
+	    //either an error, or maybe just no events
+	    for (let i = 0; i < productIds.length; ++i) {
+		const cookie = productCookies[productIds[i]];
+		meUtil.productSearchResults[cookie.idx] = null;
+		productCb(err, cookie, null);
+	    }
+	    doneCb(productIds.length);
+	    return;
+	}
+	let productCbCount = 0;
+	let bogusCount = 0;
+	for (let i = 0; i < productResults.length; ++i) {
+	    meEther.parseRegisterProductEvent(productResults[i], function(err, productIdBN, name, desc, image) {
+		const cookie = productCookies[common.BNToHex256(productIdBN)];
+		if (!!cookie) {
+		    console.log('getSaveAndParse3Products: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
+		    const newProduct = new meUtil.Product(productIdBN, name, desc, image);
+		    meUtil.productSearchResults[cookie.idx] = newProduct;
+		    meEther.productInfoQuery(common.web3, productIdBN, function(err, productIdBN, productInfo) {
+			let cookie = null;
+			let product = null;
+			if (!!err) {
+			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
+			} else {
+			    cookie = productCookies[common.BNToHex256(productIdBN)];
+			    product = meUtil.productSearchResults[cookie.idx];
+			    product.setProductInfo(productInfo);
+			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', category = 0x' + product.categoryBN.toString(16));
+			}
+			productCb(err, cookie, product);
+			if (++productCbCount + bogusCount >= productResults.length)
+			    doneCb(productCbCount);
+		    });
+		} else {
+		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN));
+		    if (productCbCount + ++bogusCount >= productResults.length)
+			doneCb(productCbCount);
+		}
+	    });
+	}
     });
+}
+
+
+//
+// draws products in the passed div. onclick for each product calls listener(product)
+// products must already have been retreived to meUtil.productSearchResults[];
+//
+function clearProducts(div) {
+    while (div.hasChildNodes())
+	div.removeChild(div.lastChild);
+}
+
+//
+// draw product tiles in the passed div. tiles are not populated with data yet.
+// onclick for each tile calls listener(product)
+//
+function drawProductTiles(div, listener, startIdx, noTiles) {
+    for (let i = 0; i < noTiles; ++i, ++startIdx) {
+	const id = startIdx.toString(10);
+	const tileImgElemId = 'tile' + id + 'Img';
+	const tileNameSpanId = 'tile' + id + 'Name';
+	const tileTextSpanId = 'tile' + id + 'Text';
+	const tilePriceSpanId = 'tile' + id + 'Price';
+	const tileQuantitySpanId = 'tile' + id + 'Quantity';
+	const tileDiv = document.createElement('div');
+	const tileId = 'tile' + id;
+	tileDiv.id = tileId;
+	tileDiv.className = 'tileDivHidden';
+	const tileImgElem = document.createElement('img');
+	tileImgElem.id = tileImgElemId;
+	tileImgElem.className = 'tileImg';
+	tileDiv.appendChild(tileImgElem);
+	const tileNameSpan = document.createElement('span');
+	tileNameSpan.id = tileNameSpanId;
+	tileNameSpan.className = 'tileName';
+	tileDiv.appendChild(tileNameSpan);
+	const tileTextSpan = document.createElement('span');
+	tileTextSpan.id = tileTextSpanId
+	tileTextSpan.className = 'tileText';
+	tileDiv.appendChild(tileTextSpan);
+	const tilePriceSpan = document.createElement('span');
+	tilePriceSpan.id = tilePriceSpanId
+	tilePriceSpan.className = 'tilePrice';
+	tileDiv.appendChild(tilePriceSpan);
+	const tileQuantitySpan = document.createElement('span');
+	tileQuantitySpan.id = tileQuantitySpanId;
+	tileQuantitySpan.className = 'tileQuantity';
+	tileDiv.appendChild(tileQuantitySpan);
+	if (!!listener)
+	    tileDiv.addEventListener('click', function() {
+		listener(product);
+	    });
+	div.appendChild(tileDiv);
+    }
+}
+
+
+//
+// draws product specified by idx. onclick for each product calls listener(product)
+// products must already have been retreived to meUtil.productSearchResults[];
+//
+// idx is index into meUtil.productSearchResults[]
+//
+function drawProduct(idx) {
+    console.log('drawProduct: idx = ' + idx);
+    const product = meUtil.productSearchResults[idx];
+    if (!product) {
+	console.log('drawProduct: no product at index, ' + idx + ', productSearchResults.length = ' + meUtil.productSearchResults.length);
+	return;
+    }
+    const id = idx.toString(10);
+    const tileId = 'tile' + id;
+    const tileImgElemId = 'tile' + id + 'Img';
+    const tileNameSpanId = 'tile' + id + 'Name';
+    const tileTextSpanId = 'tile' + id + 'Text';
+    const tilePriceSpanId = 'tile' + id + 'Price';
+    const tileQuantitySpanId = 'tile' + id + 'Quantity';
+    const tileDiv = document.getElementById(tileId);
+    const tileImgElem = document.getElementById(tileImgElemId);
+    const tileNameSpan = document.getElementById(tileNameSpanId);
+    const tileTextSpan = document.getElementById(tileTextSpanId);
+    const tilePriceSpan = document.getElementById(tilePriceSpanId);
+    const tileQuantitySpan = document.getElementById(tileQuantitySpanId);
+    tileImgElem.src = product.image;
+    tileNameSpan.textContent = product.name.substring(0, 22);
+    tileTextSpan.textContent = product.desc.substring(0, 70);
+    tilePriceSpan.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
+    tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+    tileDiv.className = 'tileDivShow';
 }
