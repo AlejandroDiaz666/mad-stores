@@ -60,6 +60,7 @@ const common = module.exports = {
 		//console.log('numberToBN: numberStr.substring(2, expIdx) = ' + numberStr.substring(2, expIdx));
 		let endPart = numberStr.substring(2, expIdx);
 		numberStr = numberStr.substring(0, 1) + numberStr.substring(2, expIdx);
+		//console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
 	    }
 	}
 	const bn = new BN(numberStr, base);
@@ -97,7 +98,7 @@ const common = module.exports = {
 
 
     hexToAscii: function(hexStr) {
-	console.log('hexToAscii');
+	//console.log('hexToAscii');
 	//first ensure passed parm is a string
 	let hex = hexStr.toString();
 	if (hex.startsWith('0x'))
@@ -316,7 +317,7 @@ const common = module.exports = {
 	const options = { mode: 'cors'};
 	Object.assign(options, extraOptions);
 	fetch(request, options).then(function(resp) {
-	    console.log('common.fetch: got resp = ' + resp + ', status = ' + resp.status + ', (' + resp.statusText + ')');
+	    //console.log('common.fetch: got resp = ' + resp + ', status = ' + resp.status + ', (' + resp.statusText + ')');
 	    clearTimeout(fetch_timer);
 	    complete = true;
 	    if (timeout == true) {

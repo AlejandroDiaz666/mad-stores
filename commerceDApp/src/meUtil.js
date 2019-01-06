@@ -21,9 +21,9 @@ var meUtil = module.exports = {
 	    this.quantityBN = common.numberToBN(productInfo.quantity);
 	    //console.log('Product.setProductInfo: productInfo.category = ' + productInfo.category);
 	    this.categoryBN = common.numberToBN(productInfo.category);
-	    console.log('Product.setProductInfo: categoryBN = 0x' + this.categoryBN.toString(16));
+	    //console.log('Product.setProductInfo: categoryBN = 0x' + this.categoryBN.toString(16));
 	    this.regionBN = common.numberToBN(productInfo.region);
-	    console.log('Product.setProductInfo: regionBN = 0x' + this.regionBN.toString(16));
+	    //console.log('Product.setProductInfo: regionBN = 0x' + this.regionBN.toString(16));
 	    this.vendorAddr = productInfo.vendorAddr;
 	};
     },
@@ -214,7 +214,7 @@ function getSaveAndDrawProducts(productIds, listIdx, productIdx, cb) {
 	cb();
     } else {
 	//gets up to 3 log entries; second cb when all done
-	let productsToDisplay = 4;
+	let productsToDisplay = 10000;
 	let noProductsDisplayed = 0;
 	getSaveAndParse3Products(threeProductIds, productCookies, function(err, cookie, product) {
 	    if (!!err || !product)
@@ -287,30 +287,32 @@ function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb)
 	}
 	let productCbCount = 0;
 	let bogusCount = 0;
-	for (let i = 0; i < productResults.length; ++i) {
+	const parsedUniq = {};
+	for (let i = productResults.length - 1; i >= 0; --i) {
 	    meEther.parseRegisterProductEvent(productResults[i], function(err, productIdBN, name, desc, image) {
-		const cookie = productCookies[common.BNToHex256(productIdBN)];
-		if (!!cookie) {
-		    console.log('getSaveAndParse3Products: got product = 0x' + productIdBN.toString(16) + ', name = ' + name + ', desc = ' + desc);
+		const id256 = common.BNToHex256(productIdBN);
+		const cookie = productCookies[id256];
+		if (!!cookie && !parsedUniq[id256]) {
+		    parsedUniq[id256] = true;
 		    const newProduct = new meUtil.Product(productIdBN, name, desc, image);
 		    meUtil.productSearchResults[cookie.idx] = newProduct;
 		    meEther.productInfoQuery(common.web3, productIdBN, function(err, productIdBN, productInfo) {
 			let cookie = null;
 			let product = null;
 			if (!!err) {
-			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', err = ' + err);
+			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', name = ' + name + ', err = ' + err);
 			} else {
 			    cookie = productCookies[common.BNToHex256(productIdBN)];
 			    product = meUtil.productSearchResults[cookie.idx];
 			    product.setProductInfo(productInfo);
-			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', category = 0x' + product.categoryBN.toString(16));
+			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', name = ' + name + ', category = 0x' + product.categoryBN.toString(16));
 			}
 			productCb(err, cookie, product);
 			if (++productCbCount + bogusCount >= productResults.length)
 			    doneCb(productCbCount);
 		    });
 		} else {
-		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN));
+		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN) + ', name = ' + name);
 		    if (productCbCount + ++bogusCount >= productResults.length)
 			doneCb(productCbCount);
 		}
