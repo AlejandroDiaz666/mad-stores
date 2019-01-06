@@ -341,8 +341,12 @@ function drawProductTiles(div, listener, startIdx, noTiles) {
 	const tileTextSpanId = 'tile' + id + 'Text';
 	const tilePriceSpanId = 'tile' + id + 'Price';
 	const tileQuantitySpanId = 'tile' + id + 'Quantity';
-	const tileDiv = document.createElement('div');
 	const tileId = 'tile' + id;
+	//in case there is already a tile (on some other page?)
+	var altElem = document.getElementById(tileId);
+	if (!!altElem)
+	    altElem.parentNode.removeChild(altElem);
+	const tileDiv = document.createElement('div');
 	tileDiv.id = tileId;
 	tileDiv.className = 'tileDivHidden';
 	const tileImgElem = document.createElement('img');
@@ -367,6 +371,7 @@ function drawProductTiles(div, listener, startIdx, noTiles) {
 	tileDiv.appendChild(tileQuantitySpan);
 	if (!!listener)
 	    tileDiv.addEventListener('click', function() {
+		const product = meUtil.productSearchResults[i];
 		listener(product);
 	    });
 	div.appendChild(tileDiv);
