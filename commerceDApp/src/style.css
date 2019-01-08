@@ -359,6 +359,25 @@ h3 { font-size:18px; }
     width: 28em;
 }
 
+#shopProductDetailDiv {
+    display: block;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    width: 250px;
+    height: 300px;
+    transform: translateX(-50%);
+    background-color: rgb(150, 150, 179);
+    border: 1px solid rgb(150, 150, 179);
+}
+#purchaseProductButton {
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    width: 100px;
+    transform: translateX(-250px);
+}
+
 /* tile styles here
  */
 .tilesDiv {

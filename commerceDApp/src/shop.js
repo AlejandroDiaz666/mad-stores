@@ -14,11 +14,12 @@ const BN = require("bn.js");
 var shop = module.exports = {
 
     handleShopPage: function() {
-	common.setMenuButtonState('shopButton',          'Enabled');
+	common.setMenuButtonState('shopButton',          'Selected');
 	common.setMenuButtonState('dashboardButton',     'Enabled');
-	common.setMenuButtonState('createStoreButton',   'Selected');
-	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
-	common.replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
+	common.setMenuButtonState('createStoreButton',   'Enabled');
+	common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
+	common.replaceElemClassFromTo('createStorePageDiv',    'hidden',   'visibleT', null);
+	common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
 	const categoryBN = new BN('0', 16);
 	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
@@ -42,7 +43,7 @@ var shop = module.exports = {
 	    shop.displayedProductsStartIdx += shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
 	    console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, null, shop.displayedProductsStartIdx, shop.productsPerPage,
+	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
@@ -52,7 +53,7 @@ var shop = module.exports = {
 	shopPrevButton.addEventListener('click', function() {
 	    shop.displayedProductsStartIdx -= shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, null, shop.displayedProductsStartIdx, shop.productsPerPage,
+	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
@@ -126,10 +127,31 @@ function shopDoSearch() {
     shop.displayedProductsStartIdx = 0;
     shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');
-    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, null, shop.displayedProductsStartIdx, shop.productsPerPage,
+    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
 			   function(prevEnable, nextEnable) {
 			       console.log('shopDoSearch: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
 			       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 			       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
 			   });
+}
+
+
+function showProductDetail(product) {
+    console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+    //so user can go back to search
+    common.setMenuButtonState('shopButton', 'Enabled');
+    common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
+    common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB', null);
+    //
+    const shopProductDetailImg = document.getElementById('shopProductDetailImg');
+    const shopProductDetailName = document.getElementById('shopProductDetailName');
+    const shopProductDetailDesc = document.getElementById('shopProductDetailDesc');
+    const shopProductDetailPrice = document.getElementById('shopProductDetailPrice');
+    const shopProductDetailQuantity = document.getElementById('shopProductDetailQuantity');
+    //
+    shopProductDetailImg.src = product.image;
+    shopProductDetailName.textContent = product.name.substring(0, 22);
+    shopProductDetailDesc.textContent = product.desc.substring(0, 70);
+    shopProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
+    shopProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
 }
