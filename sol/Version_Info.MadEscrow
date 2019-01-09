@@ -14,6 +14,9 @@ Note: partner addresses modified via setPartners
  _daiTokenAddr  = 0x1142b6FBAC052869fbC12849C37dA289033b87EA
 
 
+Note: don't forget to a) compile with optimization, b) set trust
+
+
 ======= MadEscrow.sol:FeesTokenContract =======
 Gas estimation:
 Binary:

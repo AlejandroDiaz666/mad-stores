@@ -8,6 +8,8 @@ constructor parms:
 deploy gas: 6090314 !!!
 
 
+Note: don't forget to a) compile with optimization, b) set trust
+
 ----------------------------- old deployments that need to be destructed ----------------------------
 Ropsten: 0xB7858a53345055401E64Dcb7ACf520b914F4e969
 ----------------------------- old deployments that need to be destructed ----------------------------
