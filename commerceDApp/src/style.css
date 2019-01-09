@@ -1,3 +1,21 @@
+:root {
+    --clr_maintitletext: black;
+    --clr_bodybg: rgb(165, 165, 155);
+    --clr_border : #84a5BA;
+    --clr_buttonbg : rgb(230, 230, 230);
+    --clr_buttonbgsel : rgb(196, 196, 201);
+    --clr_buttontext : rgb(100, 100, 0);
+    --clr_areabg1: #e3eceb;
+    --clr_areatext : rgb(100, 100, 0);
+    --clr_optpanelbg : rgb(249, 249, 249);
+    --pad_menubar : 5px;
+    --martop_msgAreaDiv : 20px;
+    --pad_msgAreaDiv : 15px;
+    --bor_butselect: 1px solid black;
+    --bor_butnormal: 1px solid var(--clr_buttonbg);
+}
+/* var above are temp placeholders, for hack to make messages work */
+
 html {
     height: 100%;
 }
@@ -298,6 +316,15 @@ h3 { font-size:18px; }
     left: 0px;
 }
 
+/*
+ * but no 3-column format for these pages...
+ */
+#selctedProductPageDiv {
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+
 
 /*
  * shop page seller search elements here
@@ -362,7 +389,7 @@ h3 { font-size:18px; }
 #shopProductDetailDiv {
     display: block;
     position: absolute;
-    top: 50px;
+    top: 25px;
     left: 50%;
     width: 250px;
     height: 300px;
@@ -1082,100 +1109,50 @@ h3 { font-size:18px; }
 }
 
 
-/*
-  message list attributes
-  note that it's necessary to collapse table borders (as opposed to being draw separate) or
-  else you can't set a border with display: table-row. also you can't use margin & padding
-  with display: table-row, cuz the height is always the height of the cell. so i work around
-  by setting a transparent border where i would want a margin.
-*/
-#listAreaDiv  {
-    display: table;
-    padding: 12px;
-    margin: 0px;
-    background-color: #e3eceb;
-    border-collapse: collapse;
-
-}
-
-.msgListItemDiv,    .msgListItemDivSelected,
-.msgListItemDivNew, .msgListItemDivSelectedNew {
-    display: table-row;
-    clear: both;
-    background-color: #e3eceb;
-    font-weight: normal;
-}
-.msgListItemDiv,
-.msgListItemDivNew {
-    border-top: 2px solid transparent;
-}
-.msgListItemDivSelected,
-.msgListItemDivSelectedNew {
-    border: 2px solid #404040;
-}
-.msgListItemDivNew,
-.msgListItemDivSelectedNew {
-    font-weight: bold;
-}
-
-.msgListMsgNoArea,    .msgListAddrArea,    .msgListDateArea,    .msgListMsgIdArea,    .msgListSubjectArea {
-    display: table-cell;
-    vertical-align: middle;
-    padding-top: 1px;
-    padding-right: 0px;
-    padding-bottom: 1px;
-    padding-left: 0px;
-    margin: 1px;
-    resize: none;
-    font-weight: inherit;
-}
-.msgListMsgNoArea {
-    width: 5em;
-}
-.msgListAddrArea {
-    width: 26em;
-}
-.msgListDateArea {
-    width: 20em;
-}
-.msgListMsgIdArea {
-    width: 20em;
-}
-.msgListSubjectArea {
-    min-width: 20em;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: elipsis;
-}
-
-
-
 
 /*
-  individual message area attributes
-*/
+ * styling for message area
+ */
 #msgAreaDiv  {
-    display: block;
-    padding: 20px;
-    margin-top: 30px;
+    position: absolute;
+    top: 315px;
+    left: 50%;
+    width: 70%;
+    min-width: 1070px;
+    transform: translateX(-50%);
+    padding: var(--pad_msgAreaDiv);
+    margin-top: var(--martop_msgAreaDiv);
     margin-left: 0px;
     margin-right: auto;
-    /* background-color: #a4a4a4; */
-    background-color: #9cd9db;
+    background-color: var(--clr_border);
+    border-radius: 12px;
+    color: var(--clr_areatext);
 }
-
+.msgInfoAreaButton {
+    margin: 1px;
+    border: var(--bor_butnormal);
+}
+.msgInfoAreaButton:hover {
+    cursor: pointer;
+    border: var(--bor_butselect);
+}
+.msgInfoAreaButton[disabled], .msgInfoAreaButton[disabled]:hover, .msgInfoAreaButton[disabled]:focus, .msgInfoAreaButton[disabled]:active {
+    cursor: default;
+    border: var(--bor_butnormal);
+}
 #msgInfoAreaDiv {
+    clear: right;
     padding-top: 10px;
     padding-right: 10px;
     padding-bottom: 0px;
     padding-left: 10px;
     display: table;
     margin: 0px;
-    min-width: 90%;
-    background-color: #e3eceb;
+    min-width: 85%;
+    background-color: var(--clr_areabg1);
+    color: var(--clr_areatext);
 }
-
-#msgPromptArea, #msgAddrArea, #msgIdArea {
+#msgPromptArea, #msgAddrArea  {
     vertical-align: middle;
     padding-top: 1px;
     padding-right: 0px;
@@ -1183,6 +1160,7 @@ h3 { font-size:18px; }
     padding-left: 0px;
     margin: 0px;
     resize: none;
+    color: var(--clr_areatext);
 }
 #msgPromptArea {
     display: table-cell;
@@ -1191,40 +1169,11 @@ h3 { font-size:18px; }
 }
 #msgAddrArea {
     display: table-cell;
-    width: 26em;
+    width: 46em;
     min-width: 20%;
 }
-#msgIdArea {
-    width: 20em;
-}
 
-#msgRefButton {
-    vertical-align: middle;
-    padding-top: 0px;
-    padding-right: 6px;
-    padding-bottom: 0px;
-    padding-left: 6px;
-    width: 20em;
-    min-width: 10em;
-}
 
-#msgDateArea {
-    vertical-align: middle;
-    padding-top: 1px;
-    padding-right: 0px;
-    padding-bottom: 1px;
-    padding-left: 0px;
-    margin: 0px;
-    width: 20em;
-    resize: none;
-}
-#validateAddrButton {
-    vertical-align: middle;
-    padding-top: 0px;
-    padding-right: 6px;
-    padding-bottom: 0px;
-    padding-left: 6px;
-}
 #msgFeeArea {
     float: right;
     vertical-align: middle;
@@ -1233,19 +1182,86 @@ h3 { font-size:18px; }
     padding-bottom: 1px;
     padding-left: 0px;
     margin: 0px;
-    width: 14em;
+    width: 12em;
     resize: none;
 }
-#replyButton {
+#msgPriceArea {
+    float: right;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    width: 12em;
+    resize: none;
+}
+#sendButton {
     float: right;
     vertical-align: middle;
     padding-top: 0px;
     padding-right: 6px;
     padding-bottom: 0px;
     padding-left: 6px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
 }
-
-
+#attachmentButton, #attachmentInput {
+    float:right;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+}
+#attachmentButton {
+    padding-right: 6px;
+    margin-top: 5px;
+    margin-bottom: 6px;
+}
+#attachmentInput {
+    margin-top: 5px;
+    margin-bottom: 4px;
+    padding-right: 0px;
+    max-width: 15em; /* emough space for no file chosen */
+}
+#attachmentInput:hover {
+    cursor: pointer;
+}
+#deleteImg {
+    display: none;
+    float: right;
+    position: relative;
+    top: -5px;
+    left: -5px;
+    width: 30px;
+    height: 30px;
+}
+#deleteImg:hover {
+    cursor: pointer;
+}
+#attachmentSaveA {
+    float: right;
+    margin-right: 10px;
+}
+#attachmentSaveSpan {
+    display: block;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 26px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+    background-color: var(--clr_buttonbg);
+    width: fit-content;
+    height: 20px;
+    background-image: url('../images/clip.png');
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+}
 #msgTextAreaDiv {
     padding-top: 0px;
     padding-right: 10px;
@@ -1254,7 +1270,7 @@ h3 { font-size:18px; }
     display: block;
     margin: 0px;
     min-width: 90%;
-    background-color: #e3eceb;
+    background-color: var(--clr_areabg1);
 }
 #msgTextArea {
     padding: 0px;
@@ -1262,13 +1278,13 @@ h3 { font-size:18px; }
     min-width: 100%;
     resize: none;
 }
-#registerDiv {
-    padding: 0px;
-    margin: 0px;
-    min-width: 100%;
-    resize: none;
-    height: 14em;
-}
+/*
+ * end of styling for message area
+ */
+
+
+
+
 DIV.finalresultstable {
     background-color: #60ff60;
     padding: 8px;

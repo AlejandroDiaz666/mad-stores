@@ -5,7 +5,9 @@ const BN = require("bn.js");
 const Buffer = require('buffer/').Buffer;
 const common = module.exports = {
 
-    web3:              null,
+    web3:     null,
+    acctInfo: null,
+    publicKey: null,
 
     //
     // if requireAcct, then not only must mm be installed, but also an acct must be unlocked

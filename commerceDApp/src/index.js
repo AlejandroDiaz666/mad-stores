@@ -1,11 +1,12 @@
-var common = require('./common');
-var ether = require('./ether');
-var mtEther = require('./mtEther');
-var meEther = require('./meEther');
-var meUtil = require('./meUtil');
-var createStore = require('./createStore');
-var shop = require('./shop');
-var BN = require("bn.js");
+const common = require('./common');
+const ether = require('./ether');
+const dhcrypt = require('./dhcrypt');
+const mtEther = require('./mtEther');
+const meEther = require('./meEther');
+const meUtil = require('./meUtil');
+const createStore = require('./createStore');
+const shop = require('./shop');
+const BN = require("bn.js");
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -15,9 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 var index = module.exports = {
-    account: null,
-    acctInfo: null,
-    publicKey: null,
     waitingForTxid: false,
     localStoragePrefix: '',
 
@@ -26,7 +24,7 @@ var index = module.exports = {
 	index.setButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
-	beginTheBeguine(null);
+	beginTheBeguine();
     },
 
     setButtonHandlers: function() {
@@ -202,18 +200,18 @@ function setUnwrapButtonHandlers() {
 
 
 //
-// mode = [ 'send' | 'recv' | null ]
+// beginTheBeguine -- start this enchilada
 //
 var timerIsPaused = () => {
     var viewRecvButton = document.getElementById('viewRecvButton');
     var viewSentButton = document.getElementById('viewSentButton');
-    return(((common.acctInfo == null                            ||
+    return(((common.acctInfo == null                           ||
 	     viewRecvButton.className.indexOf('Selected') >= 0 ||
 	     viewSentButton.className.indexOf('Selected') >= 0 ) &&
 	    (!common.waitingForTxid                             ) ) ? false : true);
 }
 
-async function beginTheBeguine(mode) {
+async function beginTheBeguine() {
     //await doFirstIntro(false);
     if (!common.acctCheckTimer) {
 	console.log('init acctCheckTimer');
@@ -226,7 +224,7 @@ async function beginTheBeguine(mode) {
 		if (acct != common.account) {
 		    console.log('MetaMask account changed!');
 		    console.log('acct = ' + acct + ', common.account = ' + common.account);
-		    beginTheBeguine(null);
+		    beginTheBeguine();
 		}
 	    });
 	}, 10000);
@@ -246,7 +244,7 @@ async function beginTheBeguine(mode) {
 	    common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
 	    common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
 	    common.replaceElemClassFromTo('createStorePageDiv','visibleT', 'hidden', null);
-	    handleUnlockedMetaMask(mode);
+	    handleUnlockedMetaMask();
 	}
     });
 }
@@ -283,11 +281,10 @@ function handleLockedMetaMask(err) {
 // handle unlocked metamask
 // continues on to handleRegistered or handleUnregistered.
 //
-// note: after a transaction is completed we come back to this fcn. the mode parm provides a hint so that
-// we can continue with a relevant part of the display.
+// note: after a transaction is completed we come back to this fcn.
 //
-function handleUnlockedMetaMask(mode) {
-    console.log('handleUnlockedMetaMask: mode = ' + mode);
+function handleUnlockedMetaMask() {
+    console.log('handleUnlockedMetaMask');
     //we can be called from the 'continue' link in common.waitForTXID, so clear waiting flag. this re-enables the interval
     //timer to check for changed status
     common.waitingForTxid = false;
@@ -323,7 +320,7 @@ function handleUnlockedMetaMask(mode) {
 	    if (!common.publicKey || common.publicKey == '0x') {
 		handleUnregisteredAcct();
 	    } else {
-		handleRegisteredAcct(mode);
+		handleRegisteredAcct();
 	    }
 	});
     });
@@ -364,14 +361,29 @@ function handleUnregisteredAcct() {
 //
 // handle registered account
 //
-function handleRegisteredAcct(mode) {
+function handleRegisteredAcct() {
     console.log('handleRegisteredAcct');
     common.setMenuButtonState('shopButton',          'Selected');
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
     common.replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+    // we need access to the message transport private key
+    if (!!dhcrypt.dh && common.publicKey == dhcrypt.publicKey()) {
+	console.log('handleRegisteredAcct: messageTransport key is already unlocked');
+    } else {
+	//display "waiting for metamask" in case metamask dialog is hidden
+	const metaMaskModal = document.getElementById('metaMaskModal');
+	metaMaskModal.style.display = 'block';
+	const encryptedPrivateKey = common.acctInfo.encryptedPrivateKey;
+	dhcrypt.initDH(encryptedPrivateKey, function(err) {
+	    metaMaskModal.style.display = 'none';
+	    if (!!err)
+		alert(err);
+	    else
+		shop.handleShopPage();
+	});
+    }
     var statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
-    shop.handleShopPage();
 }

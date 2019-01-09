@@ -49,7 +49,7 @@
       </div>
       <div id="wrapDialogDiv" class="hidden">
 	<p id="wrapDialogInstr">Enter the amount of Dia that you would like to wrap:</p>
-	<p id="wrapDialogNote" class="visibleIB">Note: You be required to sign two transactions.</p>
+	<p id="wrapDialogNote" class="visibleIB">Note: You will be required to sign two transactions.</p>
 	<p id="wrapDialogErr" class="hidden">Error: You do not have that much Dai</p>
 	<textarea id="wrapDialogArea" rows="1" cols="10"
 		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
@@ -160,11 +160,7 @@
 	</div>
       </div>
     </div>
-    <div id="selctedProductPageDiv" class="outerDiv hidden">
-      <div class="leftSideDiv">
-	<div class="height640Div"></div>
-      </div>
-      <div id="selctedProductCenterDiv" class="centerDiv">
+    <div id="selctedProductPageDiv" class="hidden">
 	<div id="shopProductDetailDiv">
 	  <img id="shopProductDetailImg", class="tileImg"></img>
 	  <span id="shopProductDetailName", class="tileName"></span>
@@ -172,10 +168,34 @@
 	  <span id="shopProductDetailPrice", class="tilePrice"></span>
 	  <span id="shopProductDetailQuantity", class="tileQuantity"></span>
 	</div>
-	  <button id="purchaseProductButton" class="menuBarButton" type="button">Buy this product</button>
-      </div>
-      <div class="rightSideDiv">
-      </div>
+	<button id="purchaseProductButton" class="menuBarButton" type="button">Buy this product</button>
+	<!--
+	     mesage composition for purchase
+	  -->
+	<div id="msgAreaDiv" class="hidden" style="clear:both">
+	  <form action="javascript:void(0);">
+	    <a id="attachmentSaveA" style="display: none;"><span id="attachmentSaveSpan"></span></a>
+	    <button id="attachmentButton" type="button" class="msgInfoAreaButton hidden">Attach</button>
+	    <input id="attachmentInput" type="file" name="filename" class="hidden"></input>
+	    <img id="deleteImg" src="images/delete.png"></img>
+	    <div id="msgInfoAreaDiv">
+	      <span>
+		<button id="sendButton" type="button" class="msgInfoAreaButton">Send/Purchase</button>
+		<textarea id="msgPriceArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+		<textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+		<textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+		<textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
+	      </span>
+	    </div>
+	    <div id="msgTextAreaDiv">
+	      <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
+	    </div>
+	  </form>
+	</div>
+	<!--
+	     end of mesage composition for purchase
+	  -->
+
     </div>
 
 
@@ -199,7 +219,7 @@
 	</div>
 
 	<!-- list display area -->
-	<div id="listAreaDiv">
+	<div id="NOTlistAreaDiv">
 	  <div id="msgListHeaderDiv" class="msgListItemDiv">
 	    <textarea id="msgListHeaderMsgNo" class="msgListMsgNoArea" rows="1" readonly="readonly" disabled="disabled">Msg No.</textarea>
 	    <textarea id="msgListHeaderAddr" class="msgListAddrArea" rows="1" readonly="readonly" disabled="disabled">From</textarea>
@@ -211,57 +231,7 @@
 
 
 	<!-- general display area -->
-	<div id="msgAreaDiv" style="clear:both">
-	  <form action="javascript:void(0);">
-	    <div id="msgInfoAreaDiv">
-	      <span>
-		<textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
-		<textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
-		<textarea id="msgIdArea" rows="1" class="hidden">&nbsp;</textarea>
-		<button id="msgRefButton" type="button" class="hidden">Ref: N/A</button>
-		<textarea id="msgDateArea" rows="1" class="hidden">&nbsp;</textarea>
-		<button id="validateAddrButton" type="button" class="hidden">Validate</button>
-		<button id="replyButton" type="button" class="hidden">Reply</button>
-		<textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
-		<span>
-	    </div>
-	    <div id="msgTextAreaDiv">
-	      <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
-	      <div id="registerDiv" class="hidden">
-		<table>
-		  <tbody>
-		    <tr>
-		      <td>Message fee:</td><td><input id="messageFeeInput" type="text"></td>
-		      <td><select id="messageFeeUnits">
-			  <option value="1">Wei</option>
-			  <option value="1000">Kwei</option>
-			  <option value="1000000">Mwei</option>
-			  <option value="1000000000">Gwei</option>
-			  <option value="1000000000000">Szabo</option>
-			  <option value="1000000000000000">Finney</option>
-			</select>
-		      </td>
-		    </tr>
-		    <tr>
-		      <td>Spam fee:</td><td><input id="spamFeeInput" type="text"></td>
-		      <td><select id="spamFeeUnits">
-			  <option value="1">Wei</option>
-			  <option value="1000">Kwei</option>
-			  <option value="1000000">Mwei</option>
-			  <option value="1000000000">Gwei</option>
-			  <option value="1000000000000">Szabo</option>
-			  <option value="1000000000000000">Finney</option>
-			</select>
-		      </td>
-		    </tr>
-		    <tr>
-		      <td></td><td><input id="registerSubmitButton" type="submit" value="Submit"></td>
-		    </tr>
-		  </tbody>
-		</table>
-	      </div>
-	    </div>
-	  </form>
+	<div id="NOTmsgAreaDiv" style="clear:both">
 	</div>
       </div>
 

@@ -1,11 +1,12 @@
 /* ------------------------------------------------------------------------------------------------------------------
    shop functions
    ------------------------------------------------------------------------------------------------------------------ */
-var common = require('./common');
-var ether = require('./ether');
-var mtEther = require('./mtEther');
-var meEther = require('./meEther');
-var meUtil = require('./meUtil');
+const common = require('./common');
+const ether = require('./ether');
+const dhcrypt = require('./dhcrypt');
+const mtEther = require('./mtEther');
+const meEther = require('./meEther');
+const meUtil = require('./meUtil');
 const categories = require('./categories');
 const regions = require('./regions');
 const BN = require("bn.js");
@@ -33,6 +34,10 @@ var shop = module.exports = {
     },
 
     setButtonHandlers: function() {
+	//for message transport
+	setAttachButtonHandler();
+	setSendButtonHandler();
+	//
 	const shopDoSearchButton = document.getElementById('shopDoSearchButton');
 	shopDoSearchButton.addEventListener('click', function() {
 	    shopDoSearch();
@@ -76,11 +81,19 @@ var shop = module.exports = {
 	}, {passive: true} );
 	//enable search button?
 	//shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
+
+	const purchaseProductButton = document.getElementById('purchaseProductButton');
+	purchaseProductButton.addEventListener('click', function() {
+	    if (!!shop.selectedProduct)
+		handlePurchase(shop.selectedProduct);
+	});
+
     },
 
     productsPerPage: 8,
     productSearchFilter: null,
     displayedProductsStartIdx: 0,
+    selectedProduct: null,
 };
 
 
@@ -97,6 +110,7 @@ function handleSearchProducts() {
     const shopNextButton = document.getElementById('shopPrevButton');
     common.setMenuButtonState('shopPrevButton', 'Disabled');
     common.setMenuButtonState('shopNextButton', 'Disabled');
+    shop.selectedProduct = null;
 }
 
 
@@ -140,8 +154,9 @@ function showProductDetail(product) {
     console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
     //so user can go back to search
     common.setMenuButtonState('shopButton', 'Enabled');
-    common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
-    common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB', null);
+    common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',    null);
+    common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB',  null);
+    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB',    'hidden', true);
     //
     const shopProductDetailImg = document.getElementById('shopProductDetailImg');
     const shopProductDetailName = document.getElementById('shopProductDetailName');
@@ -154,4 +169,185 @@ function showProductDetail(product) {
     shopProductDetailDesc.textContent = product.desc.substring(0, 70);
     shopProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
     shopProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+    shop.selectedProduct = product;
+}
+
+function handlePurchase(product) {
+    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	if (wdaiBalanceBN.gte(product.priceBN))
+	    setupMsgArea(product.vendorAddr, product.productIdBN, product.priceBN, function(err) {
+		if (!!err)
+		    alert(err);
+	    });
+	else
+	    alert("You don't have enough W-Dai to purchase this product.");
+    });
+}
+
+
+/* ------------------------------------------------------------------------------------------------------------------
+   message functions
+   ------------------------------------------------------------------------------------------------------------------ */
+function setupMsgArea(vendorAddr, productIdBN, priceBN, cb) {
+    if (!ether.validateAddr(vendorAddr)) {
+	cb('Error: vendor has an invalid Ethereum address.');
+	return;
+    }
+    //
+    mtEther.accountQuery(common.web3, vendorAddr, function(err, toAcctInfo) {
+	const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	if (!toPublicKey || toPublicKey == '0x') {
+	    cb('Error: no Message-Transport account was found for vendor address.');
+	    return;
+	}
+	const msgPromptArea = document.getElementById('msgPromptArea');
+	msgPromptArea.value = 'To: ';
+	const msgAddrArea = document.getElementById('msgAddrArea');
+	msgAddrArea.disabled = true;
+	msgAddrArea.readonly = 'readonly';
+	msgAddrArea.value = vendorAddr;
+	//
+	common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
+	//attach button can be enabled, since addr is already validated
+	common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
+	common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden', true);
+	const attachmentSaveA = document.getElementById('attachmentSaveA');
+	attachmentSaveA.style.display = 'none';
+	//
+	const msgTextArea = document.getElementById('msgTextArea');
+	msgTextArea.className = (msgTextArea.className).replace('hidden', 'visibleIB');
+	msgTextArea.value = '';
+	msgTextArea.disabled = false;
+	msgTextArea.readonly = '';
+	msgTextArea.placeholder='Enter data pertinent to your purchase here.\nFor example, if a shipping address is required, then enter it here. ' +
+	    'Also if you have any special instructions for a custom order, enter them here.\n\nThe seller will have a chance to review your ' +
+	    'instructions / shipping address before approving the purchase. If the seller does not approve the purchase, then the escrow will ' +
+	    'be canceled, and all your funds will be returned.';
+
+	const msgPriceArea = document.getElementById('msgPriceArea');
+	msgPriceArea.value = 'Price: ' + meEther.daiBNToUsdStr(priceBN) + ' Dai';
+	//fees: see how many messages have been sent from the proposed recipient to me
+	mtEther.getPeerMessageCount(common.web3, vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	    console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
+	    const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+	    const msgFeeArea = document.getElementById('msgFeeArea');
+	    msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
+	    cb(null);
+	});
+	const statusDiv = document.getElementById('statusDiv');
+	common.clearStatusDiv(statusDiv);
+    });
+}
+
+
+
+function setAttachButtonHandler() {
+    const attachmentButton = document.getElementById('attachmentButton');
+    const attachmentInput = document.getElementById('attachmentInput');
+    const attachmentSaveA = document.getElementById('attachmentSaveA');
+    const deleteImg = document.getElementById('deleteImg');
+    deleteImg.addEventListener('click', function() {
+	attachmentSaveA.href = null;
+	attachmentSaveA.download = null;
+	attachmentInput.value = attachmentInput.files = null;
+	attachmentSaveA.style.display = 'none';
+	common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
+	common.replaceElemClassFromTo('attachmentButton', 'hidden', 'visibleIB', false);
+	deleteImg.style.display = 'none';
+    });
+    attachmentButton.addEventListener('click', function() {
+	attachmentInput.value = attachmentInput.files = null;
+	common.replaceElemClassFromTo('attachmentButton', 'visibleIB', 'hidden', true);
+	common.replaceElemClassFromTo('attachmentInput', 'hidden', 'visibleIB', false);
+    });
+    attachmentInput.addEventListener('change', function() {
+	console.log('attachmentInput: got change event');
+	if (attachmentInput.files && attachmentInput.files[0]) {
+	    console.log('attachmentInput: got ' + attachmentInput.files[0].name);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+		//eg. e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
+		console.log('attachmentInput: e.target.result = ' + e.target.result);
+		//
+		attachmentSaveA.href = e.target.result;
+		attachmentSaveA.download = attachmentInput.files[0].name;
+		const attachmentSaveSpan = document.getElementById('attachmentSaveSpan');
+		attachmentSaveSpan.textContent = attachmentInput.files[0].name;
+		attachmentSaveA.style.display = 'inline-block';
+		deleteImg.style.display = 'inline-block';
+		common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
+            };
+            reader.readAsDataURL(attachmentInput.files[0]);
+        } else {
+	    attachmentSaveA.href = null;
+	}
+    });
+}
+
+
+//
+// the send button performs the purchase
+//
+function setSendButtonHandler() {
+    console.log('setSendButtonHandler');
+    const sendButton = document.getElementById('sendButton');
+    sendButton.addEventListener('click', function() {
+	console.log('sendButton');
+	const msgAddrArea = document.getElementById('msgAddrArea');
+	const msgTextArea = document.getElementById('msgTextArea');
+	let message = msgTextArea.value;
+	sendButton.disabled = true;
+	msgTextArea.disabled = true;
+	msgAddrArea.disabled = true;
+	//
+	let attachmentIdxBN;
+	const attachmentSaveA = document.getElementById('attachmentSaveA');
+	if (!attachmentSaveA.href || !attachmentSaveA.download) {
+	    attachmentIdxBN = new BN(0);
+	} else {
+	    const nameLenBN = new BN(attachmentSaveA.download.length);
+	    attachmentIdxBN = new BN(message.length).iuor(nameLenBN.ushln(248));
+	    message += attachmentSaveA.download + attachmentSaveA.href;
+	    console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	    console.log('sendButton: message = ' + message);
+	}
+	//
+	const toAddr = msgAddrArea.value;
+	//the toAddr has already been validated. really.
+	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
+	    //encrypt the message...
+	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	    if (!toPublicKey || toPublicKey == '0x') {
+		alert('Encryption error: unable to look up destination address in contract!');
+		handleUnlockedMetaMask(null);
+		return;
+	    }
+	    const sentMsgCtrBN = common.numberToBN(common.acctInfo.sentMsgCount);
+	    sentMsgCtrBN.iaddn(1);
+	    console.log('setSendButtonHandlers: toPublicKey = ' + toPublicKey);
+	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
+	    console.log('setSendButtonHandlers: ptk = ' + ptk);
+	    const encrypted = dhcrypt.encrypt(ptk, message);
+	    console.log('setSendButtonHandlers: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
+	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+		console.log(msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
+		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		console.log('msgFee is ' + msgFee + ' wei');
+		//display "waiting for metamask" in case metamask dialog is hidden
+		const metaMaskModal = document.getElementById('metaMaskModal');
+		metaMaskModal.style.display = 'block';
+		const escrowIDBN = new BN(0);
+		const surchargeBN = new BN(0);
+		meEther.purchaseDeposit(escrowIDBN, shop.selectedProduct.productIdBN, surchargeBN, msgFee, attachmentIdxBN, encrypted, function(err, txid) {
+		    console.log('txid = ' + txid);
+		    metaMaskModal.style.display = 'none';
+		    const statusDiv = document.getElementById('statusDiv');
+		    common.waitForTXID(err, txid, 'Purchase-Deposit', statusDiv, handleSearchProducts, ether.etherscanioTxStatusHost, function() {
+		    });
+		});
+	    });
+	});
+    });
 }

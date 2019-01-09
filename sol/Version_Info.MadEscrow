@@ -9,6 +9,11 @@ constructor parms:
 
 deploy gas: 2381777
 
+Note: partner addresses modified via setPartners
+ _feesTokenAddr = 0x58412F3465C4324d18E7Be2376680B59140C488D
+ _daiTokenAddr  = 0x1142b6FBAC052869fbC12849C37dA289033b87EA
+
+
 ======= MadEscrow.sol:FeesTokenContract =======
 Gas estimation:
 Binary:

@@ -39,6 +39,7 @@ $(BUNDLEDIR)/%.js : $(SRCDIR)/%.js
 $(BUNDLEDIR)/index.js: $(SRCDIR)/index.js \
 	$(BUNDLEDIR)/ether.js \
 	$(BUNDLEDIR)/mtEther.js \
+	$(BUNDLEDIR)/dhcrypt.js \
 	$(BUNDLEDIR)/meEther.js \
 	$(BUNDLEDIR)/common.js \
 	$(BUNDLEDIR)/meUtil.js \
