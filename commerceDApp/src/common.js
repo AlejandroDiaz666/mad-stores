@@ -361,10 +361,14 @@ const common = module.exports = {
     //
     // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
     // call this fcn with the error message and no txid.
-    // the callback is called after the transaction is mined.
+    //
+    // cb(err)
+    // continueFcn()
+    // note: the callback is called after the transaction is mined;
+    //       the continueFcn is called after the user clicks continue
+    // we do not clear the status div.. so you need to do that in either the callback or the continueFcn
     //
     waitForTXID: function(err, txid, desc, statusDiv, continueFcn, txStatusHost, callback) {
-	//
 	//status div starts out hidden
 	console.log('show status div');
 	statusDiv.style.display = "block";
@@ -474,6 +478,12 @@ const common = module.exports = {
 	elem.className = (elem.className).replace(from, to);
 	elem.disabled = disabled;
 	return(elem);
+    },
+
+    //display (or clear) "waiting for metamask" dialog
+    showWaitingForMetaMask: function(show) {
+	const metaMaskModal = document.getElementById('metaMaskModal');
+	metaMaskModal.style.display = (!!show) ? 'block' : 'none';
     },
 
 };

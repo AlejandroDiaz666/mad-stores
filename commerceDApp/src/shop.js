@@ -3,7 +3,6 @@
    ------------------------------------------------------------------------------------------------------------------ */
 const common = require('./common');
 const ether = require('./ether');
-const dhcrypt = require('./dhcrypt');
 const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
@@ -104,8 +103,9 @@ function handleSearchProducts() {
     common.setMenuButtonState('shopButton',          'Selected');
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
-    common.replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
-    common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+    common.replaceElemClassFromTo('shopPageDiv',           'hidden',   'visibleT', null);
+    common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
+    common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
     const shopPrevButton = document.getElementById('shopPrevButton');
     const shopNextButton = document.getElementById('shopPrevButton');
     common.setMenuButtonState('shopPrevButton', 'Disabled');
@@ -152,8 +152,9 @@ function shopDoSearch() {
 
 function showProductDetail(product) {
     console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
-    //so user can go back to search
-    common.setMenuButtonState('shopButton', 'Enabled');
+    //so user can go back to search (but not to create store... cuz we need to clean up)
+    common.setMenuButtonState('shopButton',        'Enabled');
+    common.setMenuButtonState('createStoreButton', 'Disabled');
     common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',    null);
     common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB',  null);
     common.replaceElemClassFromTo('msgAreaDiv',            'visibleB',    'hidden', true);
@@ -293,13 +294,12 @@ function setSendButtonHandler() {
     console.log('setSendButtonHandler');
     const sendButton = document.getElementById('sendButton');
     sendButton.addEventListener('click', function() {
-	console.log('sendButton');
+	console.log('sendButton: click');
 	const msgAddrArea = document.getElementById('msgAddrArea');
 	const msgTextArea = document.getElementById('msgTextArea');
 	let message = msgTextArea.value;
 	sendButton.disabled = true;
 	msgTextArea.disabled = true;
-	msgAddrArea.disabled = true;
 	//
 	let attachmentIdxBN;
 	const attachmentSaveA = document.getElementById('attachmentSaveA');
@@ -312,42 +312,17 @@ function setSendButtonHandler() {
 	    console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	    console.log('sendButton: message = ' + message);
 	}
-	//
-	const toAddr = msgAddrArea.value;
-	//the toAddr has already been validated. really.
-	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
-	    //encrypt the message...
-	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    if (!toPublicKey || toPublicKey == '0x') {
-		alert('Encryption error: unable to look up destination address in contract!');
-		handleUnlockedMetaMask(null);
-		return;
-	    }
-	    const sentMsgCtrBN = common.numberToBN(common.acctInfo.sentMsgCount);
-	    sentMsgCtrBN.iaddn(1);
-	    console.log('setSendButtonHandlers: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    console.log('setSendButtonHandlers: ptk = ' + ptk);
-	    const encrypted = dhcrypt.encrypt(ptk, message);
-	    console.log('setSendButtonHandlers: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
-	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log(msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
-		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		console.log('msgFee is ' + msgFee + ' wei');
-		//display "waiting for metamask" in case metamask dialog is hidden
-		const metaMaskModal = document.getElementById('metaMaskModal');
-		metaMaskModal.style.display = 'block';
-		const escrowIDBN = new BN(0);
-		const surchargeBN = new BN(0);
-		meEther.purchaseDeposit(escrowIDBN, shop.selectedProduct.productIdBN, surchargeBN, msgFee, attachmentIdxBN, encrypted, function(err, txid) {
-		    console.log('txid = ' + txid);
-		    metaMaskModal.style.display = 'none';
-		    const statusDiv = document.getElementById('statusDiv');
-		    common.waitForTXID(err, txid, 'Purchase-Deposit', statusDiv, handleSearchProducts, ether.etherscanioTxStatusHost, function() {
-		    });
-		});
-	    });
+	meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
+	    if (!!err)
+		alert(err);
+	    else
+		alert('You have just ordered a product; please give the seller\n' +
+		      'some time to review and approve or reject your order.\n' +
+		      'You can track the progress of your order on the dashboard\n' +
+		      'page\n\n' +
+		      'Be sure to check Turms Message Transport, periodically,\n' +
+		      'to see if the seller has sent you any messages.');
+	    handleSearchProducts();
 	});
     });
 }

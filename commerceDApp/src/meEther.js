@@ -516,7 +516,9 @@ const meEther = module.exports = {
     //cononical dai (ie, 18 decimals)
     daiBNToUsdStr: function(daiBN, places) {
 	// dai is 18 decimals
-	const tenE16 = new BN('0x2386F26FC10000');
+	//const tenE16 = new BN('0x2386F26FC10000');
+	//but use 6 temporarily (cuz i didn't alloc enough test-dai)
+	const tenE16 = new BN('10000');
 	const daiBNx16 = daiBN.div(tenE16);
 	const cents = daiBNx16.toNumber();
 	const usd = cents / 100;
@@ -528,7 +530,9 @@ const meEther = module.exports = {
     usdStrToDaiBN: function(usdStr) {
 	const cents = parseFloat(usdStr) * 100;
 	//dai is 18 decimals
-	const tenE16 = new BN('0x2386F26FC10000');
+	//const tenE16 = new BN('0x2386F26FC10000');
+	//but use 6 temporarily
+	const tenE16 = new BN('10000');
 	const daiBNx16 = new BN(cents);
 	const daiBN = daiBNx16.mul(tenE16);
 	console.log('usdStrToDaiBN: cents = ' + cents + ', daiBN = ' + daiBN.toString(10));
