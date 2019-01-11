@@ -4,6 +4,7 @@ const dhcrypt = require('./dhcrypt');
 const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
+const mtUtil = require('./mtUtil');
 const createStore = require('./createStore');
 const shop = require('./shop');
 const BN = require("bn.js");
@@ -32,6 +33,9 @@ var index = module.exports = {
 	setMainButtonHandlers();
 	setWrapButtonHandlers();
 	setUnwrapButtonHandlers();
+	//for message transport
+	mtUtil.setAttachButtonHandler();
+	mtUtil.setSendButtonHandler();
     },
 
 };
@@ -205,7 +209,7 @@ function setUnwrapButtonHandlers() {
 var timerIsPaused = () => {
     var viewRecvButton = document.getElementById('viewRecvButton');
     var viewSentButton = document.getElementById('viewSentButton');
-    return(((common.acctInfo == null                           ||
+    return(((mtUtil.acctInfo == null                           ||
 	     viewRecvButton.className.indexOf('Selected') >= 0 ||
 	     viewSentButton.className.indexOf('Selected') >= 0 ) &&
 	    (!common.waitingForTxid                             ) ) ? false : true);
@@ -315,11 +319,11 @@ function handleUnlockedMetaMask() {
 	}
 	mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
-	    common.acctInfo = _acctInfo;
-	    common.publicKey = (!!common.acctInfo) ? common.acctInfo.publicKey : null;
-	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(common.acctInfo));
-	    //console.log('handleUnlockedMetaMask: publicKey: ' + common.publicKey);
-	    if (!common.publicKey || common.publicKey == '0x') {
+	    mtUtil.acctInfo = _acctInfo;
+	    mtUtil.publicKey = (!!mtUtil.acctInfo) ? mtUtil.acctInfo.publicKey : null;
+	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(mtUtil.acctInfo));
+	    //console.log('handleUnlockedMetaMask: publicKey: ' + mtUtil.publicKey);
+	    if (!mtUtil.publicKey || mtUtil.publicKey == '0x') {
 		handleUnregisteredAcct();
 	    } else {
 		handleRegisteredAcct();
@@ -371,13 +375,13 @@ function handleRegisteredAcct() {
     common.replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
     // we need access to the message transport private key
-    if (!!dhcrypt.dh && common.publicKey == dhcrypt.publicKey()) {
+    if (!!dhcrypt.dh && mtUtil.publicKey == dhcrypt.publicKey()) {
 	console.log('handleRegisteredAcct: messageTransport key is already unlocked');
     } else {
 	//display "waiting for metamask" in case metamask dialog is hidden
 	const metaMaskModal = document.getElementById('metaMaskModal');
 	metaMaskModal.style.display = 'block';
-	const encryptedPrivateKey = common.acctInfo.encryptedPrivateKey;
+	const encryptedPrivateKey = mtUtil.acctInfo.encryptedPrivateKey;
 	dhcrypt.initDH(encryptedPrivateKey, function(err) {
 	    metaMaskModal.style.display = 'none';
 	    if (!!err)

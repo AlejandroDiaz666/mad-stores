@@ -6,6 +6,7 @@ const ether = require('./ether');
 const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
+const mtUtil = require('./mtUtil');
 const categories = require('./categories');
 const regions = require('./regions');
 const BN = require("bn.js");
@@ -33,9 +34,6 @@ var shop = module.exports = {
     },
 
     setButtonHandlers: function() {
-	//for message transport
-	setAttachButtonHandler();
-	setSendButtonHandler();
 	//
 	const shopDoSearchButton = document.getElementById('shopDoSearchButton');
 	shopDoSearchButton.addEventListener('click', function() {
@@ -170,159 +168,47 @@ function showProductDetail(product) {
     shopProductDetailDesc.textContent = product.desc.substring(0, 70);
     shopProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
     shopProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+    const statusDiv = document.getElementById('statusDiv');
+    common.clearStatusDiv(statusDiv);
     shop.selectedProduct = product;
 }
+
 
 function handlePurchase(product) {
     meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
-	if (wdaiBalanceBN.gte(product.priceBN))
-	    setupMsgArea(product.vendorAddr, product.productIdBN, product.priceBN, function(err) {
+	if (wdaiBalanceBN.lt(product.priceBN)) {
+	    alert("You don't have enough W-Dai to purchase this product.");
+	} else {
+	    const placeholderText =
+		  'Enter data pertinent to your purchase here.\nFor example, if a shipping address is required, then enter it here. Also if ' +
+		  'you have any special instructions for a custom order, enter them here.\n\nThe seller will have a chance to review your ' +
+		  'instructions / shipping address before approving the purchase. If the seller does not approve the purchase, then the escrow will ' +
+		  'be canceled, and all your funds will be returned.';
+	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, product.priceBN, doPurchaseWithMessage, function(err) {
 		if (!!err)
 		    alert(err);
 	    });
+	}
+    });
+}
+
+
+//
+// now we have message data, time to perform the purchase
+//
+function doPurchaseWithMessage(attachmentIdxBN, message) {
+    console.log('doPurchaseWithMessage');
+    meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
+	if (!!err)
+	    alert(err);
 	else
-	    alert("You don't have enough W-Dai to purchase this product.");
-    });
-}
-
-
-/* ------------------------------------------------------------------------------------------------------------------
-   message functions
-   ------------------------------------------------------------------------------------------------------------------ */
-function setupMsgArea(vendorAddr, productIdBN, priceBN, cb) {
-    if (!ether.validateAddr(vendorAddr)) {
-	cb('Error: vendor has an invalid Ethereum address.');
-	return;
-    }
-    //
-    mtEther.accountQuery(common.web3, vendorAddr, function(err, toAcctInfo) {
-	const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	if (!toPublicKey || toPublicKey == '0x') {
-	    cb('Error: no Message-Transport account was found for vendor address.');
-	    return;
-	}
-	const msgPromptArea = document.getElementById('msgPromptArea');
-	msgPromptArea.value = 'To: ';
-	const msgAddrArea = document.getElementById('msgAddrArea');
-	msgAddrArea.disabled = true;
-	msgAddrArea.readonly = 'readonly';
-	msgAddrArea.value = vendorAddr;
-	//
-	common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
-	//attach button can be enabled, since addr is already validated
-	common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
-	common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden', true);
-	const attachmentSaveA = document.getElementById('attachmentSaveA');
-	attachmentSaveA.style.display = 'none';
-	//
-	const msgTextArea = document.getElementById('msgTextArea');
-	msgTextArea.className = (msgTextArea.className).replace('hidden', 'visibleIB');
-	msgTextArea.value = '';
-	msgTextArea.disabled = false;
-	msgTextArea.readonly = '';
-	msgTextArea.placeholder='Enter data pertinent to your purchase here.\nFor example, if a shipping address is required, then enter it here. ' +
-	    'Also if you have any special instructions for a custom order, enter them here.\n\nThe seller will have a chance to review your ' +
-	    'instructions / shipping address before approving the purchase. If the seller does not approve the purchase, then the escrow will ' +
-	    'be canceled, and all your funds will be returned.';
-
-	const msgPriceArea = document.getElementById('msgPriceArea');
-	msgPriceArea.value = 'Price: ' + meEther.daiBNToUsdStr(priceBN) + ' Dai';
-	//fees: see how many messages have been sent from the proposed recipient to me
-	mtEther.getPeerMessageCount(common.web3, vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-	    console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
-	    const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-	    const msgFeeArea = document.getElementById('msgFeeArea');
-	    msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
-	    cb(null);
-	});
-	const statusDiv = document.getElementById('statusDiv');
-	common.clearStatusDiv(statusDiv);
-    });
-}
-
-
-
-function setAttachButtonHandler() {
-    const attachmentButton = document.getElementById('attachmentButton');
-    const attachmentInput = document.getElementById('attachmentInput');
-    const attachmentSaveA = document.getElementById('attachmentSaveA');
-    const deleteImg = document.getElementById('deleteImg');
-    deleteImg.addEventListener('click', function() {
-	attachmentSaveA.href = null;
-	attachmentSaveA.download = null;
-	attachmentInput.value = attachmentInput.files = null;
-	attachmentSaveA.style.display = 'none';
-	common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
-	common.replaceElemClassFromTo('attachmentButton', 'hidden', 'visibleIB', false);
-	deleteImg.style.display = 'none';
-    });
-    attachmentButton.addEventListener('click', function() {
-	attachmentInput.value = attachmentInput.files = null;
-	common.replaceElemClassFromTo('attachmentButton', 'visibleIB', 'hidden', true);
-	common.replaceElemClassFromTo('attachmentInput', 'hidden', 'visibleIB', false);
-    });
-    attachmentInput.addEventListener('change', function() {
-	console.log('attachmentInput: got change event');
-	if (attachmentInput.files && attachmentInput.files[0]) {
-	    console.log('attachmentInput: got ' + attachmentInput.files[0].name);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-		//eg. e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
-		console.log('attachmentInput: e.target.result = ' + e.target.result);
-		//
-		attachmentSaveA.href = e.target.result;
-		attachmentSaveA.download = attachmentInput.files[0].name;
-		const attachmentSaveSpan = document.getElementById('attachmentSaveSpan');
-		attachmentSaveSpan.textContent = attachmentInput.files[0].name;
-		attachmentSaveA.style.display = 'inline-block';
-		deleteImg.style.display = 'inline-block';
-		common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
-            };
-            reader.readAsDataURL(attachmentInput.files[0]);
-        } else {
-	    attachmentSaveA.href = null;
-	}
-    });
-}
-
-
-//
-// the send button performs the purchase
-//
-function setSendButtonHandler() {
-    console.log('setSendButtonHandler');
-    const sendButton = document.getElementById('sendButton');
-    sendButton.addEventListener('click', function() {
-	console.log('sendButton: click');
-	const msgAddrArea = document.getElementById('msgAddrArea');
-	const msgTextArea = document.getElementById('msgTextArea');
-	let message = msgTextArea.value;
-	sendButton.disabled = true;
-	msgTextArea.disabled = true;
-	//
-	let attachmentIdxBN;
-	const attachmentSaveA = document.getElementById('attachmentSaveA');
-	if (!attachmentSaveA.href || !attachmentSaveA.download) {
-	    attachmentIdxBN = new BN(0);
-	} else {
-	    const nameLenBN = new BN(attachmentSaveA.download.length);
-	    attachmentIdxBN = new BN(message.length).iuor(nameLenBN.ushln(248));
-	    message += attachmentSaveA.download + attachmentSaveA.href;
-	    console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
-	    console.log('sendButton: message = ' + message);
-	}
-	meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
-	    if (!!err)
-		alert(err);
-	    else
-		alert('You have just ordered a product; please give the seller\n' +
-		      'some time to review and approve or reject your order.\n' +
-		      'You can track the progress of your order on the dashboard\n' +
-		      'page\n\n' +
-		      'Be sure to check Turms Message Transport, periodically,\n' +
-		      'to see if the seller has sent you any messages.');
-	    handleSearchProducts();
-	});
+	    alert('You have just ordered a product; please give the seller\n' +
+		  'some time to review and approve or reject your order.\n' +
+		  'You can track the progress of your order on the dashboard\n' +
+		  'page\n\n' +
+		  'Be sure to check Turms Message Transport, periodically,\n' +
+		  'to see if the seller has sent you any messages.');
+	handleSearchProducts();
     });
 }

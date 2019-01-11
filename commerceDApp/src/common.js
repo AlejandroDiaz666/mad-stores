@@ -6,8 +6,6 @@ const Buffer = require('buffer/').Buffer;
 const common = module.exports = {
 
     web3:     null,
-    acctInfo: null,
-    publicKey: null,
 
     //
     // if requireAcct, then not only must mm be installed, but also an acct must be unlocked
@@ -49,7 +47,6 @@ const common = module.exports = {
 
     //number can be a number or a string, with or without '0x'
     numberToBN: function(number) {
-	console.log('numberToBN');
 	//first ensure passed parm is a string
 	let numberStr = number.toString();
 	let base = 10;

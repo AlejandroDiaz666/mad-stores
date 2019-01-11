@@ -5,6 +5,7 @@
 const common = require('./common');
 const meEther = require('./meEther');
 const mtEther = require('./mtEther');
+const mtUtil = require('./mtEther');
 const dhcrypt = require('./dhcrypt');
 const ether = require('./ether');
 const BN = require("bn.js");
@@ -123,7 +124,7 @@ var meUtil = module.exports = {
 		cb('Encryption error: unable to look up destination address in contract!');
 		return;
 	    }
-	    const sentMsgCtrBN = common.numberToBN(common.acctInfo.sentMsgCount);
+	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
 	    const ptk = dhcrypt.ptk(toPublicKey, product.vendorAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
