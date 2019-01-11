@@ -16,15 +16,15 @@ contract MessageTransport {
 //  interface to MADEscrow
 // -------------------------------------------------------------------------------------------------------
 contract MadEscrow is iERC20Token {
-  function createEscrow(uint256 _productID, uint256 _price, address _vendorAddr, address _customerAddr) public returns (uint256 _escrowID);
+  function createEscrow(uint256 _productID, uint256 _XactId, uint256 _price, address _vendorAddr, address _customerAddr) public returns (uint256 _escrowID);
   function verifyEscrow(uint256 _escrowID, address _vendorAddr, address _customerAddr) public view returns (uint256 _productID);
   function verifyEscrowVendor(uint256 _escrowID, address _vendorAddr) public view returns (uint256 _productID, address _customerAddr);
   function verifyEscrowCustomer(uint256 _escrowID, address _customerAddr) public view returns (uint256 _productID, address _vendorAddr);
-  function modifyEscrowPrice(uint256 _escrowID, uint256 _surcharge) public;
-  function cancelEscrow(uint256 _escrowID) public;
-  function approveEscrow(uint256 _escrowID) public;
-  function releaseEscrow(uint256 _escrowID) public;
-  function burnEscrow(uint256 _escrowID) public payable;
+  function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
+  function cancelEscrow(uint256 _escrowID, uint256 _XactId) public;
+  function approveEscrow(uint256 _escrowID, uint256 _XactId) public;
+  function releaseEscrow(uint256 _escrowID, uint256 _XactId) public;
+  function burnEscrow(uint256 _escrowID, uint256 _XactId) public payable;
 }
 
 
@@ -347,31 +347,32 @@ contract MadStores is SafeMath {
   // this creates an escrow
   // called by customer
   // escrowID = 0 => create a new escrow, else use an existing escrow acct
-  // an optional surchage (shipping & handling?) can be added to the nominal
-  // price of the product. this function can also be called to add a surchage
-  // to an already existing escrow.
+  // an optional surchage (shipping & handling?) can be added to the nominal price of the product. this
+  // function can also be called to add a surchage to an already existing escrow.
   // -----------------------------------------------------------------------------------------------------
   function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _attachmentIdx, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
     address _vendorAddr;
+    if (_escrowID != 0) {
+      //ignore passed productID
+      (_productID, _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
+    }
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
     if (_escrowID == 0) {
       require(_productID != 0, "product ID cannot be zero");
       Product storage _product = products[_productID];
       _vendorAddr = _product.vendorAddr;
       require(_product.quantity != 0, "product is not available");
       require(_product.price != 0, "product price is not valid");
-      _escrowID = madEscrow.createEscrow(_productID, _product.price, _vendorAddr, msg.sender);
+      uint256 _modifiedPrice = safeAdd(_product.price, _surcharge);
+      _escrowID = madEscrow.createEscrow(_productID, _msgId, _modifiedPrice, _vendorAddr, msg.sender);
       _product.quantity -= 1;
     } else {
-      //ignore passed productID
-      (_productID, _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
+      require(_surcharge != 0, "escrow already exists");
+      madEscrow.modifyEscrowPrice(_escrowID, _msgId, _surcharge);
     }
-    if (_surcharge != 0)
-      madEscrow.modifyEscrowPrice(_escrowID, _surcharge);
-    //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
-    require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
     emit PurchaseDepositEvent(_vendorAddr, msg.sender, _escrowID, _productID, _surcharge, _msgId);
     emit StatEvent("ok: purchase funds deposited");
   }
@@ -382,15 +383,14 @@ contract MadStores is SafeMath {
   // called by customer -- only before purchase has been approved by vendor
   // -----------------------------------------------------------------------------------------------------
   function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
-    Product storage _product = products[_productID];
-    _product.quantity += 1;
-    madEscrow.cancelEscrow(_escrowID);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    Product storage _product = products[_productID];
+    _product.quantity += 1;
+    madEscrow.cancelEscrow(_escrowID, _msgId);
     emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
     emit StatEvent("ok: purchase canceled -- funds returned");
   }
@@ -403,11 +403,11 @@ contract MadStores is SafeMath {
   function purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
-    madEscrow.approveEscrow(_escrowID);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, msg.sender);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
+    madEscrow.approveEscrow(_escrowID, _msgId);
     emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
     emit StatEvent("ok: purchase approved -- funds locked");
   }
@@ -421,13 +421,13 @@ contract MadStores is SafeMath {
   function purchaseReject(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
-    Product storage _product = products[_productID];
-    madEscrow.cancelEscrow(_escrowID);
-    _product.quantity += 1;
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, msg.sender);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
+    Product storage _product = products[_productID];
+    madEscrow.cancelEscrow(_escrowID, _msgId);
+    _product.quantity += 1;
     emit PurchaseRejectEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
     emit StatEvent("ok: purchase rejected -- funds returned");
   }
@@ -440,15 +440,15 @@ contract MadStores is SafeMath {
   function deliveryApprove(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
-    madEscrow.releaseEscrow(_escrowID);
-    vendorAccounts[_vendorAddr].deliveriesApproved = safeAdd(vendorAccounts[_vendorAddr].deliveriesApproved, 1);
-    if (_rating > 10)
-        _rating = 10;
-    vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    madEscrow.releaseEscrow(_escrowID, _msgId);
+    vendorAccounts[_vendorAddr].deliveriesApproved = safeAdd(vendorAccounts[_vendorAddr].deliveriesApproved, 1);
+    if (_rating > 10)
+        _rating = 10;
+    vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
     emit StatEvent("ok: delivery approved -- funds destributed");
   }
@@ -463,15 +463,15 @@ contract MadStores is SafeMath {
   function deliveryReject(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
     //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
-    madEscrow.burnEscrow(_escrowID);
-    vendorAccounts[_vendorAddr].deliveriesRejected = safeAdd(vendorAccounts[_vendorAddr].deliveriesRejected, 1);
-    if (_rating > 10)
-      _rating = 10;
-    vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    madEscrow.burnEscrow(_escrowID, _msgId);
+    vendorAccounts[_vendorAddr].deliveriesRejected = safeAdd(vendorAccounts[_vendorAddr].deliveriesRejected, 1);
+    if (_rating > 10)
+      _rating = 10;
+    vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
     emit StatEvent("ok: delivery rejected -- funds burned");
   }
