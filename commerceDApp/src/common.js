@@ -49,24 +49,34 @@ const common = module.exports = {
 
     //number can be a number or a string, with or without '0x'
     numberToBN: function(number) {
+	console.log('numberToBN');
 	//first ensure passed parm is a string
 	let numberStr = number.toString();
 	let base = 10;
 	if (numberStr.startsWith('0x')) {
 	    base = 16;
 	    numberStr = numberStr.substring(2);
-	} else if (numberStr.indexOf('.') == 1) {
+	} else if (numberStr.indexOf('e+') >= 0) {
 	    const expIdx = numberStr.indexOf('e+');
-	    if (expIdx >= 0) {
-		//console.log('numberToBN: idx of e+ = ' + expIdx);
-		//console.log('numberToBN: numberStr.substring(2, expIdx) = ' + numberStr.substring(2, expIdx));
-		let endPart = numberStr.substring(2, expIdx);
-		numberStr = numberStr.substring(0, 1) + numberStr.substring(2, expIdx);
-		//console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
+	    console.log('numberToBN: expStr =' + numberStr.substring(expIdx + 2));
+	    const exp = parseInt(numberStr.substring(expIdx + 2));
+	    console.log('numberToBN: exp = ' + exp);
+	    let begPart = numberStr.substring(0, expIdx);
+	    console.log('numberToBN: begPart =' + begPart);
+	    let endPart = '';
+	    if (numberStr.indexOf('.') >= 0) {
+		const dotIdx = numberStr.indexOf('.');
+		begPart = numberStr.substring(0, dotIdx);
+		endPart = numberStr.substring(dotIdx + 1, expIdx);
 	    }
+	    endPart = common.rightPadTo(endPart, exp, '0');
+	    console.log('numberToBN: begPart =' + begPart);
+	    console.log('numberToBN: endPart =' + endPart);
+	    numberStr = begPart + endPart
 	}
+	console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
 	const bn = new BN(numberStr, base);
-	//console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16));
+	console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16) + ', ' + bn.toString(10));
 	return(bn);
     },
 
@@ -214,9 +224,12 @@ const common = module.exports = {
 	return padded;
     },
 
-    rightPadTo: function(str, desiredLen) {
-	const bigPad = '                                                                                                    ';
-	return((str + bigPad).slice(0, desiredLen));
+    rightPadTo: function(str, desiredLen, ch) {
+	const padChar = (typeof ch !== 'undefined') ? ch : ' ';
+	const pad = new Array(1 + desiredLen).join(padChar);
+	const padded = (str.toString() + pad).slice(0, desiredLen);
+	console.log('padded = X' + padded + 'X');
+	return padded;
     },
 
     setIndexedFlag: function(prefix, index, flag) {
