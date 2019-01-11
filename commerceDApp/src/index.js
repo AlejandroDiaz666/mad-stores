@@ -253,6 +253,7 @@ async function beginTheBeguine() {
 // handle locked metamask
 //
 function handleLockedMetaMask(err) {
+    console.log('handleLlockedMetaMask');
     common.setMenuButtonState('shopButton',          'Disabled');
     common.setMenuButtonState('dashboardButton',     'Disabled');
     common.setMenuButtonState('createStoreButton',   'Disabled');
@@ -292,6 +293,7 @@ function handleUnlockedMetaMask() {
     var accountArea = document.getElementById('accountArea');
     accountArea.value = 'Your account: ' + common.web3.eth.accounts[0];
     ether.getBalance(common.web3, 'szabo', function(err, balance) {
+	console.log('handleUnlockedMetaMask: ether.getBalance => err = ' + err + ', balance = ' + balance);
 	const balanceArea = document.getElementById('balanceArea');
 	const balanceSzabo = parseInt(balance);
 	console.log('balanceSzabo = ' + balanceSzabo);

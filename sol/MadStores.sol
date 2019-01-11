@@ -355,15 +355,16 @@ contract MadStores is SafeMath {
     if (_escrowID != 0) {
       //ignore passed productID
       (_productID, _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
+    } else {
+      require(_productID != 0, "product ID cannot be zero");
     }
+    Product storage _product = products[_productID];
+    _vendorAddr = _product.vendorAddr;
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
     if (_escrowID == 0) {
-      require(_productID != 0, "product ID cannot be zero");
-      Product storage _product = products[_productID];
-      _vendorAddr = _product.vendorAddr;
       require(_product.quantity != 0, "product is not available");
       require(_product.price != 0, "product price is not valid");
       uint256 _modifiedPrice = safeAdd(_product.price, _surcharge);

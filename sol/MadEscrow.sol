@@ -134,7 +134,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     daiTokenContract = iERC20Token(_daiTokenAddr);
     daiDecimals = daiTokenContract.decimals();
   }
-  function setTrust(address _trustedAddr, bool _trust) public ownerOnly {
+  function setTrust(address _trustedAddr, bool _trust) public unlockedOnly ownerOnly {
     trusted[_trustedAddr] = _trust;
   }
   function lock() public ownerOnly {
