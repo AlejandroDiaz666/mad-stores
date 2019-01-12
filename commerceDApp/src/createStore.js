@@ -19,6 +19,7 @@ const createStore = module.exports = {
 	common.setMenuButtonState('dashboardButton',     'Enabled');
 	common.setMenuButtonState('createStoreButton',   'Selected');
 	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
+	common.replaceElemClassFromTo('dashboardPageDiv',   'visibleB', 'hidden',   null);
 	common.replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
 	regStoreSubPage();
     },

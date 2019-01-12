@@ -102,8 +102,9 @@ function handleSearchProducts() {
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
     common.replaceElemClassFromTo('shopPageDiv',           'hidden',   'visibleT', null);
-    common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
     common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('dashboardPageDiv',      'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
     const shopPrevButton = document.getElementById('shopPrevButton');
     const shopNextButton = document.getElementById('shopPrevButton');
     common.setMenuButtonState('shopPrevButton', 'Disabled');

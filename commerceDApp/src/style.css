@@ -277,7 +277,8 @@ h3 { font-size:18px; }
 }
 
 
-/* three column format common to all pages
+/*
+ * three column format for shop page (excluding product-selected) and create-store pages
  */
 .outerDiv {
     /*
@@ -319,7 +320,7 @@ h3 { font-size:18px; }
 /*
  * but no 3-column format for these pages...
  */
-#selctedProductPageDiv {
+#selctedProductPageDiv, #dashboardPageDiv {
     position: relative;
     top: 0px;
     left: 0px;
@@ -327,7 +328,9 @@ h3 { font-size:18px; }
 
 
 /*
- * shop page seller search elements here
+ * ====================================================================================================================
+ * shop page
+ * ====================================================================================================================
  */
 #sellerSearchNoteBg {
     width: 410px;
@@ -405,7 +408,12 @@ h3 { font-size:18px; }
     transform: translateX(-250px);
 }
 
-/* tile styles here
+
+/*
+ * ====================================================================================================================
+ * shop-page tile styles
+ * these are for shop page and also for create-store view-products page
+ * ====================================================================================================================
  */
 .tilesDiv {
     display: grid;
@@ -517,10 +525,52 @@ h3 { font-size:18px; }
 }
 
 
+/*
+ * ====================================================================================================================
+ * dashboard page
+ * ====================================================================================================================
+ */
+#escrowlistAreaDiv {
+    display: table;
+    padding: 12px;
+    margin: 0px;
+    background-color: var(--clr_areabg1);
+    border-collapse: collapse;
+    color: var(--clr_areatext); /*yellow; */
+    width: 100%;
+}
+.escrowListItemDiv,    .escrowListItemDivSelected {
+    clear: both;
+    display: table-row;
+    background-color: var(--clr_areabg1);
+    font-weight: normal;
+}
+.escrowListItemDiv {
+    resize: none;
+}
+.escrowListEscrowNoArea {
+    resize: none;
+}
+.escrowListTypeArea {
+    resize: none;
+}
+.escrowListAddrArea {
+    resize: none;
+}
+.escrowListDateArea {
+    resize: none;
+}
+.escrowListCompletedArea {
+}
+.escrowListNextStepsArea {
+}
+
 
 
 /*
+ * ====================================================================================================================
  * create store
+ * ====================================================================================================================
  */
 #createStoreMenuBarDiv {
     display: block;
@@ -545,8 +595,12 @@ h3 { font-size:18px; }
     max-width: 150px;
 }
 
+
 /*
- * create store - reg store
+ * ====================================================================================================================
+ * create store - register-store
+ * common styling for all steps
+ * ====================================================================================================================
  */
 #createStoreRegStoreNote {
     width: 410px;
@@ -626,9 +680,13 @@ h3 { font-size:18px; }
     top: 0%;
     left: 0%;
 }
+
+
 /*
- * create store - reg store
+ * ====================================================================================================================
+ * create store - register-store
  * step 1
+ * ====================================================================================================================
  */
 #createStoreRegStoreStep1NoBg {
     transform-style: preserve-3d;
@@ -665,9 +723,13 @@ h3 { font-size:18px; }
     resize: none;
     overflow: hidden;
 }
+
+
 /*
- * create store - reg store
+ * ====================================================================================================================
+ * create store - register-store
  * step 2
+ * ====================================================================================================================
  */
 #createStoreRegStoreStep2NoBg {
    transform-style: preserve-3d;
@@ -708,8 +770,10 @@ h3 { font-size:18px; }
 
 
 /*
- * create store - reg store
+ * ====================================================================================================================
+ * create store - register-store
  * step 3
+ * ====================================================================================================================
  */
 #createStoreRegStoreStep3NoBg {
    transform-style: preserve-3d;
@@ -749,7 +813,9 @@ h3 { font-size:18px; }
 
 
 /*
+ * ====================================================================================================================
  * create store - add/edit product
+ * ====================================================================================================================
  */
 #createStoreAddProdNote,
 #createStoreViewProdsNote {
@@ -1094,24 +1160,10 @@ h3 { font-size:18px; }
 
 
 
-#navButtonsSpan {
-    margin-right: 10px;
-    /* below is essentially equivelent to: vertical-align: middle; */
-    position: absolute;
-    top: 50%;
-    right: 0%;
-    transform: translateY(-50%);
-}
-#prevUnreadButton {
-}
-#nextUnreadButton {
-    margin-right: 20px;
-}
-
-
-
 /*
- * styling for message area
+ * ====================================================================================================================
+ * styling for message area (selected product & dashboard pages)
+ * ====================================================================================================================
  */
 #msgAreaDiv  {
     position: absolute;

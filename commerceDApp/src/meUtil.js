@@ -5,7 +5,7 @@
 const common = require('./common');
 const meEther = require('./meEther');
 const mtEther = require('./mtEther');
-const mtUtil = require('./mtEther');
+const mtUtil = require('./mtUtil');
 const dhcrypt = require('./dhcrypt');
 const ether = require('./ether');
 const BN = require("bn.js");
@@ -120,10 +120,12 @@ var meUtil = module.exports = {
 	mtEther.accountQuery(common.web3, product.vendorAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
 	    if (!toPublicKey || toPublicKey == '0x') {
 		cb('Encryption error: unable to look up destination address in contract!');
 		return;
 	    }
+	    console.log('purchaseProduct: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
 	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);

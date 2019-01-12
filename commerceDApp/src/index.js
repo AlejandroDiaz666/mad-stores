@@ -5,6 +5,7 @@ const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
 const mtUtil = require('./mtUtil');
+const dashboard = require('./dashboard');
 const createStore = require('./createStore');
 const shop = require('./shop');
 const BN = require("bn.js");
@@ -64,11 +65,7 @@ function setMainButtonHandlers() {
     });
     var dashboardButton = document.getElementById('dashboardButton');
     dashboardButton.addEventListener('click', function() {
-	common.setMenuButtonState('shopButton',          'Enabled');
-	common.setMenuButtonState('dashboardButton',     'Selected');
-	common.setMenuButtonState('createStoreButton',   'Enabled');
-	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden', null);
-	common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
+	dashboard.handleDashboardPage();
     });
     var createStoreButton = document.getElementById('createStoreButton');
     createStoreButton.addEventListener('click', function() {
