@@ -59,6 +59,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   struct Escrow {
     bool closed;                        // escrow is no more
     bool approved;                      // purchase has been approved by vendor
+    address partnerAddr;                // contract that created this escrow
     address vendorAddr;
     address customerAddr;
     uint256 productId;                  // productId is an opaque cookie
@@ -128,13 +129,12 @@ contract MadEscrow is iERC20Token, SafeMath {
     name = _name;
     symbol = _symbol;
   }
-  //for debug only...
-  function setPartners(address _feesTokenAddr, address _daiTokenAddr) public unlockedOnly ownerOnly {
+  function setPartners(address _feesTokenAddr, address _daiTokenAddr) public ownerOnly {
     feesTokenContract = FeesTokenContract(_feesTokenAddr);
     daiTokenContract = iERC20Token(_daiTokenAddr);
     daiDecimals = daiTokenContract.decimals();
   }
-  function setTrust(address _trustedAddr, bool _trust) public unlockedOnly ownerOnly {
+  function setTrust(address _trustedAddr, bool _trust) public ownerOnly {
     trusted[_trustedAddr] = _trust;
   }
   function lock() public ownerOnly {
@@ -230,12 +230,13 @@ contract MadEscrow is iERC20Token, SafeMath {
     _escrow.vendorAddr = _vendorAddr;
     _escrow.customerAddr = _customerAddr;
     _escrow.createXactId = _XactId;
+    _escrow.partnerAddr = msg.sender;
     uint256 _vendorEscrowCount = escrowsCounts[_vendorAddr];
     escrowIds[_vendorAddr][_vendorEscrowCount] = _escrowId;
     uint256 _customerEscrowCount = escrowsCounts[_customerAddr];
-    escrowIds[_vendorAddr][_customerEscrowCount] = _escrowId;
-    escrowIds[_vendorAddr][_vendorEscrowCount] = safeAdd(_vendorEscrowCount, 1);
-    escrowIds[_vendorAddr][_customerEscrowCount] = safeAdd(_customerEscrowCount, 1);
+    escrowIds[_customerAddr][_customerEscrowCount] = _escrowId;
+    escrowsCounts[_vendorAddr] = safeAdd(_vendorEscrowCount, 1);
+    escrowsCounts[_customerAddr] = safeAdd(_customerEscrowCount, 1);
     uint256 _minVendorBond = safeMul(_price, 50) / 100;
     uint256 _minCustomerBond = safeAdd(_price, _minVendorBond);
     //interleave in case vendorAddr == customerAddr
@@ -283,6 +284,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed   == false, "escrow is closed");
     require(_escrow.approved == false, "cannot modify price after approval");
+    require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.modifyXactId = _XactId;
     uint256 _minVendorBond = safeMul(_surcharge, 50) / 100;
     uint256 _minCustomerBond = safeAdd(_surcharge, _minVendorBond);
@@ -305,6 +307,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed   == false, "escrow is closed");
     require(_escrow.approved == false, "cannot cancel after approval");
+    require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.approveCancelXactId = _XactId;
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
@@ -325,6 +328,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed == false, "escrow is closed");
     require(_escrow.approved == false, "escrow is already approved");
+    require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.approveCancelXactId = _XactId;
     _escrow.approved = true;
   }
@@ -337,6 +341,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   function releaseEscrow(uint256 _escrowId, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.approved == true, "cannot until after approval");
+    require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.releaseBurnXactId = _XactId;
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
@@ -359,6 +364,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   function burnEscrow(uint256 _escrowId, uint256 _XactId) public payable trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.approved == true, "cannot until after approval");
+    require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     retainedFees = safeAdd(retainedFees, _escrow.customerBalance + _escrow.vendorBalance);
     _escrow.releaseBurnXactId = _XactId;
     _escrow.customerBalance = 0;
