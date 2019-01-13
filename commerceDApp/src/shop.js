@@ -21,6 +21,8 @@ var shop = module.exports = {
 	common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
 	common.replaceElemClassFromTo('createStorePageDiv',    'hidden',   'visibleT', null);
 	common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
+	common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
+	common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
 	const categoryBN = new BN('0', 16);
 	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
@@ -156,7 +158,7 @@ function showProductDetail(product) {
     common.setMenuButtonState('createStoreButton', 'Disabled');
     common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',    null);
     common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB',  null);
-    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB',    'hidden', true);
+    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',    true);
     //
     const shopProductDetailImg = document.getElementById('shopProductDetailImg');
     const shopProductDetailName = document.getElementById('shopProductDetailName');

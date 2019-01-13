@@ -531,41 +531,102 @@ h3 { font-size:18px; }
  * ====================================================================================================================
  */
 #escrowlistAreaDiv {
-    display: table;
     padding: 12px;
     margin: 0px;
     background-color: var(--clr_areabg1);
     border-collapse: collapse;
     color: var(--clr_areatext); /*yellow; */
-    width: 100%;
+    position: absolute;
+    width: 80%;
+    left: 10%;
 }
-.escrowListItemDiv,    .escrowListItemDivSelected {
+#escrowListDiv {
+    height: 250px;
+    overflow-y: scroll;
+}
+.escrowListItemDiv, .escrowListItemDivSelected {
     clear: both;
     display: table-row;
+    height: 35px;
     background-color: var(--clr_areabg1);
     font-weight: normal;
+
 }
-.escrowListItemDiv {
+.escrowListEscrowNoArea, .escrowListTypeArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
+    display: table-cell;
+    height: 15px;
+    transform: translateY(-7px);
 }
 .escrowListEscrowNoArea {
-    resize: none;
+    width: 8em;
 }
 .escrowListTypeArea {
-    resize: none;
+    width: 11em;
 }
 .escrowListAddrArea {
-    resize: none;
+    width: 28em;
 }
 .escrowListDateArea {
+}
+#escrowListHeaderCompleted {
+    width: 365px;
+    height: 15px;
+    transform: translateY(-7px);
+}
+#escrowListHeaderNextSteps {
+    height: 15px;
+    transform: translateY(-7px);
+}
+.escrowListCompletedSpan {
+    display: table-cell;
+    width: 365px;
+    height: 35px;
     resize: none;
+    border-left-style: dashed;
+    border-right-style: dashed;
+    border-width: 2px;
 }
-.escrowListCompletedArea {
+.escrowListnextStepsSpan {
+    display: table-cell;
+    resize: none;
+    width: 200px;
+    height: 35px;
+    resize: none;
+    border-right-style: dashed;
+    border-width: 2px;
 }
-.escrowListNextStepsArea {
+.escrowListStepArea {
+    resize: none;
+    height: 15px;
+    width: 115px;
+    border-style: solid;
+    margin-top: 2px;
 }
-
-
+.escrowListStepSpan, .escrowListStepDepositSpan, .escrowListStepApproveSpan {
+    background-size: 35px 35px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    height: 35px;
+    width: 35px;
+    display: inline-block;
+    border-radius: 9px;
+    margin-left: 5px;
+    padding: 1px;
+}
+.escrowListStepDepositSpan {
+    background-image: url('../images/Bigstock_242398174.jpg');
+}
+.escrowListStepApproveSpan {
+    background-image: url('../images/locked-handshake.jpg');
+}
+.escrowListStepSpan:hover {
+    padding: 0px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    cusror: pointer;
+}
 
 /*
  * ====================================================================================================================
@@ -1150,6 +1211,7 @@ h3 { font-size:18px; }
     min-height: 180px;
     background-color: #ec00ec;
 }
+
 #storeInfoTextDiv {
     display: table-cell;
     min-width: 300px;
@@ -1167,7 +1229,7 @@ h3 { font-size:18px; }
  */
 #msgAreaDiv  {
     position: absolute;
-    top: 315px;
+    top: 475px;
     left: 50%;
     width: 70%;
     min-width: 1070px;

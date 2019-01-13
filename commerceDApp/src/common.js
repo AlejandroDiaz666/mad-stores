@@ -456,6 +456,19 @@ const common = module.exports = {
 	}, 1000);
     },
 
+    makeTextarea: function(id, className, disabled) {
+	const textarea = document.createElement("textarea")
+	if (!!id)
+	    textarea.id = id;
+	if (!!className)
+	    textarea.className = className;
+	textarea.rows = 1;
+	textarea.readonly = 'readonly';
+	if (!!disabled)
+	    textarea.disabled = 'disabled';
+	textarea.value = '';
+	return(textarea);
+    },
 
     clearStatusDiv: function(statusDiv) {
 	while (statusDiv.hasChildNodes()) {

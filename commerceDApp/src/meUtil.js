@@ -160,10 +160,37 @@ var meUtil = module.exports = {
     },
 
 
-    //cb(err, results)
-    //set regionBN, categoryVB, vendorAddr to null if don't want to search based on that parameter
-    getEscrowLogs: function(vendorAddr, customerAddr, stateBN, cb) {
-	cb(null, [ "this is a stub-result; call meEther.parseEscrowEvent to parse it" ]);
+    //cb(err, product)
+    getProductById: function(productIdBN, cb) {
+	console.log('getProductById: productIdBN = 0x' + productIdBN.toString(16));
+	const options = {
+	    fromBlock: 0,
+	    toBlock: 'latest',
+	    address: meEther.MS_CONTRACT_ADDR,
+	    topics: [ meEther.getRegisterProductEventTopic0(), common.BNToHex256(productIdBN) ]
+	}
+	ether.getLogs(options, function(err, results) {
+	    if (!!err) {
+		cb('error retreiving product logs', null);
+		return;
+	    }
+	    console.log('getProductById: got ' + results.length + ' events');
+	    meEther.parseRegisterProductEvent(results[results.length - 1], function(err, productIdBN, name, desc, image) {
+		if (!!err) {
+		    cb('error parsing product logs', null);
+		    return;
+		}
+		const product = new meUtil.Product(productIdBN, name, desc, image);
+		meEther.productInfoQuery(common.web3, productIdBN, function(err, productIdBN, productInfo) {
+		    if (!!err) {
+			cb('error retreiving product info', null);
+			return;
+		    }
+		    product.setProductInfo(productInfo);
+		    cb(err, product);
+		});
+	    });
+	});
     },
 
 };
@@ -288,7 +315,6 @@ function getSaveAndDrawProducts(productIds, listIdx, productIdx, cb) {
 	});
     }
 }
-
 
 
 //

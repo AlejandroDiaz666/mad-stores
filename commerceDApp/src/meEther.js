@@ -138,18 +138,18 @@ const meEther = module.exports = {
 	    initMSContractInstance();
 	meEther.MSContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
 	    console.log('productInfoQuery: productID = ' + common.BNToHex256(productIdBN) + ', err = ' + err + ', result = ' + resultObj.toString());
-	    const productPriceInfo = {};
+	    const productInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
 		const keys = [ 'price', 'quantity', 'category', 'categoryProductIdx', 'region', 'regionProductIdx', 'vendorAddr' ];
 		const resultArray = Array.from(resultObj);
 		//console.log('productInfoQuery: resultArray = ' + resultArray);
 		for (let i = 0; i < resultArray.length; ++i) {
-		    productPriceInfo[keys[i]] = resultArray[i];
+		    productInfo[keys[i]] = resultArray[i];
 		    //console.log('productInfoQuery: productPriceInfo[' + keys[i] + '] = ' + productPriceInfo[keys[i]]);
 		}
 	    }
-	    cb(err, productIdBN, productPriceInfo);
+	    cb(err, productIdBN, productInfo);
 	});
     },
 
@@ -414,11 +414,11 @@ const meEther = module.exports = {
 	meEther.MEContractInstance.escrowIds(acctAddr, idx, (err, resultObj) => {
 	    console.log('escrowQuery: acctAddr = ' + acctAddr + ', idx = ' + idx + ' => err = ' + err + ', result = ' + resultObj.toString());
 	    if (!!err) {
-		cb(err, null);
+		cb(err, null, null);
 		return;
 	    }
 	    const escrowIdBN = common.numberToBN(resultObj);
-	    meEther.MEContractInstance.escrows(escrowIdBN, (err, resultObj) => {
+	    meEther.MEContractInstance.escrows('0x' + escrowIdBN.toString(16), (err, resultObj) => {
 		console.log('escrowQuery: escrowId = 0x' + escrowIdBN.toString(16) + ' => err = ' + err + ', result = ' + resultObj.toString());
 		const escrowInfo = {};
 		const keys = [ 'isClosed', 'isApproved', 'partnerAddr', 'vendorAddr', 'customerAddr', 'productId', 'vendorBalance',
@@ -427,8 +427,8 @@ const meEther = module.exports = {
 		for (let i = 0; i < resultArray.length; ++i)
 		    escrowInfo[keys[i]] = (resultArray[i] == 'false') ? false :
 		                          (resultArray[i] == 'true' ) ? true  : resultArray[i];
-		console.log('escrowQuery: acctAddr = ' + acctAddr + ', idx = ' + idx + ', acctInfo = ' + JSON.stringify(acctInfo));
-		cb(err, escrowInfo);
+		console.log('escrowQuery: acctAddr = ' + acctAddr + ', idx = ' + idx + ', escrowInfo = ' + JSON.stringify(escrowInfo));
+		cb(err, escrowIdBN, escrowInfo);
 	    });
 	});
     },

@@ -21,6 +21,7 @@ const createStore = module.exports = {
 	common.replaceElemClassFromTo('shopPageDiv',        'visibleT', 'hidden',   null);
 	common.replaceElemClassFromTo('dashboardPageDiv',   'visibleB', 'hidden',   null);
 	common.replaceElemClassFromTo('createStorePageDiv', 'hidden',   'visibleT', null);
+	common.replaceElemClassFromTo('msgAreaDiv',         'visibleB', 'hidden',   false);
 	regStoreSubPage();
     },
 

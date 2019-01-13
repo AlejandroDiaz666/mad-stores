@@ -45,6 +45,7 @@ $(BUNDLEDIR)/index.js: $(SRCDIR)/index.js \
 	$(BUNDLEDIR)/common.js \
 	$(BUNDLEDIR)/meUtil.js \
 	$(BUNDLEDIR)/shop.js \
+	$(BUNDLEDIR)/dashboard.js \
 	$(BUNDLEDIR)/createStore.js \
 	$(BUNDLEDIR)/categories.js \
 	$(BUNDLEDIR)/regions.js

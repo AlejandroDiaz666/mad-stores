@@ -169,32 +169,6 @@
 	  <span id="shopProductDetailQuantity", class="tileQuantity"></span>
 	</div>
 	<button id="purchaseProductButton" class="menuBarButton" type="button">Buy this product</button>
-	<!--
-	     mesage composition for purchase
-	  -->
-	<div id="msgAreaDiv" class="hidden" style="clear:both">
-	  <form action="javascript:void(0);">
-	    <a id="attachmentSaveA" style="display: none;"><span id="attachmentSaveSpan"></span></a>
-	    <button id="attachmentButton" type="button" class="msgInfoAreaButton hidden">Attach</button>
-	    <input id="attachmentInput" type="file" name="filename" class="hidden"></input>
-	    <img id="deleteImg" src="images/delete.png"></img>
-	    <div id="msgInfoAreaDiv">
-	      <span>
-		<button id="sendButton" type="button" class="msgInfoAreaButton">Send/Purchase</button>
-		<textarea id="msgPriceArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
-		<textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
-		<textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
-		<textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
-	      </span>
-	    </div>
-	    <div id="msgTextAreaDiv">
-	      <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
-	    </div>
-	  </form>
-	</div>
-	<!--
-	     end of mesage composition for purchase
-	  -->
 
     </div>
 
@@ -205,20 +179,18 @@
 	====================================================================================================================
       -->
     <div id="dashboardPageDiv" class="hidden">
-	<div id="escrowlistAreaDiv">
-	  <div id="escrowListHeaderDiv" class="escrowListItemDiv">
-	    <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow No.</textarea>
-	    <textarea id="escrowListHeaderType" class="escrowListTypeArea" rows="1" readonly="readonly" disabled="disabled">Type</textarea>
-	    <textarea id="escrowListHeaderAddr" class="escrowListAddrArea" rows="1" readonly="readonly" disabled="disabled">From/To</textarea>
-	    <textarea id="escrowListHeaderDate" class="escrowListDateArea" rows="1" readonly="readonly" disabled="disabled">Date</textarea>
-	    <textarea id="escrowListHeaderCompleted" class="escrowListCompletedArea" rows="1" readonly="readonly" disabled="disabled">Completed</textarea>
-	    <textarea id="escrowListHeaderNextSteps" class="escrowListNextStepsArea" rows="1" readonly="readonly" disabled="disabled">Next Steps</textarea>
-	  </div>
+      <div id="escrowlistAreaDiv">
+	<div id="escrowListHeaderDiv" class="escrowListItemDiv">
+	  <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow Id.</textarea>
+	  <textarea id="escrowListHeaderType" class="escrowListTypeArea" rows="1" readonly="readonly" disabled="disabled">Type</textarea>
+	  <textarea id="escrowListHeaderAddr" class="escrowListAddrArea" rows="1" readonly="readonly" disabled="disabled">From/To</textarea>
+	  <!--
+	      <textarea id="escrowListHeaderDate" class="escrowListDateArea" rows="1" readonly="readonly" disabled="disabled">Date</textarea>
+	    -->
+	  <textarea id="escrowListHeaderCompleted" rows="1" readonly="readonly" disabled="disabled">Completed</textarea>
+	    <textarea id="escrowListHeaderNextSteps" rows="1" readonly="readonly" disabled="disabled">Next Steps</textarea>
 	</div>
-
-
-	<!-- general display area -->
-	<div id="NOTmsgAreaDiv" style="clear:both">
+	<div id="escrowListDiv">
 	</div>
       </div>
 
@@ -397,6 +369,33 @@
 	</div>
       </div>
     </div>
+
+    <!--
+	mesage display/composition for purchase, dashboard
+      -->
+    <div id="msgAreaDiv" class="hidden" style="clear:both">
+      <form action="javascript:void(0);">
+	<a id="attachmentSaveA" style="display: none;"><span id="attachmentSaveSpan"></span></a>
+	<button id="attachmentButton" type="button" class="msgInfoAreaButton hidden">Attach</button>
+	<input id="attachmentInput" type="file" name="filename" class="hidden"></input>
+	<img id="deleteImg" src="images/delete.png"></img>
+	<div id="msgInfoAreaDiv">
+	  <span>
+	    <button id="sendButton" type="button" class="msgInfoAreaButton">Send/Purchase</button>
+	    <textarea id="msgPriceArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+	    <textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+	    <textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
+	    <textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
+	  </span>
+	</div>
+	<div id="msgTextAreaDiv">
+	  <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
+	</div>
+      </form>
+    </div>
+    <!--
+	end of mesage composition for purchase
+      -->
 
     <p>&nbsp;</p>
     <div id="statusDiv" class="finalresultstable" style="display: none;"></div>
