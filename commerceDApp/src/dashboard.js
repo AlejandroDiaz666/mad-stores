@@ -138,13 +138,22 @@ function addRow(table) {
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
         const depositedSpan = document.createElement("span");
-        depositedSpan.className = 'escrowListStepDepositSpan';
+        depositedSpan.className = 'escrowListStepDepositSpan tooltip';
+	const depositedSpanTip = document.createElement("span");
+	depositedSpanTip.className = 'tooltipText';
+	depositedSpanTip.textContent = 'funds for this purchase have been deposited into escrow';
+	depositedSpan.appendChild(depositedSpanTip);
+
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
             if (!escrowInfo.isApproved) {
 		const approveSpan = document.createElement("span");
-		approveSpan.className = 'escrowListStepSpan escrowListStepApproveSpan';
+		approveSpan.className = 'escrowListStepApproveSpan tooltip';
+		const approveSpanTip = document.createElement("span");
+		approveSpanTip.className = 'tooltipText';
+		approveSpanTip.textContent = 'approve this purchase; will lock funds into escrow';
+		approveSpan.appendChild(approveSpanTip);
 		nextStepsSpan.appendChild(approveSpan);
 		approveSpan.addEventListener('click', function() {
 		    doApprove(escrowInfo, common.numberToBN(escrowInfo.productId));
@@ -167,7 +176,11 @@ function addRow(table) {
         completedSpan.appendChild(depositedSpan);
         if (escrowInfo.isApproved) {
 	    const approveSpan = document.createElement("span");
-	    approveSpan.className = 'escrowListStepSpan escrowListStepApproveSpan';
+	    approveSpan.className = 'escrowListStepSpan escrowListStepApproveSpan tooltip';
+	    const approveSpanTip = document.createElement("span");
+	    approveSpanTip.className = 'tooltipText';
+	    approveSpanTip.textContent = 'this purchase was approved; escrow is locked';
+	    approveSpan.appendChild(approveSpanTip);
 	    completedSpan.appendChild(approveSpan);
 	}
 
