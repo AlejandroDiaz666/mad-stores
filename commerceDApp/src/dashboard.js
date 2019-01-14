@@ -247,8 +247,9 @@ function doApprove(escrowIdBN, escrowInfo) {
 	  'delivery of the product. Use this message to communicate to the buyer when he can expect delivery and any other important information ' +
 	  'relating to the delivery of the product.\n' +
 	  'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
-    const priceBN = common.numberToBN(escrowInfo.vendorBalance);
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceBN,
+    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
+    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc,
        function(attachmentIdxBN, message) {
 	   console.log('doApprove: setupComposeMsgArea came back');
 	   meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {

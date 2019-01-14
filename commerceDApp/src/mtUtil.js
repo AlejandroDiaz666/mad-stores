@@ -255,7 +255,7 @@ const mtUtil = module.exports = {
     // sendCB(attachmentIdxBN, message);
     // if priceBN is null, then price area is not displayed
     //
-    setupComposeMsgArea: function(destAddr, placeholderText, priceBN, sendCB, cb) {
+    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendCB, cb) {
 	console.log('setupComposeMsgArea: enter');
 	mtUtil.sendCB = sendCB;
 	if (!ether.validateAddr(destAddr)) {
@@ -289,10 +289,10 @@ const mtUtil = module.exports = {
 	    msgTextArea.disabled = false;
 	    msgTextArea.readonly = '';
 	    msgTextArea.placeholder = placeholderText;
-	    if (!!priceBN) {
-		console.log('setupMsgArea: priceBN = ' + priceBN.toString(10) + ' dai');
+	    if (!!priceDesc) {
+		console.log('setupMsgArea: priceDesc = ' + priceDesc);
 		const msgPriceArea = document.getElementById('msgPriceArea');
-		msgPriceArea.value = 'Price: ' + meEther.daiBNToUsdStr(priceBN) + ' Dai';
+		msgPriceArea.value = priceDesc;
 	    }
 	    //fees: see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {

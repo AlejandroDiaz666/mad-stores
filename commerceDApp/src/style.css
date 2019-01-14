@@ -1294,7 +1294,7 @@ h3 { font-size:18px; }
     background-color: var(--clr_areabg1);
     color: var(--clr_areatext);
 }
-#msgPromptArea, #msgAddrArea  {
+#msgPromptArea, #msgAddrArea, #msgPricePromptArea {
     vertical-align: middle;
     padding-top: 1px;
     padding-right: 0px;
@@ -1315,7 +1315,6 @@ h3 { font-size:18px; }
     min-width: 20%;
 }
 
-
 #msgFeeArea {
     float: right;
     vertical-align: middle;
@@ -1327,16 +1326,27 @@ h3 { font-size:18px; }
     width: 12em;
     resize: none;
 }
+#msgPricePromptArea {
+    clear: both;
+    float: left;
+    display: table-cell;
+    width: 4em;
+    max-width: 4em;
+}
 #msgPriceArea {
-    float: right;
+    float: left;
     vertical-align: middle;
     padding-top: 1px;
     padding-right: 0px;
     padding-bottom: 1px;
     padding-left: 0px;
     margin: 0px;
-    width: 12em;
+
     resize: none;
+    display: table-cell;
+    width: 46em;
+    min-width: 20%;
+
 }
 #sendButton {
     float: right;

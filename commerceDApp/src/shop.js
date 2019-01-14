@@ -107,6 +107,7 @@ function handleSearchProducts() {
     common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('dashboardPageDiv',      'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
+    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
     const shopPrevButton = document.getElementById('shopPrevButton');
     const shopNextButton = document.getElementById('shopPrevButton');
     common.setMenuButtonState('shopPrevButton', 'Disabled');
@@ -188,7 +189,9 @@ function handlePurchase(product) {
 		  'you have any special instructions for a custom order, enter them here.\n\nThe seller will have a chance to review your ' +
 		  'instructions / shipping address before approving the purchase. If the seller does not approve the purchase, then the escrow will ' +
 		  'be canceled, and all your funds will be returned.';
-	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, product.priceBN, doPurchaseWithMessage, function(err) {
+	    const escrowBN = product.priceBN.muln(3/2);
+	    const priceDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, doPurchaseWithMessage, function(err) {
 		if (!!err)
 		    alert(err);
 	    });
