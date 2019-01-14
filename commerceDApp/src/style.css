@@ -575,8 +575,9 @@ h3 { font-size:18px; }
     font-weight: normal;
     border-style: solid;
     border-width: 1px;
+    overflow: clip;
 }
-.escrowListEscrowNoArea, .escrowListTypeArea, .escrowListAddrArea, .escrowListDateArea {
+.escrowListEscrowNoArea, .escrowListTypeArea, .escrowListProductArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
     display: table-cell;
     height: 15px;
@@ -588,23 +589,29 @@ h3 { font-size:18px; }
 .escrowListTypeArea {
     width: 11em;
 }
+.escrowListTypeArea {
+    width: 15em;
+}
 .escrowListAddrArea {
     width: 28em;
 }
 .escrowListDateArea {
 }
 #escrowListHeaderCompleted {
-    width: 365px;
+    width: 300px;
     height: 15px;
     transform: translateY(-7px);
+    resize: none;
 }
 #escrowListHeaderNextSteps {
     height: 15px;
     transform: translateY(-7px);
+    width: 200px;
+    resize: none;
 }
 .escrowListCompletedSpan {
     display: table-cell;
-    width: 365px;
+    width: 300px;
     height: 35px;
     resize: none;
     border-left-style: dashed;

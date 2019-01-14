@@ -95,6 +95,7 @@ function addRow(table) {
     rowDiv.className = 'escrowListItemDiv';
     const escrowNoArea = common.makeTextarea(null, 'escrowListEscrowNoArea', true);
     const typeArea = common.makeTextarea(null, 'escrowListTypeArea', true);
+    const productArea = common.makeTextarea(null, 'escrowListTypeArea', true);
     const addrArea = common.makeTextarea(null, 'escrowListAddrArea', true);
     const dateArea = common.makeTextarea(null, 'escrowListDateArea', true);
     const completedSpan = document.createElement("span");
@@ -103,6 +104,7 @@ function addRow(table) {
     nextStepsSpan.className = 'escrowListnextStepsSpan';
     rowDiv.appendChild(escrowNoArea);
     rowDiv.appendChild(typeArea);
+    rowDiv.appendChild(productArea);
     rowDiv.appendChild(addrArea);
     console.log('addRow: 5.9');
     //rowDdiv.appendChild(dateArea);
@@ -137,13 +139,16 @@ function addRow(table) {
         console.log('addRow: we\'re back');
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
+	productArea.value = 'loading...';
         const depositedSpan = document.createElement("span");
         depositedSpan.className = 'escrowListStepDepositSpan tooltip';
 	const depositedSpanTip = document.createElement("span");
 	depositedSpanTip.className = 'tooltipText';
 	depositedSpanTip.textContent = 'funds for this purchase have been deposited into escrow';
 	depositedSpan.appendChild(depositedSpanTip);
-
+	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
+	    productArea.value = product.name;
+	});
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
