@@ -1322,7 +1322,7 @@ h3 { font-size:18px; }
     min-width: 20%;
 }
 
-#msgFeeArea {
+#msgFeeArea, #msgDateArea {
     float: right;
     vertical-align: middle;
     padding-top: 1px;
@@ -1330,8 +1330,13 @@ h3 { font-size:18px; }
     padding-bottom: 1px;
     padding-left: 0px;
     margin: 0px;
-    width: 12em;
     resize: none;
+}
+#msgFeeArea {
+    width: 12em;
+}
+#msgDateArea {
+    width: 20em;
 }
 #msgPricePromptArea {
     clear: both;

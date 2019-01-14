@@ -55,11 +55,11 @@ const common = module.exports = {
 	    numberStr = numberStr.substring(2);
 	} else if (numberStr.indexOf('e+') >= 0) {
 	    const expIdx = numberStr.indexOf('e+');
-	    console.log('numberToBN: expStr =' + numberStr.substring(expIdx + 2));
+	    //console.log('numberToBN: expStr =' + numberStr.substring(expIdx + 2));
 	    const exp = parseInt(numberStr.substring(expIdx + 2));
 	    console.log('numberToBN: exp = ' + exp);
 	    let begPart = numberStr.substring(0, expIdx);
-	    console.log('numberToBN: begPart =' + begPart);
+	    //console.log('numberToBN: begPart =' + begPart);
 	    let endPart = '';
 	    if (numberStr.indexOf('.') >= 0) {
 		const dotIdx = numberStr.indexOf('.');
@@ -67,11 +67,11 @@ const common = module.exports = {
 		endPart = numberStr.substring(dotIdx + 1, expIdx);
 	    }
 	    endPart = common.rightPadTo(endPart, exp, '0');
-	    console.log('numberToBN: begPart =' + begPart);
-	    console.log('numberToBN: endPart =' + endPart);
+	    //console.log('numberToBN: begPart =' + begPart);
+	    //console.log('numberToBN: endPart =' + endPart);
 	    numberStr = begPart + endPart
 	}
-	console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
+	//console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
 	const bn = new BN(numberStr, base);
 	console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16) + ', ' + bn.toString(10));
 	return(bn);

@@ -255,8 +255,13 @@ const mtUtil = module.exports = {
     // sendCB(attachmentIdxBN, message);
     // if priceBN is null, then price area is not displayed
     //
-    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendCB, cb) {
+    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendText, sendCB, cb) {
 	console.log('setupComposeMsgArea: enter');
+	common.replaceElemClassFromTo('attachmentButton', 'hidden',    'visibleIB', true);
+	common.replaceElemClassFromTo('msgFeeArea',       'hidden',    'visibleIB', true);
+	common.replaceElemClassFromTo('msgDateArea',      'visibleIB', 'hidden',    true);
+	const sendButton = document.getElementById('sendButton');
+	sendButton.textContent = sendText;
 	mtUtil.sendCB = sendCB;
 	if (!ether.validateAddr(destAddr)) {
 	    cb('Error: vendor has an invalid Ethereum address.');
@@ -283,10 +288,8 @@ const mtUtil = module.exports = {
 	    const attachmentSaveA = document.getElementById('attachmentSaveA');
 	    attachmentSaveA.style.display = 'none';
 	    //
-	    const msgTextArea = document.getElementById('msgTextArea');
-	    msgTextArea.className = (msgTextArea.className).replace('hidden', 'visibleIB');
+	    const msgTextArea = common.replaceElemClassFromTo('msgTextArea', 'hidden', 'visibleIB', false);
 	    msgTextArea.value = '';
-	    msgTextArea.disabled = false;
 	    msgTextArea.readonly = '';
 	    msgTextArea.placeholder = placeholderText;
 	    if (!!priceDesc) {
@@ -302,6 +305,69 @@ const mtUtil = module.exports = {
 		msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
 		cb(null);
 	    });
+	});
+    },
+
+
+    // cb(err)
+    // replyCB(attachmentIdxBN, message);
+    // if priceBN is null, then price area is not displayed
+    //
+    setupDisplayMsgArea: function(fromAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, replyCB, cb) {
+	console.log('setupDisplayMsgArea: enter');
+	common.replaceElemClassFromTo('attachmentButton', 'visibleIB', 'hidden', true);
+	common.replaceElemClassFromTo('msgFeeArea',       'visibleIB', 'hidden',    true);
+	common.replaceElemClassFromTo('msgDateArea',      'hidden',    'visibleIB', true);
+	const sendButton = document.getElementById('sendButton');
+	sendButton.textContent = 'reply';
+	const msgPromptArea = document.getElementById('msgPromptArea');
+	msgPromptArea.value = 'From: ';
+	const msgAddrArea = document.getElementById('msgAddrArea');
+	msgAddrArea.disabled = true;
+	msgAddrArea.readonly = 'readonly';
+	msgAddrArea.value = fromAddr;
+	const msgDateArea = document.getElementById('msgDateArea');
+	msgDateArea.value = date;
+	//mtUtil.sendCB = sendCB;
+	//
+	mtUtil.decryptMsg(fromAddr, fromAddr, common.web3.eth.accounts[0], txCount, msgHex, (err, decrypted) => {
+	    let text = decrypted;
+	    let attachment = null;
+	    console.log('setupDisplayMsgArea: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	    if (!!attachmentIdxBN && !attachmentIdxBN.isZero()) {
+		const idx = attachmentIdxBN.maskn(248).toNumber();
+		console.log('setupDisplayMsgArea: idx = ' + idx);
+		if (idx > 1) { //temporary
+		    text = decrypted.substring(0, idx);
+		    const nameLen = attachmentIdxBN.iushrn(248).toNumber();
+		    attachment = { name: decrypted.substring(idx, idx + nameLen), blob: decrypted.substring(idx + nameLen) };
+		}
+	    }
+	    //msgDateArea.value = date;
+	    //msgNoNotButton.textContent = parseInt(msgNo).toString(10);
+	    console.log('setupDisplayMsgArea: text = ' + text);
+	    const msgTextArea = common.replaceElemClassFromTo('msgTextArea', 'hidden', 'visibleIB', true);
+	    msgTextArea.value = text;
+	    msgTextArea.readonly = 'true';
+	    const attachmentSaveA = document.getElementById('attachmentSaveA');
+	    if (!!attachment) {
+		attachmentSaveA.href = attachment.blob;
+		attachmentSaveA.download = attachment.name;
+		const attachmentSaveSpan = document.getElementById('attachmentSaveSpan');
+		attachmentSaveSpan.textContent = attachment.name;
+		attachmentSaveA.style.display = 'inline-block';
+	    } else {
+		attachmentSaveA.style.display = 'none';
+	    }
+	    if (!!priceDesc) {
+		console.log('setupMsgArea: priceDesc = ' + priceDesc);
+		const msgPriceArea = document.getElementById('msgPriceArea');
+		msgPriceArea.value = priceDesc;
+	    }
+	    //const replyButton = document.getElementById('replyButton');
+	    //replyButton.disabled = false;
+	    //
+	    common.replaceElemClassFromTo('msgAreaDiv', 'hidden', 'visibleB',  false);
 	});
     },
 

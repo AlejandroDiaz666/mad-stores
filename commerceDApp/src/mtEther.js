@@ -39,11 +39,11 @@ const mtEther = module.exports = {
 
 
     accountQuery: function(web3, acct, cb) {
-	console.log('accountQuery');
+	//console.log('accountQuery');
 	if (!mtEther.EMTContractInstance)
 	    initEMTContractInstance();
 	mtEther.EMTContractInstance.accounts(acct, (err, resultObj) => {
-	    console.log('accountQuery: addr = ' + acct + ', resultObj = ' + JSON.stringify(resultObj));
+	    //console.log('accountQuery: addr = ' + acct + ', resultObj = ' + JSON.stringify(resultObj));
 	    const acctInfo = {};
 	    if (!err) {
 		const keys = [ 'isValid', 'msgFee', 'spamFee', 'feeBalance', 'recvMsgCount', 'sentMsgCount', 'publicKey', 'encryptedPrivateKey' ];

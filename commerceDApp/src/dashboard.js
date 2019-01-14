@@ -146,6 +146,9 @@ function addRow(table) {
 	depositedSpanTip.className = 'tooltipText';
 	depositedSpanTip.textContent = 'funds for this purchase have been deposited into escrow';
 	depositedSpan.appendChild(depositedSpanTip);
+	depositedSpan.addEventListener('click', function() {
+	    showDeposited(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
+	});
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
 	    productArea.value = product.name;
 	});
@@ -254,7 +257,7 @@ function doApprove(escrowIdBN, escrowInfo) {
 	  'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc,
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Send/Purchase',
        function(attachmentIdxBN, message) {
 	   console.log('doApprove: setupComposeMsgArea came back');
 	   meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
@@ -271,4 +274,20 @@ function doApprove(escrowIdBN, escrowInfo) {
 	   if (!!err)
 	       alert(err);
        });
+}
+
+
+function showDeposited(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.createXactId);
+    console.log('showDeposited: createXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    return;
+	}
+	console.log('showDeposited: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
+	mtUtil.setupDisplayMsgArea(fromAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, null, function() {
+	});
+    });
 }
