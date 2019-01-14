@@ -160,6 +160,50 @@ var meUtil = module.exports = {
     },
 
 
+    // cb(err)
+    // cb is called after user clicks continue
+    purchaseApprove: function(escrowIdBN, escrowInfo, attachmentIdxBN, message, cb) {
+	console.log('purchaseApprove: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	mtEther.accountQuery(common.web3, escrowInfo.customerAddr, function(err, toAcctInfo) {
+	    //encrypt the message...
+	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	    console.log('purchaseApprove: toPublicKey = ' + toPublicKey);
+	    if (!toPublicKey || toPublicKey == '0x') {
+		cb('Encryption error: unable to look up destination address in contract!');
+		return;
+	    }
+	    console.log('purchaseApprove: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
+	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
+	    sentMsgCtrBN.iaddn(1);
+	    console.log('purchaseApprove: toPublicKey = ' + toPublicKey);
+	    const ptk = dhcrypt.ptk(toPublicKey, escrowInfo.customerAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
+	    console.log('purchaseApprove: ptk = ' + ptk);
+	    const encrypted = dhcrypt.encrypt(ptk, message);
+	    console.log('purchaseApprove: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
+	    mtEther.getPeerMessageCount(common.web3, escrowInfo.customerAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+		console.log('purchaseApprove: ' + msgCount.toString(10) + ' messages have been sent from ' + escrowInfo.customerAddr + ' to me');
+		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		console.log('purchaseApprove: msgFee is ' + msgFee + ' wei');
+		common.showWaitingForMetaMask(true);
+		const statusDiv = document.getElementById('statusDiv');
+		let approveErr = null;
+		const continueFcn = () => {
+		    common.clearStatusDiv(statusDiv);
+		    cb(approveErr);
+		};
+		meEther.purchaseApprove(escrowIdBN, msgFee, attachmentIdxBN, encrypted, function(err, txid) {
+		    console.log('purchaseApprove: txid = ' + txid);
+		    common.showWaitingForMetaMask(false);
+		    common.waitForTXID(err, txid, 'Purchase-Approve', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+			approveErr = err;
+		    });
+		});
+	    });
+	});
+    },
+
+
     //cb(err, product)
     getProductById: function(productIdBN, cb) {
 	console.log('getProductById: productIdBN = 0x' + productIdBN.toString(16));

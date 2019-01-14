@@ -29,6 +29,7 @@ const meEther = module.exports = {
     registerProductABI: null,
     withdrawABI: null,
     purchaseDepositABI: null,
+    purchaseApproveABI: null,
     MSContractInstance: null,
     MEContractInstance: null,
     daiContractInstance: null,
@@ -384,6 +385,40 @@ const meEther = module.exports = {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'uint256', 'bytes' ],
 					 [ escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
+
+
+    // ---------------------------------------------------------------------------------------------------------
+    // purchaseApprove & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //   purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable;
+    //
+    //
+    purchaseApprove: function(escrowIdBN, msgFee, attachmentIdxBN, messageHex, cb) {
+	console.log('purchaseApprove: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	console.log('purchaseApprove: msgFee = ' + msgFee);
+	console.log('purchaseApprove: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	console.log('purchaseApprove: messageHex = ' + messageHex);
+	const abiPurchaseApproveFcn = meEther.abiEncodePurchaseApprove();
+	const abiParms = meEther.abiEncodePurchaseApproveParms(escrowIdBN, attachmentIdxBN, messageHex);
+        const sendData = "0x" + abiPurchaseApproveFcn + abiParms;
+	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodePurchaseApprove: function() {
+	if (!meEther.purchaseApproveABI)
+	    meEther.purchaseApproveABI = ethabi.methodID('purchaseApprove', [ 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.purchaseApproveABI);
+    },
+
+    abiEncodePurchaseApproveParms: function(escrowIdBN, attachmentIdxBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, attachmentIdxBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 

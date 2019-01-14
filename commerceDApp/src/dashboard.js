@@ -156,7 +156,7 @@ function addRow(table) {
 		approveSpan.appendChild(approveSpanTip);
 		nextStepsSpan.appendChild(approveSpan);
 		approveSpan.addEventListener('click', function() {
-		    doApprove(escrowInfo, common.numberToBN(escrowInfo.productId));
+		    doApprove(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
 		});
 	    }
         }
@@ -240,23 +240,29 @@ function buildDashboard() {
 }
 
 
-function doApprove(escrowInfo, productIdBN) {
-    meUtil.getProductById(productIdBN, function(err, product) {
-	if (!!err) {
-	    alert(err);
-	    return;
-	}
-	console.log('doApprove: product.name = ' + product.name);
-	const placeholderText =
-	      'You are about to approve this purchase!\n' +
-	      'Your bond funds will be moved into a \'MAD\' escrow account with the buyer -- and you will only be paid when the buyer confirms succesful ' +
-	      'delivery of the product. Use this message to communicate to the buyer when he can expect delivery and any other important information ' +
-	      'relating to the delivery of the product.\n' +
-	      'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
-	const priceBN = common.numberToBN(escrowInfo.vendorBalance);
-	mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceBN, null, function(err) {
-	    if (!!err)
-		alert(err);
-	});
-    });
+function doApprove(escrowIdBN, escrowInfo) {
+    const placeholderText =
+	  'You are about to approve this purchase!\n' +
+	  'Your bond funds will be locked into a \'MAD\' escrow account with the buyer -- and you will only be paid when the buyer confirms succesful ' +
+	  'delivery of the product. Use this message to communicate to the buyer when he can expect delivery and any other important information ' +
+	  'relating to the delivery of the product.\n' +
+	  'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
+    const priceBN = common.numberToBN(escrowInfo.vendorBalance);
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceBN,
+       function(attachmentIdxBN, message) {
+	   console.log('doApprove: setupComposeMsgArea came back');
+	   meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	       if (!!err)
+		   alert(err);
+	       else
+		   alert('You have just approved an escrow for a product!\n' +
+			 'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe. The buyer can no longer ' +
+			 'cancel the escrow -- but if you do not deliver the product in a timely manner he could \'burn\' the escrow, which would cause both ' +
+			 'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
+			 'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
+	   });
+       }, function(err) {
+	   if (!!err)
+	       alert(err);
+       });
 }

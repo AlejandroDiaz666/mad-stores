@@ -245,6 +245,7 @@ const mtUtil = module.exports = {
 		console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 		console.log('sendButton: message = ' + message);
 	    }
+	    console.log('setSendButtonHandler: calling mtUtil.sendCB');
 	    mtUtil.sendCB(attachmentIdxBN, message);
 	});
     },
