@@ -163,6 +163,16 @@ function addRow(table) {
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
+            if (!escrowInfo.isApproved) {
+		const cancelSpan = document.createElement("span");
+		cancelSpan.className = 'escrowListStepCancelSpan tooltip';
+		const cancelSpanTip = document.createElement("span");
+		cancelSpanTip.className = 'tooltipText';
+		cancelSpanTip.textContent = 'cancel this purchase; funds will be released from escrow';
+		cancelSpan.appendChild(cancelSpanTip);
+		nextStepsSpan.appendChild(cancelSpan);
+	    }
+
         }
 	/*
         depositedArea = document.createElement("textarea");

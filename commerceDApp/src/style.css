@@ -564,13 +564,17 @@ h3 { font-size:18px; }
     height: 250px;
     overflow-y: scroll;
 }
+#escrowListHeaderDiv {
+    border: none;
+}
 .escrowListItemDiv, .escrowListItemDivSelected {
     clear: both;
     display: table-row;
     height: 35px;
     background-color: var(--clr_areabg1);
     font-weight: normal;
-
+    border-style: solid;
+    border-width: 1px;
 }
 .escrowListEscrowNoArea, .escrowListTypeArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
@@ -605,7 +609,8 @@ h3 { font-size:18px; }
     resize: none;
     border-left-style: dashed;
     border-right-style: dashed;
-    border-width: 2px;
+    border-left-width: 2px;
+    border-right-width: 2px;
 }
 .escrowListnextStepsSpan {
     display: table-cell;
@@ -614,7 +619,7 @@ h3 { font-size:18px; }
     height: 35px;
     resize: none;
     border-right-style: dashed;
-    border-width: 2px;
+    border-right-width: 2px;
 }
 .escrowListStepArea {
     resize: none;
@@ -623,7 +628,7 @@ h3 { font-size:18px; }
     border-style: solid;
     margin-top: 2px;
 }
-.escrowListStepDepositSpan, .escrowListStepApproveSpan {
+.escrowListStepDepositSpan, .escrowListStepApproveSpan, .escrowListStepCancelSpan {
     background-size: 35px 35px;
     background-repeat: no-repeat;
     background-position: 0px 0px;
@@ -640,7 +645,10 @@ h3 { font-size:18px; }
 .escrowListStepApproveSpan {
     background-image: url('../images/locked-handshake.jpg');
 }
-.escrowListStepDepositSpan:hover, .escrowListStepApproveSpan:hover {
+.escrowListStepCancelSpan {
+    background-image: url('../images/cancel.jpg');
+}
+.escrowListStepDepositSpan:hover, .escrowListStepApproveSpan:hover, .escrowListStepCancelSpan:hover {
     padding: 0px;
     border-style: solid;
     border-width: 1px;
