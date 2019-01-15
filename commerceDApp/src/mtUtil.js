@@ -167,10 +167,53 @@ const mtUtil = module.exports = {
     },
 
 
+    // cb(err)
+    // cb is called after user clicks continue
+    sendMsg: function(toAddr, ref, attachmentIdxBN, message, cb) {
+	console.log('sendMsg');
+	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
+	    //encrypt the message...
+	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	    console.log('sendMsg: toPublicKey = ' + toPublicKey);
+	    if (!toPublicKey || toPublicKey == '0x') {
+		cb('Encryption error: unable to look up destination address in contract!');
+		return;
+	    }
+	    console.log('sendMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
+	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
+	    sentMsgCtrBN.iaddn(1);
+	    console.log('sendMsg: toPublicKey = ' + toPublicKey);
+	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
+	    console.log('sendMsg: ptk = ' + ptk);
+	    const encrypted = dhcrypt.encrypt(ptk, message);
+	    console.log('sendMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
+	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+		console.log('sendMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
+		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		console.log('sendMsg: msgFee is ' + msgFee + ' wei');
+		common.showWaitingForMetaMask(true);
+		const statusDiv = document.getElementById('statusDiv');
+		let sendErr = null;
+		const continueFcn = () => {
+		    common.clearStatusDiv(statusDiv);
+		    cb(sendErr);
+		};
+		mtEther.sendMessage(common.web3, toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
+		    console.log('sendMsg: txid = ' + txid);
+		    common.showWaitingForMetaMask(false);
+		    common.waitForTXID(err, txid, 'Message-Reply', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+			sendErr = err;
+		    });
+		});
+	    });
+	});
+    },
+
+
     /* ------------------------------------------------------------------------------------------------------------------
        display-related functions assume appropriate css
        ------------------------------------------------------------------------------------------------------------------ */
-
     //
     // needs to be called once, on document load
     //
@@ -180,8 +223,8 @@ const mtUtil = module.exports = {
 	const attachmentSaveA = document.getElementById('attachmentSaveA');
 	const deleteImg = document.getElementById('deleteImg');
 	deleteImg.addEventListener('click', function() {
-	    attachmentSaveA.href = null;
-	    attachmentSaveA.download = null;
+	    attachmentSaveA.href = '';
+	    attachmentSaveA.download = '';
 	    attachmentInput.value = attachmentInput.files = null;
 	    attachmentSaveA.style.display = 'none';
 	    common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
@@ -236,13 +279,14 @@ const mtUtil = module.exports = {
 	    //
 	    let attachmentIdxBN;
 	    const attachmentSaveA = document.getElementById('attachmentSaveA');
+	    const attachmentInput = document.getElementById('attachmentInput');
 	    if (!attachmentSaveA.href || !attachmentSaveA.download) {
 		attachmentIdxBN = new BN(0);
 	    } else {
 		const nameLenBN = new BN(attachmentSaveA.download.length);
 		attachmentIdxBN = new BN(message.length).iuor(nameLenBN.ushln(248));
 		message += attachmentSaveA.download + attachmentSaveA.href;
-		console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+		console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16) + ', attachmentSaveA.download = ' + attachmentSaveA.download);
 		console.log('sendButton: message = ' + message);
 	    }
 	    console.log('setSendButtonHandler: calling mtUtil.sendCB');
@@ -255,18 +299,25 @@ const mtUtil = module.exports = {
     // sendCB(attachmentIdxBN, message);
     // if priceBN is null, then price area is not displayed
     //
-    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendText, sendCB, cb) {
+    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendButtonText, sendCB, cb) {
 	console.log('setupComposeMsgArea: enter');
-	common.replaceElemClassFromTo('attachmentButton', 'hidden',    'visibleIB', true);
-	common.replaceElemClassFromTo('msgFeeArea',       'hidden',    'visibleIB', true);
-	common.replaceElemClassFromTo('msgDateArea',      'visibleIB', 'hidden',    true);
-	const sendButton = document.getElementById('sendButton');
-	sendButton.textContent = sendText;
-	mtUtil.sendCB = sendCB;
 	if (!ether.validateAddr(destAddr)) {
 	    cb('Error: vendor has an invalid Ethereum address.');
 	    return;
 	}
+	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
+	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
+	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
+	const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'hidden',    'visibleTC', true);
+                                 common.replaceElemClassFromTo('msgPricePromptArea', 'hidden',    'visibleTC', true);
+	const attachmentInput  = common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
+	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', false);
+	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
+	const sendButton = document.getElementById('sendButton');
+	sendButton.textContent = sendButtonText;
+	sendButton.disabled = false;
+	mtUtil.sendCB = sendCB;
+	msgPriceArea.value = priceDesc;
 	//
 	mtEther.accountQuery(common.web3, destAddr, function(err, toAcctInfo) {
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
@@ -280,28 +331,15 @@ const mtUtil = module.exports = {
 	    msgAddrArea.disabled = true;
 	    msgAddrArea.readonly = 'readonly';
 	    msgAddrArea.value = destAddr;
-	    //
-	    common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
-	    //attach button can be enabled, since addr is already validated
-	    common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
-	    common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden', true);
 	    const attachmentSaveA = document.getElementById('attachmentSaveA');
 	    attachmentSaveA.style.display = 'none';
-	    //
-	    const msgTextArea = common.replaceElemClassFromTo('msgTextArea', 'hidden', 'visibleIB', false);
 	    msgTextArea.value = '';
 	    msgTextArea.readonly = '';
 	    msgTextArea.placeholder = placeholderText;
-	    if (!!priceDesc) {
-		console.log('setupMsgArea: priceDesc = ' + priceDesc);
-		const msgPriceArea = document.getElementById('msgPriceArea');
-		msgPriceArea.value = priceDesc;
-	    }
 	    //fees: see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 		const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		const msgFeeArea = document.getElementById('msgFeeArea');
 		msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
 		cb(null);
 	    });
@@ -313,22 +351,27 @@ const mtUtil = module.exports = {
     // replyCB(attachmentIdxBN, message);
     // if priceBN is null, then price area is not displayed
     //
-    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, replyCB, cb) {
+    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, replyCB, cb) {
 	console.log('setupDisplayMsgArea: enter');
-	common.replaceElemClassFromTo('attachmentButton', 'visibleIB', 'hidden', true);
-	common.replaceElemClassFromTo('msgFeeArea',       'visibleIB', 'hidden',    true);
-	common.replaceElemClassFromTo('msgDateArea',      'hidden',    'visibleIB', true);
+	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'visibleIB', 'hidden',    true);
+	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'visibleIB', 'hidden',    true);
+	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'hidden',    'visibleIB', true);
+	const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'hidden',    'visibleTC', true);
+                                 common.replaceElemClassFromTo('msgPricePromptArea', 'hidden',    'visibleTC', true);
+	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', true);
+	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
 	const sendButton = document.getElementById('sendButton');
-	sendButton.textContent = 'reply';
+	sendButton.textContent = 'Reply';
+	sendButton.disabled = false;
+	mtUtil.sendCB = () => { replyToMsg(fromAddr, msgId, replyCB, cb); };
 	const msgPromptArea = document.getElementById('msgPromptArea');
 	msgPromptArea.value = 'From: ';
 	const msgAddrArea = document.getElementById('msgAddrArea');
 	msgAddrArea.disabled = true;
 	msgAddrArea.readonly = 'readonly';
 	msgAddrArea.value = fromAddr;
-	const msgDateArea = document.getElementById('msgDateArea');
+	msgPriceArea.value = priceDesc;
 	msgDateArea.value = date;
-	//mtUtil.sendCB = sendCB;
 	//
 	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
 	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, (err, decrypted) => {
@@ -347,7 +390,6 @@ const mtUtil = module.exports = {
 	    //msgDateArea.value = date;
 	    //msgNoNotButton.textContent = parseInt(msgNo).toString(10);
 	    console.log('setupDisplayMsgArea: text = ' + text);
-	    const msgTextArea = common.replaceElemClassFromTo('msgTextArea', 'hidden', 'visibleIB', true);
 	    msgTextArea.value = text;
 	    msgTextArea.readonly = 'true';
 	    const attachmentSaveA = document.getElementById('attachmentSaveA');
@@ -360,16 +402,57 @@ const mtUtil = module.exports = {
 	    } else {
 		attachmentSaveA.style.display = 'none';
 	    }
-	    if (!!priceDesc) {
-		console.log('setupMsgArea: priceDesc = ' + priceDesc);
-		const msgPriceArea = document.getElementById('msgPriceArea');
-		msgPriceArea.value = priceDesc;
-	    }
-	    //const replyButton = document.getElementById('replyButton');
-	    //replyButton.disabled = false;
-	    //
-	    common.replaceElemClassFromTo('msgAreaDiv', 'hidden', 'visibleB',  false);
 	});
     },
+}
 
+
+// cb(err)
+// sendCB(attachmentIdxBN, message);
+// if priceBN is null, then price area is not displayed
+//
+function replyToMsg(destAddr, refId, sendCB, cb) {
+    if (!ether.validateAddr(destAddr)) {
+	cb('Error: vendor has an invalid Ethereum address.');
+	return;
+    }
+    console.log('setupComposeMsgArea: enter');
+    const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
+    const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
+    const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
+    const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'visibleTC', 'hidden',    true);
+                             common.replaceElemClassFromTo('msgPricePromptArea', 'visibleTC', 'hidden',    true);
+    const attachmentInput  = common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
+    const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', false);
+    const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
+    const sendButton = document.getElementById('sendButton');
+    sendButton.textContent = 'Send';
+    sendButton.disabled = false;
+    mtUtil.sendCB = sendCB;
+    //
+    mtEther.accountQuery(common.web3, destAddr, function(err, toAcctInfo) {
+	const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
+	if (!toPublicKey || toPublicKey == '0x') {
+	    cb('Error: no Message-Transport account was found for destination address.');
+	    return;
+	}
+	const msgPromptArea = document.getElementById('msgPromptArea');
+	msgPromptArea.value = 'To: ';
+	const msgAddrArea = document.getElementById('msgAddrArea');
+	msgAddrArea.disabled = true;
+	msgAddrArea.readonly = 'readonly';
+	msgAddrArea.value = destAddr;
+	const attachmentSaveA = document.getElementById('attachmentSaveA');
+	attachmentSaveA.style.display = 'none';
+	msgTextArea.value = '';
+	msgTextArea.readonly = '';
+	msgTextArea.placeholder = 'Type your reply here';
+	//fees: see how many messages have been sent from the proposed recipient to me
+	mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	    console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
+	    const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+	    msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
+	    cb(null);
+	});
+    });
 }

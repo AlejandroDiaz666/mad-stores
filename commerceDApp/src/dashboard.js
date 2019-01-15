@@ -229,6 +229,7 @@ function populateRows() {
 
 function buildDashboard() {
     console.log('buildDashboard');
+    //TODO: musr update w-dai balance
     meEther.escrowCountQuery(common.web3.eth.accounts[0], function(err, escrowCountBN) {
         dashboard.escrowCount = escrowCountBN.toNumber();
         console.log('buildDashboard: dashboard.escrowCount = ' + dashboard.escrowCount);
@@ -260,22 +261,25 @@ function doApprove(escrowIdBN, escrowInfo) {
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Approve Escrow',
-       function(attachmentIdxBN, message) {
-	   console.log('doApprove: setupComposeMsgArea came back');
-	   meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
-	       if (!!err)
-		   alert(err);
-	       else
-		   alert('You have just approved an escrow for a product!\n' +
-			 'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe. The buyer can no longer ' +
-			 'cancel the escrow -- but if you do not deliver the product in a timely manner he could \'burn\' the escrow, which would cause both ' +
-			 'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
-			 'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
-	   });
-       }, function(err) {
-	   if (!!err)
-	       alert(err);
-       });
+      function(attachmentIdxBN, message) {
+	  console.log('doApprove: setupComposeMsgArea came back');
+	  meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	      if (!!err) {
+		  alert(err);
+		  dashboard.handleDashboardPage();
+	      } else {
+		  alert('You have just approved an escrow for a product!\n' +
+			'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe. The buyer can no longer ' +
+			'cancel the escrow -- but if you do not deliver the product in a timely manner he could \'burn\' the escrow, which would cause both ' +
+			'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
+			'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
+	      }
+	  });
+      }, function(err) {
+	  if (!!err)
+	      alert(err);
+	  dashboard.handleDashboardPage();
+      });
 }
 
 
@@ -285,11 +289,24 @@ function showDeposited(escrowIdBN, escrowInfo, productIdBN) {
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    alert(err);
+	    dashboard.handleDashboardPage();
 	    return;
 	}
 	console.log('showDeposited: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, null, function() {
-	});
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
+          function(attachmentIdxBN, message) {
+	      console.log('showDeposited: reply -- about to send reply');
+	      mtUtil.sendMsg(fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		  if (!!err)
+		      alert(err);
+		  dashboard.handleDashboardPage();
+	      });
+	  },
+	  function(err) {
+	      if (!!err)
+		  alert(err);
+	      dashboard.handleDashboardPage();
+	  });
     });
 }

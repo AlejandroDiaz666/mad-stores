@@ -1341,7 +1341,6 @@ h3 { font-size:18px; }
 #msgPricePromptArea {
     clear: both;
     float: left;
-    display: table-cell;
     width: 4em;
     max-width: 4em;
 }
@@ -1353,12 +1352,9 @@ h3 { font-size:18px; }
     padding-bottom: 1px;
     padding-left: 0px;
     margin: 0px;
-
     resize: none;
-    display: table-cell;
     width: 46em;
     min-width: 20%;
-
 }
 #sendButton {
     float: right;
