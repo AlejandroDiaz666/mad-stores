@@ -313,7 +313,7 @@ const mtUtil = module.exports = {
     // replyCB(attachmentIdxBN, message);
     // if priceBN is null, then price area is not displayed
     //
-    setupDisplayMsgArea: function(fromAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, replyCB, cb) {
+    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, replyCB, cb) {
 	console.log('setupDisplayMsgArea: enter');
 	common.replaceElemClassFromTo('attachmentButton', 'visibleIB', 'hidden', true);
 	common.replaceElemClassFromTo('msgFeeArea',       'visibleIB', 'hidden',    true);
@@ -330,7 +330,8 @@ const mtUtil = module.exports = {
 	msgDateArea.value = date;
 	//mtUtil.sendCB = sendCB;
 	//
-	mtUtil.decryptMsg(fromAddr, fromAddr, common.web3.eth.accounts[0], txCount, msgHex, (err, decrypted) => {
+	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
+	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, (err, decrypted) => {
 	    let text = decrypted;
 	    let attachment = null;
 	    console.log('setupDisplayMsgArea: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));

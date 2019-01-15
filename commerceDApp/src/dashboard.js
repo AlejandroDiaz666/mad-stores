@@ -250,14 +250,16 @@ function buildDashboard() {
 
 function doApprove(escrowIdBN, escrowInfo) {
     const placeholderText =
-	  'You are about to approve this purchase!\n' +
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to approve this purchase!\n\n' +
 	  'Your bond funds will be locked into a \'MAD\' escrow account with the buyer -- and you will only be paid when the buyer confirms succesful ' +
 	  'delivery of the product. Use this message to communicate to the buyer when he can expect delivery and any other important information ' +
-	  'relating to the delivery of the product.\n' +
+	  'relating to the delivery of the product.\n\n' +
 	  'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Send/Purchase',
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Approve Escrow',
        function(attachmentIdxBN, message) {
 	   console.log('doApprove: setupComposeMsgArea came back');
 	   meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
@@ -287,7 +289,7 @@ function showDeposited(escrowIdBN, escrowInfo, productIdBN) {
 	}
 	console.log('showDeposited: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
-	mtUtil.setupDisplayMsgArea(fromAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, null, function() {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgHex, attachmentIdxBN, null, function() {
 	});
     });
 }

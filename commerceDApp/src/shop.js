@@ -185,13 +185,17 @@ function handlePurchase(product) {
 	    alert("You don't have enough W-Dai to purchase this product.");
 	} else {
 	    const placeholderText =
-		  'Enter data pertinent to your purchase here.\nFor example, if a shipping address is required, then enter it here. Also if ' +
-		  'you have any special instructions for a custom order, enter them here.\n\nThe seller will have a chance to review your ' +
-		  'instructions / shipping address before approving the purchase. If the seller does not approve the purchase, then the escrow will ' +
-		  'be canceled, and all your funds will be returned.';
+		  '\n' +
+		  'Type your message here...\n\n' +
+		  'You are about to move funds into an escrow account to purchase this prodct!\n\n' +
+		  'Enter data pertinent to your purchase here.\n' +
+		  'For example, if a shipping address is required, then enter it here. Also if you have any special instructions for a custom order, ' +
+		  'enter them here.\n\n' +
+		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
+		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
 	    const escrowBN = product.priceBN.muln(3/2);
 	    const priceDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, doPurchaseWithMessage, function(err) {
+	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', doPurchaseWithMessage, function(err) {
 		if (!!err)
 		    alert(err);
 	    });
