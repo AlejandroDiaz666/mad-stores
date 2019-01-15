@@ -13,6 +13,7 @@ const BN = require("bn.js");
 
 
 var dashboard = module.exports = {
+    selectedRow: -1,
     escrowCount: 0,
     rowCount: 0,
 
@@ -91,8 +92,10 @@ var dashboard = module.exports = {
 
 function addRow(table) {
     console.log('addRow: enter');
+    const idx = dashboard.escrowCount - dashboard.rowCount - 1;
     rowDiv = document.createElement("div");
     rowDiv.className = 'escrowListItemDiv';
+    rowDiv.id = 'row-' + idx;
     const escrowNoArea = common.makeTextarea(null, 'escrowListEscrowNoArea', true);
     const typeArea = common.makeTextarea(null, 'escrowListTypeArea', true);
     const productArea = common.makeTextarea(null, 'escrowListTypeArea', true);
@@ -112,7 +115,7 @@ function addRow(table) {
     rowDiv.appendChild(completedSpan);
     rowDiv.appendChild(nextStepsSpan);
     table.appendChild(rowDiv);
-    const idx = dashboard.escrowCount - dashboard.rowCount - 1;
+
 
     //
     // completed = <funds-deposited>, [ rejected | <approved>, [ delivered | burned ] ]
@@ -147,6 +150,7 @@ function addRow(table) {
 	depositedSpanTip.textContent = 'funds for this purchase have been deposited into escrow';
 	depositedSpan.appendChild(depositedSpanTip);
 	depositedSpan.addEventListener('click', function() {
+	    selectRowIdx(idx);
 	    showDeposited(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
 	});
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
@@ -164,6 +168,7 @@ function addRow(table) {
 		approveSpan.appendChild(approveSpanTip);
 		nextStepsSpan.appendChild(approveSpan);
 		approveSpan.addEventListener('click', function() {
+		    selectRowIdx(idx);
 		    doApprove(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
 		});
 	    }
@@ -229,6 +234,7 @@ function populateRows() {
 
 function buildDashboard() {
     console.log('buildDashboard');
+    dashboard.selectedRow = -1;
     //TODO: musr update w-dai balance
     meEther.escrowCountQuery(common.web3.eth.accounts[0], function(err, escrowCountBN) {
         dashboard.escrowCount = escrowCountBN.toNumber();
@@ -309,4 +315,14 @@ function showDeposited(escrowIdBN, escrowInfo, productIdBN) {
 	      dashboard.handleDashboardPage();
 	  });
     });
+}
+
+function selectRowIdx(idx) {
+    if (dashboard.selectedRow >= 0) {
+	const oldId = 'row-' + dashboard.selectedRow;
+	common.replaceElemClassFromTo(oldId, 'escrowListItemDivSelected', 'escrowListItemDiv', null);
+    }
+    const id = 'row-' + idx;
+    dashboard.selectedRow = idx;
+    common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
 }

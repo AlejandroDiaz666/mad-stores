@@ -573,9 +573,17 @@ h3 { font-size:18px; }
     height: 35px;
     background-color: var(--clr_areabg1);
     font-weight: normal;
+    overflow: clip;
+}
+.escrowListItemDiv {
     border-style: solid;
     border-width: 1px;
-    overflow: clip;
+    margin: 1px;
+}
+.escrowListItemDivSelected {
+    border-style: solid;
+    border-width: 2px;
+    margin: 0px;
 }
 .escrowListEscrowNoArea, .escrowListTypeArea, .escrowListProductArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
