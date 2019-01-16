@@ -649,6 +649,7 @@ h3 { font-size:18px; }
 }
 .escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan,
 .escrowListStepDeclineSpan, .escrowListStepApproveSpan  {
+    float: left;
     background-size: 35px 35px;
     background-repeat: no-repeat;
     background-position: 0px 0px;
