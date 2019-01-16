@@ -197,30 +197,24 @@ function handlePurchase(product) {
 		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
 		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
 	    const priceDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', doPurchaseWithMessage, function(err) {
-		if (!!err)
+	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', doPurchaseWithMessage, function(err, attachmentIdxBN, message) {
+		if (!!err) {
 		    alert(err);
+		    return;
+		}
+		meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
+		    if (!!err)
+			alert(err);
+		    else
+			alert('You have just ordered a product; please give the seller\n' +
+			      'some time to review and approve or reject your order.\n' +
+			      'You can track the progress of your order on the dashboard\n' +
+			      'page\n\n' +
+			      'Be sure to check Turms Message Transport, periodically,\n' +
+			      'to see if the seller has sent you any messages.');
+		    handleSearchProducts();
+		});
 	    });
 	}
-    });
-}
-
-
-//
-// now we have message data, time to perform the purchase
-//
-function doPurchaseWithMessage(attachmentIdxBN, message) {
-    console.log('doPurchaseWithMessage');
-    meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
-	if (!!err)
-	    alert(err);
-	else
-	    alert('You have just ordered a product; please give the seller\n' +
-		  'some time to review and approve or reject your order.\n' +
-		  'You can track the progress of your order on the dashboard\n' +
-		  'page\n\n' +
-		  'Be sure to check Turms Message Transport, periodically,\n' +
-		  'to see if the seller has sent you any messages.');
-	handleSearchProducts();
     });
 }
