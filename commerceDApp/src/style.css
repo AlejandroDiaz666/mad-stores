@@ -632,9 +632,13 @@ h3 { font-size:18px; }
     resize: none;
     width: 200px;
     height: 35px;
-    resize: none;
     border-right-style: dashed;
     border-right-width: 2px;
+    font-size: 16px;
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    vertical-align: middle;
 }
 .escrowListStepArea {
     resize: none;

@@ -142,6 +142,9 @@ function addRow(table) {
 	addStep(idx, 'escrowListStepDepositSpan', 'funds for this purchase have been deposited into escrow', completedSpan, showDeposit);
         if (escrowInfo.isApproved) {
 	    addStep(idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
+	} else if (escrowInfo.isClosed) {
+	    addStep(idx, 'escrowListStepCancelSpan', 'this purchase was canceled or declined; escrow is closed', completedSpan, showCancelOrDecline)
+	    nextStepsSpan.textContent = 'Escrow Is Closed';
 	}
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
@@ -160,8 +163,6 @@ function addRow(table) {
 	    }
 
         }
-        if (escrowInfo.isClosed)
-	    ; //nextStepsSpan.textContent = 'Escrow Is Closed';
     });
     ++dashboard.rowCount;
     console.log('addRow: exit');
@@ -247,6 +248,36 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
           function(attachmentIdxBN, message) {
 	      console.log('showApprove: reply -- about to send reply');
+	      mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		  if (!!err)
+		      alert(err);
+		  dashboard.handleDashboardPage();
+	      });
+	  },
+	  function(err) {
+	      if (!!err) {
+		  alert(err);
+		  dashboard.handleDashboardPage();
+	      }
+	  });
+    });
+}
+
+
+function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
+    console.log('showCancelOrDecline: approveCancelXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	console.log('showCancelOrDecline: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'this purchase was canceled or declined';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
+          function(attachmentIdxBN, message) {
+	      console.log('showCancelOrDecline: reply -- about to send reply');
 	      mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
 		  if (!!err)
 		      alert(err);
