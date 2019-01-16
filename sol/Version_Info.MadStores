@@ -5,6 +5,10 @@ Ropsten: 0x74F0733d36Aba511daBd3Cd167633b6CAc5DF03e
 constructor parms:
 00000000000000000000000028901fc03008677147a5dec60dd3993b823b58d4000000000000000000000000d7711e21a2e4bfe0f6b5cec11fb4f801453533e3
 
+Partner Addr changed to:
+messageTransport = 0x28901fc03008677147A5DEc60dd3993b823b58d4
+madEscrow = 0x48f366E6960189Ef27306C04f81595997470ccDE
+
 deploy gas: 4084786
 Note: don't forget to a) compile with optimization, b) set trust
 
