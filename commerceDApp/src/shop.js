@@ -181,8 +181,11 @@ function showProductDetail(product) {
 function handlePurchase(product) {
     meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
-	if (wdaiBalanceBN.lt(product.priceBN)) {
-	    alert("You don't have enough W-Dai to purchase this product.");
+	const escrowBN = product.priceBN.muln(3/2);
+	if (wdaiBalanceBN.lt(escrowBN)) {
+	    alert('You don\'t have enough W-Dai to purchase this product.\n\n' +
+		  'The price is ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai, so you will need ' +
+		  meEther.daiBNToUsdStr(escrowBN) + ' W-Dai to put into escrow.');
 	} else {
 	    const placeholderText =
 		  '\n' +
@@ -193,7 +196,6 @@ function handlePurchase(product) {
 		  'enter them here.\n\n' +
 		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
 		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
-	    const escrowBN = product.priceBN.muln(3/2);
 	    const priceDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
 	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', doPurchaseWithMessage, function(err) {
 		if (!!err)

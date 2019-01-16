@@ -659,7 +659,10 @@ const meEther = module.exports = {
 	const cents = daiBNx16.toNumber();
 	const usd = cents / 100;
 	console.log('daiBNToUsdStr: daiBN = ' + daiBN.toString(10) + ' => ' + usd.toString(10));
-	return(usd.toFixed(!!places ? places : 2));
+	if (!!places && places != 2)
+	    return(usd.toFixed(places));
+	else
+	    return((usd + 0.005).toFixed(2));
     },
 
     //produces a Dai BN (ie, 18 decimals) from nominal dai, AKA USD

@@ -665,7 +665,7 @@ h3 { font-size:18px; }
     background-image: url('../images/cancel.jpg');
 }
 .escrowListStepDeclineSpan {
-    background-image: url('../images/cancel.jpg');
+    background-image: url('../images/decline.jpg');
 }
 .escrowListStepApproveSpan {
     background-image: url('../images/locked-handshake.jpg');
