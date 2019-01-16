@@ -30,6 +30,8 @@ const meEther = module.exports = {
     withdrawABI: null,
     purchaseDepositABI: null,
     purchaseApproveABI: null,
+    purchaseDeclineABI: null,
+    purchaseCancelABI: null,
     MSContractInstance: null,
     MEContractInstance: null,
     daiContractInstance: null,
@@ -422,6 +424,73 @@ const meEther = module.exports = {
 	return(encoded);
     },
 
+
+    // ---------------------------------------------------------------------------------------------------------
+    // purchaseDecline & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //     function purchaseDecline(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable;
+    //
+    //
+    purchaseDecline: function(escrowIdBN, msgFee, attachmentIdxBN, messageHex, cb) {
+	console.log('purchaseDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	console.log('purchaseDecline: msgFee = ' + msgFee);
+	console.log('purchaseDecline: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	console.log('purchaseDecline: messageHex = ' + messageHex);
+	const abiPurchaseDeclineFcn = meEther.abiEncodePurchaseDecline();
+	const abiParms = meEther.abiEncodePurchaseDeclineParms(escrowIdBN, attachmentIdxBN, messageHex);
+        const sendData = "0x" + abiPurchaseDeclineFcn + abiParms;
+	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodePurchaseDecline: function() {
+	if (!meEther.purchaseDeclineABI)
+	    meEther.purchaseDeclineABI = ethabi.methodID('purchaseDecline', [ 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.purchaseDeclineABI);
+    },
+
+    abiEncodePurchaseDeclineParms: function(escrowIdBN, attachmentIdxBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, attachmentIdxBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
+
+
+    // ---------------------------------------------------------------------------------------------------------
+    // purchaseCancel & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //     function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable;
+    //
+    //
+    purchaseCancel: function(escrowIdBN, msgFee, attachmentIdxBN, messageHex, cb) {
+	console.log('purchaseCancel: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	console.log('purchaseCancel: msgFee = ' + msgFee);
+	console.log('purchaseCancel: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	console.log('purchaseCancel: messageHex = ' + messageHex);
+	const abiPurchaseCancelFcn = meEther.abiEncodePurchaseCancel();
+	const abiParms = meEther.abiEncodePurchaseCancelParms(escrowIdBN, attachmentIdxBN, messageHex);
+        const sendData = "0x" + abiPurchaseCancelFcn + abiParms;
+	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodePurchaseCancel: function() {
+	if (!meEther.purchaseCancelABI)
+	    meEther.purchaseCancelABI = ethabi.methodID('purchaseCancel', [ 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.purchaseCancelABI);
+    },
+
+    abiEncodePurchaseCancelParms: function(escrowIdBN, attachmentIdxBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, attachmentIdxBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
 
 
     // ---------------------------------------------------------------------------------------------------------

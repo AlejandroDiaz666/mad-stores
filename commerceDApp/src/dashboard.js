@@ -115,27 +115,7 @@ function addRow(table) {
     rowDiv.appendChild(completedSpan);
     rowDiv.appendChild(nextStepsSpan);
     table.appendChild(rowDiv);
-
-
     //
-    // completed = <funds-deposited>, [ rejected | <approved>, [ delivered | burned ] ]
-    //
-    // icons: money-paid, thumbs-down, thumbs-up, deliver, burn
-    //
-    // next-step[deposited] = rejected | approve
-    // next-step[approved] = confirm-delivery | burn
-    //
-    //
-    // ================          ===================
-    // paid                      approve | refuse
-    //
-    // paid refused               -- escrow concluded / settled --
-    //
-    // paid approved             confirm-delivery | burn
-    //
-    // paid approved burned
-    //
-    // paid approved fulfilled/completed
     meEther.escrowQuery(common.web3.eth.accounts[0], idx, function(err, escrowIdBN, escrowInfo) {
         // 'isClosed', 'isApproved', 'partnerAddr', 'vendorAddr', 'customerAddr', 'productId', 'vendorBalance',
         // 'customerBalance', 'createXactId', 'modifyXactId', 'approveCancelXactId', 'releaseBurnXactId' ];
@@ -143,69 +123,43 @@ function addRow(table) {
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
 	productArea.value = 'loading...';
-        const depositedSpan = document.createElement("span");
-        depositedSpan.className = 'escrowListStepDepositSpan tooltip';
-	const depositedSpanTip = document.createElement("span");
-	depositedSpanTip.className = 'tooltipText';
-	depositedSpanTip.textContent = 'funds for this purchase have been deposited into escrow';
-	depositedSpan.appendChild(depositedSpanTip);
-	depositedSpan.addEventListener('click', function() {
-	    selectRowIdx(idx);
-	    showDeposited(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
-	});
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
 	    productArea.value = product.name;
 	});
+	const addStep = (idx, className, tipText, addTo, handler) => {
+            const stepSpan = document.createElement("span");
+            stepSpan.className = className + ' tooltip';
+	    const stepSpanTip = document.createElement("span");
+	    stepSpanTip.className = 'tooltipText';
+	    stepSpanTip.textContent = tipText;
+	    stepSpan.appendChild(stepSpanTip);
+	    stepSpan.addEventListener('click', function() {
+		selectRowIdx(idx);
+		handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
+	    });
+            addTo.appendChild(stepSpan);
+	};
+	addStep(idx, 'escrowListStepDepositSpan', 'funds for this purchase have been deposited into escrow', completedSpan, showDeposit);
+        if (escrowInfo.isApproved) {
+	    addStep(idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
+	}
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
             if (!escrowInfo.isApproved) {
-		const approveSpan = document.createElement("span");
-		approveSpan.className = 'escrowListStepApproveSpan tooltip';
-		const approveSpanTip = document.createElement("span");
-		approveSpanTip.className = 'tooltipText';
-		approveSpanTip.textContent = 'approve this purchase; will lock funds into escrow';
-		approveSpan.appendChild(approveSpanTip);
-		nextStepsSpan.appendChild(approveSpan);
-		approveSpan.addEventListener('click', function() {
-		    selectRowIdx(idx);
-		    doApprove(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
-		});
+		addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApprove);
+		addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
 	    }
         }
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
             if (!escrowInfo.isApproved) {
-		const cancelSpan = document.createElement("span");
-		cancelSpan.className = 'escrowListStepCancelSpan tooltip';
-		const cancelSpanTip = document.createElement("span");
-		cancelSpanTip.className = 'tooltipText';
-		cancelSpanTip.textContent = 'cancel this purchase; funds will be released from escrow';
-		cancelSpan.appendChild(cancelSpanTip);
-		nextStepsSpan.appendChild(cancelSpan);
+		addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModify);
+		addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
 	    }
 
         }
-	/*
-        depositedArea = document.createElement("textarea");
-        depositedArea.className = 'escrowListStepArea';
-        depositedArea.rows = 1;
-        depositedArea.readonly = 'readonly';
-        depositedArea.disabled = 'disabled';
-        depositedArea.textContent = 'deposit';
-        completedSpan.appendChild(depositedArea);
-	*/
-        completedSpan.appendChild(depositedSpan);
-        if (escrowInfo.isApproved) {
-	    const approveSpan = document.createElement("span");
-	    approveSpan.className = 'escrowListStepSpan escrowListStepApproveSpan tooltip';
-	    const approveSpanTip = document.createElement("span");
-	    approveSpanTip.className = 'tooltipText';
-	    approveSpanTip.textContent = 'this purchase was approved; escrow is locked';
-	    approveSpan.appendChild(approveSpanTip);
-	    completedSpan.appendChild(approveSpan);
-	}
 
     });
     ++dashboard.rowCount;
@@ -235,22 +189,74 @@ function populateRows() {
 function buildDashboard() {
     console.log('buildDashboard');
     dashboard.selectedRow = -1;
-    //TODO: musr update w-dai balance
+    //TODO: must update w-dai balance
     meEther.escrowCountQuery(common.web3.eth.accounts[0], function(err, escrowCountBN) {
         dashboard.escrowCount = escrowCountBN.toNumber();
         console.log('buildDashboard: dashboard.escrowCount = ' + dashboard.escrowCount);
         populateRows();
-        /*
-        for (let i = 0; i < escrowCountBN.toNumber(); ++i) {
-            meEther.escrowQuery(common.web3.eth.accounts[0], i, function(err, escrowInfo) {
-            });
-        }
-        */
     });
     const escrowListDiv = document.getElementById('escrowListDiv');
     escrowListDiv.addEventListener('scroll', function() {
         if (dashboard.rowCount < dashboard.escrowCount)
             populateRows();
+    });
+}
+
+
+function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.createXactId);
+    console.log('showDeposit: createXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	console.log('showDeposit: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
+          function(attachmentIdxBN, message) {
+	      console.log('showDeposit: reply -- about to send reply');
+	      mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		  if (!!err)
+		      alert(err);
+		  dashboard.handleDashboardPage();
+	      });
+	  },
+	  function(err) {
+	      if (!!err)
+		  alert(err);
+	      dashboard.handleDashboardPage();
+	  });
+    });
+}
+
+
+function showApprove(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
+    console.log('showApprove: approveCancelXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	console.log('showApprove: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'the vendor approved this escrow, and committed to deliver this product';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
+          function(attachmentIdxBN, message) {
+	      console.log('showApprove: reply -- about to send reply');
+	      mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		  if (!!err)
+		      alert(err);
+		  dashboard.handleDashboardPage();
+	      });
+	  },
+	  function(err) {
+	      if (!!err)
+		  alert(err);
+	      dashboard.handleDashboardPage();
+	  });
     });
 }
 
@@ -289,33 +295,64 @@ function doApprove(escrowIdBN, escrowInfo) {
 }
 
 
-function showDeposited(escrowIdBN, escrowInfo, productIdBN) {
-    const msgId = common.numberToHex256(escrowInfo.createXactId);
-    console.log('showDeposited: createXactId = ' + msgId);
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showDeposited: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
-	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
-          function(attachmentIdxBN, message) {
-	      console.log('showDeposited: reply -- about to send reply');
-	      mtUtil.sendMsg(fromAddr, msgId, attachmentIdxBN, message, function(err) {
-		  if (!!err)
-		      alert(err);
-		  dashboard.handleDashboardPage();
-	      });
-	  },
-	  function(err) {
-	      if (!!err)
+function doCancel(escrowIdBN, escrowInfo) {
+    const placeholderText =
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to cancel this purchase!\n\n' +
+	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
+    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
+    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline',
+      function(attachmentIdxBN, message) {
+	  console.log('doDecline: setupComposeMsgArea came back');
+	  meUtil.purchaseDecline(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	      if (!!err) {
 		  alert(err);
-	      dashboard.handleDashboardPage();
+		  dashboard.handleDashboardPage();
+	      } else {
+		  alert('You have just canceled this purchase!\n' +
+			'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	      }
 	  });
-    });
+      }, function(err) {
+	  if (!!err)
+	      alert(err);
+	  dashboard.handleDashboardPage();
+      });
 }
+
+
+function doDecline(escrowIdBN, escrowInfo) {
+    const placeholderText =
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to decline this purchase!\n\n' +
+	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the buyer why you are declining this purchase\n\n' +
+	  'Note: if you only require more information (eg. shipping information) from the buyer, then you can send him a response to his original deposit ' +
+	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
+    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
+    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline',
+      function(attachmentIdxBN, message) {
+	  console.log('doDecline: setupComposeMsgArea came back');
+	  meUtil.purchaseDecline(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	      if (!!err) {
+		  alert(err);
+		  dashboard.handleDashboardPage();
+	      } else {
+		  alert('You have just declined selling a product!\n' +
+			'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	      }
+	  });
+      }, function(err) {
+	  if (!!err)
+	      alert(err);
+	  dashboard.handleDashboardPage();
+      });
+}
+
+
 
 function selectRowIdx(idx) {
     if (dashboard.selectedRow >= 0) {

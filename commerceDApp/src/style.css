@@ -643,7 +643,8 @@ h3 { font-size:18px; }
     border-style: solid;
     margin-top: 2px;
 }
-.escrowListStepDepositSpan, .escrowListStepApproveSpan, .escrowListStepCancelSpan {
+.escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan,
+.escrowListStepDeclineSpan, .escrowListStepApproveSpan  {
     background-size: 35px 35px;
     background-repeat: no-repeat;
     background-position: 0px 0px;
@@ -657,13 +658,20 @@ h3 { font-size:18px; }
 .escrowListStepDepositSpan {
     background-image: url('../images/funds-deposited.jpg');
 }
-.escrowListStepApproveSpan {
-    background-image: url('../images/locked-handshake.jpg');
+.escrowListStepModifySpan {
+    background-image: url('../images/funds-deposited.jpg');
 }
 .escrowListStepCancelSpan {
     background-image: url('../images/cancel.jpg');
 }
-.escrowListStepDepositSpan:hover, .escrowListStepApproveSpan:hover, .escrowListStepCancelSpan:hover {
+.escrowListStepDeclineSpan {
+    background-image: url('../images/cancel.jpg');
+}
+.escrowListStepApproveSpan {
+    background-image: url('../images/locked-handshake.jpg');
+}
+.escrowListStepDepositSpan:hover, .escrowListStepModifySpan:hover, .escrowListStepCancelSpan:hover,
+.escrowListStepDeclineSpan:hover, .escrowListStepApproveSpan:hover  {
     padding: 0px;
     border-style: solid;
     border-width: 1px;

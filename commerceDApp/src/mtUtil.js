@@ -169,29 +169,29 @@ const mtUtil = module.exports = {
 
     // cb(err)
     // cb is called after user clicks continue
-    sendMsg: function(toAddr, ref, attachmentIdxBN, message, cb) {
-	console.log('sendMsg');
+    encryptAndSendMsg: function(msgDesc, toAddr, ref, attachmentIdxBN, message, cb) {
+	console.log('encryptAndSendMsg');
 	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    console.log('sendMsg: toPublicKey = ' + toPublicKey);
+	    //console.log('encryptAndSendMsg: toPublicKey = ' + toPublicKey);
 	    if (!toPublicKey || toPublicKey == '0x') {
 		cb('Encryption error: unable to look up destination address in contract!');
 		return;
 	    }
-	    console.log('sendMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
+	    //console.log('encryptAndSendMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
 	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
-	    console.log('sendMsg: toPublicKey = ' + toPublicKey);
+	    //console.log('encryptAndSendMsg: toPublicKey = ' + toPublicKey);
 	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    console.log('sendMsg: ptk = ' + ptk);
+	    //console.log('encryptAndSendMsg: ptk = ' + ptk);
 	    const encrypted = dhcrypt.encrypt(ptk, message);
-	    console.log('sendMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+	    console.log('encryptAndSendMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('sendMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
+		console.log('encryptAndSendMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		console.log('sendMsg: msgFee is ' + msgFee + ' wei');
+		console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
 		common.showWaitingForMetaMask(true);
 		const statusDiv = document.getElementById('statusDiv');
 		let sendErr = null;
@@ -200,9 +200,9 @@ const mtUtil = module.exports = {
 		    cb(sendErr);
 		};
 		mtEther.sendMessage(common.web3, toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
-		    console.log('sendMsg: txid = ' + txid);
+		    console.log('encryptAndSendMsg: txid = ' + txid);
 		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, 'Message-Reply', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    common.waitForTXID(err, txid, msgDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
 			sendErr = err;
 		    });
 		});
@@ -271,33 +271,37 @@ const mtUtil = module.exports = {
 	const sendButton = document.getElementById('sendButton');
 	sendButton.addEventListener('click', function() {
 	    console.log('sendButton: click');
-	    const msgAddrArea = document.getElementById('msgAddrArea');
-	    const msgTextArea = document.getElementById('msgTextArea');
-	    let message = msgTextArea.value;
-	    sendButton.disabled = true;
-	    msgTextArea.disabled = true;
-	    //
-	    let attachmentIdxBN;
-	    const attachmentSaveA = document.getElementById('attachmentSaveA');
-	    const attachmentInput = document.getElementById('attachmentInput');
-	    if (!attachmentSaveA.href || !attachmentSaveA.download) {
-		attachmentIdxBN = new BN(0);
-	    } else {
-		const nameLenBN = new BN(attachmentSaveA.download.length);
-		attachmentIdxBN = new BN(message.length).iuor(nameLenBN.ushln(248));
-		message += attachmentSaveA.download + attachmentSaveA.href;
-		console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16) + ', attachmentSaveA.download = ' + attachmentSaveA.download);
-		console.log('sendButton: message = ' + message);
+	    if (!!mtUtil.sendCB) {
+		const msgAddrArea = document.getElementById('msgAddrArea');
+		const msgTextArea = document.getElementById('msgTextArea');
+		let message = msgTextArea.value;
+		sendButton.disabled = true;
+		msgTextArea.disabled = true;
+		//
+		let attachmentIdxBN;
+		const attachmentSaveA = document.getElementById('attachmentSaveA');
+		const attachmentInput = document.getElementById('attachmentInput');
+		if (!attachmentSaveA.href || !attachmentSaveA.download) {
+		    attachmentIdxBN = new BN(0);
+		} else {
+		    const nameLenBN = new BN(attachmentSaveA.download.length);
+		    attachmentIdxBN = new BN(message.length).iuor(nameLenBN.ushln(248));
+		    message += attachmentSaveA.download + attachmentSaveA.href;
+		    console.log('sendButton: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16) + ', attachmentSaveA.download = ' + attachmentSaveA.download);
+		    console.log('sendButton: message = ' + message);
+		}
+		console.log('setSendButtonHandler: calling mtUtil.sendCB');
+		mtUtil.sendCB(attachmentIdxBN, message);
 	    }
-	    console.log('setSendButtonHandler: calling mtUtil.sendCB');
-	    mtUtil.sendCB(attachmentIdxBN, message);
 	});
     },
 
 
     // cb(err)
     // sendCB(attachmentIdxBN, message);
-    // if priceBN is null, then price area is not displayed
+    //
+    // set up the compose area. before calling the sendCB any attachment is appended to the message (via the
+    // attachButton and sendButton click handlers). the message is not encrypted.
     //
     setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendButtonText, sendCB, cb) {
 	console.log('setupComposeMsgArea: enter');
@@ -349,7 +353,10 @@ const mtUtil = module.exports = {
 
     // cb(err)
     // replyCB(attachmentIdxBN, message);
-    // if priceBN is null, then price area is not displayed
+    //
+    // set up the message-display area. if the user clicks the reply button, then the reply is constructed (via the replyToMsg fcn);
+    // in that case before calling the replyCB any attachment is appended to the message (via the attachButton and sendButton click
+    // handlers). the reply message is not encrypted.
     //
     setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, replyCB, cb) {
 	console.log('setupDisplayMsgArea: enter');
@@ -409,7 +416,6 @@ const mtUtil = module.exports = {
 
 // cb(err)
 // sendCB(attachmentIdxBN, message);
-// if priceBN is null, then price area is not displayed
 //
 function replyToMsg(destAddr, refId, sendCB, cb) {
     if (!ether.validateAddr(destAddr)) {

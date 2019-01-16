@@ -57,7 +57,7 @@ const common = module.exports = {
 	    const expIdx = numberStr.indexOf('e+');
 	    //console.log('numberToBN: expStr =' + numberStr.substring(expIdx + 2));
 	    const exp = parseInt(numberStr.substring(expIdx + 2));
-	    console.log('numberToBN: exp = ' + exp);
+	    //console.log('numberToBN: exp = ' + exp);
 	    let begPart = numberStr.substring(0, expIdx);
 	    //console.log('numberToBN: begPart =' + begPart);
 	    let endPart = '';
@@ -73,7 +73,7 @@ const common = module.exports = {
 	}
 	//console.log('numberToBN: converted from ' + number + ' to ' + numberStr);
 	const bn = new BN(numberStr, base);
-	console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16) + ', ' + bn.toString(10));
+	//console.log('numberToBN: converted from ' + number + ' to 0x' + bn.toString(16) + ', ' + bn.toString(10));
 	return(bn);
     },
 
@@ -225,7 +225,7 @@ const common = module.exports = {
 	const padChar = (typeof ch !== 'undefined') ? ch : ' ';
 	const pad = new Array(1 + desiredLen).join(padChar);
 	const padded = (str.toString() + pad).slice(0, desiredLen);
-	console.log('padded = X' + padded + 'X');
+	//console.log('padded = X' + padded + 'X');
 	return padded;
     },
 
