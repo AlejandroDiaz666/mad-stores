@@ -146,7 +146,7 @@ function addRow(table) {
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
-            if (!escrowInfo.isApproved) {
+            if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
 		addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApprove);
 		addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
 	    }
@@ -154,13 +154,14 @@ function addRow(table) {
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
-            if (!escrowInfo.isApproved) {
+            if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
 		addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModify);
 		addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
 	    }
 
         }
-
+        if (escrowInfo.isClosed)
+	    ; //nextStepsSpan.textContent = 'Escrow Is Closed';
     });
     ++dashboard.rowCount;
     console.log('addRow: exit');
@@ -253,9 +254,10 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	      });
 	  },
 	  function(err) {
-	      if (!!err)
+	      if (!!err) {
 		  alert(err);
-	      dashboard.handleDashboardPage();
+		  dashboard.handleDashboardPage();
+	      }
 	  });
     });
 }
@@ -275,10 +277,9 @@ function doApprove(escrowIdBN, escrowInfo) {
     mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Approve Escrow',
       function(attachmentIdxBN, message) {
 	  console.log('doApprove: setupComposeMsgArea came back');
-	  meUtil.purchaseApprove(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	  meUtil.escrowFcnWithMessage(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
 	      if (!!err) {
 		  alert(err);
-		  dashboard.handleDashboardPage();
 	      } else {
 		  alert('You have just approved an escrow for a product!\n' +
 			'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe. The buyer can no longer ' +
@@ -286,11 +287,13 @@ function doApprove(escrowIdBN, escrowInfo) {
 			'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
 			'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
 	      }
+	      dashboard.handleDashboardPage();
 	  });
       }, function(err) {
-	  if (!!err)
+	  if (!!err) {
 	      alert(err);
-	  dashboard.handleDashboardPage();
+	      dashboard.handleDashboardPage();
+	  }
       });
 }
 
@@ -305,25 +308,26 @@ function doCancel(escrowIdBN, escrowInfo) {
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline',
       function(attachmentIdxBN, message) {
-	  console.log('doDecline: setupComposeMsgArea came back');
-	  meUtil.purchaseDecline(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	  meUtil.escrowFcnWithMessage(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
 	      if (!!err) {
 		  alert(err);
-		  dashboard.handleDashboardPage();
 	      } else {
 		  alert('You have just canceled this purchase!\n' +
 			'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
 	      }
+	      dashboard.handleDashboardPage();
 	  });
       }, function(err) {
-	  if (!!err)
+	  if (!!err) {
 	      alert(err);
-	  dashboard.handleDashboardPage();
+	      dashboard.handleDashboardPage();
+	  }
       });
 }
 
 
 function doDecline(escrowIdBN, escrowInfo) {
+    console.log('doDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
@@ -336,19 +340,21 @@ function doDecline(escrowIdBN, escrowInfo) {
     mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline',
       function(attachmentIdxBN, message) {
 	  console.log('doDecline: setupComposeMsgArea came back');
-	  meUtil.purchaseDecline(escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	  meUtil.escrowFcnWithMessage(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
 	      if (!!err) {
 		  alert(err);
 		  dashboard.handleDashboardPage();
 	      } else {
 		  alert('You have just declined selling a product!\n' +
 			'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+		  dashboard.handleDashboardPage();
 	      }
 	  });
       }, function(err) {
-	  if (!!err)
+	  if (!!err) {
 	      alert(err);
-	  dashboard.handleDashboardPage();
+	      dashboard.handleDashboardPage();
+	  }
       });
 }
 
