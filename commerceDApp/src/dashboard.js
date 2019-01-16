@@ -274,7 +274,7 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showCancelOrDecline: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
-	const priceDesc = 'this purchase was canceled or declined';
+	const priceDesc = (escrowInfo.vendorAddr == fromAddr) ? 'this purchase was declined' : 'this purchase was canceled';
 	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN,
           function(attachmentIdxBN, message) {
 	      console.log('showCancelOrDecline: reply -- about to send reply');
