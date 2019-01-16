@@ -42,7 +42,7 @@ contract MadStores is SafeMath {
   event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _msgId);
   event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
-  event PurchaseRejectEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
+  event PurchaseDeclineEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryRejectEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
 
@@ -402,10 +402,9 @@ contract MadStores is SafeMath {
   // called by vendor
   // -----------------------------------------------------------------------------------------------------
   function purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, msg.sender);
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
     madEscrow.approveEscrow(_escrowID, _msgId);
@@ -416,21 +415,20 @@ contract MadStores is SafeMath {
 
 
   // -----------------------------------------------------------------------------------------------------
-  // reject a purchase
+  // decline a purchase
   // called by vendor
   // -----------------------------------------------------------------------------------------------------
-  function purchaseReject(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
+  function purchaseDecline(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, msg.sender);
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
     Product storage _product = products[_productID];
     madEscrow.cancelEscrow(_escrowID, _msgId);
     _product.quantity += 1;
-    emit PurchaseRejectEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: purchase rejected -- funds returned");
+    emit PurchaseDeclineEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
+    emit StatEvent("ok: purchase declineed -- funds returned");
   }
 
 
@@ -439,7 +437,6 @@ contract MadStores is SafeMath {
   // called by customer
   // -----------------------------------------------------------------------------------------------------
   function deliveryApprove(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
@@ -462,7 +459,6 @@ contract MadStores is SafeMath {
   // product to stock; that is we do not increment product quantity
   // -----------------------------------------------------------------------------------------------------
   function deliveryReject(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
-    //TODO: ensure that msg.sender has an EMS account
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
