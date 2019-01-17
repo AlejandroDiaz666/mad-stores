@@ -153,8 +153,8 @@ contract MadEscrow is iERC20Token, SafeMath {
   function transfer(address _to, uint _value) public onlyPayloadSize(2*32) returns (bool success) {
     //prevent wrap
     if (balances[msg.sender] >= _value && balances[_to] + _value >= balances[_to]) {
-      balances[msg.sender] -= _value;
-      balances[_to] += _value;
+      balances[msg.sender] = safeSub(balances[msg.sender], _value);
+      balances[_to] = safeAdd(balances[_to], _value);
       emit TransferEvent(msg.sender, _to, _value);
       return true;
     } else {
@@ -165,9 +165,9 @@ contract MadEscrow is iERC20Token, SafeMath {
   function transferFrom(address _from, address _to, uint _value) onlyPayloadSize(3*32) public returns (bool success) {
     //prevent wrap:
     if (balances[_from] >= _value && approvals[_from][msg.sender] >= _value && balances[_to] + _value >= balances[_to]) {
-      balances[_from] -= _value;
-      balances[_to] += _value;
-      approvals[_from][msg.sender] -= _value;
+      balances[_from] = safeSub(balances[_from], _value);
+      balances[_to] = safeAdd(balances[_to], _value);
+      approvals[_from][msg.sender] = safeSub(approvals[_from][msg.sender], _value);
       emit TransferEvent(_from, _to, _value);
       return true;
     } else {
@@ -241,9 +241,9 @@ contract MadEscrow is iERC20Token, SafeMath {
     uint256 _minCustomerBond = safeAdd(_price, _minVendorBond);
     //interleave in case vendorAddr == customerAddr
     require(balances[_vendorAddr] >= _minVendorBond, "insufficient vendor funds");
-    balances[_vendorAddr] -= _minVendorBond;
+    balances[_vendorAddr] = safeSub(balances[_vendorAddr], _minVendorBond);
     require(balances[_customerAddr] >= _minCustomerBond, "insufficient customer funds");
-    balances[_customerAddr] -= _minCustomerBond;
+    balances[_customerAddr] = safeSub(balances[_customerAddr], _minCustomerBond);
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);
     _escrow.approved = false;
@@ -291,9 +291,9 @@ contract MadEscrow is iERC20Token, SafeMath {
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
     require(balances[_vendorAddr] >= _minVendorBond, "insufficient vendor funds");
-    balances[_vendorAddr] -= _minVendorBond;
+    balances[_vendorAddr] = safeSub(balances[_vendorAddr], _minVendorBond);
     require(balances[_customerAddr] >= _minCustomerBond, "insufficient customer funds");
-    balances[_customerAddr] -= _minCustomerBond;
+    balances[_customerAddr] = safeSub(balances[_customerAddr], _minCustomerBond);
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);
   }
