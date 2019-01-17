@@ -115,9 +115,12 @@ var meUtil = module.exports = {
 
     // cb(err)
     // cb is called after user clicks continue
-    purchaseProduct: function(product, attachmentIdxBN, message, cb) {
-	console.log('purchaseProduct: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
-	mtEther.accountQuery(common.web3, product.vendorAddr, function(err, toAcctInfo) {
+    //
+    // can be used to modify an existing escrow
+    //
+    purchaseProduct: function(escrowIDBN, surchargeBN, productIdBN, vendorAddr, attachmentIdxBN, message, cb) {
+	console.log('purchaseProduct: productIdBN = 0x' + productIdBN.toString(16));
+	mtEther.accountQuery(common.web3, vendorAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
@@ -129,26 +132,23 @@ var meUtil = module.exports = {
 	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, product.vendorAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
+	    const ptk = dhcrypt.ptk(toPublicKey, vendorAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
 	    console.log('purchaseProduct: ptk = ' + ptk);
 	    const encrypted = dhcrypt.encrypt(ptk, message);
 	    console.log('purchaseProduct: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, product.vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('purchaseProduct: ' + msgCount.toString(10) + ' messages have been sent from ' + product.vendorAddr + ' to me');
+	    mtEther.getPeerMessageCount(common.web3, vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+		console.log('purchaseProduct: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		console.log('purchaseProduct: msgFee is ' + msgFee + ' wei');
 		common.showWaitingForMetaMask(true);
-		//new escrow, no surcharge beyond advertised product price
-		const escrowIDBN = new BN(0);
-		const surchargeBN = new BN(0);
 		const statusDiv = document.getElementById('statusDiv');
 		let purchaseErr = null;
 		const continueFcn = () => {
 		    common.clearStatusDiv(statusDiv);
 		    cb(purchaseErr);
 		};
-		meEther.purchaseDeposit(escrowIDBN, product.productIdBN, surchargeBN, msgFee, attachmentIdxBN, encrypted, function(err, txid) {
+		meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, encrypted, function(err, txid) {
 		    console.log('purchaseProduct: txid = ' + txid);
 		    common.showWaitingForMetaMask(false);
 		    common.waitForTXID(err, txid, 'Purchase-Deposit', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {

@@ -179,6 +179,17 @@
 	====================================================================================================================
       -->
     <div id="dashboardPageDiv" class="hidden">
+      <div id="addFundsDialogDiv" class="hidden">
+	<p id="addFundsDialogInstr">Enter the amount of <i>additional</i> Dia that you would like to add to the price of this product:</p>
+	<p id="addFundsDialogNote" class="visibleIB">Note: As a buyer, you put 150% of the price of the product into the MAD Escrow account. At
+	  the end of a completed purchase the excess of the deposited amount over the price will be refunded to you.</p>
+	<p id="addFundsDialogErr" class="hidden"><br/>Error: You do not have enough W-Dai!<br/>You need 150% of the amount that you would like to add to the price of the product.</p>
+	<textarea id="addFundsDialogArea" rows="1" cols="10"
+		    onkeyup="this.value=this.value.replace(/[^\d\.]/,'')"
+		    placeholder="amount"></textarea>
+	<button id="addFundsDialogCancelButton" type="button">Cancel</button>
+	<button id="addFundsDialogDoButton" type="button">Add Funds</button>
+      </div>
       <div id="escrowlistAreaDiv">
 	<div id="escrowListHeaderDiv" class="escrowListItemDiv">
 	  <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow Id.</textarea>

@@ -197,12 +197,14 @@ function handlePurchase(product) {
 		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
 		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
 	    const priceDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', doPurchaseWithMessage, function(err, attachmentIdxBN, message) {
+	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, priceDesc, 'Send/Purchase', function(err, attachmentIdxBN, message) {
 		if (!!err) {
 		    alert(err);
 		    return;
 		}
-		meUtil.purchaseProduct(shop.selectedProduct, attachmentIdxBN, message, function(err) {
+		//new escrow, no surcharge beyond advertised product price
+		meUtil.purchaseProduct(new BN(0), new BN(0),
+				       shop.selectedProduct, product.productIdBN, product.vendorAddr, attachmentIdxBN, message, function(err) {
 		    if (!!err)
 			alert(err);
 		    else

@@ -497,7 +497,7 @@ const common = module.exports = {
     replaceElemClassFromTo: function(elemId, from, to, disabled) {
 	var elem = document.getElementById(elemId);
 	if (!elem)
-	    console.log('could not find elem: ' + elemId);
+	    console.log('replaceElemClassFromTo: could not find elem: ' + elemId);
 	elem.className = (elem.className).replace(from, to);
 	elem.disabled = disabled;
 	return(elem);

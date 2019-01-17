@@ -109,9 +109,9 @@ function addRow(table) {
     rowDiv.appendChild(typeArea);
     rowDiv.appendChild(productArea);
     rowDiv.appendChild(addrArea);
-    console.log('addRow: 5.9');
+    //console.log('addRow: 5.9');
     //rowDdiv.appendChild(dateArea);
-    console.log('addRow: 6');
+    //console.log('addRow: 6');
     rowDiv.appendChild(completedSpan);
     rowDiv.appendChild(nextStepsSpan);
     table.appendChild(rowDiv);
@@ -119,7 +119,6 @@ function addRow(table) {
     meEther.escrowQuery(common.web3.eth.accounts[0], idx, function(err, escrowIdBN, escrowInfo) {
         // 'isClosed', 'isApproved', 'partnerAddr', 'vendorAddr', 'customerAddr', 'productId', 'vendorBalance',
         // 'customerBalance', 'createXactId', 'modifyXactId', 'approveCancelXactId', 'releaseBurnXactId' ];
-        console.log('addRow: we\'re back');
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
 	productArea.value = 'loading...';
@@ -127,6 +126,7 @@ function addRow(table) {
 	    productArea.value = product.name;
 	});
 	const addStep = (idx, className, tipText, addTo, handler) => {
+	    console.log('addStep: idx = ' + idx + ', className = ' + className);
             const stepSpan = document.createElement("span");
             stepSpan.className = className + ' tooltip';
 	    const stepSpanTip = document.createElement("span");
@@ -159,11 +159,9 @@ function addRow(table) {
             addrArea.value = escrowInfo.vendorAddr;
 	    console.log('addRow: escrowInfo.isClosed = ' + escrowInfo.isClosed + ', escrowInfo.isApproved = ' + escrowInfo.isApproved);
             if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
-		console.log('addRow: adding modify span now...');
-		addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModify);
+		addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModifyDialog);
 		addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
 	    }
-
         }
     });
     ++dashboard.rowCount;
@@ -319,6 +317,73 @@ function doApprove(escrowIdBN, escrowInfo) {
 		      'cancel the escrow -- but if you do not deliver the product in a timely manner he could \'burn\' the escrow, which would cause both ' +
 		      'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
 		      'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
+	    dashboard.handleDashboardPage();
+	});
+    });
+}
+
+function doModifyDialog(escrowIdBN, escrowInfo) {
+    common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
+    common.replaceElemClassFromTo('addFundsDialogDiv', 'hidden', 'visibleB', null);
+    addFundsDialogDoButton.disabled = true;
+    addFundsDialogCancelButton.disabled = false;
+    addFundsDialogArea.value = '';
+    //
+    addFundsDialogArea.addEventListener('input', function() {
+	console.log('addFundsDialogArea change event');
+	common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
+	common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
+	addFundsDialogDoButton.disabled = false;
+    });
+    addFundsDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
+    });
+    //
+    addFundsDialogDoButton.addEventListener('click', function() {
+	addFundsDialogDoButton.disabled = true;
+	addFundsDialogCancelButton.disabled = true;
+	const addAmountBN = meEther.usdStrToDaiBN(addFundsDialogArea.value);
+	const escrowBN = addAmountBN.muln(3/2);
+	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	    if (wdaiBalanceBN.lt(escrowBN)) {
+		common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
+		common.replaceElemClassFromTo('addFundsDialogErr', 'hidden', 'visibleIB', null);
+		addFundsDialogDoButton.disabled = false;
+		addFundsDialogCancelButton.disabled = false;
+	    } else {
+		common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
+		common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
+		common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
+		doModify(addAmountBN, escrowIdBN, escrowInfo);
+	    }
+	});
+    });
+}
+
+function doModify(addAmountBN, escrowIdBN, escrowInfo) {
+    const placeholderText =
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to add funds to this the price of this product!\n\n' +
+	  'Additional bond funds, equal to 150% of the increase in price will be added to the \'MAD\' escrow account for this purchase.\n\n' +
+	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
+    const escrowBN = addAmountBN.muln(3/2);
+    const priceDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Modify Escrow', function(err, attachmentIdxBN, message) {
+	console.log('doModify: setupComposeMsgArea came back');
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	//since we specify escrow, we can omit productID
+	meUtil.purchaseProduct(escrowIdBN, addAmountBN, new BN(0), escrowInfo.vendorAddr, attachmentIdxBN, message, function(err) {
+	    if (!!err)
+		  alert(err);
+	    else
+		alert('You have just added extra funds to an escrow!\n' +
+		      'Be sure to check Turms Message Transport, periodically, to see if the seller has sent you any messages.');
 	    dashboard.handleDashboardPage();
 	});
     });
