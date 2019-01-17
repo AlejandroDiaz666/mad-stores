@@ -8,6 +8,11 @@ constructor parms:
 deploy gas: 4084786
 Note: don't forget to a) compile with optimization, b) set trust
 
+Partner Addr set to:
+  _messageTransport = 0x28901fc03008677147A5DEc60dd3993b823b58d4
+  _madEscrow = 0xc36211aB11C0BA7CFda024428826675C98BDDc66
+
+
 ----------------------------- old deployments that need to be destructed ----------------------------
 Ropsten: 0x74F0733d36Aba511daBd3Cd167633b6CAc5DF03e
 Ropsten: 0xB7858a53345055401E64Dcb7ACf520b914F4e969

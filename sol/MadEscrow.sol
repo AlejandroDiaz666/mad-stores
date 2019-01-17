@@ -291,8 +291,8 @@ contract MadEscrow is iERC20Token, SafeMath {
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
     require(balances[_vendorAddr] >= _minVendorBond, "insufficient vendor funds");
-    require(balances[_customerAddr] >= _minCustomerBond, "insufficient customer funds");
     balances[_vendorAddr] -= _minVendorBond;
+    require(balances[_customerAddr] >= _minCustomerBond, "insufficient customer funds");
     balances[_customerAddr] -= _minCustomerBond;
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);

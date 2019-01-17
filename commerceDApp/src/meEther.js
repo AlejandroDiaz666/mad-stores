@@ -18,7 +18,7 @@ const meEther = module.exports = {
     MS_CONTRACT_ADDR: '0xDc83B0117d9D2893797a6A8371a0f201E498c2A7',
     MS_CONTRACT_ABI:  '[{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint8"}],"name":"categoryProductCounts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_productID","type":"uint256"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerProduct","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"vendorProductCounts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_defaultRegion","type":"uint256"},{"name":"_name","type":"bytes"},{"name":"_desc","type":"bytes"},{"name":"_image","type":"bytes"}],"name":"registerVendor","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint8"},{"name":"","type":"uint256"}],"name":"categoryProducts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_productID","type":"uint256"},{"name":"_surcharge","type":"uint256"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseDeposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_maxPrice","type":"uint256"},{"name":"_productStartIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"},{"name":"_onlyAvailable","type":"bool"}],"name":"getCategoryProducts","outputs":[{"name":"_idx","type":"uint256"},{"name":"_productIDs","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"uint256"}],"name":"vendorProducts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_maxPrice","type":"uint256"},{"name":"_productStartIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"},{"name":"_onlyAvailable","type":"bool"}],"name":"getRegionProducts","outputs":[{"name":"_idx","type":"uint256"},{"name":"_productIDs","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"products","outputs":[{"name":"price","type":"uint256"},{"name":"quantity","type":"uint256"},{"name":"category","type":"uint256"},{"name":"categoryProductIdx","type":"uint256"},{"name":"region","type":"uint256"},{"name":"regionProductIdx","type":"uint256"},{"name":"vendorAddr","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseCancel","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"vendorAccounts","outputs":[{"name":"deliveriesApproved","type":"uint256"},{"name":"deliveriesRejected","type":"uint256"},{"name":"region","type":"uint256"},{"name":"ratingSum","type":"uint256"},{"name":"activeFlag","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_rating","type":"uint8"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryApprove","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_maxPrice","type":"uint256"},{"name":"_productStartIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"},{"name":"_onlyAvailable","type":"bool"}],"name":"getCertainProducts","outputs":[{"name":"_idx","type":"uint256"},{"name":"_productIDs","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_rating","type":"uint8"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"deliveryReject","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_escrowID","type":"uint256"},{"name":"_attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"purchaseDecline","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_productID","type":"uint256"}],"name":"productInfo","outputs":[{"name":"_vendorAddr","type":"address"},{"name":"_price","type":"uint256"},{"name":"_quantity","type":"uint256"},{"name":"_available","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint8"}],"name":"regionProductCounts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"productCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_messageTransport","type":"address"},{"name":"_madEscrow","type":"address"}],"name":"setPartners","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_vendorAddr","type":"address"},{"name":"_category","type":"uint256"},{"name":"_region","type":"uint256"},{"name":"_maxPrice","type":"uint256"},{"name":"_productStartIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"},{"name":"_onlyAvailable","type":"bool"}],"name":"getVendorProducts","outputs":[{"name":"_idx","type":"uint256"},{"name":"_productIDs","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"},{"name":"","type":"uint256"}],"name":"regionProducts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_messageTransport","type":"address"},{"name":"_madEscrow","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":false,"name":"message","type":"string"}],"name":"StatEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterVendorEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_productID","type":"uint256"},{"indexed":false,"name":"name","type":"bytes"},{"indexed":false,"name":"desc","type":"bytes"},{"indexed":false,"name":"image","type":"bytes"}],"name":"RegisterProductEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_surcharge","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"PurchaseDepositEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"PurchaseCancelEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"PurchaseApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":false,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"PurchaseDeclineEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"DeliveryApproveEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_vendorAddr","type":"address"},{"indexed":true,"name":"customerAddr","type":"address"},{"indexed":false,"name":"_escrowID","type":"uint256"},{"indexed":false,"name":"_productID","type":"uint256"},{"indexed":false,"name":"_msgId","type":"uint256"}],"name":"DeliveryRejectEvent","type":"event"}]',
     //MadEscrow
-    ME_CONTRACT_ADDR: '0x48f366E6960189Ef27306C04f81595997470ccDE',
+    ME_CONTRACT_ADDR: '0xc36211aB11C0BA7CFda024428826675C98BDDc66',
     ME_CONTRACT_ABI: '[{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"escrows","outputs":[{"name":"closed","type":"bool"},{"name":"approved","type":"bool"},{"name":"partnerAddr","type":"address"},{"name":"vendorAddr","type":"address"},{"name":"customerAddr","type":"address"},{"name":"productId","type":"uint256"},{"name":"vendorBalance","type":"uint256"},{"name":"customerBalance","type":"uint256"},{"name":"createXactId","type":"uint256"},{"name":"modifyXactId","type":"uint256"},{"name":"approveCancelXactId","type":"uint256"},{"name":"releaseBurnXactId","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"escrowsCounts","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"retainedFees","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"_decimals","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"escrowCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_XactId","type":"uint256"},{"name":"_surcharge","type":"uint256"}],"name":"modifyEscrowPrice","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_wdaiAmount","type":"uint256"}],"name":"unwrapDai","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"trusted","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_XactId","type":"uint256"}],"name":"releaseEscrow","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_daiAmount","type":"uint256"}],"name":"wrapDai","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"withdrawEscrowFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_XactId","type":"uint256"}],"name":"cancelEscrow","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"daiDecimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_XactId","type":"uint256"}],"name":"approveEscrow","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_productId","type":"uint256"},{"name":"_XactId","type":"uint256"},{"name":"_price","type":"uint256"},{"name":"_vendorAddr","type":"address"},{"name":"_customerAddr","type":"address"}],"name":"createEscrow","outputs":[{"name":"_escrowId","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"uint256"}],"name":"escrowIds","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_XactId","type":"uint256"}],"name":"burnEscrow","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_trustedAddr","type":"address"},{"name":"_trust","type":"bool"}],"name":"setTrust","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_vendorAddr","type":"address"}],"name":"verifyEscrowVendor","outputs":[{"name":"_productId","type":"uint256"},{"name":"_customerAddr","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_vendorAddr","type":"address"},{"name":"_customerAddr","type":"address"}],"name":"verifyEscrow","outputs":[{"name":"_productId","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_escrowId","type":"uint256"},{"name":"_customerAddr","type":"address"}],"name":"verifyEscrowCustomer","outputs":[{"name":"_productId","type":"uint256"},{"name":"_vendorAddr","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_feesTokenAddr","type":"address"},{"name":"_daiTokenAddr","type":"address"}],"name":"setPartners","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"_feesTokenAddr","type":"address"},{"name":"_daiTokenAddr","type":"address"},{"name":"_name","type":"string"},{"name":"_symbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"PaymentEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"TransferEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"ApprovalEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]',
     //Dai
     DAI_CONTRACT_ADDR: '0xCb7d23B537a96eC672522ae0Bf6fab757d322a5D',
@@ -364,29 +364,31 @@ const meEther = module.exports = {
     // pass escrowID of zero for a new purchase, else nz to add funds (specified by surchage) to an existing escrow
     // pass
     //
-    purchaseDeposit: function(escrowIdBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, ref, messageHex, cb) {
+    purchaseDeposit: function(escrowIdBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
 	console.log('purchaseDeposit: escrowIdBN = 0x' + escrowIdBN.toString(16));
 	console.log('purchaseDeposit: productIdBN = 0x' + productIdBN.toString(16));
 	console.log('purchaseDeposit: surchargeBN = 0x' + surchargeBN.toString(16));
 	console.log('purchaseDeposit: msgFee = ' + msgFee);
 	console.log('purchaseDeposit: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	console.log('purchaseDeposit: refBN = 0x' + refBN.toString(16));
 	console.log('purchaseDeposit: messageHex = ' + messageHex);
 	const abiPurchaseDepositFcn = meEther.abiEncodePurchaseDeposit();
-	const abiParms = meEther.abiEncodePurchaseDepositParms(escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, ref, messageHex);
+	const abiParms = meEther.abiEncodePurchaseDepositParms(escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseDepositFcn + abiParms;
 	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodePurchaseDeposit: function() {
+	console.log('abiEncodePurchaseDeposit');
 	if (!meEther.purchaseDepositABI)
 	    meEther.purchaseDepositABI = ethabi.methodID('purchaseDeposit', [ 'uint256', 'uint256', 'uint256', 'uint256', 'uint256', 'bytes' ]).toString('hex');
 	return(meEther.purchaseDepositABI);
     },
 
-    abiEncodePurchaseDepositParms: function(escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, ref, messageHex) {
+    abiEncodePurchaseDepositParms: function(escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, refBN, messageHex) {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'uint256', 'uint256', 'bytes' ],
-					 [ escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, ref, bytes ] ).toString('hex');
+					 [ escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 
@@ -400,13 +402,13 @@ const meEther = module.exports = {
     //   purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
     //
     //
-    purchaseApprove: function(escrowIdBN, msgFee, attachmentIdxBN, ref, messageHex, cb) {
+    purchaseApprove: function(escrowIdBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
 	console.log('purchaseApprove: escrowIdBN = 0x' + escrowIdBN.toString(16));
 	console.log('purchaseApprove: msgFee = ' + msgFee);
 	console.log('purchaseApprove: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	console.log('purchaseApprove: messageHex = ' + messageHex);
 	const abiPurchaseApproveFcn = meEther.abiEncodePurchaseApprove();
-	const abiParms = meEther.abiEncodePurchaseApproveParms(escrowIdBN, attachmentIdxBN, ref, messageHex);
+	const abiParms = meEther.abiEncodePurchaseApproveParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseApproveFcn + abiParms;
 	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
@@ -417,10 +419,10 @@ const meEther = module.exports = {
 	return(meEther.purchaseApproveABI);
     },
 
-    abiEncodePurchaseApproveParms: function(escrowIdBN, attachmentIdxBN, ref, messageHex) {
+    abiEncodePurchaseApproveParms: function(escrowIdBN, attachmentIdxBN, refBN, messageHex) {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'bytes' ],
-					 [ escrowIdBN, attachmentIdxBN, ref, bytes ] ).toString('hex');
+					 [ escrowIdBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 
@@ -434,13 +436,13 @@ const meEther = module.exports = {
     //     function purchaseDecline(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
     //
     //
-    purchaseDecline: function(escrowIdBN, msgFee, attachmentIdxBN, ref, messageHex, cb) {
+    purchaseDecline: function(escrowIdBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
 	console.log('purchaseDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
 	console.log('purchaseDecline: msgFee = ' + msgFee);
 	console.log('purchaseDecline: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	console.log('purchaseDecline: messageHex = ' + messageHex);
 	const abiPurchaseDeclineFcn = meEther.abiEncodePurchaseDecline();
-	const abiParms = meEther.abiEncodePurchaseDeclineParms(escrowIdBN, attachmentIdxBN, ref, messageHex);
+	const abiParms = meEther.abiEncodePurchaseDeclineParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseDeclineFcn + abiParms;
 	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
@@ -451,10 +453,10 @@ const meEther = module.exports = {
 	return(meEther.purchaseDeclineABI);
     },
 
-    abiEncodePurchaseDeclineParms: function(escrowIdBN, attachmentIdxBN, ref, messageHex) {
+    abiEncodePurchaseDeclineParms: function(escrowIdBN, attachmentIdxBN, refBN, messageHex) {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'bytes' ],
-					 [ escrowIdBN, attachmentIdxBN, ref, bytes ] ).toString('hex');
+					 [ escrowIdBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 
@@ -468,13 +470,13 @@ const meEther = module.exports = {
     //     function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
     //
     //
-    purchaseCancel: function(escrowIdBN, msgFee, attachmentIdxBN, ref, messageHex, cb) {
+    purchaseCancel: function(escrowIdBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
 	console.log('purchaseCancel: escrowIdBN = 0x' + escrowIdBN.toString(16));
 	console.log('purchaseCancel: msgFee = ' + msgFee);
 	console.log('purchaseCancel: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	console.log('purchaseCancel: messageHex = ' + messageHex);
 	const abiPurchaseCancelFcn = meEther.abiEncodePurchaseCancel();
-	const abiParms = meEther.abiEncodePurchaseCancelParms(escrowIdBN, attachmentIdxBN, ref, messageHex);
+	const abiParms = meEther.abiEncodePurchaseCancelParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseCancelFcn + abiParms;
 	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
@@ -485,10 +487,10 @@ const meEther = module.exports = {
 	return(meEther.purchaseCancelABI);
     },
 
-    abiEncodePurchaseCancelParms: function(escrowIdBN, attachmentIdxBN, ref, messageHex) {
+    abiEncodePurchaseCancelParms: function(escrowIdBN, attachmentIdxBN, refBN, messageHex) {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'bytes' ],
-					 [ escrowIdBN, attachmentIdxBN, ref, bytes ] ).toString('hex');
+					 [ escrowIdBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 
@@ -653,16 +655,15 @@ const meEther = module.exports = {
     //produces a price string, eg. nominal USD, with 2 decimals from price, which is demoninated in
     //cononical dai (ie, 18 decimals)
     daiBNToUsdStr: function(daiBN, places) {
+	if (places == undefined)
+	    places = 2;
 	// dai is 18 decimals
 	const tenE16 = new BN('2386F26FC10000', 16);
 	const daiBNx16 = daiBN.div(tenE16);
 	const cents = daiBNx16.toNumber();
-	const usd = cents / 100;
+	const usd = (1.0 * cents) / 100;
 	console.log('daiBNToUsdStr: daiBN = ' + daiBN.toString(10) + ' => ' + usd.toString(10));
-	if (!!places && places != 2)
-	    return(usd.toFixed(places));
-	else
-	    return((usd + 0.005).toFixed(2));
+	return(usd.toFixed(places));
     },
 
     //produces a Dai BN (ie, 18 decimals) from nominal dai, AKA USD
