@@ -181,7 +181,7 @@ function showProductDetail(product) {
 function handlePurchase(product) {
     meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
-	const escrowBN = product.priceBN.muln(3/2);
+	const escrowBN = product.priceBN.muln(3).divn(2);
 	if (wdaiBalanceBN.lt(escrowBN)) {
 	    alert('You don\'t have enough W-Dai to purchase this product.\n\n' +
 		  'The price is ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai, so you will need ' +
@@ -204,7 +204,7 @@ function handlePurchase(product) {
 		}
 		//new escrow, no surcharge beyond advertised product price
 		meUtil.purchaseProduct(new BN(0), new BN(0),
-				       shop.selectedProduct, product.productIdBN, product.vendorAddr, attachmentIdxBN, 0, message, function(err) {
+				       shop.selectedProduct.productIdBN, shop.selectedProduct.vendorAddr, attachmentIdxBN, new BN(0), message, function(err) {
 		    if (!!err)
 			alert(err);
 		    else

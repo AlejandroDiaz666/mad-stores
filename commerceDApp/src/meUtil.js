@@ -118,7 +118,7 @@ var meUtil = module.exports = {
     //
     // can be used to modify an existing escrow
     //
-    purchaseProduct: function(escrowIDBN, surchargeBN, productIdBN, vendorAddr, attachmentIdxBN, ref, message, cb) {
+    purchaseProduct: function(escrowIDBN, surchargeBN, productIdBN, vendorAddr, attachmentIdxBN, refBN, message, cb) {
 	console.log('purchaseProduct: productIdBN = 0x' + productIdBN.toString(16));
 	mtEther.accountQuery(common.web3, vendorAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
@@ -148,7 +148,7 @@ var meUtil = module.exports = {
 		    common.clearStatusDiv(statusDiv);
 		    cb(purchaseErr);
 		};
-		meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, ref, encrypted, function(err, txid) {
+		meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
 		    console.log('purchaseProduct: txid = ' + txid);
 		    common.showWaitingForMetaMask(false);
 		    common.waitForTXID(err, txid, 'Purchase-Deposit', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
@@ -160,7 +160,7 @@ var meUtil = module.exports = {
     },
 
 
-    escrowFcnWithMessage: function(fcn, fcnDesc, escrowIdBN, escrowInfo, attachmentIdxBN, ref, message, cb) {
+    escrowFcnWithMessage: function(fcn, fcnDesc, escrowIdBN, escrowInfo, attachmentIdxBN, refBN, message, cb) {
 	console.log('escrowFcnWithMessage: escrowIdBN = 0x' + escrowIdBN.toString(16));
 	mtEther.accountQuery(common.web3, escrowInfo.customerAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
@@ -189,7 +189,7 @@ var meUtil = module.exports = {
 		    common.clearStatusDiv(statusDiv);
 		    cb(fcnErr);
 		};
-		fcn(escrowIdBN, msgFee, attachmentIdxBN, ref, encrypted, function(err, txid) {
+		fcn(escrowIdBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
 		    console.log('escrowFcnWithMessage: txid = ' + txid);
 		    common.showWaitingForMetaMask(false);
 		    common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
