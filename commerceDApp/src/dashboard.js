@@ -158,9 +158,14 @@ function addRow(table) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
 	    console.log('addRow: escrowInfo.isClosed = ' + escrowInfo.isClosed + ', escrowInfo.isApproved = ' + escrowInfo.isApproved);
-            if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
-		addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModifyDialog);
-		addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
+            if (!escrowInfo.isClosed) {
+		if (escrowInfo.isApproved) {
+		    addStep(idx, 'escrowListStepReleaseSpan', 'confirm satisfactory delivery of product; all escrow funds will be released', nextStepsSpan, doReleaseDialog);
+		    addStep(idx, 'escrowListStepBurnSpan', 'burn this escrow; ALL FUNDS WILL BE LOST!', nextStepsSpan, doBurnDialog);
+		} else {
+		    addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModifyDialog);
+		    addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
+		}
 	    }
         }
     });
@@ -310,14 +315,15 @@ function doApprove(escrowIdBN, escrowInfo) {
 	}
 	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
 	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-	meUtil.escrowFcnWithMessage(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithMsg(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		  alert(err);
 	    else
 		alert('You have just approved an escrow for a product!\n' +
-		      'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe. The buyer can no longer ' +
-		      'cancel the escrow -- but if you do not deliver the product in a timely manner he could \'burn\' the escrow, which would cause both ' +
-		      'of you to lose all of the deposited funds. So please make every effort to meet the buyer\'s expectations...\n\n' +
+		      'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe.\n\n' +
+		      'Since the escrow is \"locked,\" the buyer can no longer cancel the purchase -- but if you do not deliver the product ' +
+		      'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
+		      'please make every effort to meet the buyer\'s expectations...\n\n' +
 		      'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
 	    dashboard.handleDashboardPage();
 	});
@@ -328,6 +334,9 @@ function doModifyDialog(escrowIdBN, escrowInfo) {
     common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
     common.replaceElemClassFromTo('addFundsDialogDiv', 'hidden', 'visibleB', null);
+    const addFundsDialogDoButton = document.getElementById('addFundsDialogDoButton');
+    const addFundsDialogCancelButton = document.getElementById('addFundsDialogCancelButton');
+    const addFundsDialogArea = document.getElementById('addFundsDialogArea');
     addFundsDialogDoButton.disabled = true;
     addFundsDialogCancelButton.disabled = false;
     addFundsDialogArea.value = '';
@@ -411,7 +420,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 	}
 	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
 	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-	meUtil.escrowFcnWithMessage(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithMsg(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else
@@ -443,12 +452,68 @@ function doDecline(escrowIdBN, escrowInfo) {
 	}
 	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
 	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-	meUtil.escrowFcnWithMessage(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithMsg(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else
 		alert('You have just declined selling a product!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    dashboard.handleDashboardPage();
+	});
+    });
+}
+
+
+function doReleaseDialog(escrowIdBN, escrowInfo) {
+    common.replaceElemClassFromTo('releaseDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('releaseDialogDiv', 'hidden', 'visibleB', null);
+    const releaseDialogDoButton = document.getElementById('releaseDialogDoButton');
+    const releaseDialogCancelButton = document.getElementById('releaseDialogCancelButton');
+    const releaseDialogSelect = document.getElementById('releaseDialogSelect');
+    releaseDialogDoButton.disabled = false;
+    releaseDialogCancelButton.disabled = false;
+    //
+    releaseDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
+    });
+    //
+    releaseDialogDoButton.addEventListener('click', function() {
+	releaseDialogDoButton.disabled = true;
+	releaseDialogCancelButton.disabled = true;
+	const ratingBN = common.numberToBN(releaseDialogSelect.value);
+	common.replaceElemClassFromTo('releaseDialogNote', 'visibleIB', 'hidden', null);
+	common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
+	doRelease(ratingBN, escrowIdBN, escrowInfo);
+    });
+}
+
+
+function doRelease(ratingBN, escrowIdBN, escrowInfo) {
+    console.log('doRelease: escrowIdBN = 0x' + escrowIdBN.toString(16));
+    const placeholderText =
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties.\n\n' +
+	  'All escrow funds will be released to the respective parties: the total purchase price will be released to the seller, together with the seller\'s ' +
+	  'bond (50% of the purchase price); and the buyer\'s bond (50% of the purchase price) will be release backto you.\n\n' +
+	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
+    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
+    const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
+	console.log('doRelease: setupComposeMsgArea came back');
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
+	meUtil.escrowFcnWithRatingMsg(meEther.deliveryApprove, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	    if (!!err)
+		alert(err);
+	    else
+		alert('You have just released all funds from an escrow account!\n' +
+		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai is returned to you; and the full price of the product, plus the seller\'s bond is released ' +
+		      'to the seller.');
 	    dashboard.handleDashboardPage();
 	});
     });

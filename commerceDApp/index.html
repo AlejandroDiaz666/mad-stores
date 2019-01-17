@@ -190,6 +190,25 @@
 	<button id="addFundsDialogCancelButton" type="button">Cancel</button>
 	<button id="addFundsDialogDoButton" type="button">Add Funds</button>
       </div>
+      <div id="releaseDialogDiv" class="hidden">
+	<p id="releaseDialogInstr">Please rate your experience with this seller. Your rating will help future buyers either select or avoid this seller</p>
+	<p id="releaseDialogNote" class="visibleIB">Suggestion: If the seller has performed well, go ahead and give him a 10!"</p>
+	<select id="releaseDialogSelect">
+	  <option value="10">10 (completely satisfied)</option>
+	  <option value="9">9</option>
+	  <option value="8">8</option>
+	  <option value="7">7</option>
+	  <option value="6">6</option>
+	  <option value="5">5</option>
+	  <option value="4">4</option>
+	  <option value="3">3</option>
+	  <option value="2">2</option>
+	  <option value="1">1</option>
+	  <option value="0">0 (seller is a crook!)</option>
+	</select>
+	<button id="releaseDialogCancelButton" type="button">Cancel</button>
+	<button id="releaseDialogDoButton" type="button">Set Rating</button>
+      </div>
       <div id="escrowlistAreaDiv">
 	<div id="escrowListHeaderDiv" class="escrowListItemDiv">
 	  <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow Id.</textarea>
@@ -358,7 +377,7 @@
 	      If applicable, you can select several sub-categories.</p>
 	  </span>
 	  <p id="createStoreEditProdStep3NoText" class="rsStepNoText">3</p>
-	  <select id="createStoreEditProdTlcSel">
+ 	  <select id="createStoreEditProdTlcSel">
 	  </select>
 	  <select id="createStoreEditProdLlcBitsSel" multiple="t" size="4">
 	  </select>

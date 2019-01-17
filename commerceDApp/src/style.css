@@ -649,8 +649,8 @@ h3 { font-size:18px; }
     border-style: solid;
     margin-top: 2px;
 }
-.escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan,
-.escrowListStepDeclineSpan, .escrowListStepApproveSpan  {
+.escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan, .escrowListStepDeclineSpan,
+.escrowListStepApproveSpan, .escrowListStepReleaseSpan, .escrowListStepBurnSpan {
     float: left;
     background-size: 35px 35px;
     background-repeat: no-repeat;
@@ -677,8 +677,14 @@ h3 { font-size:18px; }
 .escrowListStepApproveSpan {
     background-image: url('../images/locked-handshake.jpg');
 }
-.escrowListStepDepositSpan:hover, .escrowListStepModifySpan:hover, .escrowListStepCancelSpan:hover,
-.escrowListStepDeclineSpan:hover, .escrowListStepApproveSpan:hover  {
+.escrowListStepReleaseSpan  {
+    background-image: url('../images/release.jpg');
+}
+.escrowListStepBurnSpan  {
+    background-image: url('../images/burn.jpg');
+}
+.escrowListStepDepositSpan:hover, .escrowListStepModifySpan:hover, .escrowListStepCancelSpan:hover, .escrowListStepDeclineSpan:hover,
+.escrowListStepApproveSpan:hover, .escrowListStepReleaseSpan:hover, .escrowListStepBurnSpan:hover {
     padding: 0px;
     border-style: solid;
     border-width: 1px;
@@ -740,6 +746,58 @@ h3 { font-size:18px; }
 #addFundsDialogDoButton {
     position: absolute;
     top: 190px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+
+#releaseDialogDiv {
+    position: absolute;
+    z-index: 1;
+    left: 30%;
+    top: 120px;
+    width: 420px;
+    height: 200px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    background-color: #9cd9db;
+}
+#releaseDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#releaseDialogNote {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#releaseDialogSelect {
+    resize: none;
+    position: absolute;
+    top: 88px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#releaseDialogCancelButton {
+    position: absolute;
+    top: 175px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#releaseDialogDoButton {
+    position: absolute;
+    top: 175px;
     left: 65%;
     transform: translateX(-50%);
 }

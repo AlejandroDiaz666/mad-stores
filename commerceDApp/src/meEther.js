@@ -32,6 +32,7 @@ const meEther = module.exports = {
     purchaseApproveABI: null,
     purchaseDeclineABI: null,
     purchaseCancelABI: null,
+    deliveryApproveABI: null,
     MSContractInstance: null,
     MEContractInstance: null,
     daiContractInstance: null,
@@ -491,6 +492,36 @@ const meEther = module.exports = {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'bytes' ],
 					 [ escrowIdBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
+
+
+    // ---------------------------------------------------------------------------------------------------------
+    // deliveryApprove & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //    function deliveryApprove(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
+    //
+    //
+    deliveryApprove: function(escrowIdBN, ratingBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
+	const abiDeliveryApproveFcn = meEther.abiEncodeDeliveryApprove();
+	const abiParms = meEther.abiEncodeDeliveryApproveParms(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex);
+        const sendData = "0x" + abiDeliveryApproveFcn + abiParms;
+	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodeDeliveryApprove: function() {
+	if (!meEther.deliveryApproveABI)
+	    meEther.deliveryApproveABI = ethabi.methodID('deliveryApprove', [ 'uint256', 'uint8', 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.deliveryApproveABI);
+    },
+
+    abiEncodeDeliveryApproveParms: function(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint8', 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, ratingBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
 	return(encoded);
     },
 
