@@ -308,7 +308,9 @@ function doApprove(escrowIdBN, escrowInfo) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	meUtil.escrowFcnWithMessage(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+	const ref = modifyIdBN.isZero() ? escrowInfo.createXactId : escrowInfo.modifyXactId;
+	meUtil.escrowFcnWithMessage(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo, attachmentIdxBN, ref, message, function(err) {
 	    if (!!err)
 		  alert(err);
 	    else
@@ -377,8 +379,10 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
+	modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+	const ref = modifyIdBN.isZero() ? escrowInfo.createXactId : escrowInfo.modifyXactId;
 	//since we specify escrow, we can omit productID
-	meUtil.purchaseProduct(escrowIdBN, addAmountBN, new BN(0), escrowInfo.vendorAddr, attachmentIdxBN, message, function(err) {
+	meUtil.purchaseProduct(escrowIdBN, addAmountBN, new BN(0), escrowInfo.vendorAddr, attachmentIdxBN, ref, message, function(err) {
 	    if (!!err)
 		  alert(err);
 	    else
@@ -405,7 +409,9 @@ function doCancel(escrowIdBN, escrowInfo) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	meUtil.escrowFcnWithMessage(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+	const ref = modifyIdBN.isZero() ? escrowInfo.createXactId : escrowInfo.modifyXactId;
+	meUtil.escrowFcnWithMessage(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo, attachmentIdxBN, ref, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else
@@ -435,7 +441,9 @@ function doDecline(escrowIdBN, escrowInfo) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	meUtil.escrowFcnWithMessage(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo, attachmentIdxBN, message, function(err) {
+	modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+	const ref = modifyIdBN.isZero() ? escrowInfo.createXactId : escrowInfo.modifyXactId;
+	meUtil.escrowFcnWithMessage(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo, attachmentIdxBN, ref, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else

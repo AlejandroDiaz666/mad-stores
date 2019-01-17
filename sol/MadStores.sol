@@ -350,7 +350,7 @@ contract MadStores is SafeMath {
   // an optional surchage (shipping & handling?) can be added to the nominal price of the product. this
   // function can also be called to add a surchage to an already existing escrow.
   // -----------------------------------------------------------------------------------------------------
-  function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _attachmentIdx, bytes memory _message) public payable {
+  function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     address _vendorAddr;
     if (_escrowID != 0) {
       //ignore passed productID
@@ -363,7 +363,7 @@ contract MadStores is SafeMath {
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     if (_escrowID == 0) {
       require(_product.quantity != 0, "product is not available");
       require(_product.price != 0, "product price is not valid");
@@ -383,12 +383,12 @@ contract MadStores is SafeMath {
   // cancel purchase of a product
   // called by customer -- only before purchase has been approved by vendor
   // -----------------------------------------------------------------------------------------------------
-  function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
+  function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     Product storage _product = products[_productID];
     _product.quantity += 1;
     madEscrow.cancelEscrow(_escrowID, _msgId);
@@ -401,12 +401,12 @@ contract MadStores is SafeMath {
   // approve of a purchase
   // called by vendor
   // -----------------------------------------------------------------------------------------------------
-  function purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
+  function purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
     madEscrow.approveEscrow(_escrowID, _msgId);
     emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
     emit StatEvent("ok: purchase approved -- funds locked");
@@ -418,12 +418,12 @@ contract MadStores is SafeMath {
   // decline a purchase
   // called by vendor
   // -----------------------------------------------------------------------------------------------------
-  function purchaseDecline(uint256 _escrowID, uint256 _attachmentIdx, bytes memory _message) public payable {
+  function purchaseDecline(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
     Product storage _product = products[_productID];
     madEscrow.cancelEscrow(_escrowID, _msgId);
     _product.quantity += 1;
@@ -436,12 +436,12 @@ contract MadStores is SafeMath {
   // acknowledge succesful delivery of a purchased item
   // called by customer
   // -----------------------------------------------------------------------------------------------------
-  function deliveryApprove(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
+  function deliveryApprove(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     madEscrow.releaseEscrow(_escrowID, _msgId);
     vendorAccounts[_vendorAddr].deliveriesApproved = safeAdd(vendorAccounts[_vendorAddr].deliveriesApproved, 1);
     if (_rating > 10)
@@ -458,12 +458,12 @@ contract MadStores is SafeMath {
   // product might have been delivered, but defective. so we do not return the
   // product to stock; that is we do not increment product quantity
   // -----------------------------------------------------------------------------------------------------
-  function deliveryReject(uint256 _escrowID, uint256 _attachmentIdx, uint8 _rating, bytes memory _message) public payable {
+  function deliveryReject(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
-    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, 0, _message);
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     madEscrow.burnEscrow(_escrowID, _msgId);
     vendorAccounts[_vendorAddr].deliveriesRejected = safeAdd(vendorAccounts[_vendorAddr].deliveriesRejected, 1);
     if (_rating > 10)
