@@ -142,6 +142,10 @@ function addRow(table) {
 	addStep(idx, 'escrowListStepDepositSpan', 'funds for this purchase have been deposited into escrow', completedSpan, showDeposit);
         if (escrowInfo.isApproved) {
 	    addStep(idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
+	    if (escrowInfo.isClosed) {
+		//addStep(idx, 'escrowListStepReleaseSpan', 'this escrow is completed / closed', completedSpan, showReleased)
+		nextStepsSpan.textContent = 'Escrow Is Closed';
+	    }
 	} else if (escrowInfo.isClosed) {
 	    addStep(idx, 'escrowListStepCancelSpan', 'this purchase was canceled or declined; escrow is closed', completedSpan, showCancelOrDecline)
 	    nextStepsSpan.textContent = 'Escrow Is Closed';
@@ -150,7 +154,7 @@ function addRow(table) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
             if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
-		addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApprove);
+		addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApproveDialog);
 		addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
 	    }
         }
@@ -295,15 +299,47 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 }
 
 
-function doApprove(escrowIdBN, escrowInfo) {
+function doApproveDialog(escrowIdBN, escrowInfo) {
+    common.replaceElemClassFromTo('approveDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('approveDialogDiv', 'hidden', 'visibleB', null);
+    const approveDialogDoButton = document.getElementById('approveDialogDoButton');
+    const approveDialogCancelButton = document.getElementById('approveDialogCancelButton');
+    const approveDialogArea = document.getElementById('approveDialogArea');
+    approveDialogDoButton.disabled = true;
+    approveDialogCancelButton.disabled = false;
+    approveDialogArea.value = '';
+    //
+    approveDialogArea.addEventListener('input', function() {
+	console.log('approveDialogArea change event');
+	approveDialogDoButton.disabled = false;
+    });
+    approveDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
+    });
+    //
+    approveDialogDoButton.addEventListener('click', function() {
+	approveDialogDoButton.disabled = true;
+	approveDialogCancelButton.disabled = true;
+	const secsBN = common.numberToBN(approveDialogSelect.value);
+	secsBN.imuln(parseInt(approveDialogArea.value));
+	common.replaceElemClassFromTo('approveDialogNote', 'visibleIB', 'hidden', null);
+	common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
+	doApprove(secsBN, escrowIdBN, escrowInfo);
+    });
+}
+
+
+
+function doApprove(secsBN, escrowIdBN, escrowInfo) {
+    console.log('doApprove: secsBN = ' + secsBN.toString(10));
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
-	  'You are about to approve this purchase!\n\n' +
-	  'Your bond funds will be locked into a \'MAD\' escrow account with the buyer -- and you will only be paid when the buyer confirms succesful ' +
-	  'delivery of the product. Use this message to communicate to the buyer when he can expect delivery and any other important information ' +
-	  'relating to the delivery of the product.\n\n' +
-	  'In order to avoid having the buyer \'burn\' the escrow, it is crucial that you manage the buyer\'s expectations...';
+	  'You are about to approve this purchase and commit to a delivery date\n\n' +
+	  'Your bond funds (and the buyer\'s bond funds and payment) will be locked into a \'MAD\' escrow account -- and you will only be paid ' +
+	  'when the buyer confirms succesful delivery of the product. Use this message to communicate any special delivery instructions to the buyer, such as a ' +
+	  'pick-up location or any required code. If none of these are applicable to this purchase, then you can simply use this message to thank the buyer for ' +
+	  'his patronage.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Approve Escrow', function(err, attachmentIdxBN, message) {
@@ -315,11 +351,11 @@ function doApprove(escrowIdBN, escrowInfo) {
 	}
 	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
 	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-	meUtil.escrowFcnWithMsg(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithParmMsg(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, secsBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		  alert(err);
 	    else
-		alert('You have just approved an escrow for a product!\n' +
+		alert('You have just approved an escrow for a product and committed to a delivery-date!\n\n' +
 		      'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe.\n\n' +
 		      'Since the escrow is \"locked,\" the buyer can no longer cancel the purchase -- but if you do not deliver the product ' +
 		      'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
@@ -507,7 +543,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	    return;
 	}
 	const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
-	meUtil.escrowFcnWithRatingMsg(meEther.deliveryApprove, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithParmMsg(meEther.deliveryApprove, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else

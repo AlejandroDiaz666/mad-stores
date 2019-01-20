@@ -171,39 +171,23 @@ var meUtil = module.exports = {
     //
     escrowFcnWithMsg: function(fcn, fcnDesc, escrowIdBN, toAddr, attachmentIdxBN, refBN, message, cb) {
 	console.log('escrowFcnWithMsg: escrowIdBN = 0x' + escrowIdBN.toString(16));
-	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
-	    //encrypt the message...
-	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    console.log('escrowFcnWithMsg: toPublicKey = ' + toPublicKey);
-	    if (!toPublicKey || toPublicKey == '0x') {
-		cb('Encryption error: unable to look up destination address in contract!');
+	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted) {
+	    if (!!err) {
+		cb(err);
 		return;
 	    }
-	    console.log('escrowFcnWithMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
-	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
-	    sentMsgCtrBN.iaddn(1);
-	    console.log('escrowFcnWithMsg: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    console.log('escrowFcnWithMsg: ptk = ' + ptk);
-	    const encrypted = dhcrypt.encrypt(ptk, message);
-	    console.log('escrowFcnWithMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
-	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('escrowFcnWithMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
-		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		common.showWaitingForMetaMask(true);
-		const statusDiv = document.getElementById('statusDiv');
-		let fcnErr = null;
-		const continueFcn = () => {
-		    common.clearStatusDiv(statusDiv);
-		    cb(fcnErr);
-		};
-		fcn(escrowIdBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
-		    console.log('escrowFcnWithMsg: txid = ' + txid);
-		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-			approveErr = err;
-		    });
+	    common.showWaitingForMetaMask(true);
+	    const statusDiv = document.getElementById('statusDiv');
+	    let fcnErr = null;
+	    const continueFcn = () => {
+		common.clearStatusDiv(statusDiv);
+		cb(fcnErr);
+	    };
+	    fcn(escrowIdBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
+		console.log('escrowFcnWithMsg: txid = ' + txid);
+		common.showWaitingForMetaMask(false);
+		common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    approveErr = err;
 		});
 	    });
 	});
@@ -214,45 +198,29 @@ var meUtil = module.exports = {
     // cb is called after user clicks continue
     //
     // this is a wrapper fcn around a family of escrow functions that all take the same parameters:
-    //  escrowIdBN, ratingBN, msgFee, attachmentIdxBN, refBN, messageHex
+    //  escrowIdBN, parmBN, msgFee, attachmentIdxBN, refBN, messageHex
     // pass in the function, and description of the function (which is displayed in the wait-for-txid status message)
     // the message is encyrpted before sending.
     //
-    escrowFcnWithRatingMsg: function(fcn, fcnDesc, escrowIdBN, ratingBN, toAddr, attachmentIdxBN, refBN, message, cb) {
-	console.log('escrowFcnWithRatingMsg: escrowIdBN = 0x' + escrowIdBN.toString(16));
-	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
-	    //encrypt the message...
-	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    console.log('escrowFcnWithRatingMsg: toPublicKey = ' + toPublicKey);
-	    if (!toPublicKey || toPublicKey == '0x') {
-		cb('Encryption error: unable to look up destination address in contract!');
+    escrowFcnWithParmMsg: function(fcn, fcnDesc, escrowIdBN, parmBN, toAddr, attachmentIdxBN, refBN, message, cb) {
+	console.log('escrowFcnWithParmMsg: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted) {
+	    if (!!err) {
+		cb(err);
 		return;
 	    }
-	    console.log('escrowFcnWithRatingMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
-	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
-	    sentMsgCtrBN.iaddn(1);
-	    console.log('escrowFcnWithRatingMsg: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    console.log('escrowFcnWithRatingMsg: ptk = ' + ptk);
-	    const encrypted = dhcrypt.encrypt(ptk, message);
-	    console.log('escrowFcnWithRatingMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
-	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('escrowFcnWithRatingMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
-		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		common.showWaitingForMetaMask(true);
-		const statusDiv = document.getElementById('statusDiv');
-		let fcnErr = null;
-		const continueFcn = () => {
-		    common.clearStatusDiv(statusDiv);
-		    cb(fcnErr);
-		};
-		fcn(escrowIdBN, ratingBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
-		    console.log('escrowFcnWithRatingMsg: txid = ' + txid);
-		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-			approveErr = err;
-		    });
+	    common.showWaitingForMetaMask(true);
+	    const statusDiv = document.getElementById('statusDiv');
+	    let fcnErr = null;
+	    const continueFcn = () => {
+		common.clearStatusDiv(statusDiv);
+		cb(fcnErr);
+	    };
+	    fcn(escrowIdBN, parmBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
+		console.log('escrowFcnWithParmMsg: txid = ' + txid);
+		common.showWaitingForMetaMask(false);
+		common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    approveErr = err;
 		});
 	    });
 	});

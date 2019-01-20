@@ -167,48 +167,62 @@ const mtUtil = module.exports = {
     },
 
 
-    // cb(err)
-    // cb is called after user clicks continue
-    encryptAndSendMsg: function(msgDesc, toAddr, ref, attachmentIdxBN, message, cb) {
-	console.log('encryptAndSendMsg');
+    // cb(err, msgFee, encrypted)
+    encryptMsg: function(toAddr, message, cb) {
+	console.log('encryptMsg');
 	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    //console.log('encryptAndSendMsg: toPublicKey = ' + toPublicKey);
+	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
 	    if (!toPublicKey || toPublicKey == '0x') {
-		cb('Encryption error: unable to look up destination address in contract!');
+		cb('Encryption error: unable to look up destination address in contract!', null, null);
 		return;
 	    }
 	    //console.log('encryptAndSendMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
 	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
-	    //console.log('encryptAndSendMsg: toPublicKey = ' + toPublicKey);
+	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
 	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    //console.log('encryptAndSendMsg: ptk = ' + ptk);
+	    //console.log('encryptMsg: ptk = ' + ptk);
 	    const encrypted = dhcrypt.encrypt(ptk, message);
-	    console.log('encryptAndSendMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+	    console.log('encryptMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('encryptAndSendMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
+		console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
-		common.showWaitingForMetaMask(true);
-		const statusDiv = document.getElementById('statusDiv');
-		let sendErr = null;
-		const continueFcn = () => {
-		    common.clearStatusDiv(statusDiv);
-		    cb(sendErr);
-		};
-		mtEther.sendMessage(common.web3, toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
-		    console.log('encryptAndSendMsg: txid = ' + txid);
-		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, msgDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-			sendErr = err;
-		    });
+		cb(null, msgFee, encrypted);
+	    });
+	});
+    },
+
+
+    // cb(err)
+    // cb is called after user clicks continue
+    encryptAndSendMsg: function(msgDesc, toAddr, ref, attachmentIdxBN, message, cb) {
+	console.log('encryptAndSendMsg');
+	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted) {
+	    if (!!err) {
+		cb(err);
+		return;
+	    }
+	    console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
+	    common.showWaitingForMetaMask(true);
+	    const statusDiv = document.getElementById('statusDiv');
+	    let sendErr = null;
+	    const continueFcn = () => {
+		common.clearStatusDiv(statusDiv);
+		cb(sendErr);
+	    };
+	    mtEther.sendMessage(common.web3, toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
+		console.log('encryptAndSendMsg: txid = ' + txid);
+		common.showWaitingForMetaMask(false);
+		common.waitForTXID(err, txid, msgDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    sendErr = err;
 		});
 	    });
 	});
     },
+
 
 
     /* ------------------------------------------------------------------------------------------------------------------

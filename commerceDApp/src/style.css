@@ -750,6 +750,65 @@ h3 { font-size:18px; }
     transform: translateX(-50%);
 }
 
+#approveDialogDiv {
+    position: absolute;
+    z-index: 1;
+    left: 30%;
+    top: 120px;
+    width: 640px;
+    height: 285px;
+    padding: 10px;
+    border: 1px solid #888;
+    background-color: #9cd9db;
+}
+#approveDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#approveDialogNote {
+    position: absolute;
+    top: 157px;
+    left: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#approveDialogArea {
+    resize: none;
+    position: absolute;
+    top: 140px;
+    left: 275px;
+    transform: translateX(-50%);
+    width: 4em;
+}
+#approveDialogSelect {
+    resize: none;
+    position: absolute;
+    top: 141px;
+    left: 340px;
+    transform: translateX(-50%);
+}
+#approveDialogCancelButton {
+    position: absolute;
+    top: 270px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#approveDialogDoButton {
+    position: absolute;
+    top: 270px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+
 #releaseDialogDiv {
     position: absolute;
     z-index: 1;

@@ -190,6 +190,25 @@
 	<button id="addFundsDialogCancelButton" type="button">Cancel</button>
 	<button id="addFundsDialogDoButton" type="button">Add Funds</button>
       </div>
+      <div id="approveDialogDiv" class="hidden">
+	<p id="approveDialogInstr">When you approve this purchase, you are commiting to deliver the product within a fixed amount of time. If the buyer does not <i>receive</i>
+	  the product within the specified time, he will likely &quot;burn&quot the escrow, causing you to lose the product payment <i>plus</i> your bond funds (50% of the product
+	  price). Also make sure that you do not surprise the buyer with an unreasonable delivery time, or he might burn the escrow.</p>
+	<p id="approveDialogNote" class="visibleIB">Note: Specifiyng the delivery time also serves a purpose for you: the buyer is commited to release the escrow funds (if he
+	  does not burn the escrow) within 30 days after the expiration of the delivery time. If he does not, then you can claim all the escrow funds, including the buyer's
+	  bond (50% of the product price).</p>
+	<textarea id="approveDialogArea" rows="1" cols="10"
+		    onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+		    placeholder=""></textarea>
+	<select id="approveDialogSelect">
+	  <option value="3600">hours</option>
+	  <option value="86400">days</option>
+	  <option value="604800">weeks</option>
+	  <option value="2678400">months</option>
+	</select>
+	<button id="approveDialogCancelButton" type="button">Cancel</button>
+	<button id="approveDialogDoButton" type="button">Promise Delivery</button>
+      </div>
       <div id="releaseDialogDiv" class="hidden">
 	<p id="releaseDialogInstr">Please rate your experience with this seller. Your rating will help future buyers either select or avoid this seller</p>
 	<p id="releaseDialogNote" class="visibleIB">Suggestion: If the seller has performed well, go ahead and give him a 10!"</p>
