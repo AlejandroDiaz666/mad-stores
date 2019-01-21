@@ -22,7 +22,7 @@ contract MadEscrow is iERC20Token {
   function verifyEscrowCustomer(uint256 _escrowID, address _customerAddr) public view returns (uint256 _productID, address _vendorAddr);
   function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
   function cancelEscrow(uint256 _escrowID, uint256 _XactId) public;
-  function approveEscrow(uint256 _escrowID, uint256 _XactId) public;
+  function approveEscrow(uint256 _escrowID, uint256 _deliveryTime, uint256 _XactId) public;
   function releaseEscrow(uint256 _escrowID, uint256 _XactId) public;
   function burnEscrow(uint256 _escrowID, uint256 _XactId) public payable;
 }
@@ -36,12 +36,11 @@ contract MadStores is SafeMath {
   // -----------------------------------------------------------------------------------------------------
   // events
   // -----------------------------------------------------------------------------------------------------
-  event StatEvent(string message);
   event RegisterVendorEvent(address indexed _vendorAddr, bytes name, bytes desc, bytes image);
   event RegisterProductEvent(uint256 indexed _productID, bytes name, bytes desc, bytes image);
   event PurchaseDepositEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _msgId);
   event PurchaseCancelEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
-  event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
+  event PurchaseApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _deliveryTime, uint256 _msgId);
   event PurchaseDeclineEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryRejectEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
@@ -272,7 +271,6 @@ contract MadStores is SafeMath {
     vendorAccounts[msg.sender].activeFlag = true;
     vendorAccounts[msg.sender].region = _defaultRegion;
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
-    emit StatEvent("ok: vendor registered");
   }
 
 
@@ -375,7 +373,6 @@ contract MadStores is SafeMath {
       madEscrow.modifyEscrowPrice(_escrowID, _msgId, _surcharge);
     }
     emit PurchaseDepositEvent(_vendorAddr, msg.sender, _escrowID, _productID, _surcharge, _msgId);
-    emit StatEvent("ok: purchase funds deposited");
   }
 
 
@@ -393,7 +390,6 @@ contract MadStores is SafeMath {
     _product.quantity += 1;
     madEscrow.cancelEscrow(_escrowID, _msgId);
     emit PurchaseCancelEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: purchase canceled -- funds returned");
   }
 
 
@@ -401,15 +397,14 @@ contract MadStores is SafeMath {
   // approve of a purchase
   // called by vendor
   // -----------------------------------------------------------------------------------------------------
-  function purchaseApprove(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
+  function purchaseApprove(uint256 _escrowID, uint256 _deliveryTime, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
-    madEscrow.approveEscrow(_escrowID, _msgId);
-    emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: purchase approved -- funds locked");
+    madEscrow.approveEscrow(_escrowID, _deliveryTime, _msgId);
+    emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _deliveryTime, _msgId);
   }
 
 
@@ -428,7 +423,6 @@ contract MadStores is SafeMath {
     madEscrow.cancelEscrow(_escrowID, _msgId);
     _product.quantity += 1;
     emit PurchaseDeclineEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: purchase declineed -- funds returned");
   }
 
 
@@ -448,7 +442,6 @@ contract MadStores is SafeMath {
         _rating = 10;
     vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: delivery approved -- funds destributed");
   }
 
 
@@ -470,7 +463,6 @@ contract MadStores is SafeMath {
       _rating = 10;
     vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
-    emit StatEvent("ok: delivery rejected -- funds burned");
   }
 
 

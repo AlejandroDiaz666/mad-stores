@@ -33,6 +33,7 @@ const meEther = module.exports = {
     purchaseDeclineABI: null,
     purchaseCancelABI: null,
     deliveryApproveABI: null,
+    deliveryRejectABI: null,
     MSContractInstance: null,
     MEContractInstance: null,
     daiContractInstance: null,
@@ -519,6 +520,36 @@ const meEther = module.exports = {
     },
 
     abiEncodeDeliveryApproveParms: function(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint8', 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, ratingBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
+
+
+    // ---------------------------------------------------------------------------------------------------------
+    // deliveryReject & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //    function deliveryReject(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
+    //
+    //
+    deliveryReject: function(escrowIdBN, ratingBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
+	const abiDeliveryRejectFcn = meEther.abiEncodeDeliveryReject();
+	const abiParms = meEther.abiEncodeDeliveryRejectParms(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex);
+        const sendData = "0x" + abiDeliveryRejectFcn + abiParms;
+	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodeDeliveryReject: function() {
+	if (!meEther.deliveryRejectABI)
+	    meEther.deliveryRejectABI = ethabi.methodID('deliveryReject', [ 'uint256', 'uint8', 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.deliveryRejectABI);
+    },
+
+    abiEncodeDeliveryRejectParms: function(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex) {
 	const bytes = common.hexToBytes(messageHex);
 	const encoded = ethabi.rawEncode([ 'uint256', 'uint8', 'uint256', 'uint256', 'bytes' ],
 					 [ escrowIdBN, ratingBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');

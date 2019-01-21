@@ -117,8 +117,6 @@ function addRow(table) {
     table.appendChild(rowDiv);
     //
     meEther.escrowQuery(common.web3.eth.accounts[0], idx, function(err, escrowIdBN, escrowInfo) {
-        // 'isClosed', 'isApproved', 'partnerAddr', 'vendorAddr', 'customerAddr', 'productId', 'vendorBalance',
-        // 'customerBalance', 'createXactId', 'modifyXactId', 'approveCancelXactId', 'releaseBurnXactId' ];
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
 	productArea.value = 'loading...';
@@ -143,7 +141,10 @@ function addRow(table) {
         if (escrowInfo.isApproved) {
 	    addStep(idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
 	    if (escrowInfo.isClosed) {
-		//addStep(idx, 'escrowListStepReleaseSpan', 'this escrow is completed / closed', completedSpan, showReleased)
+		if (escrowInfo.isBurned)
+		    addStep(idx, 'escrowListStepBurnSpan', 'this escrow was burned', completedSpan, showBurn)
+		else
+		    addStep(idx, 'escrowListStepReleaseSpan', 'this escrow is completed', completedSpan, showRelease)
 		nextStepsSpan.textContent = 'Escrow Is Closed';
 	    }
 	} else if (escrowInfo.isClosed) {
@@ -252,7 +253,9 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showApprove: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
-	const priceDesc = 'the vendor approved this escrow, and committed to deliver this product';
+	const deliveryDate = parseInt(escrowInfo.deliveryDate);
+	const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
+	const priceDesc = 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr;
 	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
@@ -289,6 +292,64 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 		return;
 	    }
 	    console.log('showCancelOrDecline: reply -- about to send reply');
+	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		if (!!err)
+		    alert(err);
+		dashboard.handleDashboardPage();
+	    });
+	});
+    });
+}
+
+
+function showRelease(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
+    console.log('showRelease: releaseBurnXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	console.log('showRelease: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'delivery of this item was confirmed; all escrow funds have been released';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	console.log('showRelease: setupDisplayMsgArea came back');
+	    if (!!err) {
+		alert(err);
+		dashboard.handleDashboardPage();
+		return;
+	    }
+	    console.log('showRelease: reply -- about to send reply');
+	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+		if (!!err)
+		    alert(err);
+		dashboard.handleDashboardPage();
+	    });
+	});
+    });
+}
+
+
+function showBurn(escrowIdBN, escrowInfo, productIdBN) {
+    const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
+    console.log('showBurn: releaseBurnXactId = ' + msgId);
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	console.log('showBurn: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	const priceDesc = 'item not delivered, or delivery was rejected; all escrow funds have been burned';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	console.log('showBurn: setupDisplayMsgArea came back');
+	    if (!!err) {
+		alert(err);
+		dashboard.handleDashboardPage();
+		return;
+	    }
+	    console.log('showBurn: reply -- about to send reply');
 	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
 		if (!!err)
 		    alert(err);
@@ -531,7 +592,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	  'Type your message here...\n\n' +
 	  'You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties.\n\n' +
 	  'All escrow funds will be released to the respective parties: the total purchase price will be released to the seller, together with the seller\'s ' +
-	  'bond (50% of the purchase price); and the buyer\'s bond (50% of the purchase price) will be release backto you.\n\n' +
+	  'bond (50% of the purchase price); and the buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
@@ -554,6 +615,64 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	});
     });
 }
+
+
+//
+function doBurnDialog(escrowIdBN, escrowInfo) {
+    common.replaceElemClassFromTo('burnDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('burnDialogDiv', 'hidden', 'visibleB', null);
+    const burnDialogDoButton = document.getElementById('burnDialogDoButton');
+    const burnDialogCancelButton = document.getElementById('burnDialogCancelButton');
+    const burnDialogSelect = document.getElementById('burnDialogSelect');
+    burnDialogDoButton.disabled = false;
+    burnDialogCancelButton.disabled = false;
+    //
+    burnDialogCancelButton.addEventListener('click', function() {
+	common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+    });
+    //
+    burnDialogDoButton.addEventListener('click', function() {
+	burnDialogDoButton.disabled = true;
+	burnDialogCancelButton.disabled = true;
+	const ratingBN = common.numberToBN(burnDialogSelect.value);
+	common.replaceElemClassFromTo('burnDialogNote', 'visibleIB', 'hidden', null);
+	common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+	doBurn(ratingBN, escrowIdBN, escrowInfo);
+    });
+}
+
+
+function doBurn(ratingBN, escrowIdBN, escrowInfo) {
+    console.log('doBurn: escrowIdBN = 0x' + escrowIdBN.toString(16));
+    const placeholderText =
+	  '\n' +
+	  'Type your message here...\n\n' +
+	  'You are about to burn this escrow!!\n\n' +
+	  'You will lose the entire amount that you deposited into the escrow, including the price of the product, and you buyer-bond (50% of the ' +
+	  'purchase price). The seller will also not receive any payment for the product, and will lose his bond (also 50% of the purchase price).\n\n' +
+	  'This is a drastic measure, but is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
+	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
+    const escrowBN = common.numberToBN(escrowInfo.customerBalance);
+    const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
+	console.log('doBurn: setupComposeMsgArea came back');
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
+	meUtil.escrowFcnWithParmMsg(meEther.deliveryReject, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	    if (!!err)
+		alert(err);
+	    else
+		alert('You have just burned all funds from an escrow account!\n' +
+		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited is lost; the seller\'s bond is also burned.');
+	    dashboard.handleDashboardPage();
+	});
+    });
+}
+
 
 
 

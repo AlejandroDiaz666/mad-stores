@@ -59,12 +59,14 @@ contract MadEscrow is iERC20Token, SafeMath {
   struct Escrow {
     bool closed;                        // escrow is no more
     bool approved;                      // purchase has been approved by vendor
+    bool burned;                        // escrow was burned by customer
     address partnerAddr;                // contract that created this escrow
     address vendorAddr;
     address customerAddr;
     uint256 productId;                  // productId is an opaque cookie
     uint256 vendorBalance;              // amount that vendor has put into escrow
     uint256 customerBalance;            // amount that customer has put into escrow
+    uint256 deliveryDate;
     uint256 createXactId;
     uint256 modifyXactId;
     uint256 approveCancelXactId;        // approve or cancel
@@ -324,13 +326,36 @@ contract MadEscrow is iERC20Token, SafeMath {
   // the price is finalized -- funds are now locked into the escrow until they are released or burned.
   // called by vendor
   // -------------------------------------------------------------------------------------------------------
-  function approveEscrow(uint256 _escrowId, uint256 _XactId) public trustedOnly {
+  function approveEscrow(uint256 _escrowId, uint256 _deliveryTime, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed == false, "escrow is closed");
     require(_escrow.approved == false, "escrow is already approved");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
+    _escrow.deliveryDate = safeAdd(now, _deliveryTime);
     _escrow.approveCancelXactId = _XactId;
     _escrow.approved = true;
+  }
+
+
+  // -------------------------------------------------------------------------
+  // claim escrow funds that have been abandoned by buyer
+  // called by vendor, 30 days after product delivery date
+  // note: this is the only fcn that can be called directly by the vendor. it
+  // does not include any transaction id.
+  // -------------------------------------------------------------------------
+  function claimAbandonedEscrow(uint256 _escrowId) public trustedOnly {
+    Escrow storage _escrow = escrows[_escrowId];
+    require(_escrow.approved == true, "cannot until after approval");
+    require(_escrow.vendorAddr == msg.sender, "only vendor contract can claim abandoned escrow");
+    require(now > _escrow.deliveryDate + 30 days, "only 30 days after promised delivery date");
+    address _vendorAddr = _escrow.vendorAddr;
+    uint256 _total = safeAdd(_escrow.customerBalance, _escrow.vendorBalance);
+    uint256 _escrowFee = safeMul(_total, ESCROW_FEE_PCTX10) / 1000;
+    retainedFees = safeAdd(retainedFees, _escrowFee);
+    uint256 _vendorNet = safeSub(_total, _escrowFee);
+    balances[_vendorAddr] = safeAdd(balances[_vendorAddr], _vendorNet);
+    _escrow.vendorBalance = _escrow.customerBalance = 0;
+    _escrow.closed = true;
   }
 
 
@@ -340,7 +365,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------
   function releaseEscrow(uint256 _escrowId, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
-    require(_escrow.approved == true, "cannot until after approval");
+    require(_escrow.approved == true, "only after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.releaseBurnXactId = _XactId;
     address _vendorAddr = _escrow.vendorAddr;
@@ -363,12 +388,13 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------
   function burnEscrow(uint256 _escrowId, uint256 _XactId) public payable trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
-    require(_escrow.approved == true, "cannot until after approval");
+    require(_escrow.approved == true, "only after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     retainedFees = safeAdd(retainedFees, _escrow.customerBalance + _escrow.vendorBalance);
     _escrow.releaseBurnXactId = _XactId;
     _escrow.customerBalance = 0;
     _escrow.vendorBalance = 0;
+    _escrow.burned = true;
     _escrow.closed = true;
   }
 

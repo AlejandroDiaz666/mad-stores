@@ -228,6 +228,27 @@
 	<button id="releaseDialogCancelButton" type="button">Cancel</button>
 	<button id="releaseDialogDoButton" type="button">Set Rating</button>
       </div>
+      <div id="burnDialogDiv" class="hidden">
+	<p id="burnDialogInstr">Please rate your experience with this seller.</br>
+	  Since you are burning the escrow, it is reasonable that you would give the seller a very low rating. Nevertheless, you have the option of
+	  giving a higher rating if your particular situation calls for it...</p>
+	<p id="burnDialogNote" class="visibleIB">Suggestion: If you think you can correct a simple misunderstanding with the seller, then attempt to do so by writing a
+	  message to the seller before burning the escrow.</p>
+	<select id="burnDialogSelect">
+	  <option value="0">0 (seller is a crook!)</option>
+	  <option value="1">1</option>
+	  <option value="2">2</option>
+	  <option value="3">3</option>
+	  <option value="4">4</option>
+	  <option value="5">5 (misunderstanding ?)</option>
+	  <option value="6">6</option>
+	  <option value="7">7</option>
+	  <option value="8">8</option>
+	  <option value="9">9</option>
+	  <option value="10">10 (completely satisfied)</option>	</select>
+	<button id="burnDialogCancelButton" type="button">Cancel</button>
+	<button id="burnDialogDoButton" type="button">Set Rating</button>
+      </div>
       <div id="escrowlistAreaDiv">
 	<div id="escrowListHeaderDiv" class="escrowListItemDiv">
 	  <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow Id.</textarea>
