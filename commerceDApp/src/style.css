@@ -117,6 +117,33 @@ h3 { font-size:18px; }
     cursor: pointer;
 }
 
+#waitIcon {
+    position: fixed;
+    display: none;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    z-index: 2;
+    animation-name: waitIconAnimation;
+    animation-duration: 2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: reverse;
+    background-size: 80px 80px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    background-image: url('../images/loading.png');
+}
+
+@keyframes waitIconAnimation {
+    from {
+	-webkit-transform: rotate(0deg);
+    }
+    to {
+	-webkit-transform: rotate(359deg);
+    }
+}
 
 /* this modal has a message telling the user that we are waiting
    for metamask
@@ -463,8 +490,12 @@ h3 { font-size:18px; }
     position: relative;
     top: 0px;
     left: 0px;
-    background-color: rgb(150, 150, 179);
-    border: 1px solid rgb(150, 150, 179);
+    background-color: whitesmoke;
+    border: 1px solid transparent;
+    border-radius: 15px;
+}
+.tileDivShow:hover {
+    border: 1px solid black;
 }
 .tileDiv:hover {
     border: 1px solid black;
@@ -480,7 +511,7 @@ h3 { font-size:18px; }
 .tileName {
     width: 240px;
     height: 25px;
-    background-color: rgb(100, 110, 149);
+    background-color: transparent;
     position: absolute;
     left: 50%;
     top: 100%;
@@ -494,7 +525,7 @@ h3 { font-size:18px; }
 .tileText {
     width: 240px;
     height: 60px;
-    background-color: rgb(120, 120, 149);
+    background-color: transparent;
     position: absolute;
     left: 50%;
     top: 100%;
@@ -504,12 +535,12 @@ h3 { font-size:18px; }
 .tilePrice {
     width: 240px;
     height: 20px;
-    background-color: rgb(100, 110, 149);
+    background-color: transparent;
     position: absolute;
     left: 50%;
     top: 100%;
     transform-style: preserve-3d;
-    transform: translate3d(-120px, -30px, 0px);
+    transform: translate3d(-120px, -35px, 0px);
     text-align: center;
     font-family: lato;
     font-size: 18px;
@@ -519,7 +550,7 @@ h3 { font-size:18px; }
 .tileQuantity {
     width: 240px;
     height: 25px;
-    background-color: rgb(100, 110, 149);
+    background-color: transparent;
     position: absolute;
     left: 50%;
     top: 100%;

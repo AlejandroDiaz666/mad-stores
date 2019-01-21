@@ -238,17 +238,23 @@ function buildDashboard() {
 }
 
 
+//
+// below are the handlers for the various steps-completed, next-steps buttons
+//
 function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.createXactId);
     console.log('showDeposit: createXactId = ' + msgId);
+    common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
+	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
 	console.log('showDeposit: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
+	//clears loading-icon
 	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
@@ -269,8 +275,10 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 function showApprove(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showApprove: approveCancelXactId = ' + msgId);
+    common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
+	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
@@ -299,14 +307,17 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showCancelOrDecline: approveCancelXactId = ' + msgId);
+    common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
+	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
 	console.log('showCancelOrDecline: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 	const priceDesc = (escrowInfo.vendorAddr == fromAddr) ? 'this purchase was declined' : 'this purchase was canceled';
+	//clears loading-icon
 	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showCancelOrDecline: setupDisplayMsgArea came back');
 	    if (!!err) {
@@ -328,8 +339,10 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 function showRelease(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showRelease: releaseBurnXactId = ' + msgId);
+    common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
+	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
@@ -357,8 +370,10 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 function showBurn(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showBurn: releaseBurnXactId = ' + msgId);
+    common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
+	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;

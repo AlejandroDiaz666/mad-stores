@@ -376,6 +376,7 @@ const mtUtil = module.exports = {
     // set up the message-display area. if the user clicks the reply button, then the reply is constructed (via the replyToMsg fcn);
     // in that case before calling the cb any attachment is appended to the message (via the attachButton and sendButton click
     // handlers). the reply message is not encrypted.
+    // clears the loading-icon when the msg is displayed
     //
     setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, cb) {
 	console.log('setupDisplayMsgArea: enter');
@@ -429,6 +430,7 @@ const mtUtil = module.exports = {
 		attachmentSaveA.style.display = 'none';
 	    }
 	    sendButton.disabled = false;
+	    common.setLoadingIcon(null);
 	    mtUtil.sendCB = () => { replyToMsg(fromAddr, msgId, cb); };
 	});
     },

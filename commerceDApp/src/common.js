@@ -477,6 +477,11 @@ const common = module.exports = {
 	statusDiv.style.display = "none";
     },
 
+    //start or stop the wait/loading icon
+    setLoadingIcon: function(start) {
+	const waitIcon = document.getElementById('waitIcon');
+	waitIcon.style.display = (!!start) ? 'block' : 'none';
+    },
 
     //state = 'Disabled' | 'Enabled' | 'Selected'
     setMenuButtonState: function(buttonID, state) {

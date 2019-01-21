@@ -119,6 +119,7 @@ function handleSearchProducts() {
 function shopDoSearch() {
     // after user enters earch parameters....
     common.replaceElemClassFromTo('shopNextPrevDiv',  'hidden',   'visibleB', null);
+    common.setLoadingIcon('start');
     const vendorAddr = null
     const maxPriceBN = null;
     const onlyAvailable = false; //should be true, but now testing
@@ -148,6 +149,7 @@ function shopDoSearch() {
 			       console.log('shopDoSearch: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
 			       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 			       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
+			       common.setLoadingIcon(null);
 			   });
 }
 
