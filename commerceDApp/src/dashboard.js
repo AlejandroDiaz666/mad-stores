@@ -93,25 +93,36 @@ var dashboard = module.exports = {
 function addRow(table) {
     console.log('addRow: enter');
     const idx = dashboard.escrowCount - dashboard.rowCount - 1;
-    rowDiv = document.createElement("div");
+    const rowDiv = document.createElement("div");
     rowDiv.className = 'escrowListItemDiv';
     rowDiv.id = 'row-' + idx;
+    //
+    const leftDiv = document.createElement("div");
+    leftDiv.className = 'escrowListItemLeftDiv';
+    const leftSubDiv0 = document.createElement("div");
+    leftSubDiv0.className = 'escrowListItemLeftSubDiv0';
+    const leftSubDiv1 = document.createElement("div");
+    leftSubDiv1.className = 'escrowListItemLeftSubDiv1';
+    //
     const escrowNoArea = common.makeTextarea(null, 'escrowListEscrowNoArea', true);
     const typeArea = common.makeTextarea(null, 'escrowListTypeArea', true);
-    const productArea = common.makeTextarea(null, 'escrowListTypeArea', true);
+    const productArea = common.makeTextarea(null, 'escrowListProductArea', true);
     const addrArea = common.makeTextarea(null, 'escrowListAddrArea', true);
     const dateArea = common.makeTextarea(null, 'escrowListDateArea', true);
     const completedSpan = document.createElement("span");
     completedSpan.className = 'escrowListCompletedSpan';
     const nextStepsSpan = document.createElement("span");
     nextStepsSpan.className = 'escrowListnextStepsSpan';
-    rowDiv.appendChild(escrowNoArea);
-    rowDiv.appendChild(typeArea);
-    rowDiv.appendChild(productArea);
-    rowDiv.appendChild(addrArea);
-    //console.log('addRow: 5.9');
-    //rowDdiv.appendChild(dateArea);
-    //console.log('addRow: 6');
+    //const infoArea = common.makeTextarea(null, 'escrowListInfoArea', true);
+    //
+    leftSubDiv0.appendChild(escrowNoArea);
+    leftSubDiv0.appendChild(typeArea);
+    leftSubDiv0.appendChild(productArea);
+    leftSubDiv0.appendChild(addrArea);
+    //leftSubDiv1.appendChild(infoArea);
+    leftDiv.appendChild(leftSubDiv0);
+    leftDiv.appendChild(leftSubDiv1);
+    rowDiv.appendChild(leftDiv);
     rowDiv.appendChild(completedSpan);
     rowDiv.appendChild(nextStepsSpan);
     table.appendChild(rowDiv);
@@ -123,6 +134,11 @@ function addRow(table) {
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
 	    productArea.value = product.name;
 	});
+	if (!escrowInfo.isClosed) {
+	    const sellerBN = common.numberToBN(escrowInfo.vendorBalance);
+	    const buyerBN = common.numberToBN(escrowInfo.customerBalance);
+	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN);
+	}
 	const addStep = (idx, className, tipText, addTo, handler) => {
 	    console.log('addStep: idx = ' + idx + ', className = ' + className);
             const stepSpan = document.createElement("span");
@@ -133,6 +149,7 @@ function addRow(table) {
 	    stepSpan.appendChild(stepSpanTip);
 	    stepSpan.addEventListener('click', function() {
 		selectRowIdx(idx);
+		common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
 		handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
 	    });
             addTo.appendChild(stepSpan);

@@ -563,7 +563,7 @@ h3 { font-size:18px; }
     left: 10%;
 }
 #escrowListDiv {
-    height: 250px;
+    height: 640px;
     overflow-y: scroll;
 }
 #escrowListHeaderDiv {
@@ -571,8 +571,8 @@ h3 { font-size:18px; }
 }
 .escrowListItemDiv, .escrowListItemDivSelected {
     clear: both;
-    display: table-row;
-    height: 35px;
+    display: inline-table;
+    height: 40px;
     background-color: var(--clr_areabg1);
     font-weight: normal;
     overflow: clip;
@@ -587,11 +587,21 @@ h3 { font-size:18px; }
     border-width: 2px;
     margin: 0px;
 }
+.escrowListItemLeftDiv {
+}
+.escrowListItemLeftSubDiv0 {
+    float: left;
+}
+.escrowListItemLeftSubDiv1 {
+    clear: both;
+    text-align: center;
+}
+
+
 .escrowListEscrowNoArea, .escrowListTypeArea, .escrowListProductArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
     display: table-cell;
     height: 15px;
-    transform: translateY(-7px);
 }
 .escrowListEscrowNoArea {
     width: 8em;
@@ -610,12 +620,10 @@ h3 { font-size:18px; }
 #escrowListHeaderCompleted {
     width: 300px;
     height: 15px;
-    transform: translateY(-7px);
     resize: none;
 }
 #escrowListHeaderNextSteps {
     height: 15px;
-    transform: translateY(-7px);
     width: 200px;
     resize: none;
 }
@@ -628,6 +636,7 @@ h3 { font-size:18px; }
     border-right-style: dashed;
     border-left-width: 2px;
     border-right-width: 2px;
+    vertical-align: middle;
 }
 .escrowListnextStepsSpan {
     display: table-cell;
@@ -652,11 +661,11 @@ h3 { font-size:18px; }
 .escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan, .escrowListStepDeclineSpan,
 .escrowListStepApproveSpan, .escrowListStepReleaseSpan, .escrowListStepBurnSpan {
     float: left;
-    background-size: 35px 35px;
+    background-size: 40px 40px;
     background-repeat: no-repeat;
     background-position: 0px 0px;
-    height: 35px;
-    width: 35px;
+    height: 39px;
+    width: 39px;
     display: inline-block;
     border-radius: 9px;
     margin-left: 5px;
@@ -691,6 +700,11 @@ h3 { font-size:18px; }
     border-color: black;
     cursor: pointer;
 }
+.escrowListInfoArea {
+    width: 100%;
+    resize: none;
+}
+/* dashboard page -- add funds dialog */
 #addFundsDialogDiv {
     position: absolute;
     z-index: 1;
@@ -749,7 +763,7 @@ h3 { font-size:18px; }
     left: 65%;
     transform: translateX(-50%);
 }
-
+/* dashboard page -- approve dialog */
 #approveDialogDiv {
     position: absolute;
     z-index: 1;
@@ -808,6 +822,7 @@ h3 { font-size:18px; }
     left: 65%;
     transform: translateX(-50%);
 }
+/* dashboard page -- release dialog */
 #releaseDialogDiv {
     position: absolute;
     z-index: 1;
@@ -859,7 +874,7 @@ h3 { font-size:18px; }
     left: 65%;
     transform: translateX(-50%);
 }
-
+/* dashboard page -- burn dialog */
 #burnDialogDiv {
     position: absolute;
     z-index: 1;
