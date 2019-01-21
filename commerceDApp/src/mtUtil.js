@@ -231,6 +231,12 @@ const mtUtil = module.exports = {
     //
     // needs to be called once, on document load
     //
+    setMsgCloseHandler: function() {
+	const msgCloseImg = document.getElementById('msgCloseImg');
+	msgCloseImg.addEventListener('click', function() {
+	    common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', true);
+	});
+    },
     setAttachButtonHandler: function() {
 	const attachmentButton = document.getElementById('attachmentButton');
 	const attachmentInput = document.getElementById('attachmentInput');

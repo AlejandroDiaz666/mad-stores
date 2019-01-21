@@ -35,6 +35,7 @@ var index = module.exports = {
 	setWrapButtonHandlers();
 	setUnwrapButtonHandlers();
 	//for message transport
+	mtUtil.setMsgCloseHandler();
 	mtUtil.setAttachButtonHandler();
 	mtUtil.setSendButtonHandler();
     },

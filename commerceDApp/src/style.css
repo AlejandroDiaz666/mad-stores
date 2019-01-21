@@ -1555,7 +1555,7 @@ h3 { font-size:18px; }
     border: var(--bor_butnormal);
 }
 #msgInfoAreaDiv {
-    clear: right;
+    clear: both;
     padding-top: 10px;
     padding-right: 10px;
     padding-bottom: 0px;
@@ -1630,6 +1630,11 @@ h3 { font-size:18px; }
     padding-left: 6px;
     border-radius: 8px;
     color: var(--clr_buttontext);
+}
+#msgCloseImg {
+    float:left;
+    width: 30px;
+    height: 30px;
 }
 #attachmentButton, #attachmentInput {
     float:right;

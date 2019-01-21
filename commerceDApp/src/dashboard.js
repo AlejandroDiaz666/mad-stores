@@ -141,12 +141,18 @@ function addRow(table) {
 	}
 	const addStep = (idx, className, tipText, addTo, handler) => {
 	    console.log('addStep: idx = ' + idx + ', className = ' + className);
-            const stepSpan = document.createElement("span");
-            stepSpan.className = className + ' tooltip';
-	    const stepSpanTip = document.createElement("span");
-	    stepSpanTip.className = 'tooltipText';
-	    stepSpanTip.textContent = tipText;
-	    stepSpan.appendChild(stepSpanTip);
+	    const stepSpan = document.createElement("span");
+	    stepSpan.className = className;
+	    if (dashboard.escrowCount - idx < 15) {
+		//at some point of scrolling the tooltips stop lining up up with the buttons;
+		//anyhow, after the first few line the user probably gets the idea and the tooltips are
+		//just plain annoying
+		stepSpan.className = className + ' tooltip';
+		const stepSpanTip = document.createElement("span");
+		stepSpanTip.className = 'tooltipText';
+		stepSpanTip.textContent = tipText;
+		stepSpan.appendChild(stepSpanTip);
+	    }
 	    stepSpan.addEventListener('click', function() {
 		selectRowIdx(idx);
 		common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
