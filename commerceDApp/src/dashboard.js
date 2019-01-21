@@ -137,7 +137,7 @@ function addRow(table) {
 	if (!escrowInfo.isClosed) {
 	    const sellerBN = common.numberToBN(escrowInfo.vendorBalance);
 	    const buyerBN = common.numberToBN(escrowInfo.customerBalance);
-	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN);
+	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN) + ' W-Dai';
 	}
 	const addStep = (idx, className, tipText, addTo, handler) => {
 	    console.log('addStep: idx = ' + idx + ', className = ' + className);
