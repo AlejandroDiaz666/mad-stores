@@ -514,11 +514,14 @@ function drawProductTiles(div, listener, startIdx, noTiles) {
 	tileQuantitySpan.id = tileQuantitySpanId;
 	tileQuantitySpan.className = 'tileQuantity';
 	tileDiv.appendChild(tileQuantitySpan);
-	if (!!listener)
+	if (!!listener) {
+	    const productIdx = startIdx;
 	    tileDiv.addEventListener('click', function() {
-		const product = meUtil.productSearchResults[i];
+		console.log('drawProductTiles: got click, productIdx = ' + productIdx);
+		const product = meUtil.productSearchResults[productIdx];
 		listener(product);
 	    });
+	}
 	div.appendChild(tileDiv);
     }
 }
