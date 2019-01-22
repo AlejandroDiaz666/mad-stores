@@ -438,26 +438,6 @@ h3 { font-size:18px; }
     width: 28em;
 }
 
-#shopProductDetailDiv {
-    display: block;
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    width: 640px;
-    height: 300px;
-    transform: translateX(-50%);
-    background-color: whitesmoke;
-    border: 1px solid rgb(150, 150, 179);
-    border-radius: 15px;
-}
-#purchaseProductButton {
-    position: absolute;
-    top: 220px;
-    left: 50%;
-    width: 100px;
-    transform: translateX(-50%);
-}
-
 
 /*
  * ====================================================================================================================
@@ -564,39 +544,69 @@ h3 { font-size:18px; }
 }
 
 /* tilediv for selected product */
-.tileImgSel {
+#shopProductDetailDiv {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 30%;
+    width: 400px;
+    height: 320px;
+    transform: translateX(-50%);
+    background-color: whitesmoke;
+    border: 1px solid rgb(150, 150, 179);
+    border-radius: 15px;
+}
+#purchaseProductButton {
+    position: absolute;
+    top: 220px;
+    left: 50%;
+    width: 110px;
+    transform: translateX(-50%);
+}
+#shopProductSellerDiv {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 65%;
+    width: 280px;
+    height: 320px;
+    transform: translateX(-50%);
+    background-color: whitesmoke;
+    border: 1px solid rgb(150, 150, 179);
+    border-radius: 15px;
+}
+#shopProductDetailImg {
     width: 160px;
     height: 160px;
     position: absolute;
     left: 10px;
-    top: 10px;
+    top: 30px;
     transform-style: preserve-3d;
 }
-.tileNameSel {
+#shopProductDetailName {
     width: 240px;
     height: 25px;
     background-color: transparent;
     position: absolute;
-    left: 50%;
-    top: 10px;
-    transform-style: preserve-3d;
-    transform: translate3d(-80px, 0px, 0px);
+    left: 170px;
+    top: 30px;
     text-align: center;
     font-family: lato;
     font-size: 24px;
     font-weight: bold;
 }
-.tileTextSel {
-    width: 400px;
-    height: 80px;
+#shopProductDetailDesc {
+    width: 220px;
+    height: 120px;
     background-color: transparent;
     position: absolute;
-    left: 50%;
-    top: 40px;
-    transform-style: preserve-3d;
-    transform: translate3d(-120px, 0px, 0px);
+    left: 180px;
+    top: 60px;
+    font-family: lato;
+    font-size: 18px;
+    font-weight: normal;
 }
-.tilePriceSel {
+#shopProductDetailPrice {
     width: 240px;
     height: 20px;
     background-color: transparent;
@@ -611,7 +621,7 @@ h3 { font-size:18px; }
     font-weight: bold;
     padding: 4px;
 }
-.tileQuantitySel {
+#shopProductDetailQuantity {
     width: 240px;
     height: 25px;
     background-color: transparent;
@@ -625,7 +635,73 @@ h3 { font-size:18px; }
     font-size: 20px;
     font-weight: bold;
 }
-
+#shopProductSellerIntro {
+    width: 200px;
+    height: 20px;
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    margin-top: 5px;
+    transform: translate3d(-50%, 0px, 0px);
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    font-style: italic;
+}
+#shopProductSellerImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    left: 10px;
+    top: 30px;
+}
+#shopProductSellerName {
+    background-color: transparent;
+    position: absolute;
+    left: 170px;
+    top: 30px;
+    width: 80px;
+    margin-left: 10px;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: normal;
+}
+#shopProductSellerDesc {
+    position: absolute;
+    left: 10%;
+    top: 190px;
+    margin-top: 10px;
+}
+#shopProductSellerRegion {
+}
+#shopProductSellerRating {
+    position: absolute;
+    left: 50%;
+    top: 310px;
+    width: 240px;
+    transform: translate3d(-50%, -100%, 0px);
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 9px;
+}
+#shopProductSellerBurns {
+    position: absolute;
+    left: 50%;
+    top: 280px;
+    width: 240px;
+    transform: translate3d(-50%, -100%, 0px);
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 9px;
+}
 
 #shopNextPrevDiv,
 #createStoreNextPrevDiv {

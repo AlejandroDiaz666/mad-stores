@@ -177,6 +177,51 @@ function showProductDetail(product) {
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     shop.selectedProduct = product;
+    //
+    const shopProductSellerImg = document.getElementById('shopProductSellerImg');
+    const shopProductSellerName = document.getElementById('shopProductSellerName');
+    const shopProductSellerDesc = document.getElementById('shopProductSellerDesc');
+    const shopProductSellerRegion = document.getElementById('shopProductSellerRegion');
+    const shopProductSellerRating = document.getElementById('shopProductSellerRating');
+    const shopProductSellerBurns = document.getElementById('shopProductSellerBurns');
+    //
+    meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
+	console.log('showProductDetail: result.length = ' + result.length);
+	if (!!result && result.length > 0) {
+	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
+		console.log('regStorePageSubPage: err = ' + err);
+		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
+		console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
+		const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
+		const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
+		const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
+		const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
+		const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
+		const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
+		let grade = 'A+';
+		switch(avgRatingBN.toNumber()) {
+		case 0: grade = 'F-'; break;
+		case 1: grade = 'F'; break;
+		case 2: grade = 'D-'; break;
+		case 3: grade = 'D'; break;
+		case 4: grade = 'C-'; break;
+		case 5: grade = 'C'; break;
+		case 6: grade = 'B-'; break;
+		case 7: grade = 'B'; break;
+		case 8: grade = 'A-'; break;
+		case 9: grade = 'A'; break;
+		default: grade = 'A+'; break;
+		}
+		shopProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
+		shopProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + '(' + grade + ')';
+	    });
+	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
+		shopProductSellerName.textContent = name;
+		shopProductSellerDesc.textContent = desc;
+		shopProductSellerImg.src = image;
+	    });
+	}
+    });
 }
 
 

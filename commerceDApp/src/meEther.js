@@ -85,7 +85,7 @@ const meEther = module.exports = {
 	    const vendorAccountInfo = {};
 	    if (!err) {
 		//result = { true, 0 }
-		const keys = [ 'deliveriesApproved', 'deliveriesRejected', 'region', 'activeFlag' ];
+		const keys = [ 'deliveriesApproved', 'deliveriesRejected', 'region', 'ratingSum', 'activeFlag' ];
 		const resultArray = Array.from(resultObj);
 		for (let i = 0; i < resultArray.length; ++i)
 		    vendorAccountInfo[keys[i]] = resultArray[i];
