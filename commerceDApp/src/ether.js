@@ -31,6 +31,8 @@ const ether = module.exports = {
     infuraioHost_kovan: 'kovan.infura.io',
     infuraioHost_ropsten: 'ropsten.infura.io',
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
+    getLogsTimestamp: 0,
+    getLogsTimer: null,
     //node = 'etherscan.io' | 'infura.io' | 'metamask'
     node: 'metamask',
     ens: null,
@@ -190,81 +192,15 @@ const ether = module.exports = {
     },
 
 
-    //cb(err, result)
-    //options: {
-    //	fromBlock, toBlock, address, topics[]
+    // cb(err, result)
+    // options: fromBlock, toBlock, address, topics[]
     //
-    getLogs: function(options, cb) {
-	console.log('ether.getLogs: ether.node = ' + ether.node);
-	if (ether.node == 'metamask') {
-            const filter = common.web3.eth.filter(options);
-	    filter.get(cb);
-	    filter.stopWatching();
-	    return;
-	}
-	let url;
-	if (ether.node == 'etherscan.io') {
-	    url = 'https://' + ether.etherscanioHost   +
-		'/api?module=logs&action=getLogs'          +
-		'&fromBlock=' + options.fromBlock          +
-		'&toBlock=' + options.toBlock              +
-		'&address=' + options.address              +
-		'&topic0=' + options.topics[0];
-	    if (options.topics.length > 1) {
-		if (!!options.topics[1])
-		    url += '&topic1=' + options.topics[1];
-		if (options.topics.length > 2) {
-		    if (!!options.topics[2])
-			url += '&topic2=' + options.topics[2];
-		    if (options.topics.length > 3) {
-			if (!!options.topics[3])
-			    url += '&topic3=' + options.topics[3];
-		    }
-		}
-	    }
-	    options = null;
-	} else {
-	    url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
-	    options.fromBlock = 'earliest';
-	    const paramsStr = JSON.stringify(options);
-	    console.log('ether.getLogs: paramsStr = ' + paramsStr);
-	    const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
-	    options = { method: 'post', body: body, headers: { 'Content-Type': 'application/json' } };
-	    console.log('ether.getLogs: body = ' + body);
-	}
-	common.fetch(url, options, function(str, err) {
-	    if (!str || !!err) {
-		if (!err)
-		    err = 'getLogs: error retreiving events';
-		console.log('ether.getLogs: ' + err);
-		cb(err, '');
-		return;
-	    }
-	    console.log('ether.getLogs: err = ' + err + ', str = ' + str);
-	    //typical (etherscan.io)
-	    //  { "status"  : "1",
-	    //    "message" : "OK",
-	    //    "result"  : [...]
-	    //  }
-	    const eventsResp = JSON.parse(str);
-	    if (ether.node == 'etherscan.io' && eventsResp.status == 0 && eventsResp.message == 'No records found') {
-		//this is not an err... just no events
-		cb(err, '');
-		return;
-	    }
-	    if (ether.node == 'etherscan.io' && (eventsResp.status != 1 || eventsResp.message != 'OK')) {
-		const err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
-		console.log('ether.getLogs: ' + err);
-		cb(err, '');
-		return;
-	    }
-	    cb(null, eventsResp.result);
-	});
+    getLogs: function (options, cb) {
+	serialGetLogs(1, options, cb);
     },
 
-
     // cb(err, result)
-    // fromBlock, toBlock, address, topics[]
+    // options: fromBlock, toBlock, address, topics[]
     //
     //
     // this is a hacky hack to get events logs mathcing a) one signature (in topic0), plus any one of 3
@@ -272,13 +208,7 @@ const ether = module.exports = {
     // we re-jigger the options according to which node we're using.
     //
     getLogs3: function(options, cb) {
-	console.log('getLogs3: ether.node = ' + ether.node);
-	if (ether.node == 'metamask')
-	    metamaskGetLogs3(options, cb);
-	else if (ether.node == 'etherscan.io')
-	    etherscanGetLogs3(options, cb);
-	else
-	    infuraGetLogs3(options, cb);
+	serialGetLogs(3, options, cb);
     },
 
 
@@ -310,6 +240,149 @@ const ether = module.exports = {
 
 };
 
+
+//
+// following is to serialize and pace calls to getLogs, getLogs3, to ensure that we don't overwhelm the provider node
+// (and more importantly, to ensure that we don't get grey-listed)
+//
+var getLogsList = [];
+function GetLogsInfo(flavor, options, cb) {
+    this.flavor = flavor;
+    this.options = options;
+    this.cb = cb;
+}
+
+// cb(err, result)
+// flavor = 3 => getLogs3, otherwise getLogs
+function serialGetLogs(flavor, options, cb) {
+    const getLogsInfo = new GetLogsInfo(flavor, options, cb);
+    getLogsList.push(getLogsInfo);
+    if (getLogsList.length == 1)
+	getLogsNext();
+}
+
+function getLogsNext() {
+    if (getLogsList.length > 0) {
+	var now_ms = Date.now();
+	var elapsed_ms = now_ms - ether.getLogsTimestamp;
+	if (elapsed_ms < 1000) {
+	    if (!!ether.getLogsTimer)
+		clearTimeout(ether.getLogsTimer);
+	    ether.getLogsTimer = setTimeout(getLogsNext, 200 + 1000 - elapsed_ms);
+	} else {
+	    const getLogsInfo = getLogsList[0];
+	    if (getLogsInfo.flavor == 3) {
+		getLogs3Guts(getLogsInfo.options, function(err, result) {
+		    //even thought getLogs3Guts is complete, we don't delete the head entry from the getLogsList, until we
+		    //are ready to process the next entry. this is to prevent any intervening calls to serialGetLogs3, which
+		    //would have also called getLogs3Next
+		    getLogsInfo.cb(err, result);
+		    getLogsList.splice(0, 1);
+		    if (getLogsList.length > 0)
+			getLogs3Next();
+		});
+	    } else {
+		getLogsGuts(getLogsInfo.options, function(err, result) {
+		    getLogsInfo.cb(err, result);
+		    getLogsList.splice(0, 1);
+		    if (getLogsList.length > 0)
+			getLogsNext();
+		});
+	    }
+	}
+    }
+}
+
+
+// cb(err, result)
+// options: fromBlock, toBlock, address, topics[]
+//
+function getLogsGuts(options, cb) {
+    console.log('ether.getLogsGuts: ether.node = ' + ether.node);
+    if (ether.node == 'metamask') {
+        const filter = common.web3.eth.filter(options);
+	filter.get(cb);
+	filter.stopWatching();
+	return;
+    }
+    let url;
+    if (ether.node == 'etherscan.io') {
+	url = 'https://' + ether.etherscanioHost   +
+	    '/api?module=logs&action=getLogs'          +
+	    '&fromBlock=' + options.fromBlock          +
+	    '&toBlock=' + options.toBlock              +
+	    '&address=' + options.address              +
+	    '&topic0=' + options.topics[0];
+	if (options.topics.length > 1) {
+	    if (!!options.topics[1])
+		url += '&topic1=' + options.topics[1];
+	    if (options.topics.length > 2) {
+		if (!!options.topics[2])
+		    url += '&topic2=' + options.topics[2];
+		if (options.topics.length > 3) {
+		    if (!!options.topics[3])
+			url += '&topic3=' + options.topics[3];
+		}
+	    }
+	}
+	options = null;
+    } else {
+	url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
+	options.fromBlock = 'earliest';
+	const paramsStr = JSON.stringify(options);
+	console.log('ether.getLogs: paramsStr = ' + paramsStr);
+	const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
+	options = { method: 'post', body: body, headers: { 'Content-Type': 'application/json' } };
+	console.log('ether.getLogs: body = ' + body);
+    }
+    common.fetch(url, options, function(str, err) {
+	if (!str || !!err) {
+	    if (!err)
+		err = 'getLogs: error retreiving events';
+	    console.log('ether.getLogs: ' + err);
+	    cb(err, '');
+	    return;
+	}
+	console.log('ether.getLogs: err = ' + err + ', str = ' + str);
+	//typical (etherscan.io)
+	//  { "status"  : "1",
+	//    "message" : "OK",
+	//    "result"  : [...]
+	//  }
+	const eventsResp = JSON.parse(str);
+	if (ether.node == 'etherscan.io' && eventsResp.status == 0 && eventsResp.message == 'No records found') {
+	    //this is not an err... just no events
+	    cb(err, '');
+	    return;
+	}
+	if (ether.node == 'etherscan.io' && (eventsResp.status != 1 || eventsResp.message != 'OK')) {
+	    const err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
+	    console.log('ether.getLogs: ' + err);
+	    cb(err, '');
+	    return;
+	}
+	cb(null, eventsResp.result);
+    });
+}
+
+
+// cb(err, result)
+// options: fromBlock, toBlock, address, topics[]
+//
+//
+// this is a hacky hack to get events logs mathcing a) one signature (in topic0), plus any one of 3
+// id's (in topics 1,2,3). because of the different ways of specifying 'or' conditions in eth_getlogs
+// we re-jigger the options according to which node we're using.
+//
+function getLogs3Guts(options, cb) {
+    console.log('getLogs3Guts: ether.node = ' + ether.node);
+    if (ether.node == 'metamask')
+	metamaskGetLogs3(options, cb);
+    else if (ether.node == 'etherscan.io')
+	etherscanGetLogs3(options, cb);
+    else
+	infuraGetLogs3(options, cb);
+}
 
 //cb(err, result)
 // options:

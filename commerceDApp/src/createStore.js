@@ -442,7 +442,6 @@ function viewProductsSubPage() {
     common.clearStatusDiv(statusDiv);
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.disabled = true;
-    // after user enters earch parameters....
     var regionBN = null;
     var categoryBN = null;
     var maxPriceBN = null;
@@ -451,10 +450,12 @@ function viewProductsSubPage() {
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     createStore.displayedProductsStartIdx = 0;
     createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
+    common.setLoadingIcon('start');
     meUtil.displayProducts(createStore.productSearchFilter, createStoreViewProdsTilesDiv, viewProdsEditProduct, createStore.displayedProductsStartIdx, createStore.productsPerPage,
 			   function(prevEnable, nextEnable) {
 			       common.setMenuButtonState('createStorePrevButton', prevEnable ? 'Enabled' : 'Disabled');
 			       common.setMenuButtonState('createStoreNextButton', nextEnable ? 'Enabled' : 'Disabled');
+			       common.setLoadingIcon(null);
 			   });
 }
 
