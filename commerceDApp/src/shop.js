@@ -171,7 +171,7 @@ function showProductDetail(product) {
     //
     shopProductDetailImg.src = product.image;
     shopProductDetailName.textContent = product.name.substring(0, 22);
-    shopProductDetailDesc.textContent = product.desc.substring(0, 70);
+    shopProductDetailDesc.textContent = product.desc.substring(0, 140);
     shopProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
     shopProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
     const statusDiv = document.getElementById('statusDiv');
