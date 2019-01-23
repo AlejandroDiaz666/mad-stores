@@ -44,6 +44,7 @@ var shop = module.exports = {
 	const shopNextButton = document.getElementById('shopNextButton');
 	console.log('setButtonHandlers: shopNextButton = ' + shopNextButton);
 	shopNextButton.addEventListener('click', function() {
+	    common.setLoadingIcon('start');
 	    shop.displayedProductsStartIdx += shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
 	    console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
@@ -51,6 +52,7 @@ var shop = module.exports = {
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
+				       common.setLoadingIcon(null);
 				   });
 	});
 	const shopPrevButton = document.getElementById('shopPrevButton');
