@@ -63,6 +63,9 @@ var shop = module.exports = {
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
 				   });
 	});
+	//initialize these to disabled now. we don't want to modify their state when the page is reloaded
+	common.setMenuButtonState('shopPrevButton', 'Disabled');
+	common.setMenuButtonState('shopNextButton', 'Disabled');
 	//
 	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
@@ -108,10 +111,6 @@ function handleSearchProducts() {
     common.replaceElemClassFromTo('dashboardPageDiv',      'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
     common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
-    const shopPrevButton = document.getElementById('shopPrevButton');
-    const shopNextButton = document.getElementById('shopPrevButton');
-    common.setMenuButtonState('shopPrevButton', 'Disabled');
-    common.setMenuButtonState('shopNextButton', 'Disabled');
     shop.selectedProduct = null;
 }
 
@@ -213,7 +212,7 @@ function showProductDetail(product) {
 		default: grade = 'A+'; break;
 		}
 		shopProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
-		shopProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + '(' + grade + ')';
+		shopProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
 	    });
 	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
 		shopProductSellerName.textContent = name;

@@ -78,13 +78,15 @@ var meUtil = module.exports = {
 	console.log('displayProducts: startIdx = ' + startIdx + ',  productSearchResults.length = ' + meUtil.productSearchResults.length + ', noToDisplay = ' + noToDisplay);
 	clearProducts(div);
 	drawProductTiles(div, listener, startIdx, noToDisplay);
+	let idx = startIdx;
+	let remainToDisplay = noToDisplay;
 	if (!!meUtil.productSearchResults) {
-	    while (noToDisplay > 0 && startIdx < meUtil.productSearchResults.length) {
-		drawProduct(startIdx);
-		++startIdx;
-		--noToDisplay;
+	    while (remainToDisplay > 0 && idx < meUtil.productSearchResults.length) {
+		drawProduct(idx);
+		++idx;
+		--remainToDisplay;
 	    }
-	    if (noToDisplay <= 0) {
+	    if (remainToDisplay <= 0) {
 		if (!!cb) {
 		    const prevEnable = (startIdx >= noToDisplay);
 		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
@@ -93,15 +95,15 @@ var meUtil = module.exports = {
 		return;
 	    }
 	}
-	const newProductsNeeded = startIdx + noToDisplay - meUtil.productSearchResults.length;
-	console.log('displayProducts: need ' + newProductsNeeded + ' more products, starting with ' + startIdx);
+	const newProductsNeeded = idx + remainToDisplay - meUtil.productSearchResults.length;
+	console.log('displayProducts: need ' + newProductsNeeded + ' more products, starting with ' + idx);
 	efficientGetCertainProducts(productSearchFilter, newProductsNeeded, function(err, productIds) {
 	    if (!!err) {
 		cb(false, false);
 		return;
 	    }
-	    console.log('displayProducts: calling getSaveAndDrawProducts(productIds = ' + productIds + ', startIdx = ' + startIdx);
-	    getSaveAndDrawProducts(productIds, 0, startIdx, function() {
+	    console.log('displayProducts: calling getSaveAndDrawProducts(productIds = ' + productIds + ', idx = ' + idx);
+	    getSaveAndDrawProducts(productIds, 0, idx, function() {
 		if (!!cb) {
 		    const prevEnable = (startIdx >= noToDisplay);
 		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
