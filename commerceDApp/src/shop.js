@@ -186,10 +186,10 @@ function showProductDetail(product) {
     const shopProductSellerRating = document.getElementById('shopProductSellerRating');
     const shopProductSellerBurns = document.getElementById('shopProductSellerBurns');
     //
-    meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
+    meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
 	console.log('showProductDetail: result.length = ' + result.length);
 	if (!!result && result.length > 0) {
-	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
+	    meEther.vendorAccountQuery(common.web3, product.vendorAddr, function(err, vendorAcctInfo) {
 		console.log('regStorePageSubPage: err = ' + err);
 		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
 		console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
