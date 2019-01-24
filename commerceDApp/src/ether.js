@@ -279,7 +279,7 @@ function getLogsNext() {
 		    getLogsInfo.cb(err, result);
 		    getLogsList.splice(0, 1);
 		    if (getLogsList.length > 0)
-			getLogs3Next();
+			getLogsNext();
 		});
 	    } else {
 		getLogsGuts(getLogsInfo.options, function(err, result) {

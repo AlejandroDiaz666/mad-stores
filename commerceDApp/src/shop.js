@@ -123,7 +123,7 @@ function shopDoSearch() {
     common.setLoadingIcon('start');
     const vendorAddr = null
     const maxPriceBN = null;
-    const onlyAvailable = false; //should be true, but now testing
+    const onlyAvailable = true;
     //
     const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
     const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
