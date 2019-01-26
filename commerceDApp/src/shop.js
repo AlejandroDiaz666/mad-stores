@@ -48,7 +48,7 @@ var shop = module.exports = {
 	    shop.displayedProductsStartIdx += shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
 	    console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
+	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
@@ -59,7 +59,7 @@ var shop = module.exports = {
 	shopPrevButton.addEventListener('click', function() {
 	    shop.displayedProductsStartIdx -= shop.productsPerPage;
 	    const shopTilesDiv = document.getElementById('shopTilesDiv');
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
+	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
 				   function(prevEnable, nextEnable) {
 				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
 				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
