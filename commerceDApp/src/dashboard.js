@@ -17,6 +17,9 @@ var dashboard = module.exports = {
     selectedRow: -1,
     escrowCount: 0,
     rowCount: 0,
+    selectedEscrowIdBN: null,
+    selectedEscrowInfo: null,
+    inDialog: false,
 
     handleDashboardPage: function() {
         common.setMenuButtonState('shopButton',          'Enabled');
@@ -40,9 +43,11 @@ var dashboard = module.exports = {
 	    approveDialogDoButton.disabled = false;
 	});
 	approveDialogCancelButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
 	});
 	approveDialogDoButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    approveDialogDoButton.disabled = true;
 	    approveDialogCancelButton.disabled = true;
 	    const secsBN = common.numberToBN(approveDialogSelect.value);
@@ -62,9 +67,11 @@ var dashboard = module.exports = {
 	    addFundsDialogDoButton.disabled = false;
 	});
 	addFundsDialogCancelButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
 	});
 	addFundsDialogDoButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    addFundsDialogDoButton.disabled = true;
 	    addFundsDialogCancelButton.disabled = true;
 	    const addAmountBN = meEther.usdStrToDaiBN(addFundsDialogArea.value);
@@ -88,9 +95,11 @@ var dashboard = module.exports = {
 	const releaseDialogCancelButton = document.getElementById('releaseDialogCancelButton');
 	const releaseDialogSelect = document.getElementById('releaseDialogSelect');
 	releaseDialogCancelButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
 	});
 	releaseDialogDoButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    releaseDialogDoButton.disabled = true;
 	    releaseDialogCancelButton.disabled = true;
 	    const ratingBN = common.numberToBN(releaseDialogSelect.value);
@@ -103,9 +112,11 @@ var dashboard = module.exports = {
 	const burnDialogCancelButton = document.getElementById('burnDialogCancelButton');
 	const burnDialogSelect = document.getElementById('burnDialogSelect');
 	burnDialogCancelButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
 	});
 	burnDialogDoButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
 	    burnDialogDoButton.disabled = true;
 	    burnDialogCancelButton.disabled = true;
 	    const ratingBN = common.numberToBN(burnDialogSelect.value);
@@ -115,11 +126,6 @@ var dashboard = module.exports = {
 	});
     },
 
-    productsPerPage: 8,
-    productSearchFilter: null,
-    displayedProductsStartIdx: 0,
-    selectedEscrowIdBN: null,
-    selectedEscrowInfo: null,
 };
 
 
@@ -160,6 +166,12 @@ function addRow(table) {
     rowDiv.appendChild(nextStepsSpan);
     table.appendChild(rowDiv);
     //
+    const selectedProductPageDiv = document.getElementById('selectedProductPageDiv');
+    const msgAreaDiv = document.getElementById('msgAreaDiv');
+    leftDiv.addEventListener('mouseover', function() {
+	if (!dashboard.inDialog && selectedProductPageDiv.className.indexOf('hidden') >= 0 && msgAreaDiv.className.indexOf('hidden') >= 0)
+	    selectRowIdx(idx);
+    });
     meEther.escrowQuery(common.web3.eth.accounts[0], idx, function(err, escrowIdBN, escrowInfo) {
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
@@ -440,6 +452,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 function doApproveDialog(escrowIdBN, escrowInfo) {
     dashboard.selectedEscrowIdBN = escrowIdBN;
     dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
     common.replaceElemClassFromTo('approveDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('approveDialogDiv', 'hidden', 'visibleB', null);
     const approveDialogDoButton = document.getElementById('approveDialogDoButton');
@@ -489,6 +502,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 function doModifyDialog(escrowIdBN, escrowInfo) {
     dashboard.selectedEscrowIdBN = escrowIdBN;
     dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
     common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
     common.replaceElemClassFromTo('addFundsDialogDiv', 'hidden', 'visibleB', null);
@@ -595,6 +609,7 @@ function doDecline(escrowIdBN, escrowInfo) {
 function doReleaseDialog(escrowIdBN, escrowInfo) {
     dashboard.selectedEscrowIdBN = escrowIdBN;
     dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
     common.replaceElemClassFromTo('releaseDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('releaseDialogDiv', 'hidden', 'visibleB', null);
     const releaseDialogDoButton = document.getElementById('releaseDialogDoButton');
@@ -639,6 +654,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 function doBurnDialog(escrowIdBN, escrowInfo) {
     dashboard.selectedEscrowIdBN = escrowIdBN;
     dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
     common.replaceElemClassFromTo('burnDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('burnDialogDiv', 'hidden', 'visibleB', null);
     const burnDialogDoButton = document.getElementById('burnDialogDoButton');
@@ -697,4 +713,6 @@ function hideAllModals() {
     common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
+    dashboard.inDialog = false;
+
 }
