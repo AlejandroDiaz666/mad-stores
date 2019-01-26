@@ -555,8 +555,9 @@ h3 { font-size:18px; }
 }
 .shop #selectedProductFrameDiv {
     top: 10px;
-    width: 800px;
-    height: 340px;    background-color: aquamarine;
+    width: 840px;
+    height: 340px;
+    background-color: #e3eceb;
 }
 .view #selectedProductFrameDiv {
     top: 50px;
@@ -597,9 +598,9 @@ h3 { font-size:18px; }
     position: absolute;
     top: 50%;
     left: 100%;
-    width: 280px;
+    width: 320px;
     height: 320px;
-    transform: translate3d(-320px, -50%, 0px);
+    transform: translate3d(-360px, -50%, 0px);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
     border-radius: 15px;
@@ -698,8 +699,10 @@ h3 { font-size:18px; }
 #selectedProductSellerDesc {
     position: absolute;
     left: 10%;
-    top: 190px;
+    top: 187px;
+    height: 57px;
     margin-top: 10px;
+    overflow-y: scroll;
 }
 #selectedProductSellerRegion {
 }
