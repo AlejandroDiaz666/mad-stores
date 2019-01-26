@@ -388,19 +388,19 @@ const mtUtil = module.exports = {
 	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', true);
 	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
 	const sendButton = document.getElementById('sendButton');
-	sendButton.textContent = 'Reply';
+	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
+	sendButton.textContent = (fromAddr == common.web3.eth.accounts[0]) ? 'Send again' : 'Reply';
 	sendButton.disabled = true;
 	mtUtil.sendCB = null;
 	const msgPromptArea = document.getElementById('msgPromptArea');
-	msgPromptArea.value = 'From: ';
+	msgPromptArea.value = (fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
 	const msgAddrArea = document.getElementById('msgAddrArea');
 	msgAddrArea.disabled = true;
 	msgAddrArea.readonly = 'readonly';
-	msgAddrArea.value = fromAddr;
+	msgAddrArea.value = otherAddr;
 	msgPriceArea.value = priceDesc;
 	msgDateArea.value = date;
 	//
-	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
 	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, (err, decrypted) => {
 	    let text = decrypted;
 	    let attachment = null;
