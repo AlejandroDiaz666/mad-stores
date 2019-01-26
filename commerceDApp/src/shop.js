@@ -18,11 +18,10 @@ var shop = module.exports = {
 	common.setMenuButtonState('shopButton',          'Selected');
 	common.setMenuButtonState('dashboardButton',     'Enabled');
 	common.setMenuButtonState('createStoreButton',   'Enabled');
-	common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
-	common.replaceElemClassFromTo('createStorePageDiv',    'hidden',   'visibleT', null);
-	common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
-	common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
-	common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
+	common.replaceElemClassFromTo('shopPageDiv',            'visibleT', 'hidden',   null);
+	common.replaceElemClassFromTo('createStorePageDiv',     'hidden',   'visibleT', null);
+	common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden',   null);
+	common.replaceElemClassFromTo('msgAreaDiv',             'visibleB', 'hidden',   false);
 	const categoryBN = new BN('0', 16);
 	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
@@ -32,6 +31,7 @@ var shop = module.exports = {
 	const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
 	regions.addTlrOptionsElems(categoryBN, shopRegionTlrSel);
 	regions.addLlrBitsOptionsElems(shopRegionTlrSel.value, categoryBN, shopRegionLlrBitsSel, null);
+	shop.selectedProductCloseFcn = null;
 	handleSearchProducts();
     },
 
@@ -85,19 +85,99 @@ var shop = module.exports = {
 	}, {passive: true} );
 	//enable search button?
 	//shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
-
 	const purchaseProductButton = document.getElementById('purchaseProductButton');
 	purchaseProductButton.addEventListener('click', function() {
 	    if (!!shop.selectedProduct)
 		handlePurchase(shop.selectedProduct);
 	});
-
+	const selectedProductCloseImg = document.getElementById('selectedProductCloseImg');
+	selectedProductCloseImg.addEventListener('click', function() {
+	    console.log('selectedProductCloseImg: got click');
+	    if (!!shop.selectedProductCloseFcn)
+		shop.selectedProductCloseFcn();
+	});
     },
 
     productsPerPage: 8,
     productSearchFilter: null,
     displayedProductsStartIdx: 0,
     selectedProduct: null,
+    selectedProductCloseFcn: null,
+
+    //
+    // this fcn shows the product, as it appears in the shop/product-detail page. but it can be used by other
+    // pages to review how the product advertisement looks
+    //
+    // mode = [ 'shop' | 'view' ]
+    //
+    hideProductDetail: function() {
+	common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden', null);
+	shop.selectedProductCloseFcn = null;
+    },
+    showProductDetail: function(product, mode, closeCB) {
+	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+	common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden', 'visibleB', null);
+	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', mode);
+	shop.selectedProductCloseFcn = closeCB;
+	//
+	const selectedProductDetailImg = document.getElementById('selectedProductDetailImg');
+	const selectedProductDetailName = document.getElementById('selectedProductDetailName');
+	const selectedProductDetailDesc = document.getElementById('selectedProductDetailDesc');
+	const selectedProductDetailPrice = document.getElementById('selectedProductDetailPrice');
+	const selectedProductDetailQuantity = document.getElementById('selectedProductDetailQuantity');
+	//
+	selectedProductDetailImg.src = product.image;
+	selectedProductDetailName.textContent = product.name.substring(0, 22);
+	selectedProductDetailDesc.textContent = product.desc.substring(0, 140);
+	selectedProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
+	selectedProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+	//
+	const selectedProductSellerImg = document.getElementById('selectedProductSellerImg');
+	const selectedProductSellerName = document.getElementById('selectedProductSellerName');
+	const selectedProductSellerDesc = document.getElementById('selectedProductSellerDesc');
+	const selectedProductSellerRegion = document.getElementById('selectedProductSellerRegion');
+	const selectedProductSellerRating = document.getElementById('selectedProductSellerRating');
+	const selectedProductSellerBurns = document.getElementById('selectedProductSellerBurns');
+	//
+	meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
+	    console.log('showProductDetail: result.length = ' + result.length);
+	    if (!!result && result.length > 0) {
+		meEther.vendorAccountQuery(common.web3, product.vendorAddr, function(err, vendorAcctInfo) {
+		    console.log('regStorePageSubPage: err = ' + err);
+		    console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
+		    console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
+		    const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
+		    const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
+		    const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
+		    const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
+		    const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
+		    const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
+		    let grade = 'A+';
+		    switch(avgRatingBN.toNumber()) {
+		    case 0: grade = 'F-'; break;
+		    case 1: grade = 'F'; break;
+		    case 2: grade = 'D-'; break;
+		    case 3: grade = 'D'; break;
+		    case 4: grade = 'C-'; break;
+		    case 5: grade = 'C'; break;
+		    case 6: grade = 'B-'; break;
+		    case 7: grade = 'B'; break;
+		    case 8: grade = 'A-'; break;
+		    case 9: grade = 'A'; break;
+		    default: grade = 'A+'; break;
+		    }
+		    selectedProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
+		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
+		});
+		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
+		    selectedProductSellerName.textContent = name;
+		    selectedProductSellerDesc.textContent = desc;
+		    selectedProductSellerImg.src = image;
+		});
+	    }
+	});
+    },
+
 };
 
 
@@ -108,11 +188,11 @@ function handleSearchProducts() {
     common.setMenuButtonState('shopButton',          'Selected');
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
-    common.replaceElemClassFromTo('shopPageDiv',           'hidden',   'visibleT', null);
-    common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
-    common.replaceElemClassFromTo('dashboardPageDiv',      'visibleB', 'hidden',   null);
-    common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
-    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
+    common.replaceElemClassFromTo('shopPageDiv',            'hidden',   'visibleT', null);
+    common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('dashboardPageDiv',       'visibleB', 'hidden',   null);
+    common.replaceElemClassFromTo('createStorePageDiv',     'visibleT', 'hidden',   null);
+    common.replaceElemClassFromTo('msgAreaDiv',             'visibleB', 'hidden',   false);
     shop.selectedProduct = null;
 }
 
@@ -145,7 +225,7 @@ function shopDoSearch() {
     shop.displayedProductsStartIdx = 0;
     shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');
-    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
+    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
 			   function(prevEnable, nextEnable) {
 			       console.log('shopDoSearch: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
 			       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
@@ -155,74 +235,20 @@ function shopDoSearch() {
 }
 
 
-function showProductDetail(product) {
-    console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+//
+// called when user selects a product from the shop page
+function selectProduct(product) {
+    console.log('selectProduct: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
     //so user can go back to search (but not to create store... cuz we need to clean up)
     common.setMenuButtonState('shopButton',        'Enabled');
     common.setMenuButtonState('createStoreButton', 'Disabled');
-    common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',    null);
-    common.replaceElemClassFromTo('selctedProductPageDiv', 'hidden',   'visibleB',  null);
-    common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',    true);
-    //
-    const shopProductDetailImg = document.getElementById('shopProductDetailImg');
-    const shopProductDetailName = document.getElementById('shopProductDetailName');
-    const shopProductDetailDesc = document.getElementById('shopProductDetailDesc');
-    const shopProductDetailPrice = document.getElementById('shopProductDetailPrice');
-    const shopProductDetailQuantity = document.getElementById('shopProductDetailQuantity');
-    //
-    shopProductDetailImg.src = product.image;
-    shopProductDetailName.textContent = product.name.substring(0, 22);
-    shopProductDetailDesc.textContent = product.desc.substring(0, 140);
-    shopProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
-    shopProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+    common.replaceElemClassFromTo('shopPageDiv',            'visibleT', 'hidden',    null);
+    common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden',   'visibleB',  null);
+    common.replaceElemClassFromTo('msgAreaDiv',             'visibleB', 'hidden',    true);
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     shop.selectedProduct = product;
-    //
-    const shopProductSellerImg = document.getElementById('shopProductSellerImg');
-    const shopProductSellerName = document.getElementById('shopProductSellerName');
-    const shopProductSellerDesc = document.getElementById('shopProductSellerDesc');
-    const shopProductSellerRegion = document.getElementById('shopProductSellerRegion');
-    const shopProductSellerRating = document.getElementById('shopProductSellerRating');
-    const shopProductSellerBurns = document.getElementById('shopProductSellerBurns');
-    //
-    meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
-	console.log('showProductDetail: result.length = ' + result.length);
-	if (!!result && result.length > 0) {
-	    meEther.vendorAccountQuery(common.web3, product.vendorAddr, function(err, vendorAcctInfo) {
-		console.log('regStorePageSubPage: err = ' + err);
-		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
-		console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
-		const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
-		const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
-		const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
-		const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
-		const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
-		const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
-		let grade = 'A+';
-		switch(avgRatingBN.toNumber()) {
-		case 0: grade = 'F-'; break;
-		case 1: grade = 'F'; break;
-		case 2: grade = 'D-'; break;
-		case 3: grade = 'D'; break;
-		case 4: grade = 'C-'; break;
-		case 5: grade = 'C'; break;
-		case 6: grade = 'B-'; break;
-		case 7: grade = 'B'; break;
-		case 8: grade = 'A-'; break;
-		case 9: grade = 'A'; break;
-		default: grade = 'A+'; break;
-		}
-		shopProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
-		shopProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
-	    });
-	    meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
-		shopProductSellerName.textContent = name;
-		shopProductSellerDesc.textContent = desc;
-		shopProductSellerImg.src = image;
-	    });
-	}
-    });
+    shop.showProductDetail(product, 'shop', handleSearchProducts);
 }
 
 

@@ -369,11 +369,13 @@ h3 { font-size:18px; }
 /*
  * but no 3-column format for these pages...
  */
-#selctedProductPageDiv, #dashboardPageDiv {
+#selectedProductPageDiv, #dashboardPageDiv {
     position: relative;
     top: 0px;
     left: 0px;
+    height: 0px;
 }
+
 
 
 /*
@@ -543,39 +545,66 @@ h3 { font-size:18px; }
     font-weight: bold;
 }
 
-/* tilediv for selected product */
-#shopProductDetailDiv {
+/* frame for selected product */
+.shop #selectedProductFrameDiv, .view #selectedProductFrameDiv {
+    position: relative;
+    left: 50%;
+    z-index: 2;
+    border-radius: 15px;
+    transform: translate3d(-50%, 0, 0);
+}
+.shop #selectedProductFrameDiv {
+    top: 10px;
+    width: 800px;
+    height: 340px;    background-color: aquamarine;
+}
+.view #selectedProductFrameDiv {
+    top: 50px;
+    width: 900px;
+    height: 400px;
+    background-color: whitesmoke;
+}
+#selectedProductCloseImg {
+    float:left;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+}
+#selectedProductDetailDiv {
     display: block;
     position: absolute;
-    top: 20px;
-    left: 30%;
+    top: 50%;
+    left: 40px;
     width: 400px;
     height: 320px;
-    transform: translateX(-50%);
+    transform: translateY(-50%);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
     border-radius: 15px;
 }
-#purchaseProductButton {
+.shop #purchaseProductButton {
     position: absolute;
     top: 220px;
     left: 50%;
     width: 110px;
     transform: translateX(-50%);
 }
-#shopProductSellerDiv {
+.view  #purchaseProductButton {
+    display: none;
+}
+#selectedProductSellerDiv {
     display: block;
     position: absolute;
-    top: 20px;
-    left: 65%;
+    top: 50%;
+    left: 100%;
     width: 280px;
     height: 320px;
-    transform: translateX(-50%);
+    transform: translate3d(-320px, -50%, 0px);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
     border-radius: 15px;
 }
-#shopProductDetailImg {
+#selectedProductDetailImg {
     width: 160px;
     height: 160px;
     position: absolute;
@@ -583,7 +612,7 @@ h3 { font-size:18px; }
     top: 30px;
     transform-style: preserve-3d;
 }
-#shopProductDetailName {
+#selectedProductDetailName {
     width: 240px;
     height: 25px;
     background-color: transparent;
@@ -595,7 +624,7 @@ h3 { font-size:18px; }
     font-size: 24px;
     font-weight: bold;
 }
-#shopProductDetailDesc {
+#selectedProductDetailDesc {
     width: 220px;
     height: 120px;
     background-color: transparent;
@@ -606,7 +635,7 @@ h3 { font-size:18px; }
     font-size: 18px;
     font-weight: normal;
 }
-#shopProductDetailPrice {
+#selectedProductDetailPrice {
     width: 240px;
     height: 20px;
     background-color: transparent;
@@ -621,7 +650,7 @@ h3 { font-size:18px; }
     font-weight: bold;
     padding: 4px;
 }
-#shopProductDetailQuantity {
+#selectedProductDetailQuantity {
     width: 240px;
     height: 25px;
     background-color: transparent;
@@ -635,7 +664,7 @@ h3 { font-size:18px; }
     font-size: 20px;
     font-weight: bold;
 }
-#shopProductSellerIntro {
+#selectedProductSellerIntro {
     width: 200px;
     height: 20px;
     position: absolute;
@@ -648,14 +677,14 @@ h3 { font-size:18px; }
     font-weight: normal;
     font-style: italic;
 }
-#shopProductSellerImg {
+#selectedProductSellerImg {
     width: 160px;
     height: 160px;
     position: absolute;
     left: 10px;
     top: 30px;
 }
-#shopProductSellerName {
+#selectedProductSellerName {
     background-color: transparent;
     position: absolute;
     left: 170px;
@@ -666,15 +695,15 @@ h3 { font-size:18px; }
     font-size: 20px;
     font-weight: normal;
 }
-#shopProductSellerDesc {
+#selectedProductSellerDesc {
     position: absolute;
     left: 10%;
     top: 190px;
     margin-top: 10px;
 }
-#shopProductSellerRegion {
+#selectedProductSellerRegion {
 }
-#shopProductSellerRating {
+#selectedProductSellerRating {
     position: absolute;
     left: 50%;
     top: 310px;
@@ -688,7 +717,7 @@ h3 { font-size:18px; }
     border-color: black;
     border-radius: 9px;
 }
-#shopProductSellerBurns {
+#selectedProductSellerBurns {
     position: absolute;
     left: 50%;
     top: 280px;
@@ -768,7 +797,11 @@ h3 { font-size:18px; }
     clear: both;
     text-align: center;
 }
-
+.escrowListItemLeftDiv:hover, .escrowListItemLeftSubDiv0:hover, .escrowListItemLeftSubDiv1:hover,
+.escrowListEscrowNoArea:hover, .escrowListTypeArea:hover, .escrowListProductArea:hover,
+.escrowListAddrArea:hover, .escrowListDateArea:hover {
+    cursor: pointer;
+}
 
 .escrowListEscrowNoArea, .escrowListTypeArea, .escrowListProductArea, .escrowListAddrArea, .escrowListDateArea {
     resize: none;
@@ -779,9 +812,9 @@ h3 { font-size:18px; }
     width: 8em;
 }
 .escrowListTypeArea {
-    width: 11em;
+    width: 12em;
 }
-.escrowListTypeArea {
+.escrowListProductArea {
     width: 15em;
 }
 .escrowListAddrArea {
@@ -1701,7 +1734,7 @@ h3 { font-size:18px; }
  */
 #msgAreaDiv  {
     position: absolute;
-    top: 475px;
+    top: 490px;
     left: 50%;
     width: 70%;
     min-width: 1070px;

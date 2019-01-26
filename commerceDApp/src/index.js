@@ -26,6 +26,7 @@ var index = module.exports = {
 	index.setButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
+	dashboard.setButtonHandlers();
 	beginTheBeguine();
     },
 

@@ -470,6 +470,20 @@ const common = module.exports = {
 	return(textarea);
     },
 
+    makeButton: function(id, value, className, fcn) {
+	const button = document.createElement("button")
+	if (!!id)
+	    button.id = id;
+	if (!!value)
+	    button.textContent = value;
+	if (!!className)
+	    button.className = className;
+	if (!!fcn)
+	    button.addEventListener('click', fcn);
+	else
+	    button.disabled = true;
+    },
+
     clearStatusDiv: function(statusDiv) {
 	while (statusDiv.hasChildNodes()) {
 	    statusDiv.removeChild(statusDiv.lastChild);
@@ -498,7 +512,6 @@ const common = module.exports = {
 	    button.className = (button.className).replace('menuBarButton', newClassName);
     },
 
-
     replaceElemClassFromTo: function(elemId, from, to, disabled) {
 	var elem = document.getElementById(elemId);
 	if (!elem)
@@ -507,6 +520,19 @@ const common = module.exports = {
 	elem.disabled = disabled;
 	return(elem);
     },
+
+
+    setElemClassToOneOf: function(elemId, a, b, desired) {
+	var elem = document.getElementById(elemId);
+	if (!elem)
+	    console.log('setElemClassToOneOf: could not find elem: ' + elemId);
+	if (elem.className.indexOf(a) >= 0)
+	    elem.className = (elem.className).replace(a, desired);
+	else if (elem.className.indexOf(b) >= 0)
+	    elem.className = (elem.className).replace(b, desired);
+	return(elem);
+    },
+
 
     //display (or clear) "waiting for metamask" dialog
     showWaitingForMetaMask: function(show) {

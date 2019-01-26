@@ -3,6 +3,7 @@
    ------------------------------------------------------------------------------------------------------------------ */
 const common = require('./common');
 const ether = require('./ether');
+const shop = require('./shop');
 const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
@@ -22,7 +23,7 @@ var dashboard = module.exports = {
         common.setMenuButtonState('dashboardButton',     'Selected');
         common.setMenuButtonState('createStoreButton',   'Enabled');
         common.replaceElemClassFromTo('shopPageDiv',           'visibleT', 'hidden',   null);
-        common.replaceElemClassFromTo('selctedProductPageDiv', 'visibleB', 'hidden',   null);
+        common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden',   null);
         common.replaceElemClassFromTo('dashboardPageDiv',      'hidden',   'visibleB', null);
         common.replaceElemClassFromTo('createStorePageDiv',    'visibleT', 'hidden',   null);
 	common.replaceElemClassFromTo('msgAreaDiv',            'visibleB', 'hidden',   false);
@@ -30,63 +31,95 @@ var dashboard = module.exports = {
     },
 
     setButtonHandlers: function() {
-        //
-        const shopDoSearchButton = document.getElementById('shopDoSearchButton');
-        shopDoSearchButton.addEventListener('click', function() {
-            shopDoSearch();
-        });
-        const shopNextButton = document.getElementById('shopNextButton');
-        console.log('setButtonHandlers: shopNextButton = ' + shopNextButton);
-        shopNextButton.addEventListener('click', function() {
-            shop.displayedProductsStartIdx += shop.productsPerPage;
-            const shopTilesDiv = document.getElementById('shopTilesDiv');
-            console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
-            meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
-                                   function(prevEnable, nextEnable) {
-                                       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
-                                       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
-                                   });
-        });
-        const shopPrevButton = document.getElementById('shopPrevButton');
-        shopPrevButton.addEventListener('click', function() {
-            shop.displayedProductsStartIdx -= shop.productsPerPage;
-            const shopTilesDiv = document.getElementById('shopTilesDiv');
-            meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, showProductDetail, shop.displayedProductsStartIdx, shop.productsPerPage,
-                                   function(prevEnable, nextEnable) {
-                                       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
-                                       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
-                                   });
-        });
-        //
-        const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
-        const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
-        shopCategoryTlcSel.addEventListener('change', () => {
-            const categoryBN = common.numberToBN(shopCategoryTlcSel.value).iushln(248);
-            categories.addLlcBitsOptionsElems(shopCategoryTlcSel.value, categoryBN, shopCategoryLlcBitsSel, null);
-            //enable search button?
-        }, {passive: true} );
-        const shopRegionTlrSel = document.getElementById('shopRegionTlrSel');
-        const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
-        shopRegionTlrSel.addEventListener('change', () => {
-            const categoryBN = common.numberToBN(shopRegionTlrSel.value).iushln(248);
-            regions.addLlrBitsOptionsElems(shopRegionTlrSel.value, categoryBN, shopRegionLlrBitsSel, null);
-            //enable search button?
-        }, {passive: true} );
-        //enable search button?
-        //shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
-
-        const purchaseProductButton = document.getElementById('purchaseProductButton');
-        purchaseProductButton.addEventListener('click', function() {
-            if (!!shop.selectedProduct)
-                handlePurchase(shop.selectedProduct);
-        });
-
+	// approve dialog
+	const approveDialogDoButton = document.getElementById('approveDialogDoButton');
+	const approveDialogCancelButton = document.getElementById('approveDialogCancelButton');
+	const approveDialogArea = document.getElementById('approveDialogArea');
+	approveDialogArea.addEventListener('input', function() {
+	    console.log('approveDialogArea change event');
+	    approveDialogDoButton.disabled = false;
+	});
+	approveDialogCancelButton.addEventListener('click', function() {
+	    common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
+	});
+	approveDialogDoButton.addEventListener('click', function() {
+	    approveDialogDoButton.disabled = true;
+	    approveDialogCancelButton.disabled = true;
+	    const secsBN = common.numberToBN(approveDialogSelect.value);
+	    secsBN.imuln(parseInt(approveDialogArea.value));
+	    common.replaceElemClassFromTo('approveDialogNote', 'visibleIB', 'hidden', null);
+	    common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
+	    doApprove(secsBN, dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
+	});
+	// modify (add funds) dialog
+	const addFundsDialogDoButton = document.getElementById('addFundsDialogDoButton');
+	const addFundsDialogCancelButton = document.getElementById('addFundsDialogCancelButton');
+	const addFundsDialogArea = document.getElementById('addFundsDialogArea');
+	addFundsDialogArea.addEventListener('input', function() {
+	    console.log('addFundsDialogArea change event');
+	    common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
+	    common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
+	    addFundsDialogDoButton.disabled = false;
+	});
+	addFundsDialogCancelButton.addEventListener('click', function() {
+	    common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
+	});
+	addFundsDialogDoButton.addEventListener('click', function() {
+	    addFundsDialogDoButton.disabled = true;
+	    addFundsDialogCancelButton.disabled = true;
+	    const addAmountBN = meEther.usdStrToDaiBN(addFundsDialogArea.value);
+	    const escrowBN = addAmountBN.muln(3).divn(2);
+	    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+		if (wdaiBalanceBN.lt(escrowBN)) {
+		    common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
+		    common.replaceElemClassFromTo('addFundsDialogErr', 'hidden', 'visibleIB', null);
+		    addFundsDialogDoButton.disabled = false;
+		    addFundsDialogCancelButton.disabled = false;
+		} else {
+		    common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
+		    common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
+		    common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
+		    doModify(addAmountBN, dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
+		}
+	    });
+	});
+	// release dialog
+	const releaseDialogDoButton = document.getElementById('releaseDialogDoButton');
+	const releaseDialogCancelButton = document.getElementById('releaseDialogCancelButton');
+	const releaseDialogSelect = document.getElementById('releaseDialogSelect');
+	releaseDialogCancelButton.addEventListener('click', function() {
+	    common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
+	});
+	releaseDialogDoButton.addEventListener('click', function() {
+	    releaseDialogDoButton.disabled = true;
+	    releaseDialogCancelButton.disabled = true;
+	    const ratingBN = common.numberToBN(releaseDialogSelect.value);
+	    common.replaceElemClassFromTo('releaseDialogNote', 'visibleIB', 'hidden', null);
+	    common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
+	    doRelease(ratingBN, dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
+	});
+	// burn dialog
+	const burnDialogDoButton = document.getElementById('burnDialogDoButton');
+	const burnDialogCancelButton = document.getElementById('burnDialogCancelButton');
+	const burnDialogSelect = document.getElementById('burnDialogSelect');
+	burnDialogCancelButton.addEventListener('click', function() {
+	    common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+	});
+	burnDialogDoButton.addEventListener('click', function() {
+	    burnDialogDoButton.disabled = true;
+	    burnDialogCancelButton.disabled = true;
+	    const ratingBN = common.numberToBN(burnDialogSelect.value);
+	    common.replaceElemClassFromTo('burnDialogNote', 'visibleIB', 'hidden', null);
+	    common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+	    doBurn(ratingBN, dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
+	});
     },
 
     productsPerPage: 8,
     productSearchFilter: null,
     displayedProductsStartIdx: 0,
-    selectedProduct: null,
+    selectedEscrowIdBN: null,
+    selectedEscrowInfo: null,
 };
 
 
@@ -133,6 +166,12 @@ function addRow(table) {
 	productArea.value = 'loading...';
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
 	    productArea.value = product.name;
+	    leftDiv.addEventListener('click', function() {
+		console.log('productArea: got click');
+		hideAllModals();
+		selectRowIdx(idx);
+		shop.showProductDetail(product, 'view', shop.hideProductDetail);
+	    });
 	});
 	if (!escrowInfo.isClosed) {
 	    const sellerBN = common.numberToBN(escrowInfo.vendorBalance);
@@ -154,8 +193,8 @@ function addRow(table) {
 		stepSpan.appendChild(stepSpanTip);
 	    }
 	    stepSpan.addEventListener('click', function() {
+		hideAllModals();
 		selectRowIdx(idx);
-		common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
 		handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
 	    });
             addTo.appendChild(stepSpan);
@@ -399,6 +438,8 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 
 
 function doApproveDialog(escrowIdBN, escrowInfo) {
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
     common.replaceElemClassFromTo('approveDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('approveDialogDiv', 'hidden', 'visibleB', null);
     const approveDialogDoButton = document.getElementById('approveDialogDoButton');
@@ -407,27 +448,7 @@ function doApproveDialog(escrowIdBN, escrowInfo) {
     approveDialogDoButton.disabled = true;
     approveDialogCancelButton.disabled = false;
     approveDialogArea.value = '';
-    //
-    approveDialogArea.addEventListener('input', function() {
-	console.log('approveDialogArea change event');
-	approveDialogDoButton.disabled = false;
-    });
-    approveDialogCancelButton.addEventListener('click', function() {
-	common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
-    });
-    //
-    approveDialogDoButton.addEventListener('click', function() {
-	approveDialogDoButton.disabled = true;
-	approveDialogCancelButton.disabled = true;
-	const secsBN = common.numberToBN(approveDialogSelect.value);
-	secsBN.imuln(parseInt(approveDialogArea.value));
-	common.replaceElemClassFromTo('approveDialogNote', 'visibleIB', 'hidden', null);
-	common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
-	doApprove(secsBN, escrowIdBN, escrowInfo);
-    });
 }
-
-
 
 function doApprove(secsBN, escrowIdBN, escrowInfo) {
     console.log('doApprove: secsBN = ' + secsBN.toString(10));
@@ -466,6 +487,8 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 }
 
 function doModifyDialog(escrowIdBN, escrowInfo) {
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
     common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
     common.replaceElemClassFromTo('addFundsDialogDiv', 'hidden', 'visibleB', null);
@@ -475,36 +498,6 @@ function doModifyDialog(escrowIdBN, escrowInfo) {
     addFundsDialogDoButton.disabled = true;
     addFundsDialogCancelButton.disabled = false;
     addFundsDialogArea.value = '';
-    //
-    addFundsDialogArea.addEventListener('input', function() {
-	console.log('addFundsDialogArea change event');
-	common.replaceElemClassFromTo('addFundsDialogNote', 'hidden', 'visibleIB', null);
-	common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
-	addFundsDialogDoButton.disabled = false;
-    });
-    addFundsDialogCancelButton.addEventListener('click', function() {
-	common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
-    });
-    //
-    addFundsDialogDoButton.addEventListener('click', function() {
-	addFundsDialogDoButton.disabled = true;
-	addFundsDialogCancelButton.disabled = true;
-	const addAmountBN = meEther.usdStrToDaiBN(addFundsDialogArea.value);
-	const escrowBN = addAmountBN.muln(3).divn(2);
-	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
-	    if (wdaiBalanceBN.lt(escrowBN)) {
-		common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
-		common.replaceElemClassFromTo('addFundsDialogErr', 'hidden', 'visibleIB', null);
-		addFundsDialogDoButton.disabled = false;
-		addFundsDialogCancelButton.disabled = false;
-	    } else {
-		common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
-		common.replaceElemClassFromTo('addFundsDialogErr', 'visibleIB', 'hidden', null);
-		common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
-		doModify(addAmountBN, escrowIdBN, escrowInfo);
-	    }
-	});
-    });
 }
 
 function doModify(addAmountBN, escrowIdBN, escrowInfo) {
@@ -600,6 +593,8 @@ function doDecline(escrowIdBN, escrowInfo) {
 
 
 function doReleaseDialog(escrowIdBN, escrowInfo) {
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
     common.replaceElemClassFromTo('releaseDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('releaseDialogDiv', 'hidden', 'visibleB', null);
     const releaseDialogDoButton = document.getElementById('releaseDialogDoButton');
@@ -607,21 +602,7 @@ function doReleaseDialog(escrowIdBN, escrowInfo) {
     const releaseDialogSelect = document.getElementById('releaseDialogSelect');
     releaseDialogDoButton.disabled = false;
     releaseDialogCancelButton.disabled = false;
-    //
-    releaseDialogCancelButton.addEventListener('click', function() {
-	common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
-    });
-    //
-    releaseDialogDoButton.addEventListener('click', function() {
-	releaseDialogDoButton.disabled = true;
-	releaseDialogCancelButton.disabled = true;
-	const ratingBN = common.numberToBN(releaseDialogSelect.value);
-	common.replaceElemClassFromTo('releaseDialogNote', 'visibleIB', 'hidden', null);
-	common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
-	doRelease(ratingBN, escrowIdBN, escrowInfo);
-    });
 }
-
 
 function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     console.log('doRelease: escrowIdBN = 0x' + escrowIdBN.toString(16));
@@ -655,8 +636,9 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 }
 
 
-//
 function doBurnDialog(escrowIdBN, escrowInfo) {
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
     common.replaceElemClassFromTo('burnDialogNote', 'hidden', 'visibleIB', null);
     common.replaceElemClassFromTo('burnDialogDiv', 'hidden', 'visibleB', null);
     const burnDialogDoButton = document.getElementById('burnDialogDoButton');
@@ -664,21 +646,7 @@ function doBurnDialog(escrowIdBN, escrowInfo) {
     const burnDialogSelect = document.getElementById('burnDialogSelect');
     burnDialogDoButton.disabled = false;
     burnDialogCancelButton.disabled = false;
-    //
-    burnDialogCancelButton.addEventListener('click', function() {
-	common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
-    });
-    //
-    burnDialogDoButton.addEventListener('click', function() {
-	burnDialogDoButton.disabled = true;
-	burnDialogCancelButton.disabled = true;
-	const ratingBN = common.numberToBN(burnDialogSelect.value);
-	common.replaceElemClassFromTo('burnDialogNote', 'visibleIB', 'hidden', null);
-	common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
-	doBurn(ratingBN, escrowIdBN, escrowInfo);
-    });
 }
-
 
 function doBurn(ratingBN, escrowIdBN, escrowInfo) {
     console.log('doBurn: escrowIdBN = 0x' + escrowIdBN.toString(16));
@@ -712,8 +680,6 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 }
 
 
-
-
 function selectRowIdx(idx) {
     if (dashboard.selectedRow >= 0) {
 	const oldId = 'row-' + dashboard.selectedRow;
@@ -722,4 +688,13 @@ function selectRowIdx(idx) {
     const id = 'row-' + idx;
     dashboard.selectedRow = idx;
     common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
+}
+
+function hideAllModals() {
+    shop.hideProductDetail();
+    common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
 }
