@@ -274,7 +274,8 @@ function populateRows() {
 
 function buildDashboard() {
     console.log('buildDashboard');
-    dashboard.selectedRow = -1;
+    selectRowIdx(-1);
+    hideAllModals();
     //TODO: must update w-dai balance
     meEther.escrowCountQuery(common.web3.eth.accounts[0], function(err, escrowCountBN) {
         dashboard.escrowCount = escrowCountBN.toNumber();
@@ -701,9 +702,11 @@ function selectRowIdx(idx) {
 	const oldId = 'row-' + dashboard.selectedRow;
 	common.replaceElemClassFromTo(oldId, 'escrowListItemDivSelected', 'escrowListItemDiv', null);
     }
-    const id = 'row-' + idx;
     dashboard.selectedRow = idx;
-    common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
+    if (idx >= 0) {
+	const id = 'row-' + idx;
+	common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
+    }
 }
 
 function hideAllModals() {
