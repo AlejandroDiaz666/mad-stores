@@ -1,0 +1,6 @@
+*~
+build/*
+src/autoVersion.js
+src/autoVersion.txt
+mes/*
+mes*.tar.gz
