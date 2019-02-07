@@ -27,6 +27,7 @@ const ether = module.exports = {
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
     getLogsTimestamp: 0,
     getLogsTimer: null,
+    chainId: 0,
     //node = 'etherscan.io' | 'infura.io' | 'metamask'
     node: 'metamask',
     ens: null,
@@ -36,6 +37,7 @@ const ether = module.exports = {
     getNetwork: function(cb) {
 	let network = 'Unknown Network';
 	common.web3.version.getNetwork((err, netId) => {
+	    ether.chainId = netId;
 	    switch (netId) {
 	    case "1":
 		network = 'Mainnet';
@@ -185,9 +187,10 @@ const ether = module.exports = {
 
 
     //
+    // cb(err, txid)
     // units: 'wei' | 'szabo' | 'finney' | 'ether'
     //
-    send: function(to_addr, size, units, data, gasLimit, callback) {
+    send: function(to_addr, size, units, data, gasLimit, cb) {
 	const tx = {};
 	tx.from = common.web3.eth.accounts[0];
 	tx.value = common.web3.toWei(size, units);
@@ -196,7 +199,40 @@ const ether = module.exports = {
 	if (gasLimit > 0)
 	    tx.gas = gasLimit;
 	console.log('ether.send: calling sendTransaction; tx.value = ' + tx.value);
-	common.web3.eth.sendTransaction(tx, callback)
+	common.web3.eth.sendTransaction(tx, cb)
+    },
+
+
+    //
+    // cb(err, txid, contractInstace)
+    // note that the contract.new callback fires twice. see:
+    //  https://github.com/ethereum/wiki/wiki/JavaScript-API#web3ethcontract
+    // use the txid from the first; get the contract address from the transaction receipt; ignore the second callback
+    //
+    deployContract: function(abi, bin, parmsHex, gasLimit, cb) {
+	parmsHex = ethUtils.stripHexPrefix(parmsHex);
+	var contract = common.web3.eth.contract(JSON.parse(abi));
+	console.log('ether.deployContract: contract: ' + contract);
+	console.log('ether.deployContract: bin: ' + bin);
+	var tx = {};
+	tx.from = common.web3.eth.accounts[0];
+	tx.value = 0;
+	tx.data = bin + parmsHex;
+	common.web3.eth.estimateGas(tx, function(err, estimatedGas) {
+	    console.log('ether.deployContract: estimated gas = ' + estimatedGas);
+	    tx.gas = (!!gasLimit) ? gasLimit : Math.floor(estimatedGas * 1.1);
+	    //note: the returned myContractReturned === myContract
+	    var myContractReturned = contract.new(tx, function(err, myContract) {
+		if (!!err) {
+		    console.log('ether.deployContract: err = ' + err);
+		    !!cb && cb(err, null, null);
+		} else {
+		    console.log('ether.deployContract: txid = ' + myContract.transactionHash);
+		    !!cb && cb(null, myContract.transactionHash, myContract);
+		}
+		cb = null;
+	    });
+	});
     },
 
 
@@ -271,12 +307,12 @@ function serialGetLogs(flavor, options, cb) {
 
 function getLogsNext() {
     if (getLogsList.length > 0) {
-	var now_ms = Date.now();
-	var elapsed_ms = now_ms - ether.getLogsTimestamp;
-	if (elapsed_ms < 1000) {
+	const now_ms = Date.now();
+	const elapsed_ms = now_ms - ether.getLogsTimestamp;
+	if (elapsed_ms < 2000) {
 	    if (!!ether.getLogsTimer)
 		clearTimeout(ether.getLogsTimer);
-	    ether.getLogsTimer = setTimeout(getLogsNext, 200 + 1000 - elapsed_ms);
+	    ether.getLogsTimer = setTimeout(getLogsNext, 200 + 2000 - elapsed_ms);
 	} else {
 	    const getLogsInfo = getLogsList[0];
 	    if (getLogsInfo.flavor == 3) {
