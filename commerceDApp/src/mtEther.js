@@ -38,12 +38,11 @@ const mtEther = module.exports = {
     },
 
 
-    accountQuery: function(web3, acct, cb) {
+    accountQuery: function(acct, cb) {
 	//console.log('accountQuery');
 	if (!mtEther.EMTContractInstance)
 	    initEMTContractInstance();
 	mtEther.EMTContractInstance.accounts(acct, (err, resultObj) => {
-	    //console.log('accountQuery: addr = ' + acct + ', resultObj = ' + JSON.stringify(resultObj));
 	    const acctInfo = {};
 	    if (!err) {
 		const keys = [ 'isValid', 'msgFee', 'spamFee', 'feeBalance', 'recvMsgCount', 'sentMsgCount', 'publicKey', 'encryptedPrivateKey' ];
@@ -52,13 +51,13 @@ const mtEther = module.exports = {
 		    acctInfo[keys[i]] = (resultArray[i] == 'false') ? false :
 		                        (resultArray[i] == 'true' ) ? true  : resultArray[i];
 	    }
-	    console.log('accountQuery: addr = ' + acct + ', acctInfo = ' + JSON.stringify(acctInfo));
+	    //console.log('accountQuery: addr = ' + acct + ', acctInfo = ' + JSON.stringify(acctInfo));
 	    cb(err, acctInfo);
 	});
     },
 
 
-    getPeerMessageCount: function(web3, from, to, cb) {
+    getPeerMessageCount: function(from, to, cb) {
 	if (!mtEther.EMTContractInstance)
 	    initEMTContractInstance();
 	mtEther.EMTContractInstance.getPeerMessageCount(from, to, cb);
@@ -66,7 +65,7 @@ const mtEther = module.exports = {
 
 
     //cb(err, lastIdx, messageIDs[])
-    getRecvMsgIds: function (web3, to, startIdxBN, maxResults, cb) {
+    getRecvMsgIds: function (to, startIdxBN, maxResults, cb) {
 	if (!mtEther.EMTContractInstance)
 	    initEMTContractInstance();
 	mtEther.EMTContractInstance.getRecvMsgs(to, common.BNToHex256(startIdxBN), common.numberToHex256(maxResults), (err, result) => {
@@ -79,7 +78,7 @@ const mtEther = module.exports = {
     },
 
     //cb(err, lastIdx, messageIDs[])
-    getSentMsgIds: function (web3, from, startIdxBN, maxResults, cb) {
+    getSentMsgIds: function (from, startIdxBN, maxResults, cb) {
 	if (!mtEther.EMTContractInstance)
 	    initEMTContractInstance();
 	mtEther.EMTContractInstance.getSentMsgs(from, common.BNToHex256(startIdxBN), common.numberToHex256(maxResults), (err, result) => {
@@ -93,7 +92,7 @@ const mtEther = module.exports = {
 
 
     //cb(err, txid)
-    sendMessage: function(web3, toAddr, attachmentIdxBN, ref, messageHex, size, cb) {
+    sendMessage: function(toAddr, attachmentIdxBN, ref, messageHex, size, cb) {
 	console.log('sendMessageParms: toAddr = ' + toAddr);
 	console.log('sendMessageParms: attachmentIdxBN = ' + attachmentIdxBN.toString(10));
 	console.log('sendMessageParms: ref = ' + ref);
@@ -104,7 +103,7 @@ const mtEther = module.exports = {
     },
 
     //cb(err, txid)
-    register: function(web3, messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey, cb) {
+    register: function(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey, cb) {
 	const abiRegisterFcn = mtEther.abiEncodeRegister();
 	const abiParms = mtEther.abiEncodeRegisterParms(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey);
         const sendData = "0x" + abiRegisterFcn + abiParms;
@@ -113,7 +112,7 @@ const mtEther = module.exports = {
     },
 
     //cb(err, txid)
-    withdraw: function(web3, cb) {
+    withdraw: function(cb) {
 	const abiWithdrawFcn = mtEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
 	console.log('sendData = ' + sendData);
@@ -360,6 +359,6 @@ const mtEther = module.exports = {
 
 function initEMTContractInstance() {
     const ABIArray = JSON.parse(mtEther.EMT_CONTRACT_ABI);
-    const EMTcontract = web3.eth.contract(ABIArray);
+    const EMTcontract = common.web3.eth.contract(ABIArray);
     mtEther.EMTContractInstance = EMTcontract.at(mtEther.EMT_CONTRACT_ADDR);
 }

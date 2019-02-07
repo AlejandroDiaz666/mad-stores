@@ -36,7 +36,7 @@ const mtUtil = module.exports = {
     getSentMsgIds: function(fromAddr, startIdx, count, cb) {
 	const msgIds = [];
 	const startIdxBn = common.numberToBN(startIdx);
-	mtEther.getSentMsgIds(common.web3, fromAddr, startIdxBn, count, function(err, lastIdx, results) {
+	mtEther.getSentMsgIds(fromAddr, startIdxBn, count, function(err, lastIdx, results) {
 	    if (!err) {
 		for (let i = 0; i < results.length; ++i)
 		    msgIds.push(common.numberToHex256(results[i]));
@@ -50,7 +50,7 @@ const mtUtil = module.exports = {
     getRecvMsgIds: function(toAddr, startIdx, count, cb) {
 	const msgIds = [];
 	const startIdxBn = common.numberToBN(startIdx);
-	mtEther.getRecvMsgIds(common.web3, toAddr, startIdxBn, count, function(err, lastIdx, results) {
+	mtEther.getRecvMsgIds(toAddr, startIdxBn, count, function(err, lastIdx, results) {
 	    if (!err) {
 		for (let i = 0; i < results.length; ++i)
 		    msgIds.push(common.numberToHex256(results[i]));
@@ -150,7 +150,7 @@ const mtUtil = module.exports = {
     //
     decryptMsg: function(otherAddr, fromAddr, toAddr, nonce, msgHex, attachmentIdxBN, cb) {
 	console.log('decryptMsg: otherAddr = ' + otherAddr);
-	mtEther.accountQuery(common.web3, otherAddr, function(err, otherAcctInfo) {
+	mtEther.accountQuery(otherAddr, function(err, otherAcctInfo) {
 	    const otherPublicKey = (!!otherAcctInfo) ? otherAcctInfo.publicKey : null;
 	    if (!!otherPublicKey && otherPublicKey != '0x') {
 		const ptk = dhcrypt.ptk(otherPublicKey, toAddr, fromAddr, nonce);
@@ -177,7 +177,7 @@ const mtUtil = module.exports = {
     // cb(err, msgFee, encrypted)
     encryptMsg: function(toAddr, message, cb) {
 	console.log('encryptMsg');
-	mtEther.accountQuery(common.web3, toAddr, function(err, toAcctInfo) {
+	mtEther.accountQuery(toAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
 	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
@@ -194,7 +194,7 @@ const mtUtil = module.exports = {
 	    const encrypted = dhcrypt.encrypt(ptk, message);
 	    console.log('encryptMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	    mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		cb(null, msgFee, encrypted);
@@ -220,7 +220,7 @@ const mtUtil = module.exports = {
 		common.clearStatusDiv(statusDiv);
 		cb(sendErr);
 	    };
-	    mtEther.sendMessage(common.web3, toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
+	    mtEther.sendMessage(toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
 		console.log('encryptAndSendMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
 		common.waitForTXID(err, txid, msgDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
@@ -349,7 +349,7 @@ const mtUtil = module.exports = {
 	sendButton.disabled = true;
 	mtUtil.sendCB = null
 	//
-	mtEther.accountQuery(common.web3, destAddr, function(err, toAcctInfo) {
+	mtEther.accountQuery(destAddr, function(err, toAcctInfo) {
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
 	    if (!toPublicKey || toPublicKey == '0x') {
 		cb('Error: no Message-Transport account was found for destination address.');
@@ -367,7 +367,7 @@ const mtUtil = module.exports = {
 	    msgTextArea.readonly = '';
 	    msgTextArea.placeholder = placeholderText;
 	    //fees: see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	    mtEther.getPeerMessageCount(destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 		const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		msgFeeArea.value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(fee));
@@ -455,7 +455,7 @@ function replyToMsg(destAddr, refId, cb) {
     sendButton.disabled = true;
     mtUtil.sendCB = null;
     //
-    mtEther.accountQuery(common.web3, destAddr, function(err, toAcctInfo) {
+    mtEther.accountQuery(destAddr, function(err, toAcctInfo) {
 	const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
 	if (!toPublicKey || toPublicKey == '0x') {
 	    cb('Error: no Message-Transport account was found for destination address.', null, null);
@@ -473,7 +473,7 @@ function replyToMsg(destAddr, refId, cb) {
 	msgTextArea.readonly = '';
 	msgTextArea.placeholder = 'Type your reply here';
 	//fees: see how many messages have been sent from the proposed recipient to me
-	mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	mtEther.getPeerMessageCount(destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 	    console.log('replyToMsg: setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 	    const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 	    msgFeeArea.value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(fee));

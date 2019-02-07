@@ -86,7 +86,7 @@ function setWrapButtonHandlers() {
 	wrapDialogCancelButton.disabled = true;
 	const daiAmountBN = meEther.usdStrToDaiBN(wrapDialogArea.value);
 	console.log('wrapDialogDoButton: daiAmountBN = ' + daiAmountBN.toString(10));
-	meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	meEther.getDaiBalance(common.web3.eth.accounts[0], function(err, daiBalanceBN) {
 	    console.log('wrapDialogDoButton: daiBalanceBN = ' + daiBalanceBN.toString(10));
 	    if (daiBalanceBN.lt(daiAmountBN)) {
 		common.replaceElemClassFromTo('wrapDialogNote', 'visibleIB', 'hidden', null);
@@ -150,7 +150,7 @@ function setUnwrapButtonHandlers() {
 	unwrapDialogCancelButton.disabled = true;
 	const wdaiAmountBN = meEther.usdStrToDaiBN(unwrapDialogArea.value);
 	console.log('unwrapDialogDoButton: wdaiAmountBN = ' + wdaiAmountBN.toString(10));
-	meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	    console.log('unwrapDialogDoButton: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	    if (wdaiBalanceBN.lt(wdaiAmountBN)) {
 		common.replaceElemClassFromTo('unwrapDialogNote', 'visibleIB', 'hidden', null);
@@ -310,7 +310,7 @@ function handleUnlockedMetaMask() {
 	    else if (networkArea.className.indexOf(' attention' < 0))
 		networkArea.className += ' attention';
 	}
-	mtEther.accountQuery(common.web3, common.web3.eth.accounts[0], function(err, _acctInfo) {
+	mtEther.accountQuery(common.web3.eth.accounts[0], function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
 	    mtUtil.acctInfo = _acctInfo;
 	    mtUtil.publicKey = (!!mtUtil.acctInfo) ? mtUtil.acctInfo.publicKey : null;
@@ -329,11 +329,11 @@ function handleUnlockedMetaMask() {
 // handle unregistered account
 //
 function updateDaiAndWDai() {
-    meEther.getDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+    meEther.getDaiBalance(common.web3.eth.accounts[0], function(err, daiBalanceBN) {
 	const daiBalanceArea = document.getElementById('daiBalanceArea');
 	daiBalanceArea.value = '  Dai Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
     });
-    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+    meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
 	wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';

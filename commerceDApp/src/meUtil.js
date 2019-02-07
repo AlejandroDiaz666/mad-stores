@@ -123,7 +123,7 @@ var meUtil = module.exports = {
     //
     purchaseProduct: function(escrowIDBN, surchargeBN, productIdBN, vendorAddr, attachmentIdxBN, refBN, message, cb) {
 	console.log('purchaseProduct: productIdBN = 0x' + productIdBN.toString(16));
-	mtEther.accountQuery(common.web3, vendorAddr, function(err, toAcctInfo) {
+	mtEther.accountQuery(vendorAddr, function(err, toAcctInfo) {
 	    //encrypt the message...
 	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
@@ -140,7 +140,7 @@ var meUtil = module.exports = {
 	    const encrypted = dhcrypt.encrypt(ptk, message);
 	    console.log('purchaseProduct: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(common.web3, vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+	    mtEther.getPeerMessageCount(vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('purchaseProduct: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		console.log('purchaseProduct: msgFee is ' + msgFee + ' wei');
@@ -247,7 +247,7 @@ var meUtil = module.exports = {
 		    return;
 		}
 		const product = new meUtil.Product(productIdBN, name, desc, image);
-		meEther.productInfoQuery(common.web3, productIdBN, function(err, productIdBN, productInfo) {
+		meEther.productInfoQuery(productIdBN, function(err, productIdBN, productInfo) {
 		    if (!!err) {
 			cb('error retreiving product info', null);
 			return;
@@ -438,7 +438,7 @@ function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb)
 		    parsedUniq[id256] = true;
 		    const newProduct = new meUtil.Product(productIdBN, name, desc, image);
 		    meUtil.productSearchResults[cookie.idx] = newProduct;
-		    meEther.productInfoQuery(common.web3, productIdBN, function(err, productIdBN, productInfo) {
+		    meEther.productInfoQuery(productIdBN, function(err, productIdBN, productInfo) {
 			let cookie = null;
 			let product = null;
 			if (!!err) {

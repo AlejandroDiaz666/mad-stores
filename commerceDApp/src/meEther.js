@@ -44,7 +44,7 @@ const meEther = module.exports = {
     // registerVendor
     // ---------------------------------------------------------------------------------------------------------
     //cb(err, txid)
-    registerVendor: function(web3, regionBN, nameBytes, descBytes, imageBytes, cb) {
+    registerVendor: function(regionBN, nameBytes, descBytes, imageBytes, cb) {
 	const abiRegisterVendorFcn = meEther.abiEncodeRegisterVendor();
 	const abiParms = meEther.abiEncodeRegisterVendorParms(regionBN, nameBytes, descBytes, imageBytes);
         const sendData = "0x" + abiRegisterVendorFcn + abiParms;
@@ -78,7 +78,7 @@ const meEther = module.exports = {
     },
 
     //cb(err, { activeFlag: bool, region: uint256 } )
-    vendorAccountQuery: function(web3, addr, cb) {
+    vendorAccountQuery: function(addr, cb) {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.vendorAccounts(addr, (err, resultObj) => {
@@ -101,7 +101,7 @@ const meEther = module.exports = {
     // cb(err, txid)
     // this fcn is also used to edit a product.
     // productID = 0 => register new product, else edit existing product
-    registerProduct: function(web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, cb) {
+    registerProduct: function(productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, cb) {
 	if (!productIdBN)
 	    productIdBN = new BN('0', 16);
 	const abiRegisterProductFcn = meEther.abiEncodeRegisterProduct();
@@ -138,7 +138,7 @@ const meEther = module.exports = {
     },
 
     //cb(err, productIdBN, { price: uint256, quantity: uint256, category: uint256, region: uint256, vendorAddr: address } )
-    productInfoQuery: function(web3, productIdBN, cb) {
+    productInfoQuery: function(productIdBN, cb) {
 	if (!meEther.MSContractInstance)
 	    initMSContractInstance();
 	meEther.MSContractInstance.products(common.BNToHex256(productIdBN), (err, resultObj) => {
@@ -256,7 +256,7 @@ const meEther = module.exports = {
     // ---------------------------------------------------------------------------------------------------------
     //cb(err, balanceBN)
     //this retuens the amount of actual dai owned by this address
-    getDaiBalance: function(web3, acctAddr, cb) {
+    getDaiBalance: function(acctAddr, cb) {
 	if (!meEther.daiContractInstance)
 	    initDaiContractInstance();
 	meEther.daiContractInstance.balanceOf(acctAddr, (err, resultObj) => {
@@ -320,7 +320,7 @@ const meEther = module.exports = {
     // ---------------------------------------------------------------------------------------------------------
     //cb(err, balanceBN)
     //this retuens the amount of dai in the madescrow contract, aka wrapped-dai
-    getWDaiBalance: function(web3, acctAddr, cb) {
+    getWDaiBalance: function(acctAddr, cb) {
 	if (!meEther.MEContractInstance)
 	    initMEContractInstance();
 	meEther.MEContractInstance.balances(acctAddr, (err, resultObj) => {
@@ -603,7 +603,7 @@ const meEther = module.exports = {
 
 
     //cb(err, txid)
-    withdraw: function(web3, cb) {
+    withdraw: function(cb) {
 	const abiWithdrawFcn = meEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
 	console.log('meEther.withdraw: sendData = ' + sendData);
@@ -699,21 +699,6 @@ const meEther = module.exports = {
     },
 
 
-    parseEscrowEvent: function(result, cb) {
-	//EScrowEvent(address indexed _vendorAddr, address customerAddr, uint256 _escrowID,
-	//            uint256 _productID, uint256 _state, uint256 _msgNo);
-	var vendorAddr = '0x7DfA67646B74b6e223b1779a3086c5C4F45782A2';
-	var customerAddr = common.web3.eth.accounts[0];
-	var escrowIdBN = new BN('5', 16);
-	var productIdBN = new BN('4', 16);
-	var state = 0x5;
-	var msgNo = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA';
-	var timeStamp = parseInt('0x5b9a2cf4');
-	var date = (new Date(timeStamp * 1000)).toUTCString();
-	cb(null, vendorAddr, customerAddr, escrowIdBN, prodictIdBN, state, msgNo, date);
-    },
-
-
     //produces a price string, eg. nominal USD, with 2 decimals from price, which is demoninated in
     //cononical dai (ie, 18 decimals)
     daiBNToUsdStr: function(daiBN, places) {
@@ -743,7 +728,7 @@ const meEther = module.exports = {
 
 function initMSContractInstance() {
     const ABIArray = JSON.parse(meEther.MS_CONTRACT_ABI);
-    const MScontract = web3.eth.contract(ABIArray);
+    const MScontract = common.web3.eth.contract(ABIArray);
     console.log('meEther.initMSContractInstance: contract: ' + MScontract);
     console.log('meEther.initMSContractInstance: contract addr: ' + meEther.MS_CONTRACT_ADDR);
     meEther.MSContractInstance = MScontract.at(meEther.MS_CONTRACT_ADDR);
@@ -751,7 +736,7 @@ function initMSContractInstance() {
 
 function initMEContractInstance() {
     const ABIArray = JSON.parse(meEther.ME_CONTRACT_ABI);
-    const MEcontract = web3.eth.contract(ABIArray);
+    const MEcontract = common.web3.eth.contract(ABIArray);
     console.log('meEther.initMEContractInstance: contract: ' + MEcontract);
     console.log('meEther.initMEContractInstance: contract addr: ' + meEther.ME_CONTRACT_ADDR);
     meEther.MEContractInstance = MEcontract.at(meEther.ME_CONTRACT_ADDR);
@@ -759,7 +744,7 @@ function initMEContractInstance() {
 
 function initDaiContractInstance() {
     const ABIArray = JSON.parse(meEther.ERC20_ABI);
-    const daiContract = web3.eth.contract(ABIArray);
+    const daiContract = common.web3.eth.contract(ABIArray);
     //this will change....
     console.log('meEther.initDaiInstance: contract addr: ' + meEther.DAI_CONTRACT_ADDR);
     meEther.daiContractInstance = daiContract.at(meEther.DAI_CONTRACT_ADDR);

@@ -76,7 +76,7 @@ var dashboard = module.exports = {
 	    addFundsDialogCancelButton.disabled = true;
 	    const addAmountBN = meEther.usdStrToDaiBN(addFundsDialogArea.value);
 	    const escrowBN = addAmountBN.muln(3).divn(2);
-	    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	    meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 		if (wdaiBalanceBN.lt(escrowBN)) {
 		    common.replaceElemClassFromTo('addFundsDialogNote', 'visibleIB', 'hidden', null);
 		    common.replaceElemClassFromTo('addFundsDialogErr', 'hidden', 'visibleIB', null);

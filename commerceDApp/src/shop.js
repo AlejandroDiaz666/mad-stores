@@ -142,7 +142,7 @@ var shop = module.exports = {
 	meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
 	    console.log('showProductDetail: result.length = ' + result.length);
 	    if (!!result && result.length > 0) {
-		meEther.vendorAccountQuery(common.web3, product.vendorAddr, function(err, vendorAcctInfo) {
+		meEther.vendorAccountQuery(product.vendorAddr, function(err, vendorAcctInfo) {
 		    console.log('regStorePageSubPage: err = ' + err);
 		    console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
 		    console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
@@ -253,7 +253,7 @@ function selectProduct(product) {
 
 
 function handlePurchase(product) {
-    meEther.getWDaiBalance(common.web3, common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+    meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	const escrowBN = product.priceBN.muln(3).divn(2);
 	if (wdaiBalanceBN.lt(escrowBN)) {

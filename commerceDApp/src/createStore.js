@@ -222,7 +222,7 @@ function regStoreSubPage() {
 	if (!!result && result.length > 0) {
 	    createStoreRegStoreButton.textContent = 'Modify Store';
 	    createStoreRegStoreDoRegButton.textContent = 'Re-register My Store';
-	    meEther.vendorAccountQuery(common.web3, common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
+	    meEther.vendorAccountQuery(common.web3.eth.accounts[0], function(err, vendorAcctInfo) {
 		console.log('regStorePageSubPage: err = ' + err);
 		console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
 		console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
@@ -299,7 +299,7 @@ function registerStoreDoReg() {
     }
     console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
     common.showWaitingForMetaMask(true);
-    meEther.registerVendor(common.web3, regionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    meEther.registerVendor(regionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	common.showWaitingForMetaMask(false);
 	common.setMenuButtonState('shopButton',          'Disabled');
@@ -399,7 +399,7 @@ function addProductDoAdd(productIdBN) {
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreAddProdImg.src);
     common.showWaitingForMetaMask(true);
-    meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    meEther.registerProduct(productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	common.showWaitingForMetaMask(false);
 	common.setMenuButtonState('shopButton',          'Disabled');
@@ -534,7 +534,7 @@ function editProdDoEdit(productIdBN) {
     const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreEditProdImg.src);
     common.showWaitingForMetaMask(true);
-    meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
+    meEther.registerProduct(productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
 	common.showWaitingForMetaMask(false);
 	common.waitForTXID(err, txid, 'Modify-Product', viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
