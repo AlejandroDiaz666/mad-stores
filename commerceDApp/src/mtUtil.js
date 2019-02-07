@@ -191,7 +191,7 @@ const mtUtil = module.exports = {
 	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
 	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
 	    //console.log('encryptMsg: ptk = ' + ptk);
-	    const encrypted = dhcrypt.encrypt(ptk, message);
+	    const encrypted = (message.length == 0) ? '' : dhcrypt.encrypt(ptk, message);
 	    console.log('encryptMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
@@ -214,7 +214,6 @@ const mtUtil = module.exports = {
 	    }
 	    console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
 	    common.showWaitingForMetaMask(true);
-	    const statusDiv = document.getElementById('statusDiv');
 	    let sendErr = null;
 	    const continueFcn = () => {
 		common.clearStatusDiv(statusDiv);
@@ -223,7 +222,7 @@ const mtUtil = module.exports = {
 	    mtEther.sendMessage(toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
 		console.log('encryptAndSendMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
-		common.waitForTXID(err, txid, msgDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		common.waitForTXID(err, txid, msgDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
 		    sendErr = err;
 		});
 	    });

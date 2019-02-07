@@ -150,7 +150,7 @@ h3 { font-size:18px; }
 */
 #metaMaskDiv {
     position: fixed;
-    z-index: 2;
+    z-index: 3;
     left: 55%;
     top: 15%;
     width: 300px;
