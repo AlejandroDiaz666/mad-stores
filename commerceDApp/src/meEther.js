@@ -50,7 +50,7 @@ const meEther = module.exports = {
         const sendData = "0x" + abiRegisterVendorFcn + abiParms;
 	//console.log('sendData.length = ' + sendData.length);
 	//console.log('sendData = ' + sendData);
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
     abiEncodeRegisterVendor: function() {
@@ -109,7 +109,7 @@ const meEther = module.exports = {
         const sendData = "0x" + abiRegisterProductFcn + abiParms;
 	//console.log('sendData.length = ' + sendData.length);
 	//console.log('sendData = ' + sendData);
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
     abiEncodeRegisterProduct: function() {
@@ -278,7 +278,7 @@ const meEther = module.exports = {
         const sendData = "0x" + abiApproveFcn + abiParms;
 	//console.log('sendData.length = ' + sendData.length);
 	//console.log('sendData = ' + sendData);
-	ether.send(web3, meEther.DAI_CONTRACT_ADDR, 0, 'wei', sendData, 0, approveCb);
+	ether.send(meEther.DAI_CONTRACT_ADDR, 0, 'wei', sendData, 0, approveCb);
     },
 
     //transferCb(err, txid)
@@ -286,7 +286,7 @@ const meEther = module.exports = {
 	const abiWrapDaiFcn = meEther.abiEncodeWrapDai();
 	const abiParms = meEther.abiEncodeWrapDaiParms(daiAmountBN);
         const sendData = "0x" + abiWrapDaiFcn + abiParms;
-	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
+	ether.send(meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
     },
 
     abiEncodeApprove: function() {
@@ -339,7 +339,7 @@ const meEther = module.exports = {
 	const abiUnwrapDaiFcn = meEther.abiEncodeUnwrapDai();
 	const abiParms = meEther.abiEncodeUnwrapDaiParms(wdaiAmountBN);
         const sendData = "0x" + abiUnwrapDaiFcn + abiParms;
-	ether.send(web3, meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
+	ether.send(meEther.ME_CONTRACT_ADDR, 0, 'wei', sendData, 0, transferCb);
     },
 
     abiEncodeUnwrapDai: function() {
@@ -377,7 +377,7 @@ const meEther = module.exports = {
 	const abiPurchaseDepositFcn = meEther.abiEncodePurchaseDeposit();
 	const abiParms = meEther.abiEncodePurchaseDepositParms(escrowIdBN, productIdBN, surchargeBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseDepositFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodePurchaseDeposit: function() {
@@ -412,7 +412,7 @@ const meEther = module.exports = {
 	const abiPurchaseApproveFcn = meEther.abiEncodePurchaseApprove();
 	const abiParms = meEther.abiEncodePurchaseApproveParms(escrowIdBN, deliveryTimeBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseApproveFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodePurchaseApprove: function() {
@@ -446,7 +446,7 @@ const meEther = module.exports = {
 	const abiPurchaseDeclineFcn = meEther.abiEncodePurchaseDecline();
 	const abiParms = meEther.abiEncodePurchaseDeclineParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseDeclineFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodePurchaseDecline: function() {
@@ -480,7 +480,7 @@ const meEther = module.exports = {
 	const abiPurchaseCancelFcn = meEther.abiEncodePurchaseCancel();
 	const abiParms = meEther.abiEncodePurchaseCancelParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiPurchaseCancelFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodePurchaseCancel: function() {
@@ -510,7 +510,7 @@ const meEther = module.exports = {
 	const abiDeliveryApproveFcn = meEther.abiEncodeDeliveryApprove();
 	const abiParms = meEther.abiEncodeDeliveryApproveParms(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiDeliveryApproveFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodeDeliveryApprove: function() {
@@ -540,7 +540,7 @@ const meEther = module.exports = {
 	const abiDeliveryRejectFcn = meEther.abiEncodeDeliveryReject();
 	const abiParms = meEther.abiEncodeDeliveryRejectParms(escrowIdBN, ratingBN, attachmentIdxBN, refBN, messageHex);
         const sendData = "0x" + abiDeliveryRejectFcn + abiParms;
-	ether.send(web3, meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
     },
 
     abiEncodeDeliveryReject: function() {
@@ -607,7 +607,7 @@ const meEther = module.exports = {
 	const abiWithdrawFcn = meEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
 	console.log('meEther.withdraw: sendData = ' + sendData);
-	ether.send(web3, meEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(meEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
 

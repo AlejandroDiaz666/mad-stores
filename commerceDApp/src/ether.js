@@ -12,12 +12,6 @@ var ENS = require('ethereum-ens');
 
 const ether = module.exports = {
 
-    SZABO_PER_ETH:     1000000,
-    GWEI_PER_ETH:      1000000000,
-    WEI_PER_GWEI:      1000000000,
-    WEI_PER_SZABO:     1000000000000,
-    WEI_PER_FINNEY:    1000000000000000,
-    WEI_PER_ETH:       1000000000000000000,
     etherscanioHost: '',
     infuraioHost: '',
     //tx status host for user to check status of transactions
@@ -39,9 +33,9 @@ const ether = module.exports = {
 
 
     //cb(err, network)
-    getNetwork: function(web3, cb) {
+    getNetwork: function(cb) {
 	let network = 'Unknown Network';
-	web3.version.getNetwork((err, netId) => {
+	common.web3.version.getNetwork((err, netId) => {
 	    switch (netId) {
 	    case "1":
 		network = 'Mainnet';
@@ -81,15 +75,14 @@ const ether = module.exports = {
 
     //convert an amount in wei to a comfortable representation
     //for example: 1000000000000 => '1 gwei'
-    convertWeiToComfort: function(web3, wei) {
-	console.log('convertWeiToComfort: wei = ' + wei);
-	const units =
-	    (wei < ether.WEI_PER_GWEI)   ? 'Wei'   :
-	    (wei < ether.WEI_PER_SZABO)  ? 'Gwei'   :
-	    (wei < ether.WEI_PER_FINNEY) ? 'Szabo'  :
-            (wei < ether.WEI_PER_ETH)    ? 'Finney' : 'Eth';
-	console.log('convertWeiToComfort: wei = ' + wei + ', units = ' + units);
-	return(web3.fromWei(wei, units).toString() + ' ' + units);
+    convertWeiBNToComfort: function(weiBN) {
+	let units =
+	    (weiBN.lt(new BN('3B9ACA00', 16)))        ? 'Wei'    :
+	    (weiBN.lt(new BN('E8D4A51000', 16)))      ? 'Gwei'   :
+	    (weiBN.lt(new BN('38D7EA4C68000', 16)))   ? 'Szabo'  :
+	    (weiBN.lt(new BN('DE0B6B3A7640000', 16))) ? 'Finney' : 'ether';
+	console.log('convertWeiBNToComfort: weiBN = ' + weiBN.toString(10) + ', units = ' + units);
+	return(common.web3.fromWei(weiBN, units).toString() + ' ' + (units == 'ether' ? 'Eth' : units));
     },
 
 
@@ -165,30 +158,45 @@ const ether = module.exports = {
 
 
     //
-    // units: 'szabo' | 'finney' | 'ether'
-    // cb(err, balance)
+    // compare function to sort addresses
+    // call eg. acctList.sort(ether.addressCompare);
     //
-    getBalance: function(web3, units, cb) {
-	web3.eth.getBalance(web3.eth.accounts[0], function (err, balance) {
-	    console.log('get_balance bal = ' + balance.toString() + ', type = ' + typeof(balance));
-	    cb(null, web3.fromWei(balance, units).toString());
-	});
+    addressCompare: function(a, b) {
+	if (a.startsWith('0x'))
+	    a = a.substring(2);
+	if (b.startsWith('0x'))
+	    b = b.substring(2);
+	const bigA = new BN(a, 16);
+	const bigB = new BN(b, 16);
+	return(bigA.ucmp(bigB));
     },
 
 
     //
     // units: 'szabo' | 'finney' | 'ether'
+    // cb(err, balance)
     //
-    send: function(web3, to_addr, size, units, data, gasLimit, callback) {
+    getBalance: function(units, cb) {
+	common.web3.eth.getBalance(common.web3.eth.accounts[0], function (err, balance) {
+	    console.log('getBalance bal = ' + balance.toString() + ', type = ' + typeof(balance));
+	    cb(null, common.web3.fromWei(balance, units).toString());
+	});
+    },
+
+
+    //
+    // units: 'wei' | 'szabo' | 'finney' | 'ether'
+    //
+    send: function(to_addr, size, units, data, gasLimit, callback) {
 	const tx = {};
-	tx.from = web3.eth.accounts[0];
-	tx.value = web3.toWei(size, units);
+	tx.from = common.web3.eth.accounts[0];
+	tx.value = common.web3.toWei(size, units);
 	tx.to = to_addr,
 	tx.data = data;
 	if (gasLimit > 0)
 	    tx.gas = gasLimit;
-	console.log('ether.send: calling sendTransaction');
-	web3.eth.sendTransaction(tx, callback)
+	console.log('ether.send: calling sendTransaction; tx.value = ' + tx.value);
+	common.web3.eth.sendTransaction(tx, callback)
     },
 
 

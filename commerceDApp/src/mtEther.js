@@ -100,7 +100,7 @@ const mtEther = module.exports = {
 	const abiSendMessageFcn = mtEther.abiEncodeSendMessage();
 	const abiParms = mtEther.abiEncodeSendMessageParms(toAddr, attachmentIdxBN, ref, messageHex);
         const sendData = "0x" + abiSendMessageFcn + abiParms;
-	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, size, 'wei', sendData, 0, cb);
+	ether.send(mtEther.EMT_CONTRACT_ADDR, size, 'wei', sendData, 0, cb);
     },
 
     //cb(err, txid)
@@ -109,7 +109,7 @@ const mtEther = module.exports = {
 	const abiParms = mtEther.abiEncodeRegisterParms(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey);
         const sendData = "0x" + abiRegisterFcn + abiParms;
 	console.log('sendData = ' + sendData);
-	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
     //cb(err, txid)
@@ -117,7 +117,7 @@ const mtEther = module.exports = {
 	const abiWithdrawFcn = mtEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
 	console.log('sendData = ' + sendData);
-	ether.send(web3, mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+	ether.send(mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
 

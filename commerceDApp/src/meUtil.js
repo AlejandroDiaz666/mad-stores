@@ -145,16 +145,15 @@ var meUtil = module.exports = {
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		console.log('purchaseProduct: msgFee is ' + msgFee + ' wei');
 		common.showWaitingForMetaMask(true);
-		const statusDiv = document.getElementById('statusDiv');
 		let purchaseErr = null;
 		const continueFcn = () => {
-		    common.clearStatusDiv(statusDiv);
+		    common.clearStatusDiv();
 		    cb(purchaseErr);
 		};
 		meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
 		    console.log('purchaseProduct: txid = ' + txid);
 		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, 'Purchase-Deposit', statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    common.waitForTXID(err, txid, 'Purchase-Deposit', continueFcn, ether.etherscanioTxStatusHost, function(err) {
 			purchaseErr = err;
 		    });
 		});
@@ -179,16 +178,15 @@ var meUtil = module.exports = {
 		return;
 	    }
 	    common.showWaitingForMetaMask(true);
-	    const statusDiv = document.getElementById('statusDiv');
 	    let fcnErr = null;
 	    const continueFcn = () => {
-		common.clearStatusDiv(statusDiv);
+		common.clearStatusDiv();
 		cb(fcnErr);
 	    };
 	    fcn(escrowIdBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
 		console.log('escrowFcnWithMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
-		common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		common.waitForTXID(err, txid, fcnDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
 		    approveErr = err;
 		});
 	    });
@@ -212,16 +210,15 @@ var meUtil = module.exports = {
 		return;
 	    }
 	    common.showWaitingForMetaMask(true);
-	    const statusDiv = document.getElementById('statusDiv');
 	    let fcnErr = null;
 	    const continueFcn = () => {
-		common.clearStatusDiv(statusDiv);
+		common.clearStatusDiv();
 		cb(fcnErr);
 	    };
 	    fcn(escrowIdBN, parmBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
 		console.log('escrowFcnWithParmMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
-		common.waitForTXID(err, txid, fcnDesc, statusDiv, continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		common.waitForTXID(err, txid, fcnDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
 		    approveErr = err;
 		});
 	    });

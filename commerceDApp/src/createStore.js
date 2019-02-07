@@ -298,19 +298,17 @@ function registerStoreDoReg() {
 	regionBN.iuor(llcBitsBn);
     }
     console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
-    const metaMaskModal = document.getElementById('metaMaskModal');
-    metaMaskModal.style.display = 'block';
+    common.showWaitingForMetaMask(true);
     meEther.registerVendor(common.web3, regionBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
-	metaMaskModal.style.display = 'none';
-	const statusDiv = document.getElementById('statusDiv');
+	common.showWaitingForMetaMask(false);
 	common.setMenuButtonState('shopButton',          'Disabled');
 	common.setMenuButtonState('dashboardButton',     'Disabled');
 	common.setMenuButtonState('createStoreButton',   'Disabled');
 	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
 	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
 	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
-	common.waitForTXID(err, txid, 'Register-Vendor', statusDiv, regStoreSubPage, ether.etherscanioTxStatusHost, function() {
+	common.waitForTXID(err, txid, 'Register-Vendor', regStoreSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -400,19 +398,17 @@ function addProductDoAdd(productIdBN) {
     const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreAddProdImg.src);
-    const metaMaskModal = document.getElementById('metaMaskModal');
-    metaMaskModal.style.display = 'block';
+    common.showWaitingForMetaMask(true);
     meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
-	metaMaskModal.style.display = 'none';
-	const statusDiv = document.getElementById('statusDiv');
+	common.showWaitingForMetaMask(false);
 	common.setMenuButtonState('shopButton',          'Disabled');
 	common.setMenuButtonState('dashboardButton',     'Disabled');
 	common.setMenuButtonState('createStoreButton',   'Disabled');
 	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
 	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
 	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
-	common.waitForTXID(err, txid, 'Register-Product', statusDiv, viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
+	common.waitForTXID(err, txid, 'Register-Product', viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }
@@ -537,13 +533,11 @@ function editProdDoEdit(productIdBN) {
     const nameBytes = common.strToUtf8Bytes(createStoreEditProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);
     const imageBytes = common.imageToBytes(createStoreEditProdImg.src);
-    const metaMaskModal = document.getElementById('metaMaskModal');
-    metaMaskModal.style.display = 'block';
+    common.showWaitingForMetaMask(true);
     meEther.registerProduct(common.web3, productIdBN, categoryBN, regionBN, priceBN, quantityBN, nameBytes, descBytes, imageBytes, function(err, txid) {
 	console.log('txid = ' + txid);
-	metaMaskModal.style.display = 'none';
-	const statusDiv = document.getElementById('statusDiv');
-	common.waitForTXID(err, txid, 'Modify-Product', statusDiv, viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
+	common.showWaitingForMetaMask(false);
+	common.waitForTXID(err, txid, 'Modify-Product', viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
 }

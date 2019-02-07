@@ -33,10 +33,10 @@ const mtUtil = module.exports = {
 
 
     //cb(err, msgIds)
-    getSentMsgIds: function(fromAddr, batch, cb) {
+    getSentMsgIds: function(fromAddr, startIdx, count, cb) {
 	const msgIds = [];
-	const startIdxBn = new BN(batch).imuln(10);
-	mtEther.getSentMsgIds(common.web3, fromAddr, startIdxBn, 10, function(err, lastIdx, results) {
+	const startIdxBn = common.numberToBN(startIdx);
+	mtEther.getSentMsgIds(common.web3, fromAddr, startIdxBn, count, function(err, lastIdx, results) {
 	    if (!err) {
 		for (let i = 0; i < results.length; ++i)
 		    msgIds.push(common.numberToHex256(results[i]));
@@ -47,10 +47,10 @@ const mtUtil = module.exports = {
 
 
     //cb(err, msgIds)
-    getRecvMsgIds: function(toAddr, batch, cb) {
+    getRecvMsgIds: function(toAddr, startIdx, count, cb) {
 	const msgIds = [];
-	const startIdxBn = new BN(batch).imuln(10);
-	mtEther.getRecvMsgIds(common.web3, toAddr, startIdxBn, 10, function(err, lastIdx, results) {
+	const startIdxBn = common.numberToBN(startIdx);
+	mtEther.getRecvMsgIds(common.web3, toAddr, startIdxBn, count, function(err, lastIdx, results) {
 	    if (!err) {
 		for (let i = 0; i < results.length; ++i)
 		    msgIds.push(common.numberToHex256(results[i]));
@@ -91,7 +91,7 @@ const mtUtil = module.exports = {
     // doneCb(noMessagesProcessed)
     //
     getAndParseIdMsgs: function(msgIds, msgCookies, msgCb, doneCb) {
-	console.log('getAndParseIdMsgs: enter msgIds = ' + msgIds);
+	console.log('getAndParseIdMsgs: enter msgIds = ' + msgIds.toString());
 	const options = {
 	    fromBlock: 0,
 	    toBlock: 'latest',
@@ -127,7 +127,7 @@ const mtUtil = module.exports = {
 	    for (let i = 0; i < msgResults.length; ++i) {
 		mtEther.parseMessageEvent(msgResults[i], function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 		    if (!!msgCookies[msgId]) {
-			console.log('getAndParseIdMsgs: msgId = ' + msgId + ', fromAddr = ' + fromAddr + ', toAddr = ' + toAddr + ', idx = ' + msgCookies[msgId].idx);
+			console.log('getAndParseIdMsgs: msgId = ' + msgId + ', fromAddr = ' + fromAddr + ', toAddr = ' + toAddr);
 			msgCb(err, msgCookies[msgId], msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 			++msgCbCount;
 		    } else {
@@ -144,24 +144,31 @@ const mtUtil = module.exports = {
 
 
     //
-    //cb(err, decrypted)
-    //decrypt and display the message in the msgTextArea. also displays the msgId, ref, date & msgNo
-    //msgNo is either txCount or rxCount depending on whether the message was sent or received
+    // cb(err, messageText, attachment)
+    // decrypt message and extract attachment
+    //  attachment: { name: 'name', blob: 'saveable-blob' };
     //
-    decryptMsg: function(otherAddr, fromAddr, toAddr, nonce, msgHex, cb) {
+    decryptMsg: function(otherAddr, fromAddr, toAddr, nonce, msgHex, attachmentIdxBN, cb) {
 	console.log('decryptMsg: otherAddr = ' + otherAddr);
 	mtEther.accountQuery(common.web3, otherAddr, function(err, otherAcctInfo) {
 	    const otherPublicKey = (!!otherAcctInfo) ? otherAcctInfo.publicKey : null;
 	    if (!!otherPublicKey && otherPublicKey != '0x') {
-		console.log('decryptMsg: otherPublicKey = ' + otherPublicKey);
 		const ptk = dhcrypt.ptk(otherPublicKey, toAddr, fromAddr, nonce);
-		console.log('decryptMsg: ptk = ' + ptk);
 		const decrypted = dhcrypt.decrypt(ptk, msgHex);
-		console.log('decryptMsg: decrypted (length = ' + decrypted.length + ') = ' + decrypted);
-		cb(null, decrypted);
+		console.log('decryptMsg: decrypted (length = ' + decrypted.length + ') = ' + decrypted.substring(0, 30));
+		let messageText = decrypted;
+		let attachment = null;
+		if (!!attachmentIdxBN && !attachmentIdxBN.isZero()) {
+		    const idx = attachmentIdxBN.maskn(248).toNumber();
+		    console.log('decryptMsg: attachment at idx ' + idx);
+		    messageText = decrypted.substring(0, idx);
+		    const nameLen = attachmentIdxBN.iushrn(248).toNumber();
+		    attachment = { name: decrypted.substring(idx, idx + nameLen), blob: decrypted.substring(idx + nameLen) };
+		}
+		cb(null, messageText, attachment);
 	    } else {
 		console.log('decryptMsg: error looking up account for ' + otherAddr + ', otherPublicKey = ' + otherPublicKey);
-		cb('Error looking up account for ' + otherAddr, '');
+		cb('Error looking up account for ' + otherAddr, '', null);
 	    }
 	});
     },
@@ -178,7 +185,7 @@ const mtUtil = module.exports = {
 		cb('Encryption error: unable to look up destination address in contract!', null, null);
 		return;
 	    }
-	    //console.log('encryptAndSendMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
+	    //console.log('encryptMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
 	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
 	    sentMsgCtrBN.iaddn(1);
 	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
@@ -363,7 +370,7 @@ const mtUtil = module.exports = {
 	    mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 		const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
+		msgFeeArea.value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(fee));
 		sendButton.disabled = false;
 		mtUtil.sendCB = cb;
 	    });
@@ -401,19 +408,7 @@ const mtUtil = module.exports = {
 	msgPriceArea.value = priceDesc;
 	msgDateArea.value = date;
 	//
-	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, (err, decrypted) => {
-	    let text = decrypted;
-	    let attachment = null;
-	    console.log('setupDisplayMsgArea: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
-	    if (!!attachmentIdxBN && !attachmentIdxBN.isZero()) {
-		const idx = attachmentIdxBN.maskn(248).toNumber();
-		console.log('setupDisplayMsgArea: idx = ' + idx);
-		if (idx > 1) { //temporary
-		    text = decrypted.substring(0, idx);
-		    const nameLen = attachmentIdxBN.iushrn(248).toNumber();
-		    attachment = { name: decrypted.substring(idx, idx + nameLen), blob: decrypted.substring(idx + nameLen) };
-		}
-	    }
+	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, attachmentIdxBN, (err, text, attachment) => {
 	    //msgDateArea.value = date;
 	    //msgNoNotButton.textContent = parseInt(msgNo).toString(10);
 	    console.log('setupDisplayMsgArea: text = ' + text);
@@ -481,7 +476,7 @@ function replyToMsg(destAddr, refId, cb) {
 	mtEther.getPeerMessageCount(common.web3, destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 	    console.log('replyToMsg: setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 	    const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-	    msgFeeArea.value = 'Fee: ' + ether.convertWeiToComfort(common.web3, fee);
+	    msgFeeArea.value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(fee));
 	    sendButton.disabled = false;
 	    mtUtil.sendCB = cb;
 	});

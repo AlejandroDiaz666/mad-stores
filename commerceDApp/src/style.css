@@ -38,11 +38,11 @@ h3 { font-size:18px; }
   visibleIB: for normal divs (inline-block)
   visibleTC: for buttons (table-cells) for vertical alignment
 */
+.visibleB, .statusDivShow, .metaMaskDivShow {
+    display: block;
+}
 .visibleT {
     display: table;
-}
-.visibleB {
-    display: block;
 }
 .visibleIB {
     display: inline-block;
@@ -50,7 +50,7 @@ h3 { font-size:18px; }
 .visibleTC {
     display: table-cell;
 }
-.hidden {
+.hidden, .statusDivHide, .metaMaskDivHide {
     display: none;
 }
 .attention {
@@ -148,10 +148,9 @@ h3 { font-size:18px; }
 /* this modal has a message telling the user that we are waiting
    for metamask
 */
-#metaMaskModal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 2; /* Sit on top */
+#metaMaskDiv {
+    position: fixed;
+    z-index: 2;
     left: 55%;
     top: 15%;
     width: 300px;
@@ -160,7 +159,32 @@ h3 { font-size:18px; }
     overflow: none;
     border: 1px solid #888;
     background-color: #60ff60;
+    text-align: center;
 }
+.metaMaskNoPulse {
+}
+.metaMaskPulse {
+    -webkit-animation: mmPulse linear .5s infinite;
+    animation: mmPulse linear .5s infinite;
+}
+@-webkit-keyframes mmPulse {
+    0%   { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+    50%  { width: 320px; height: 60px;
+	   transform: translate3d(-10px, -5px, 0px); }
+    100% { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes mmPulse {
+    0%   { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+    50%  { width: 320px; height: 60px;
+	   transform: translate3d(-10px, -5px, 0px); }
+    100% { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+
+}
+
 
 #newMsgModal {
     display: none; /* Hidden by default */

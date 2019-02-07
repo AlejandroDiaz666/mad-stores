@@ -94,24 +94,22 @@ function setWrapButtonHandlers() {
 		wrapDialogDoButton.disabled = false;
 		wrapDialogCancelButton.disabled = false;
 	    } else {
-		const metaMaskModal = document.getElementById('metaMaskModal');
-		metaMaskModal.style.display = 'block';
+		common.showWaitingForMetaMask(true, false);
 		const allDoneFcn = () => {
 		    common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
 		    wrapButton.disabled = false;
 		    unwrapButton.disabled = false;
-		    common.clearStatusDiv(statusDiv);
+		    common.clearStatusDiv();
 		    updateDaiAndWDai();
 		};
-		const statusDiv = document.getElementById('statusDiv');
 		meEther.wrapDaiApprove(daiAmountBN, function(err, approveTxid) {
-		    metaMaskModal.style.display = 'none';
-		    common.waitForTXID(err, approveTxid, 'approve (Dai transfer)', statusDiv, null, ether.etherscanioTxStatusHost, function() {
-			common.clearStatusDiv(statusDiv);
-			metaMaskModal.style.display = 'block';
+		    common.showWaitingForMetaMask(false, false);
+		    common.waitForTXID(err, approveTxid, 'approve (Dai transfer)', null, ether.etherscanioTxStatusHost, function() {
+			common.clearStatusDiv();
+			common.showWaitingForMetaMask(true, true);
 			meEther.wrapDaiTransfer(daiAmountBN, function(err, wrapDaiTxid) {
-			    metaMaskModal.style.display = 'none';
-			    common.waitForTXID(err, wrapDaiTxid, 'wrap Dai', statusDiv, allDoneFcn, ether.etherscanioTxStatusHost, null);
+			    common.showWaitingForMetaMask(false, false);
+			    common.waitForTXID(err, wrapDaiTxid, 'wrap Dai', allDoneFcn, ether.etherscanioTxStatusHost, null);
 			});
 		    });
 		});
@@ -160,19 +158,17 @@ function setUnwrapButtonHandlers() {
 		unwrapDialogDoButton.disabled = false;
 		unwrapDialogCancelButton.disabled = false;
 	    } else {
-		const metaMaskModal = document.getElementById('metaMaskModal');
-		metaMaskModal.style.display = 'block';
+		common.showWaitingForMetaMask(true, false);
 		const allDoneFcn = () => {
 		    common.replaceElemClassFromTo('unwrapDialogDiv', 'visibleB', 'hidden', null);
 		    wrapButton.disabled = false;
 		    unwrapButton.disabled = false;
-		    common.clearStatusDiv(statusDiv);
+		    common.clearStatusDiv();
 		    updateDaiAndWDai();
 		};
-		const statusDiv = document.getElementById('statusDiv');
 		meEther.unwrapDai(wdaiAmountBN, function(err, txid) {
-		    metaMaskModal.style.display = 'none';
-		    common.waitForTXID(err, txid, 'unwrap Dai', statusDiv, allDoneFcn, ether.etherscanioTxStatusHost, null);
+		    common.showWaitingForMetaMask(false, false);
+		    common.waitForTXID(err, txid, 'unwrap Dai', allDoneFcn, ether.etherscanioTxStatusHost, null);
 		});
 	    }
 	});
@@ -295,16 +291,14 @@ function handleUnlockedMetaMask() {
     common.localStoragePrefix = (common.web3.eth.accounts[0]).substring(2, 10) + '-';
     var accountArea = document.getElementById('accountArea');
     accountArea.value = 'Your account: ' + common.web3.eth.accounts[0];
-    ether.getBalance(common.web3, 'szabo', function(err, balance) {
-	console.log('handleUnlockedMetaMask: ether.getBalance => err = ' + err + ', balance = ' + balance);
+    ether.getBalance('ether', function(err, balance) {
 	const balanceArea = document.getElementById('balanceArea');
-	const balanceSzabo = parseInt(balance);
-	console.log('balanceSzabo = ' + balanceSzabo);
-	const balanceETH = (balanceSzabo / ether.SZABO_PER_ETH).toFixed(6);
-	balanceArea.value = '  Eth Balance: ' + balanceETH.toString(10) + ' Eth'
+	console.log('balance (eth) = ' + balance);
+	const balanceETH = parseFloat(balance).toFixed(6);
+	balanceArea.value = '  Eth Balance: ' + balanceETH.toString(10) + ' Eth';
     });
     updateDaiAndWDai();
-    ether.getNetwork(common.web3, function(err, network) {
+    ether.getNetwork(function(err, network) {
 	const networkArea = document.getElementById('networkArea');
 	if (!!err) {
 	    networkArea.value = 'Error: ' + err;
@@ -357,8 +351,7 @@ function handleUnregisteredAcct() {
     common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
     common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
     common.replaceElemClassFromTo('createStorePageDiv','visibleT', 'hidden', null);
-    var statusDiv = document.getElementById('statusDiv');
-    common.clearStatusDiv(statusDiv);
+    common.clearStatusDiv();
     alert('You must first register with Turms Anonymous Message Transport before using Turms MAD Escrow');
 }
 
@@ -377,11 +370,10 @@ function handleRegisteredAcct() {
     if (!!dhcrypt.dh && mtUtil.publicKey == dhcrypt.publicKey()) {
 	console.log('handleRegisteredAcct: messageTransport key is already unlocked');
     } else {
-	//display "waiting for metamask" in case metamask dialog is hidden
-	const metaMaskModal = document.getElementById('metaMaskModal');
-	metaMaskModal.style.display = 'block';
+	common.showWaitingForMetaMask(true);
 	const encryptedPrivateKey = mtUtil.acctInfo.encryptedPrivateKey;
 	dhcrypt.initDH(encryptedPrivateKey, function(err) {
+	    common.showWaitingForMetaMask(false);
 	    metaMaskModal.style.display = 'none';
 	    if (!!err)
 		alert(err);
@@ -389,6 +381,5 @@ function handleRegisteredAcct() {
 		shop.handleShopPage();
 	});
     }
-    var statusDiv = document.getElementById('statusDiv');
-    common.clearStatusDiv(statusDiv);
+    common.clearStatusDiv();
 }

@@ -5,11 +5,12 @@ const BN = require("bn.js");
 const Buffer = require('buffer/').Buffer;
 const common = module.exports = {
 
-    web3:     null,
+    web3: null,
+    waitingForTxid: false,
 
     //
+    // cb(err, web3)
     // if requireAcct, then not only must mm be installed, but also an acct must be unlocked
-    // callback(err, myWeb3)
     //
     checkForMetaMask: async function(requireAcct, cb) {
 	if (window.ethereum) {
@@ -230,8 +231,9 @@ const common = module.exports = {
     },
 
     setIndexedFlag: function(prefix, index, flag) {
-	const wordIdx = Math.floor(index / 48);
-	const bitIdx = index % 48;
+	//javascript bit operations are 32 bit
+	const wordIdx = Math.floor(index / 32);
+	const bitIdx = index % 32;
 	const wordIdxStr = '0x' + wordIdx.toString(16)
 	let wordStr = localStorage[prefix + '-' + wordIdxStr];
 	let word = (!!wordStr) ? parseInt(wordStr) : 0;
@@ -245,8 +247,8 @@ const common = module.exports = {
     },
 
     chkIndexedFlag: function(prefix, index) {
-	const wordIdx = Math.floor(index / 48);
-	const bitIdx = index % 48;
+	const wordIdx = Math.floor(index / 32);
+	const bitIdx = index % 32;
 	const wordIdxStr = '0x' + wordIdx.toString(16)
 	const wordStr = localStorage[prefix + '-' + wordIdxStr];
 	console.log('chkIndexedFlag: localStorage[' + prefix + '-' + wordIdxStr + '] = ' + wordStr);
@@ -259,10 +261,10 @@ const common = module.exports = {
     //find the index of the first flag that is z or nz, starting with begIndex, goin forward or backwards
     //to endIndex. returns -1 if no flag found.
     findIndexedFlag: function(prefix, begIndex, endIndex, nz) {
-	const allOnes = (1 << 48) - 1;
+	const allOnes = 0xffffffff;
 	const increment = (endIndex > begIndex) ? 1 : -1;
-	let wordIdx = Math.floor(begIndex / 48);
-	let bitIdx = begIndex % 48;
+	let wordIdx = Math.floor(begIndex / 32);
+	let bitIdx = begIndex % 32;
 	do {
 	    const wordIdxStr = '0x' + wordIdx.toString(16)
 	    const wordStr = localStorage[prefix + '-' + wordIdxStr];
@@ -272,20 +274,20 @@ const common = module.exports = {
 		do {
 		    if ((!!nz && (word & (1 << bitIdx)) != 0) ||
 			( !nz && (word & (1 << bitIdx)) == 0) ) {
-			const foundIdx = wordIdx * 48 + bitIdx;
+			const foundIdx = wordIdx * 32 + bitIdx;
 			console.log('findFlag: foundIdx = ' + foundIdx);
 			return((increment > 0 && foundIdx <= endIndex) ||
 			       (increment < 0 && foundIdx >= endIndex) ? foundIdx : -1);
 		    }
 		    bitIdx += increment;
-		} while ((increment > 0 && bitIdx < 48) || (increment < 0 && bitIdx >= 0));
+		} while ((increment > 0 && bitIdx < 32) || (increment < 0 && bitIdx >= 0));
 		//first time through it's possible to fall out, if the nz bit was
 		//lt the start bitIdx
 	    }
 	    bitIdx = (increment > 0) ? 0 : 47;
 	    wordIdx += increment;
-	} while ((increment > 0 &&  wordIdx      * 48 < endIndex) ||
-		 (increment < 0 && (wordIdx + 1) * 48 > endIndex));
+	} while ((increment > 0 &&  wordIdx      * 32 < endIndex) ||
+		 (increment < 0 && (wordIdx + 1) * 32 > endIndex));
 	return(-1);
     },
 
@@ -355,105 +357,129 @@ const common = module.exports = {
     /* ------------------------------------------------------------------------------------------------------------------
        common display-related functions
        ------------------------------------------------------------------------------------------------------------------ */
-    /*
-    addTileToCenterTableDiv: function() {
-	console.log('common.addTileToCenterTableDiv');
-	var img = document.createElement("img").classname = 'tileImg';
-	img.src="images/logo.png";
-	img.alt = 'tile image here';
-	var div = document.createElement("div");
-	var centerTableDiv = document.getElementById('centerTableDiv');
-	centerTableDiv.appendChild(img);
-    },
-    */
-
-
     //
     // as a convenience, in case an error has already occurred (for example if the user rejects the transaction), you can
     // call this fcn with the error message and no txid.
     //
-    // cb(err)
+    // cb(err, receipt)
     // continueFcn()
     // note: the callback is called after the transaction is mined;
     //       the continueFcn is called after the user clicks continue
+    // a div with id = statusDiv must exist. in addition classes "statusDivHide" and "statusDivShow" must exist.
     // we do not clear the status div.. so you need to do that in either the callback or the continueFcn
     //
-    waitForTXID: function(err, txid, desc, statusDiv, continueFcn, txStatusHost, callback) {
-	//status div starts out hidden
-	console.log('show status div');
-	statusDiv.style.display = "block";
-	var leftDiv = document.createElement("div");
+    waitForTXID: function(err, txid, desc, continueFcn, txStatusHost, cb) {
+	console.log('waitForTXID');
+	const statusDiv = common.replaceElemClassFromTo('statusDiv', 'statusDivHide', 'statusDivShow', true);
+	const leftDiv = document.createElement("div");
 	leftDiv.className = 'visibleIB';
 	statusDiv.appendChild(leftDiv);
-	var rightDiv = document.createElement("div");
+	const rightDiv = document.createElement("div");
 	rightDiv.className = 'visibleIB';
 	statusDiv.appendChild(rightDiv);
-	var statusCtr = 0;
-	var statusText = document.createTextNode('No status yet...');
+	let statusCtr = 0;
+	const statusText = document.createTextNode('No status yet...');
 	leftDiv.appendChild(statusText);
 	if (!!err || !txid) {
 	    if (!err)
 		err = 'No transaction hash was generated.';
 	    statusText.textContent = 'Error in ' + desc + ' transaction: ' + err;
 	    if (!!continueFcn) {
-		var reloadLink = document.createElement('a');
+		const reloadLink = document.createElement('a');
 		reloadLink.addEventListener('click', continueFcn);
 		reloadLink.href = 'javascript:null;';
 		reloadLink.innerHTML = "<h2>Continue</h2>";
 		reloadLink.disabled = false;
 		rightDiv.appendChild(reloadLink);
 	    }
-	    if (!!callback)
-		callback(err);
+	    if (!!cb)
+		cb(err, null);
 	    return;
 	}
 	//
-	var viewTxLink = document.createElement('a');
+	const viewTxLink = document.createElement('a');
 	viewTxLink.href = 'https://' + txStatusHost + '/tx/' + txid;
 	viewTxLink.innerHTML = "<h2>View transaction</h2>";
 	viewTxLink.target = '_blank';
 	viewTxLink.disabled = false;
 	leftDiv.appendChild(viewTxLink);
 	//
-	var noteDiv = document.createElement("div");
-	//noteDiv.className = 'hidden';
-	noteDiv.className = 'visibleB';
-	var noteText = document.createTextNode('Note: it may take several minutes for changes to be reflected...');
+	const noteDiv = document.createElement("div");
+	noteDiv.className = 'hidden';
+	const noteText = document.createTextNode('Note: it may take several minutes for changes to be reflected...');
 	noteDiv.appendChild(noteText);
 	statusDiv.appendChild(noteDiv);
 	//
 	//cleared in handleUnlockedMetaMask, after the user clicks 'continue'
 	common.waitingForTxid = true;
-	var timer = setInterval(function() {
+	const timer = setInterval(function() {
 	    statusText.textContent = 'Waiting for ' + desc + ' transaction: ' + ++statusCtr + ' seconds...';
 	    if ((statusCtr & 0xf) == 0) {
 		common.web3.eth.getTransactionReceipt(txid, function(err, receipt) {
-		    console.log('common.waitForTXID: err = ' + err);
-		    console.log('common.waitForTXID: receipt = ' + receipt);
+		    console.log('common.waitForTXID: err = ' + err + ', receipt = ' + receipt + ', waitingForTxid = ' + common.waitingForTxid);
 		    if (!!err || !!receipt) {
+			common.waitingForTxid = false;
 			if (!err && !!receipt && receipt.status == 0)
 			    err = "Transaction Failed with REVERT opcode";
 			statusText.textContent = (!!err) ? 'Error in ' + desc + ' transaction: ' + err : desc + ' transaction succeeded!';
 			console.log('transaction is in block ' + (!!receipt ? receipt.blockNumber : 'err'));
 			noteDiv.className = 'visibleB';
-			//statusText.textContent = desc + ' transaction succeeded!';
 			clearInterval(timer);
 			//
 			if (!!continueFcn) {
-			    var reloadLink = document.createElement('a');
+			    const reloadLink = document.createElement('a');
 			    reloadLink.addEventListener('click',  continueFcn);
 			    reloadLink.href = 'javascript:null;';
 			    reloadLink.innerHTML = "<h2>Continue</h2>";
 			    reloadLink.disabled = false;
 			    rightDiv.appendChild(reloadLink);
 			}
-			if (!!callback)
-			    callback(err);
+			if (!!cb)
+			    cb(err, receipt);
 			return;
 		    }
 		});
 	    }
 	}, 1000);
+    },
+
+
+    clearDivChildren: function(div) {
+	while (div.hasChildNodes())
+            div.removeChild(div.lastChild);
+	return(div);
+    },
+
+
+    // a div with id = statusDiv must exist. in addition classes "statusDivHide" and "statusDivShow" must exist.
+    clearStatusDiv: function() {
+	const statusDiv = common.replaceElemClassFromTo('statusDiv', 'statusDivShow', 'statusDivHide', true);
+	common.clearDivChildren(statusDiv);
+    },
+
+
+    //display (or clear) "waiting for metamask" dialog
+    // a div with id = metaMaskDiv must exist. in addition classes "metaMaskDivHide" and "metaMaskDivShow" must exist.
+    showWaitingForMetaMask: function(show, pulse) {
+	const metaMaskModal = document.getElementById('metaMaskDiv');
+	if (!!show) {
+	    common.replaceElemClassFromTo('metaMaskDiv', 'metaMaskDivHide', 'metaMaskDivShow', true);
+	    if (!!pulse)
+		common.replaceElemClassFromTo('metaMaskDiv', 'metaMaskNoPulse', 'metaMaskPulse', null);
+	    else
+		common.replaceElemClassFromTo('metaMaskDiv', 'metaMaskPulse', 'metaMaskNoPulse', null);
+	} else {
+	    common.replaceElemClassFromTo('metaMaskDiv', 'metaMaskDivShow', 'metaMaskDivHide', null);
+	    common.replaceElemClassFromTo('metaMaskDiv', 'metaMaskPulse', 'metaMaskNoPulse', null);
+	}
+    },
+
+
+    // start or stop the wait/loading icon
+    // an elem with id waitIcon must exist
+    setLoadingIcon: function(start) {
+	const waitIcon = document.getElementById('waitIcon');
+	waitIcon.style.display = (!!start) ? 'block' : 'none';
     },
 
     makeTextarea: function(id, className, disabled) {
@@ -484,18 +510,6 @@ const common = module.exports = {
 	    button.disabled = true;
     },
 
-    clearStatusDiv: function(statusDiv) {
-	while (statusDiv.hasChildNodes()) {
-	    statusDiv.removeChild(statusDiv.lastChild);
-	}
-	statusDiv.style.display = "none";
-    },
-
-    //start or stop the wait/loading icon
-    setLoadingIcon: function(start) {
-	const waitIcon = document.getElementById('waitIcon');
-	waitIcon.style.display = (!!start) ? 'block' : 'none';
-    },
 
     //state = 'Disabled' | 'Enabled' | 'Selected'
     setMenuButtonState: function(buttonID, state) {
@@ -512,8 +526,9 @@ const common = module.exports = {
 	    button.className = (button.className).replace('menuBarButton', newClassName);
     },
 
+
     replaceElemClassFromTo: function(elemId, from, to, disabled) {
-	var elem = document.getElementById(elemId);
+	const elem = document.getElementById(elemId);
 	if (!elem)
 	    console.log('replaceElemClassFromTo: could not find elem: ' + elemId);
 	elem.className = (elem.className).replace(from, to);
@@ -523,7 +538,7 @@ const common = module.exports = {
 
 
     setElemClassToOneOf: function(elemId, a, b, desired) {
-	var elem = document.getElementById(elemId);
+	const elem = document.getElementById(elemId);
 	if (!elem)
 	    console.log('setElemClassToOneOf: could not find elem: ' + elemId);
 	if (elem.className.indexOf(a) >= 0)
@@ -533,11 +548,5 @@ const common = module.exports = {
 	return(elem);
     },
 
-
-    //display (or clear) "waiting for metamask" dialog
-    showWaitingForMetaMask: function(show) {
-	const metaMaskModal = document.getElementById('metaMaskModal');
-	metaMaskModal.style.display = (!!show) ? 'block' : 'none';
-    },
 
 };
