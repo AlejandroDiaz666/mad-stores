@@ -228,9 +228,13 @@ function addRow(table) {
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
-            if (!escrowInfo.isClosed && !escrowInfo.isApproved) {
-		addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApproveDialog);
-		addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
+            if (!escrowInfo.isClosed) {
+		if (escrowInfo.isApproved) {
+		    nextStepsSpan.textContent = 'Delivery is Pending';
+		} else {
+		    addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApproveDialog);
+		    addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
+		}
 	    }
         }
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
