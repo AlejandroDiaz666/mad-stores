@@ -129,10 +129,39 @@ var dashboard = module.exports = {
 };
 
 
-function addRow(table) {
-    console.log('addRow: enter');
-    const idx = dashboard.escrowCount - dashboard.rowCount - 1;
-    const rowDiv = document.createElement("div");
+//
+// addStep helper to addRow
+//
+// a "step" refers to a step in the purchase/approval/delivery process. each step is represented by a tile, which is added to the addTo div.
+// clicking the tile will invoke the passed handler. idx is the row index.
+//
+function addStep(escrowIdBN, escrowInfo, idx, className, tipText, addTo, handler) {
+    console.log('addStep: idx = ' + idx + ', className = ' + className);
+    const stepSpan = document.createElement("span");
+    stepSpan.className = className;
+    if (dashboard.escrowCount - idx < 15) {
+	//at some point of scrolling the tooltips stop lining up up with the buttons;
+	//anyhow, after the first few line the user probably gets the idea and the tooltips are
+	//just plain annoying
+	stepSpan.className = className + ' tooltip';
+	const stepSpanTip = document.createElement("span");
+	stepSpanTip.className = 'tooltipText';
+	stepSpanTip.textContent = tipText;
+	stepSpan.appendChild(stepSpanTip);
+    }
+    stepSpan.addEventListener('click', function() {
+	hideAllModals();
+	selectRowIdx(idx);
+	handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
+    });
+    addTo.appendChild(stepSpan);
+}
+
+
+//
+// another helper for addRow
+// creates the entire row, given just an empty div container
+function makeRow(rowDiv, idx) {
     rowDiv.className = 'escrowListItemDiv';
     rowDiv.id = 'row-' + idx;
     //
@@ -164,7 +193,6 @@ function addRow(table) {
     rowDiv.appendChild(leftDiv);
     rowDiv.appendChild(completedSpan);
     rowDiv.appendChild(nextStepsSpan);
-    table.appendChild(rowDiv);
     //
     const selectedProductPageDiv = document.getElementById('selectedProductPageDiv');
     const msgAreaDiv = document.getElementById('msgAreaDiv');
@@ -190,39 +218,18 @@ function addRow(table) {
 	    const buyerBN = common.numberToBN(escrowInfo.customerBalance);
 	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN) + ' W-Dai';
 	}
-	const addStep = (idx, className, tipText, addTo, handler) => {
-	    console.log('addStep: idx = ' + idx + ', className = ' + className);
-	    const stepSpan = document.createElement("span");
-	    stepSpan.className = className;
-	    if (dashboard.escrowCount - idx < 15) {
-		//at some point of scrolling the tooltips stop lining up up with the buttons;
-		//anyhow, after the first few line the user probably gets the idea and the tooltips are
-		//just plain annoying
-		stepSpan.className = className + ' tooltip';
-		const stepSpanTip = document.createElement("span");
-		stepSpanTip.className = 'tooltipText';
-		stepSpanTip.textContent = tipText;
-		stepSpan.appendChild(stepSpanTip);
-	    }
-	    stepSpan.addEventListener('click', function() {
-		hideAllModals();
-		selectRowIdx(idx);
-		handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
-	    });
-            addTo.appendChild(stepSpan);
-	};
-	addStep(idx, 'escrowListStepDepositSpan', 'funds for this purchase have been deposited into escrow', completedSpan, showDeposit);
+	addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepDepositSpan', 'funds for this purchase have been deposited into escrow', completedSpan, showDeposit);
         if (escrowInfo.isApproved) {
-	    addStep(idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
+	    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepApproveSpan', 'this purchase was approved; escrow is locked', completedSpan, showApprove);
 	    if (escrowInfo.isClosed) {
 		if (escrowInfo.isBurned)
-		    addStep(idx, 'escrowListStepBurnSpan', 'this escrow was burned', completedSpan, showBurn)
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepBurnSpan', 'this escrow was burned', completedSpan, showBurn)
 		else
-		    addStep(idx, 'escrowListStepReleaseSpan', 'this escrow is completed', completedSpan, showRelease)
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepReleaseSpan', 'this escrow is completed', completedSpan, showRelease)
 		nextStepsSpan.textContent = 'Escrow Is Closed';
 	    }
 	} else if (escrowInfo.isClosed) {
-	    addStep(idx, 'escrowListStepCancelSpan', 'this purchase was canceled or declined; escrow is closed', completedSpan, showCancelOrDecline)
+	    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepCancelSpan', 'this purchase was canceled or declined; escrow is closed', completedSpan, showCancelOrDecline)
 	    nextStepsSpan.textContent = 'Escrow Is Closed';
 	}
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
@@ -232,8 +239,8 @@ function addRow(table) {
 		if (escrowInfo.isApproved) {
 		    nextStepsSpan.textContent = 'Delivery is Pending';
 		} else {
-		    addStep(idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApproveDialog);
-		    addStep(idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepApproveSpan', 'approve this purchase; will lock funds into escrow', nextStepsSpan, doApproveDialog);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepDeclineSpan', 'decline this purchase; funds will be released from escrow', nextStepsSpan, doDecline);
 		}
 	    }
         }
@@ -243,18 +250,42 @@ function addRow(table) {
 	    console.log('addRow: escrowInfo.isClosed = ' + escrowInfo.isClosed + ', escrowInfo.isApproved = ' + escrowInfo.isApproved);
             if (!escrowInfo.isClosed) {
 		if (escrowInfo.isApproved) {
-		    addStep(idx, 'escrowListStepReleaseSpan', 'confirm satisfactory delivery of product; all escrow funds will be released', nextStepsSpan, doReleaseDialog);
-		    addStep(idx, 'escrowListStepBurnSpan', 'burn this escrow; ALL FUNDS WILL BE LOST!', nextStepsSpan, doBurnDialog);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepReleaseSpan', 'confirm satisfactory delivery of product; all escrow funds will be released', nextStepsSpan, doReleaseDialog);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepBurnSpan', 'burn this escrow; ALL FUNDS WILL BE LOST!', nextStepsSpan, doBurnDialog);
 		} else {
-		    addStep(idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModifyDialog);
-		    addStep(idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepModifySpan', 'add additional funds into escrow for this purchase', nextStepsSpan, doModifyDialog);
+		    addStep(escrowIdBN, escrowInfo, idx, 'escrowListStepCancelSpan', 'cancel this purchase; funds will be released from escrow', nextStepsSpan, doCancel);
 		}
 	    }
         }
     });
+}
+
+
+//
+// repaint a row
+//
+function remakeRow(idx) {
+    const id = 'row-' + idx;
+    const rowDiv = document.getElementById(id);
+    common.clearDivChildren(rowDiv);
+    makeRow(rowDiv, idx);
+}
+
+
+//
+// add a new row
+//
+function addRow(table) {
+    console.log('addRow: enter');
+    const idx = dashboard.escrowCount - dashboard.rowCount - 1;
+    const rowDiv = document.createElement("div");
+    makeRow(rowDiv, idx);
+    table.appendChild(rowDiv);
     ++dashboard.rowCount;
     console.log('addRow: exit');
 }
+
 
 function populateRows() {
     console.log('populate');
@@ -447,6 +478,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
 		if (!!err)
 		    alert(err);
+		remakeRow(dashboard.selectedRow);
 		dashboard.handleDashboardPage();
 	    });
 	});
@@ -469,6 +501,7 @@ function doApproveDialog(escrowIdBN, escrowInfo) {
 }
 
 function doApprove(secsBN, escrowIdBN, escrowInfo) {
+    const idx = dashboard.selectedRow;
     console.log('doApprove: secsBN = ' + secsBN.toString(10));
     const placeholderText =
 	  '\n' +
@@ -499,6 +532,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 		      'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
 		      'please make every effort to meet the buyer\'s expectations...\n\n' +
 		      'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -520,6 +554,7 @@ function doModifyDialog(escrowIdBN, escrowInfo) {
 }
 
 function doModify(addAmountBN, escrowIdBN, escrowInfo) {
+    const idx = dashboard.selectedRow;
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
@@ -544,6 +579,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just added extra funds to an escrow!\n' +
 		      'Be sure to check Turms Message Transport, periodically, to see if the seller has sent you any messages.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -551,6 +587,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 
 
 function doCancel(escrowIdBN, escrowInfo) {
+    const idx = dashboard.selectedRow;
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
@@ -573,6 +610,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just canceled this purchase!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -580,6 +618,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 
 
 function doDecline(escrowIdBN, escrowInfo) {
+    const idx = dashboard.selectedRow;
     console.log('doDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
@@ -605,6 +644,7 @@ function doDecline(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just declined selling a product!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -625,6 +665,7 @@ function doReleaseDialog(escrowIdBN, escrowInfo) {
 }
 
 function doRelease(ratingBN, escrowIdBN, escrowInfo) {
+    const idx = dashboard.selectedRow;
     console.log('doRelease: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
@@ -650,6 +691,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 		alert('You have just released all funds from an escrow account!\n' +
 		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai is returned to you; and the full price of the product, plus the seller\'s bond is released ' +
 		      'to the seller.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -670,14 +712,15 @@ function doBurnDialog(escrowIdBN, escrowInfo) {
 }
 
 function doBurn(ratingBN, escrowIdBN, escrowInfo) {
-    console.log('doBurn: escrowIdBN = 0x' + escrowIdBN.toString(16));
+    const idx = dashboard.selectedRow;
+    console.log('doBurn: idx = ' + idx + ', escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
 	  'You are about to burn this escrow!!\n\n' +
 	  'You will lose the entire amount that you deposited into the escrow, including the price of the product, and you buyer-bond (50% of the ' +
 	  'purchase price). The seller will also not receive any payment for the product, and will lose his bond (also 50% of the purchase price).\n\n' +
-	  'This is a drastic measure, but is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
+	  'This is a drastic measure, but it is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
 	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
@@ -695,6 +738,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just burned all funds from an escrow account!\n' +
 		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited is lost; the seller\'s bond is also burned.');
+	    remakeRow(idx);
 	    dashboard.handleDashboardPage();
 	});
     });
