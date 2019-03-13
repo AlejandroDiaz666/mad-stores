@@ -69,7 +69,7 @@ const mtUtil = module.exports = {
     getAndParseIdMsg: function(msgId, cb) {
 	console.log('getAndParseIdMsg: enter msgId = ' + msgId);
 	const options = {
-	    fromBlock: 0,
+	    fromBlock: mtEther.firstBlock,
 	    toBlock: 'latest',
 	    address: mtEther.EMT_CONTRACT_ADDR,
 	    topics: [mtEther.getMessageEventTopic0(), msgId ]
@@ -95,7 +95,7 @@ const mtUtil = module.exports = {
     getAndParseIdMsgs: function(msgIds, msgCookies, msgCb, doneCb) {
 	console.log('getAndParseIdMsgs: enter msgIds = ' + msgIds.toString());
 	const options = {
-	    fromBlock: 0,
+	    fromBlock: mtEther.firstBlock,
 	    toBlock: 'latest',
 	    address: mtEther.EMT_CONTRACT_ADDR,
 	    topics: [ mtEther.getMessageEventTopic0() ]

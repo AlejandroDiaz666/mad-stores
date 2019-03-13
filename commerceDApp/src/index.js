@@ -305,11 +305,15 @@ function handleUnlockedMetaMask() {
 	    networkArea.value = 'Error: ' + err;
 	} else {
 	    networkArea.value = 'Network: ' + network;
-	    mtEther.setNetwork(network);
+	    err = mtEther.setNetwork(network);
 	    if (network.startsWith('Mainnet'))
 		networkArea.className = (networkArea.className).replace('attention', '');
 	    else if (networkArea.className.indexOf(' attention' < 0))
 		networkArea.className += ' attention';
+	    if (!!err) {
+		alert(err)
+		return;
+	    }
 	}
 	mtEther.accountQuery(common.web3.eth.accounts[0], function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
