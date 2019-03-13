@@ -207,8 +207,8 @@ function regStoreSubPage() {
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreNextPrevDiv',      'visibleB',   'hidden', null);
     common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
-    const statusDiv = document.getElementById('statusDiv');
-    common.clearStatusDiv(statusDiv);
+    common.waitingForTxid = false;
+    common.clearStatusDiv();
     //
     meUtil.getVendorLogs(common.web3.eth.accounts[0], function(err, result) {
 	console.log('regStoreSubPage: result.length = ' + result.length);
@@ -434,8 +434,8 @@ function viewProductsSubPage() {
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreNextPrevDiv',      'hidden',   'visibleB', null);
-    const statusDiv = document.getElementById('statusDiv');
-    common.clearStatusDiv(statusDiv);
+    common.waitingForTxid = false;
+    common.clearStatusDiv();
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.disabled = true;
     var regionBN = null;

@@ -23,6 +23,8 @@ const mtUtil = module.exports = {
 
 
     extractSubject: function(message, maxLen) {
+	if (!message)
+	    return('');
 	if (message.startsWith('Subject: '))
 	    message = message.substring(9);
 	let newlineIdx = (message.indexOf('\n') > 0) ? message.indexOf('\n') :  message.length;
@@ -174,7 +176,7 @@ const mtUtil = module.exports = {
     },
 
 
-    // cb(err, msgFee, encrypted)
+    // cb(err, msgFee, encrypted, msgNoBN)
     encryptMsg: function(toAddr, message, cb) {
 	console.log('encryptMsg');
 	mtEther.accountQuery(toAddr, function(err, toAcctInfo) {
@@ -197,7 +199,7 @@ const mtUtil = module.exports = {
 	    mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
 		const msgFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		cb(null, msgFee, encrypted);
+		cb(null, msgFee, encrypted, sentMsgCtrBN);
 	    });
 	});
     },
@@ -207,24 +209,24 @@ const mtUtil = module.exports = {
     // cb is called after user clicks continue
     encryptAndSendMsg: function(msgDesc, toAddr, ref, attachmentIdxBN, message, cb) {
 	console.log('encryptAndSendMsg');
-	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted) {
+	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted, msgNoBN) {
 	    if (!!err) {
 		cb(err);
 		return;
 	    }
 	    console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
 	    common.showWaitingForMetaMask(true);
-	    let sendErr = null;
-	    const continueFcn = () => {
+	    const continueFcn = (err, receipt) => {
+		if (!err)
+		    mtUtil.acctInfo.sentMsgCount = msgNoBN.toString(10);
+		common.waitingForTxid = false;
 		common.clearStatusDiv(statusDiv);
-		cb(sendErr);
+		cb(err);
 	    };
 	    mtEther.sendMessage(toAddr, attachmentIdxBN, ref, encrypted, msgFee, function(err, txid) {
 		console.log('encryptAndSendMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
-		common.waitForTXID(err, txid, msgDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-		    sendErr = err;
-		});
+		common.waitForTXID(err, txid, msgDesc, continueFcn, ether.etherscanioTxStatusHost, null);
 	    });
 	});
     },

@@ -147,6 +147,7 @@ var meUtil = module.exports = {
 		common.showWaitingForMetaMask(true);
 		let purchaseErr = null;
 		const continueFcn = () => {
+		    common.waitingForTxid = false;
 		    common.clearStatusDiv();
 		    cb(purchaseErr);
 		};
@@ -180,6 +181,7 @@ var meUtil = module.exports = {
 	    common.showWaitingForMetaMask(true);
 	    let fcnErr = null;
 	    const continueFcn = () => {
+		common.waitingForTxid = false;
 		common.clearStatusDiv();
 		cb(fcnErr);
 	    };
@@ -212,6 +214,7 @@ var meUtil = module.exports = {
 	    common.showWaitingForMetaMask(true);
 	    let fcnErr = null;
 	    const continueFcn = () => {
+		common.waitingForTxid = false;
 		common.clearStatusDiv();
 		cb(fcnErr);
 	    };

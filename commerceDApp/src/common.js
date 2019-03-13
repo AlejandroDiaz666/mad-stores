@@ -369,7 +369,7 @@ const common = module.exports = {
     // call this fcn with the error message and no txid.
     //
     // cb(err, receipt)
-    // continueFcn()
+    // continueFcn(err, receipt)
     // note: the callback is called after the transaction is mined;
     //       the continueFcn is called after the user clicks continue
     // a div with id = statusDiv must exist. in addition classes "statusDivHide" and "statusDivShow" must exist.
@@ -393,7 +393,7 @@ const common = module.exports = {
 	    statusText.textContent = 'Error in ' + desc + ' transaction: ' + err;
 	    if (!!continueFcn) {
 		const reloadLink = document.createElement('a');
-		reloadLink.addEventListener('click', continueFcn);
+		reloadLink.addEventListener('click', () => continueFcn(err, null));
 		reloadLink.href = 'javascript:null;';
 		reloadLink.innerHTML = "<h2>Continue</h2>";
 		reloadLink.disabled = false;
@@ -425,7 +425,8 @@ const common = module.exports = {
 		common.web3.eth.getTransactionReceipt(txid, function(err, receipt) {
 		    console.log('common.waitForTXID: err = ' + err + ', receipt = ' + receipt + ', waitingForTxid = ' + common.waitingForTxid);
 		    if (!!err || !!receipt) {
-			common.waitingForTxid = false;
+			if (!continueFcn)
+			    common.waitingForTxid = false;
 			if (!err && !!receipt && receipt.status == 0)
 			    err = "Transaction Failed with REVERT opcode";
 			statusText.textContent = (!!err) ? 'Error in ' + desc + ' transaction: ' + err : desc + ' transaction succeeded!';
@@ -435,7 +436,7 @@ const common = module.exports = {
 			//
 			if (!!continueFcn) {
 			    const reloadLink = document.createElement('a');
-			    reloadLink.addEventListener('click',  continueFcn);
+			    reloadLink.addEventListener('click',  () => continueFcn(err, receipt));
 			    reloadLink.href = 'javascript:null;';
 			    reloadLink.innerHTML = "<h2>Continue</h2>";
 			    reloadLink.disabled = false;
@@ -534,13 +535,18 @@ const common = module.exports = {
     },
 
 
+    replaceClassFromTo: function(elem, from, to, disabled) {
+	elem.className = (elem.className).replace(from, to);
+	elem.disabled = disabled;
+	return(elem);
+    },
+
+
     replaceElemClassFromTo: function(elemId, from, to, disabled) {
 	const elem = document.getElementById(elemId);
 	if (!elem)
 	    console.log('replaceElemClassFromTo: could not find elem: ' + elemId);
-	elem.className = (elem.className).replace(from, to);
-	elem.disabled = disabled;
-	return(elem);
+	return(common.replaceClassFromTo(elem, from, to, disabled));
     },
 
 

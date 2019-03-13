@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 var index = module.exports = {
-    waitingForTxid: false,
     localStoragePrefix: '',
 
     main: function() {
@@ -99,6 +98,7 @@ function setWrapButtonHandlers() {
 		    common.replaceElemClassFromTo('wrapDialogDiv', 'visibleB', 'hidden', null);
 		    wrapButton.disabled = false;
 		    unwrapButton.disabled = false;
+		    common.waitingForTxid = false;
 		    common.clearStatusDiv();
 		    updateDaiAndWDai();
 		};
@@ -163,6 +163,7 @@ function setUnwrapButtonHandlers() {
 		    common.replaceElemClassFromTo('unwrapDialogDiv', 'visibleB', 'hidden', null);
 		    wrapButton.disabled = false;
 		    unwrapButton.disabled = false;
+		    common.waitingForTxid = false;
 		    common.clearStatusDiv();
 		    updateDaiAndWDai();
 		};
