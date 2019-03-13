@@ -22,6 +22,7 @@ const ether = module.exports = {
     etherscanioTxStatusHost_ropsten: 'ropsten.etherscan.io',
     etherscanioHost_main: 'api.etherscan.io',
     etherscanioTxStatusHost_main: 'etherscan.io',
+    infuraioHost_main: 'mainnet.infura.io',
     infuraioHost_kovan: 'kovan.infura.io',
     infuraioHost_ropsten: 'ropsten.infura.io',
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
@@ -34,8 +35,11 @@ const ether = module.exports = {
     getLogsTimestamp: 0,
     getLogsTimer: null,
     chainId: 0,
-    //node = 'etherscan.io' | 'infura.io' | 'metamask'
-    node: 'metamask',
+    //nodeType = 'etherscan.io' | 'infura.io' | 'metamask' | 'custom'
+    nodeType: 'metamask',
+    node: 'http://192.168.0.2:8545',
+    ensAddrCache: {},
+    ensNameCache: {},
     ens: null,
 
 
@@ -142,6 +146,19 @@ const ether = module.exports = {
 	return(numberAndUnits);
     },
 
+
+    // cb(err, addr)
+    privateKeyToAddr: function(privateKey, cb) {
+	try {
+	    const addr = ethUtils.privateToAddress('0x' + privateKey).toString('hex')
+	    console.log('privateKeyToAddr: addr = ' + addr);
+	    cb(null, '0x' + addr);
+	} catch (err) {
+	    cb(err, '');
+	}
+    },
+
+
     validateAddr: function (addr) {
 	if (!addr.startsWith('0x'))
 	    return(false);
@@ -203,16 +220,64 @@ const ether = module.exports = {
     // cb(err, txid)
     // units: 'wei' | 'szabo' | 'finney' | 'ether'
     //
-    send: function(to_addr, size, units, data, gasLimit, cb) {
+    send: function(toAddr, size, units, data, gasLimit, cb) {
 	const tx = {};
 	tx.from = common.web3.eth.accounts[0];
 	tx.value = common.web3.toWei(size, units);
-	tx.to = to_addr,
+	tx.to = toAddr,
 	tx.data = data;
 	if (gasLimit > 0)
 	    tx.gas = gasLimit;
 	console.log('ether.send: calling sendTransaction; tx.value = ' + tx.value);
 	common.web3.eth.sendTransaction(tx, cb)
+    },
+
+
+    //
+    // cb(err, txid)
+    // private key in hex, w/o leading 0x
+    // units: 'wei' | 'szabo' | 'finney' | 'ether'
+    //
+    // this sends from the current metamask account, but you must supply the private key
+    //
+    sendUsingPrivateKey: function(privateKey, toAddr, size, units, data, gasLimit, gasPrice, cb) {
+	const fromAcct = common.web3.eth.accounts[0];
+	console.log('sendUsingPrivateKey: fromAcct = ' + fromAcct);
+	console.log('sendUsingPrivateKey: size = ' + size + ', units = ' + units);
+	const privateKeyBuf = new Buffer(privateKey, 'hex');
+	const wei = common.web3.toWei(size, units);
+	console.log('sendUsingPrivateKey: wei = ' + wei + ', type = ' + typeof(wei));
+	const sizeBN = new BN(common.web3.toWei(size, units).toString(10), 10);
+	const priceBN = new BN(gasPrice);
+	common.web3.eth.getTransactionCount(fromAcct, (err, txCount) => {
+	    console.log('sendUsingPrivateKey: err = ' + err + ', txCount = ' + txCount);
+	    const nonceBN = new BN(txCount);
+	    const tx = new ethtx(null);
+	    tx.to = toAddr,
+	    tx.from = fromAcct;
+	    tx.data = data;
+	    tx.nonce = nonceBN.toArrayLike(Buffer, 'be');
+	    tx.gasPrice = priceBN.toArrayLike(Buffer, 'be');
+	    tx.value = sizeBN.toArrayLike(Buffer, 'be');
+	    const signAndSend = (key, tx, cb) => {
+		tx.sign(key);
+		const serializedTx = tx.serialize();
+		const serializedTxHex = '0x' + serializedTx.toString('hex');
+		common.web3.eth.sendRawTransaction(serializedTxHex, cb);
+	    };
+	    if (!!gasLimit) {
+		const gasLimitBN = new BN(gasLimit);
+		tx.gas = gasLimitBN.toArrayLike(Buffer, 'be');
+		signAndSend(privateKeyBuf, tx, cb);
+	    } else {
+		common.web3.eth.estimateGas({ to: toAddr, from: fromAcct, data: data, value: sizeBN.toString(10) }, (err, estimate) => {
+		    console.log('sendUsingPrivateKey: err = ' + err + ', gasLimit = ' + estimate);
+		    const gasLimitBN = new BN(estimate);
+		    tx.gas = gasLimitBN.toArrayLike(Buffer, 'be');
+		    signAndSend(privateKeyBuf, tx, cb);
+		});
+	    }
+	});
     },
 
 
@@ -270,17 +335,93 @@ const ether = module.exports = {
 
 
     //cb(err, addr)
-    ensLookup: function(addrIn, cb) {
-	if (!ether.ens)
-	    ether.ens = new ENS(common.web3.currentProvider);
-	if (addrIn.startsWith('0x') || !addrIn.endsWith('.eth')) {
-	    cb('Error: invalid Ethereum address.', null);
+    ensLookup: function(name, cb) {
+	const cachedAddr = ether.ensAddrCache[name];
+	if (!!cachedAddr) {
+	    if (cachedAddr.length > 1)
+		cb(null, cachedAddr);
+	    else
+		cb('ensLookup: cache lookup gives no addr', null);
 	    return;
 	}
-	ether.ens.resolver(addrIn).addr().then((addr) => {
+	if (!ether.ens)
+	    ether.ens = new ENS(common.web3.currentProvider);
+	if (name.startsWith('0x') || name.indexOf('.') < 0) {
+	    cb('Error: invalid ENS name', null);
+	    return;
+	}
+	ether.ens.resolver(name).addr().then((addr) => {
+	    ether.ensAddrCache[name] = addr;
 	    cb(null, addr);
 	}, (err) => {
+	    ether.ensAddrCache[name] = 'X';
 	    cb(err, null);
+	});
+    },
+
+
+
+
+    //cb(err, addr)
+    ensReverseLookup: function(addrIn, cb) {
+	const cachedName = ether.ensNameCache[addrIn];
+	if (!!cachedName) {
+	    if (cachedName.length > 1)
+		cb(null, cachedName);
+	    else
+		cb('ensReverseLookup: cache lookup gives no name', null);
+	    return;
+	}
+	console.log('ensReveseLookup');
+	if (!ether.ens)
+	    ether.ens = new ENS(common.web3.currentProvider);
+	if (!addrIn.startsWith('0x') || addrIn.endsWith('.eth')) {
+	    console.log('ensReveseLookup: invalid address');
+	    cb('ensReveseLookup: invalid address', null);
+	    return;
+	}
+	ether.ens.reverse(addrIn).name().then((name) => {
+	    console.log('ensReveseLookup: got name: ' + name);
+	    ether.ensNameCache[addrIn] = name;
+	    cb(null, name);
+	}).catch(() => {
+	    console.log('ensReveseLookup: catch no name found');
+	    ether.ensNameCache[addrIn] = 'X';
+	    cb('ensReveseLookup: no name found', null);
+	});
+    },
+
+
+    //cb(err, price)
+    getEtherPrice: function(cb) {
+	url = 'https://api.etherscan.io/api?module=stats&action=ethprice';
+	common.fetch(url, null, function(str, err) {
+	    if (!str || !!err) {
+		if (!err)
+		    err = 'getEtherPrice: error retreiving price';
+		console.log('getEtherPrice: ' + err);
+		cb(err, '');
+		return;
+	    }
+	    //console.log('getEtherPrice: err = ' + err + ', str = ' + str);
+	    //typical:
+	    //  { "status"  : "1",
+	    //    "message" : "OK",
+	    //    "result"  : { "ethbtc" : "0.03409",
+	    //                  "ethbtc_timestamp" : "1551678384",
+	    //                  "ethusd" : "128.24",
+	    //                  "ethusd_timestamp" : "1551678361"
+	    //                }
+	    //  }
+	    const resp = JSON.parse(str);
+	    if (resp.status != 1 || resp.message != 'OK') {
+		const err = "error retreiving price: bad status (" + resp.status + ", " + resp.message + ")";
+		console.log('getEtherPrice: ' + err);
+		cb(err, '');
+		return;
+	    }
+	    cb(err, resp.result.ethusd);
+	    return;
 	});
     },
 
@@ -355,15 +496,34 @@ function getLogsNext() {
 // options: fromBlock, toBlock, address, topics[]
 //
 function getLogsGuts(options, cb) {
-    console.log('ether.getLogsGuts: ether.node = ' + ether.node);
-    if (ether.node == 'metamask') {
+    console.log('ether.getLogsGuts: ether.nodeType = ' + ether.nodeType);
+    if (ether.nodeType == 'metamask') {
         const filter = common.web3.eth.filter(options);
-	filter.get(cb);
-	filter.stopWatching();
+	filter.get(function(err, result) {
+	    filter.stopWatching();
+	    cb(err, result);
+	});
 	return;
     }
+    if (ether.nodeType == 'custom') {
+	const web3 = new Web3(new Web3.providers.HttpProvider(ether.node));
+	// make sure we don't try to access beyon where the node is synced
+	web3.eth.getSyncing(function(err, syncing) {
+	    console.log("err: " + err + ", syncing: " + JSON.stringify(syncing));
+	    if (!err && !!syncing)
+		options.toBlock = syncing.currentBlock;
+	    console.log('GetLogsGuts: options = ' + JSON.stringify(options));
+	    const filter = web3.eth.filter(options);
+	    filter.get(function(err, result) {
+		filter.stopWatching();
+		cb(err, result);
+	    });
+	});
+	return;
+    }
+    //
     let url;
-    if (ether.node == 'etherscan.io') {
+    if (ether.nodeType == 'etherscan.io') {
 	url = 'https://' + ether.etherscanioHost   +
 	    '/api?module=logs&action=getLogs'          +
 	    '&fromBlock=' + options.fromBlock          +
@@ -385,7 +545,13 @@ function getLogsGuts(options, cb) {
 	options = null;
     } else {
 	url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
-	options.fromBlock = 'earliest';
+	if (!!options.fromBlock) {
+	    const fromBlock = parseInt(options.fromBlock);
+	    if (!isNaN(fromBlock))
+		options.fromBlock = '0x' + fromBlock.toString(16);
+	} else {
+	    options.fromBlock = 'earliest';
+	}
 	const paramsStr = JSON.stringify(options);
 	console.log('ether.getLogs: paramsStr = ' + paramsStr);
 	const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
@@ -407,12 +573,12 @@ function getLogsGuts(options, cb) {
 	//    "result"  : [...]
 	//  }
 	const eventsResp = JSON.parse(str);
-	if (ether.node == 'etherscan.io' && eventsResp.status == 0 && eventsResp.message == 'No records found') {
+	if (ether.nodeType == 'etherscan.io' && eventsResp.status == 0 && eventsResp.message == 'No records found') {
 	    //this is not an err... just no events
 	    cb(err, '');
 	    return;
 	}
-	if (ether.node == 'etherscan.io' && (eventsResp.status != 1 || eventsResp.message != 'OK')) {
+	if (ether.nodeType == 'etherscan.io' && (eventsResp.status != 1 || eventsResp.message != 'OK')) {
 	    const err = "error retreiving events: bad status (" + eventsResp.status + ", " + eventsResp.message + ")";
 	    console.log('ether.getLogs: ' + err);
 	    cb(err, '');
@@ -432,14 +598,54 @@ function getLogsGuts(options, cb) {
 // we re-jigger the options according to which node we're using.
 //
 function getLogs3Guts(options, cb) {
-    console.log('getLogs3Guts: ether.node = ' + ether.node);
-    if (ether.node == 'metamask')
+    console.log('getLogs3Guts: ether.nodeType = ' + ether.nodeType);
+    if (ether.nodeType == 'metamask')
 	metamaskGetLogs3(options, cb);
-    else if (ether.node == 'etherscan.io')
+    else if (ether.nodeType == 'custom')
+	customGetLogs3(options, cb);
+    else if (ether.nodeType == 'etherscan.io')
 	etherscanGetLogs3(options, cb);
     else
 	infuraGetLogs3(options, cb);
 }
+
+
+//cb(err, result)
+// options:
+// {
+//   fromBlock, toBlock, address, topics[]
+// }
+//
+function customGetLogs3(options, cb) {
+    const topic0 = options.topics[0];
+    const topic1 = options.topics[1];
+    const topic2 = options.topics[2];
+    const topic3 = options.topics[3];
+    options.topics = [];
+    options.topics[0] = topic0;
+    options.topics[1] = [];
+    if (!!topic1)
+	options.topics[1].push(topic1);
+    if (!!topic2)
+	options.topics[1].push(topic2);
+    if (!!topic3)
+	options.topics[1].push(topic3);
+    const web3 = new Web3(new Web3.providers.HttpProvider(ether.node));
+    // make sure we don't try to access beyon where the node is synced
+    web3.eth.getSyncing(function(err, syncing) {
+	console.log("err: " + err + ", syncing: " + JSON.stringify(syncing));
+	if (!err && !!syncing)
+	    options.toBlock = syncing.currentBlock;
+	console.log('customGetLogs3: options = ' + JSON.stringify(options));
+	const filter = web3.eth.filter(options);
+	filter.get(function(err, result) {
+	    filter.stopWatching();
+	    cb(err, result);
+	});
+    });
+    return;
+}
+
 
 //cb(err, result)
 // options:
@@ -462,13 +668,13 @@ function metamaskGetLogs3(options, cb) {
     if (!!topic3)
 	options.topics[1].push(topic3);
     const paramsStr = JSON.stringify(options);
-    //console.log('metamaskGetLogs3: topic1 = ' + topic1);
-    //console.log('metamaskGetLogs3: topic2 = ' + topic2);
-    //console.log('metamaskGetLogs3: topic3 = ' + topic3);
     console.log('metamaskGetLogs3: options = ' + paramsStr);
     const filter = common.web3.eth.filter(options);
-    filter.get(cb);
-	filter.stopWatching();
+    filter.get(function(err, result) {
+	if (ether.nodeType == 'metamask')
+	    filter.stopWatching();
+	cb(err, result);
+    });
     return;
 }
 
@@ -493,9 +699,15 @@ function infuraGetLogs3(options, cb) {
 	options.topics[1].push(topic2);
     if (!!topic3)
 	options.topics[1].push(topic3);
-    console.log('infuraGetLogs3: ether.node = ' + ether.node);
+    console.log('infuraGetLogs3: ether.nodeType = ' + ether.nodeType);
     let url = 'https://' + ether.infuraioHost + '/v3/' + ether.infuraioProjectID;
-    options.fromBlock = 'earliest';
+    if (!!options.fromBlock) {
+	const fromBlock = parseInt(options.fromBlock);
+	if (!isNaN(fromBlock))
+	    options.fromBlock = '0x' + fromBlock.toString(16);
+    } else {
+	options.fromBlock = 'earliest';
+    }
     const paramsStr = JSON.stringify(options);
     console.log('infuraGetLogs3: paramsStr = ' + paramsStr);
     const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
@@ -504,9 +716,9 @@ function infuraGetLogs3(options, cb) {
     //
     common.fetch(url, options, function(str, err) {
 	if (!str || !!err) {
-	    const err = "error retreiving events: " + err;
-	    console.log('infuraGetLogs3: ' + err);
-	    cb(err, '');
+	    const errMsg = "error retreiving events: " + err;
+	    console.log('infuraGetLogs3: ' + errMsg);
+	    cb(errMsg, '');
 	    return;
 	}
 	console.log('infuraGetLogs3: err = ' + err + ', str = ' + str);
