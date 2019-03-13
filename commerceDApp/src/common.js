@@ -11,7 +11,7 @@ const common = module.exports = {
     waitingForTxid: false,
 
     //
-    // cb(err, web3)
+    // cb(err, web3, netId)
     // if requireAcct, then not only must mm be installed, but also an acct must be unlocked
     //
     checkForMetaMask: async function(requireAcct, cb) {
@@ -22,12 +22,19 @@ const common = module.exports = {
             try {
 		// Request account access if needed
 		await ethereum.enable();
-		cb(null, common.web3);
+		common.web3.version.getNetwork((err, netId) => {
+		    if (!!err)
+			cb(err, null, null)
+		    else if (!!requireAcct && !web3.eth.accounts[0])
+			cb('To use this utility, a MetaMask account must be unlocked', null, null);
+		    else
+			cb(null, common.web3, netId);
+		});
 	    } catch (error) {
 		// User denied account access...
 	        console.log('checkForMetaMask: err = ' + error.toString());
 		common.web3 = null;
-		cb('You must enable the MetaMask plugin to use this utility', null);
+		cb('You must enable the MetaMask plugin to use this utility', null, null);
 	    }
 	} else if (typeof window.web3 !== 'undefined') {
 	    // Legacy dapp browsers...
@@ -35,15 +42,15 @@ const common = module.exports = {
 	    console.log('found old metamask. provider: ' + web3.currentProvider.toString());
 	    web3.version.getNetwork((err, netId) => {
 		if (!!err)
-		    cb(err,null)
+		    cb(err, null, null)
 		else if (!!requireAcct && !web3.eth.accounts[0])
-		    cb('To use this utility, a MetaMask account must be unlocked', null);
+		    cb('To use this utility, a MetaMask account must be unlocked', null, null);
 		else
-		    cb(null, common.web3);
+		    cb(null, common.web3, netId);
 	    });
 	} else {
 	    common.web3 = null;
-	    cb('You must enable the MetaMask plugin to use this utility', null);
+	    cb('You must enable the MetaMask plugin to use this utility', null, null);
 	}
     },
 
