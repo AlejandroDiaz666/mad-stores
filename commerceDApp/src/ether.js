@@ -25,6 +25,12 @@ const ether = module.exports = {
     infuraioHost_kovan: 'kovan.infura.io',
     infuraioHost_ropsten: 'ropsten.infura.io',
     infuraioProjectID: 'd31bddc6dc8e47d29906cee739e4fe7f',
+    kweiHex: '3E8',
+    mweiHex: 'F4240',
+    gweiHex: '3B9ACA00',
+    szaboHex: 'E8D4A51000',
+    finneyHex: '38D7EA4C68000',
+    etherHex: 'DE0B6B3A7640000',
     getLogsTimestamp: 0,
     getLogsTimer: null,
     chainId: 0,
@@ -79,41 +85,42 @@ const ether = module.exports = {
     //for example: 1000000000000 => '1 gwei'
     convertWeiBNToComfort: function(weiBN) {
 	let units =
-	    (weiBN.lt(new BN('3B9ACA00', 16)))        ? 'Wei'    :
-	    (weiBN.lt(new BN('E8D4A51000', 16)))      ? 'Gwei'   :
-	    (weiBN.lt(new BN('38D7EA4C68000', 16)))   ? 'Szabo'  :
-	    (weiBN.lt(new BN('DE0B6B3A7640000', 16))) ? 'Finney' : 'ether';
-	console.log('convertWeiBNToComfort: weiBN = ' + weiBN.toString(10) + ', units = ' + units);
+	    (weiBN.lt(new BN(ether.gweiHex, 16)))   ? 'Wei'    :
+	    (weiBN.lt(new BN(ether.szaboHex, 16)))  ? 'Gwei'   :
+	    (weiBN.lt(new BN(ether.finneyHex, 16))) ? 'Szabo'  :
+	    (weiBN.lt(new BN(ether.etherHex, 16)))  ? 'Finney' : 'ether';
+	//console.log('convertWeiBNToComfort: weiBN = ' + weiBN.toString(10) + ', units = ' + units);
 	return(common.web3.fromWei(weiBN, units).toString() + ' ' + (units == 'ether' ? 'Eth' : units));
     },
 
 
     //numberAndUnits eg. 5 => { index: 0, multiplyer: 1, number: 5, units: 'Wei' }
+    //number will have 3 decimal places at most
     convertWeiBNToNumberAndUnits: function(weiBN) {
 	const numberAndUnits = {};
 	let multiplyer;
 	//console.log('convertWeiToNumberAndUnits: weiBN = ' + weiBN.toString(10));
-	if (weiBN.lt(new BN('3E8', 16))) {
+	if (weiBN.lt(new BN(ether.kweiHex, 16))) {
 	    numberAndUnits.index = 0;
 	    numberAndUnits.multiplyer = '1';
 	    numberAndUnits.units = 'Wei';
-	} else if (weiBN.lt(new BN('F4240', 16))) {
+	} else if (weiBN.lt(new BN(ether.mweiHex, 16))) {
 	    numberAndUnits.index = 1;
 	    numberAndUnits.multiplyer = '1000';
 	    numberAndUnits.units = 'Kwei';
-	} else if (weiBN.lt(new BN('3B9ACA00', 16))) {
+	} else if (weiBN.lt(new BN(ether.gweiHex, 16))) {
 	    numberAndUnits.index = 2;
 	    numberAndUnits.multiplyer = '1000000';
 	    numberAndUnits.units = 'Mwei';
-	} else if (weiBN.lt(new BN('E8D4A51000', 16))) {
+	} else if (weiBN.lt(new BN(ether.szaboHex, 16))) {
 	    numberAndUnits.index = 3;
 	    numberAndUnits.multiplyer = '1000000000';
 	    numberAndUnits.units = 'Gwei';
-	} else if (weiBN.lt(new BN('38D7EA4C68000', 16))) {
+	} else if (weiBN.lt(new BN(ether.finneyHex, 16))) {
 	    numberAndUnits.index = 4;
 	    numberAndUnits.multiplyer = '1000000000000';
 	    numberAndUnits.units = 'Szabo';
-	} else if (weiBN.lt(new BN('DE0B6B3A7640000', 16))) {
+	} else if (weiBN.lt(new BN(ether.etherHex, 16))) {
 	    numberAndUnits.index = 5;
 	    numberAndUnits.multiplyer = '1000000000000000';
 	    numberAndUnits.units = 'Finney';
@@ -125,7 +132,13 @@ const ether = module.exports = {
 	//console.log('convertWeiToNumberAndUnits: units = ' + numberAndUnits.units);
 	//console.log('convertWeiToNumberAndUnits: multiplyer = ' + numberAndUnits.multiplyer);
 	const multiplyerBN = new BN(numberAndUnits.multiplyer, 10);
-	numberAndUnits.number = weiBN.div(multiplyerBN).toNumber();
+	const whole = weiBN.div(multiplyerBN).toNumber();
+	console.log('convertWeiToNumberAndUnits: whole = ' + whole);
+	//3 digit fraction
+	const frac = parseInt(weiBN.mod(multiplyerBN).toNumber().toString(10).slice(0,3)) / 1000;
+	//console.log('convertWeiToNumberAndUnits: frac = ' + frac);
+	//console.log('convertWeiToNumberAndUnits: number = ' + (whole + frac));
+	numberAndUnits.number = whole + frac;
 	return(numberAndUnits);
     },
 

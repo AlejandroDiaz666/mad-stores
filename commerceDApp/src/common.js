@@ -60,16 +60,41 @@ const common = module.exports = {
 	return(web3Utils.toBN(number));
     },
 
-    stripNonNumber: function(number) {
+    stripNonNumber: function(number, decimalOK) {
 	//first ensure passed parm is a string
 	let numberStr = number.toString();
 	if (numberStr.startsWith('0x')) {
 	    numberStr = numberStr.substring(2);
 	    numberStr = '0x' + numberStr.replace(/[^0-9a-fA-F]/g, '');
 	} else {
-	    numberStr = numberStr.replace(/[^0-9]/g, '');
+	    if (!!decimalOK)
+		numberStr = numberStr.replace(/[^0-9\.]/g, '');
+	    else
+		numberStr = numberStr.replace(/[^0-9]/g, '');
 	}
 	return(numberStr);
+    },
+
+
+    // value may contain a decimal point
+    // returns returns null for invalid value
+    decimalAndUnitsToBN: function(value, units) {
+	let unitsBN = common.numberToBN(units);
+	const dotIdx = value.indexOf('.');
+	if (dotIdx >= 0) {
+	    let endPart = '';
+	    begPart = value.substring(0, dotIdx);
+	    endPart = value.substring(dotIdx + 1);
+	    const divisorBN = (new BN(10)).pow(new BN(endPart.length));
+	    if (divisorBN.gt(unitsBN))
+		return(null);
+	    console.log('DecimalAndUnitToBN: divisor = ' + divisorBN.toString(10) + ', unitsBN = ' + unitsBN.toString(10));
+	    value = begPart + endPart;
+	    unitsBN = unitsBN.div(divisorBN);
+	    console.log('DecimalAndUnitToBN: now unitsBN = ' + unitsBN.toString(10));
+	}
+	const valueBN = common.numberToBN(value);
+	return(valueBN.mul(unitsBN));
     },
 
 
