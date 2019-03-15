@@ -689,13 +689,13 @@ h3 { font-size:18px; }
 }
 .shop #selectedProductFrameDiv {
     top: 10px;
-    width: 840px;
+    width: 940px;
     height: 340px;
     background-color: #e3eceb;
 }
 .view #selectedProductFrameDiv {
     top: 50px;
-    width: 900px;
+    width: 940px;
     height: 400px;
     background-color: whitesmoke;
 }
@@ -710,7 +710,7 @@ h3 { font-size:18px; }
     position: absolute;
     top: 50%;
     left: 40px;
-    width: 400px;
+    width: 450px;
     height: 320px;
     transform: translateY(-50%);
     background-color: whitesmoke;
@@ -732,9 +732,9 @@ h3 { font-size:18px; }
     position: absolute;
     top: 50%;
     left: 100%;
-    width: 320px;
+    width: 370px;
     height: 320px;
-    transform: translate3d(-360px, -50%, 0px);
+    transform: translate3d(-410px, -50%, 0px);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
     border-radius: 15px;
