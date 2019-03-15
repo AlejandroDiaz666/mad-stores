@@ -1,0 +1,16 @@
+:root {
+    --clr_maintitletext: black;
+    --clr_bodybg: rgb(165, 165, 155);
+    --clr_border : #84a5BA;
+    --clr_buttonbg : rgb(230, 230, 230);
+    --clr_buttonbgsel : rgb(196, 196, 201);
+    --clr_buttontext : rgb(100, 100, 0);
+    --clr_areabg1: #e3eceb;
+    --clr_areatext : rgb(100, 100, 0);
+    --clr_optpanelbg : rgb(249, 249, 249);
+    --pad_menubar : 5px;
+    --martop_msgAreaDiv : 20px;
+    --pad_msgAreaDiv : 15px;
+    --bor_butselect: 1px solid black;
+    --bor_butnormal: 1px solid var(--clr_buttonbg);
+}
