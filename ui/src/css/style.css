@@ -364,7 +364,7 @@ h3 { font-size:18px; }
     transform: translateY(-24%);
 }
 #wrapDialogDiv, #unwrapDialogDiv {
-    position: relative;
+    position: absolute;
     z-index: 1;
     left: 50%;
     top: 150px;

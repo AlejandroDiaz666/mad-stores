@@ -89,22 +89,22 @@ you need to sign this message each time you load Turms Anonymous Message Transpo
 	    console.log('dhcrypt.ptk: dhcrypt.dh is null!');
 	const otherPublicKeyBytes = common.hexToBytes(otherPublicKey);
     	const pmk = dhcrypt.dh.computeSecret(otherPublicKeyBytes, 'hex');
-	//console.log('dhcrypt.ptk: myPublicKey = ' + dhcrypt.dh.getPublicKey('hex'));
-	//console.log('dhcrypt.ptk: otherPublicKey = ' + otherPublicKey);
-	//console.log('dhcrypt.ptk: pmk = ' + pmk.toString('hex'));
-	//console.log('dhcrypt.ptk: sentMsgCtr = ' + sentMsgCtr);
+	//console.log('dhcrypt:ptk: myPublicKey = ' + dhcrypt.dh.getPublicKey('hex'));
+	//console.log('dhcrypt:ptk: otherPublicKey = ' + otherPublicKey);
+	//console.log('dhcrypt:ptk: pmk = ' + pmk.toString('hex'));
+	//console.log('dhcrypt:ptk: sentMsgCtr = ' + sentMsgCtr);
 	const sentMsgCtrBN = common.numberToBN(sentMsgCtr);
 	const sentMsgCtrHex = common.BNToHex256(sentMsgCtrBN);
-	//console.log('dhcrypt.ptk: toAddr = ' + toAddr);
-	//console.log('dhcrypt.ptk: fromAddr = ' + fromAddr);
-	//console.log('dhcrypt.ptk: sentMsgCtrHex = ' + sentMsgCtrHex);
+	//console.log('dhcrypt:ptk: toAddr = ' + toAddr);
+	//console.log('dhcrypt:ptk: fromAddr = ' + fromAddr);
+	//console.log('dhcrypt:ptk: sentMsgCtrHex = ' + sentMsgCtrHex);
 	const hash = crypto.createHash('sha256');
 	hash.update(pmk.toString('hex'), 'utf8');
 	hash.update(toAddr.toUpperCase(), 'utf8');
 	hash.update(fromAddr.toUpperCase(), 'utf8');
 	hash.update(sentMsgCtrHex.toUpperCase(), 'utf8');
 	const ptk = hash.digest('hex');
-	//console.log('dhcrypt.ptk: ptk = ' + ptk.toString('hex'));
+	//console.log('dhcrypt:ptk: ptk = ' + ptk.toString('hex'));
 	return(ptk);
     },
 
@@ -140,6 +140,7 @@ you need to sign this message each time you load Turms Anonymous Message Transpo
 	    //console.log('decyrpt: message = ' + message);
 	} catch (err) {
 	    message = err + '\n' + encrypted;
+	    console.log('decyrpt: encrypted = ' + encrypted);
 	    console.log('decyrpt: err = ' + err);
 	}
 	return(message);
