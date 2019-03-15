@@ -68,7 +68,48 @@
 		    placeholder="amount"></textarea>
 	<button id="unwrapDialogCancelButton" type="button">Cancel</button>
 	<button id="unwrapDialogDoButton" type="button">Unwrap W-Dai</button>
+      </div>
+      <!-- options panel -->
+      <div id="optionsButtonDiv">
+	<img id="optionsButton" src="images/options-icon.png">
+	<div id="optionsPanel" class="hidden">
+	  <button id="closeOptionsButton" class="menuBarButton" type="button">Close</button>
+	  <span id="themeSelectorSpan">
+	    <p>Select look:<br/>
+	    <input id="marysThemeButton" type="radio" name="themeSelectorInput" value="marys-style">Mary&apos;s theme</input><br/>
+	    <input id="wandasThemeButton" type="radio" name="themeSelectorInput" value="wandas-style">Wanda&apos;s theme</input><br/>
+	    <input id="relaxThemeButton" type="radio" name="themeSelectorInput" value="relax-style">Relax theme</input><br/>
+	    </p>
+	  </span>
+	  <span id="nodeSelectorSpan">
+	    <p>Select Ethereum node for logs:<br/>
+	      <select id="logServerSelect">
+		<option value="custom">custom node</option>
+		<option value="metamask">node provided by Metamask</option>
+		<option value="etherscan.io">etherscan.io Developer API</option>
+		<option value="infura.io">infura.io JSON-RPC over https</option>
+	      </select>
+	    </p>
+	  </span>
+	  <button id="customViewButton" type="button" class="hidden">View</button>
+	  <div id="customNodeDiv" class="hidden">
+	    <textarea id="customNodeArea" rows="1" cols="30" wrap="off"
+		      placeholder="enter node address"></textarea>
+	    <button id="customNodeDoButton" type="button">Set custom node</button>
+	  </div>
+	  <span id="viewContractSpan">
+	    <p>You can see the MadStores and MadEscrow contracts on etherscan.io<br/>
+	      <a href="etherscan.io">here</a> and <a href="etherscan.io">here</a>.
+	    </p>
+	  </span>
+	  <span id="viewSrcSpan">
+	    <p>And you can see all the mad-stores source code, as well as download other tools from<br/>
+	      <a href="github.com">github</a>
+	    </p>
+	  </span>
+	  <textarea id="versionArea" rows="1" readonly="readonly" disabled="disabled">Build: unknown</textarea>
 	</div>
+      </div>
     </div>
 
     <div id="topMenuBarDiv" style="clear:both">

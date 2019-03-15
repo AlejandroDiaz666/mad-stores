@@ -219,6 +219,116 @@ h3 { font-size:18px; }
     float: left;
 }
 
+/*
+ * options panel styles here
+ */
+#optionsButtonDiv {
+    float:right;
+    position: relative;
+}
+#optionsButton {
+    float:right;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    top: 10px;
+    left: 58px;
+}
+#optionsButton:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+#optionsPanel {
+    width: 300px;
+    height: 380px;
+    position: absolute;
+    top: 70px;
+    left: 100%;
+    transform: translateX(-300px);
+    font-size: 14px;
+    z-index: 2;
+    padding: 15px;
+    background-color: var(--clr_optpanelbg);
+    border: 2px solid var(--clr_border);
+}
+#versionArea {
+    width: 80%;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -24px);
+    font-size: 12px;
+    text-align: center;
+    resize: none;
+    overflow: hidden;
+    height: 14px;
+}
+#closeOptionsButton {
+    float: right;
+    width: auto;
+    height: auto;
+    padding: 5px;
+}
+#themeSelectorSpan {
+    position: absolute;
+    top: 42px;
+    left: 0%;
+    padding: 20px;
+}
+#nodeSelectorSpan {
+    position: absolute;
+    top: 145px;
+    left: 0%;
+    padding: 20px;
+}
+#customViewButton {
+    position: absolute;
+    top: 170px;
+    left: 238px;
+    height: 20px;
+}
+#customNodeDiv {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 196px;
+    width: 270px;
+    height: 50px;
+    padding: 10px;
+    border: 1px solid #888;
+    background-color: snow;
+    transform: translateX(-50%);
+}
+#customNodeArea {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    resize: none;
+    transform: translateX(-50%);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    whitespace: nowrap;
+}
+#customNodeDoButton {
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#viewContractSpan {
+    position: absolute;
+    top: 205px;
+    left: 0%;
+    padding: 20px;
+}
+#viewSrcSpan {
+    position: absolute;
+    top: 280px;
+    left: 0%;
+    padding: 20px;
+}
+
+
 #rightAcctInfo {
     float:right;
 }
