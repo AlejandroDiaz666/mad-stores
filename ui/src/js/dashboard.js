@@ -670,9 +670,9 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n\n' +
-	  'You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties.\n\n' +
-	  'All escrow funds will be released to the respective parties: the total purchase price will be released to the seller, together with the seller\'s ' +
-	  'bond (50% of the purchase price); and the buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
+	  'You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties:\n\n' +
+	  'The total purchase price will be released to the seller, together with the seller\'s bond (50% of the purchase price);\n' +
+	  'The buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
