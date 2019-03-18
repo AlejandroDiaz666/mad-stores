@@ -126,11 +126,29 @@ var shop = module.exports = {
 	const selectedProductDetailPrice = document.getElementById('selectedProductDetailPrice');
 	const selectedProductDetailQuantity = document.getElementById('selectedProductDetailQuantity');
 	//
+	if (product.name.length < 25) {
+	    selectedProductDetailName.textContent = product.name;
+	} else {
+	    selectedProductDetailName.textContent = product.name.substring(0, 25) + '...';
+	    const productDetailFullName = document.createElement("span");
+	    productDetailFullName.className = 'tooltipText';
+	    productDetailFullName.id = 'productDetailFullName';
+	    productDetailFullName.textContent = product.name;
+	    selectedProductDetailName.appendChild(productDetailFullName);
+	}
+	selectedProductDetailDesc.textContent = (product.desc.length > 120) ? product.desc.substring(0, 120) + '...' : product.desc;
+	if (product.desc.length < 120) {
+	    selectedProductDetailDesc.textContent = product.desc;
+	} else {
+	    selectedProductDetailDesc.textContent = product.desc.substring(0, 120) + '...';
+	    const productDetailFullDesc = document.createElement("span");
+	    productDetailFullDesc.className = 'tooltipText';
+	    productDetailFullDesc.id = product.desc.indexOf('\n') < 0 ? 'productDetailFullDesc' : 'productDetailFullDescPre';
+	    productDetailFullDesc.textContent = product.desc;
+	    selectedProductDetailDesc.appendChild(productDetailFullDesc);
+	}
 	selectedProductDetailImg.src = product.image;
-
-	selectedProductDetailName.textContent = product.name.substring(0, 22);
-	selectedProductDetailDesc.textContent = product.desc.substring(0, 140);
-
+	//
 	selectedProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
 	selectedProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
 	//
@@ -155,25 +173,39 @@ var shop = module.exports = {
 		    const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
 		    const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
 		    let grade = 'A+';
-		    switch(avgRatingBN.toNumber()) {
-		    case 0: grade = 'F-'; break;
-		    case 1: grade = 'F'; break;
-		    case 2: grade = 'D-'; break;
-		    case 3: grade = 'D'; break;
-		    case 4: grade = 'C-'; break;
-		    case 5: grade = 'C'; break;
-		    case 6: grade = 'B-'; break;
-		    case 7: grade = 'B'; break;
-		    case 8: grade = 'A-'; break;
-		    case 9: grade = 'A'; break;
-		    default: grade = 'A+'; break;
+		    if (totalBN.isZero()) {
+			grade = 'N/A';
+		    } else {
+			switch(avgRatingBN.toNumber()) {
+			case 0: grade = 'F-'; break;
+			case 1: grade = 'F'; break;
+			case 2: grade = 'D-'; break;
+			case 3: grade = 'D'; break;
+			case 4: grade = 'C-'; break;
+			case 5: grade = 'C'; break;
+			case 6: grade = 'B-'; break;
+			case 7: grade = 'B'; break;
+			case 8: grade = 'A-'; break;
+			case 9: grade = 'A'; break;
+			default: grade = 'A+'; break;
+			}
 		    }
 		    selectedProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
 		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
 		});
 		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
 		    selectedProductSellerName.textContent = name;
-		    selectedProductSellerDesc.textContent = desc;
+		    console.log('seller desc length = ' + desc.length);
+		    if (desc.length < 110) {
+			selectedProductSellerDesc.textContent = desc;
+		    } else {
+			selectedProductSellerDesc.textContent = desc.substring(0, 110) + '...';
+			const sellerFullDesc = document.createElement("span");
+			sellerFullDesc.className = 'tooltipText';
+			sellerFullDesc.id = 'sellerFullDesc';
+			sellerFullDesc.textContent = desc;
+			selectedProductSellerDesc.appendChild(sellerFullDesc);
+		    }
 		    selectedProductSellerImg.src = image;
 		});
 	    }

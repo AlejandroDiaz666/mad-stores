@@ -64,14 +64,14 @@ h3 { font-size:18px; }
 }
 .tooltip .tooltipText {
     visibility: hidden;
-    width: 120px;
     background-color: white;
     color: black;
     text-align: center;
     padding: 5px;
     border-radius: 6px;
     position: absolute;
-    transform: translate3d(15px, -105%, 0px);
+    top: 0px;
+    left: 0px;
     z-index: 1;
 }
 .tooltip:hover .tooltipText {
@@ -79,7 +79,39 @@ h3 { font-size:18px; }
     font-weight: normal;
     font-size: 14px;
 }
+/* individual tooltip custmizations */
+#productDetailFullName {
+    font-family: lato;
+    font-size: 24px;
+    font-weight: bold;
+    min-width: 300px;
+    width: fit-content;
+    height: 25px;
+    padding: 15px;
+    white-space: pre;
+    left: 100%;
+    transform: translate3d(-100%, 0px, 0px);
+}
+#productDetailFullDesc,
+#productDetailFullDescPre {
+    text-align: left;
+    min-width: 400px;
+    width: fit-content;
+    left: 100%;
+    transform: translate3d(-100%, 0px, 0px);
+}
+#productDetailFullDescPre {
+    white-space: pre;
+}
 
+#sellerFullDesc {
+    text-align: left;
+    min-width: 300px;
+    width: fit-content;
+    white-space: pre-wrap;
+    left: 0%;
+    transform: translate3d(0%, 0px, 0px);
+}
 
 .modal {
     display: none; /* Hidden by default */
@@ -730,6 +762,9 @@ h3 { font-size:18px; }
     width: 110px;
     transform: translateX(-50%);
 }
+.shop #purchaseProductButton:hover {
+    cursor: pointer;
+}
 .view  #purchaseProductButton {
     display: none;
 }
@@ -755,7 +790,7 @@ h3 { font-size:18px; }
 }
 #selectedProductDetailName {
     width: 240px;
-    height: 25px;
+    height: 55px;
     background-color: transparent;
     position: absolute;
     left: 170px;
@@ -764,15 +799,14 @@ h3 { font-size:18px; }
     font-family: lato;
     font-size: 24px;
     font-weight: bold;
-    overflow: hidden;
 }
 #selectedProductDetailDesc {
-    width: 220px;
+    width: 230px;
     height: 120px;
     background-color: transparent;
     position: absolute;
-    left: 180px;
-    top: 60px;
+    left: 185px;
+    top: 85px;
     font-family: lato;
     font-size: 18px;
     font-weight: normal;
@@ -842,8 +876,8 @@ h3 { font-size:18px; }
     left: 10%;
     top: 187px;
     height: 57px;
+    padding-right: 10px;
     margin-top: 10px;
-    overflow-y: scroll;
 }
 #selectedProductSellerRegion {
 }
