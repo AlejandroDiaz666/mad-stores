@@ -1,3 +1,4 @@
+/*
 :root {
     --clr_maintitletext: black;
     --clr_bodybg: rgb(165, 165, 155);
@@ -14,6 +15,7 @@
     --bor_butselect: 1px solid black;
     --bor_butnormal: 1px solid var(--clr_buttonbg);
 }
+*/
 /* var above are temp placeholders, for hack to make messages work */
 
 html {
@@ -273,13 +275,15 @@ h3 { font-size:18px; }
     position: absolute;
     top: 42px;
     left: 0%;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 #nodeSelectorSpan {
     position: absolute;
     top: 145px;
     left: 0%;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 #customViewButton {
     position: absolute;
@@ -319,13 +323,15 @@ h3 { font-size:18px; }
     position: absolute;
     top: 205px;
     left: 0%;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 #viewSrcSpan {
     position: absolute;
     top: 280px;
     left: 0%;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 
@@ -758,6 +764,7 @@ h3 { font-size:18px; }
     font-family: lato;
     font-size: 24px;
     font-weight: bold;
+    overflow: hidden;
 }
 #selectedProductDetailDesc {
     width: 220px;

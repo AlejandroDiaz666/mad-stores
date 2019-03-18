@@ -127,8 +127,10 @@ var shop = module.exports = {
 	const selectedProductDetailQuantity = document.getElementById('selectedProductDetailQuantity');
 	//
 	selectedProductDetailImg.src = product.image;
+
 	selectedProductDetailName.textContent = product.name.substring(0, 22);
 	selectedProductDetailDesc.textContent = product.desc.substring(0, 140);
+
 	selectedProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
 	selectedProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
 	//

@@ -748,13 +748,15 @@ function etherscanGetLogs3(options, cb) {
     if (options.topics.length > 1) {
 	if (!!options.topics[1]) {
 	    url += '&topic1=' + options.topics[1];
-	    url += '&topic0_1_opr=and';
+	    //this should be an 'and'.... but like i said, etherscan.io topic combiners are brain dead
+	    url += '&topic0_1_opr=or';
 	}
 	if (options.topics.length > 2) {
 	    if (!!options.topics[2]) {
 		url += '&topic2=' + options.topics[2];
 		url += '&topic1_2_opr=or';
-		url += '&topic0_2_opr=and';
+		//this should be an 'and'.... but like i said, etherscan.io topic combiners are brain dead
+		url += '&topic0_2_opr=or';
 	    }
 	}
 	if (options.topics.length > 3) {
@@ -762,7 +764,8 @@ function etherscanGetLogs3(options, cb) {
 		url += '&topic3=' + options.topics[3];
 		url += '&topic1_3_opr=or';
 		url += '&topic2_3_opr=or';
-		url += '&topic0_3_opr=and';
+		//this should be an 'and'.... but like i said, etherscan.io topic combiners are brain dead
+		url += '&topic0_3_opr=or';
 	    }
 	}
     }
