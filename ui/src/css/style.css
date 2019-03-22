@@ -103,6 +103,18 @@ h3 { font-size:18px; }
 #productDetailFullDescPre {
     white-space: pre;
 }
+#tooltipTextDepositSpan,
+#tooltipTextApproveSpan,
+#tooltipTextDeclineSpan,
+#tooltipTextBurnSpan,
+#tooltipTextReleaseSpan,
+#tooltipTextModifySpan,
+#tooltipTextStepCancelSpan {
+    left: -10em;
+    top: 30px;
+    position: relative;
+    white-space: nowrap;
+}
 
 #sellerFullDesc {
     text-align: left;
@@ -1053,6 +1065,7 @@ h3 { font-size:18px; }
     border-radius: 9px;
     margin-left: 5px;
     padding: 1px;
+    position: relative;
 }
 .escrowListStepDepositSpan {
     background-image: url('../images/funds-deposited.jpg');

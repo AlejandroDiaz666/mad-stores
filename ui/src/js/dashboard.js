@@ -134,6 +134,8 @@ var dashboard = module.exports = {
 //
 // a "step" refers to a step in the purchase/approval/delivery process. each step is represented by a tile, which is added to the addTo div.
 // clicking the tile will invoke the passed handler. idx is the row index.
+// classname = escrowListStepDepositSpan | escrowListStepApproveSpan | escrowListStepDeclineSpan | escrowListStepBurnSpan |
+//             escrowListStepReleaseSpan | escrowListStepModifySpan  | escrowListStepCancelSpan
 //
 function addStep(escrowIdBN, escrowInfo, idx, className, tipText, addTo, handler) {
     console.log('addStep: idx = ' + idx + ', className = ' + className);
@@ -145,6 +147,9 @@ function addStep(escrowIdBN, escrowInfo, idx, className, tipText, addTo, handler
 	//just plain annoying
 	stepSpan.className = className + ' tooltip';
 	const stepSpanTip = document.createElement("span");
+	const tiptextId = className.replace('escrowListStep', 'tooltipText');
+	console.log('addStep: classname = ' + className + ', id = ' + tiptextId);
+	stepSpanTip.id = tiptextId;
 	stepSpanTip.className = 'tooltipText';
 	stepSpanTip.textContent = tipText;
 	stepSpan.appendChild(stepSpanTip);
