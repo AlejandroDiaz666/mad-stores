@@ -17,7 +17,7 @@ const mtEther = module.exports = {
     EMT_CONTRACT_ADDR: null,
     EMT_CONTRACT_ABI:  '[{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_messageFee","type":"uint256"},{"name":"_spamFee","type":"uint256"},{"name":"_publicKey","type":"bytes"},{"name":"_encryptedPrivateKey","type":"bytes"}],"name":"register","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_toAddr","type":"address"},{"name":"attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"accounts","outputs":[{"name":"isValid","type":"bool"},{"name":"messageFee","type":"uint256"},{"name":"spamFee","type":"uint256"},{"name":"feeBalance","type":"uint256"},{"name":"recvMessageCount","type":"uint256"},{"name":"sentMessageCount","type":"uint256"},{"name":"publicKey","type":"bytes"},{"name":"encryptedPrivateKey","type":"bytes"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"tokenAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"trusted","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_to","type":"address"},{"name":"_startIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"}],"name":"getRecvMsgs","outputs":[{"name":"_idx","type":"uint256"},{"name":"_messageIds","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"}],"name":"getPeerMessageCount","outputs":[{"name":"_messageCount","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdrawRetainedFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"},{"name":"attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_trustedAddr","type":"address"},{"name":"_trust","type":"bool"}],"name":"setTrust","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_from","type":"address"},{"name":"_startIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"}],"name":"getSentMsgs","outputs":[{"name":"_idx","type":"uint256"},{"name":"_messageIds","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_tokenAddr","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_fromAddr","type":"address"}],"name":"InviteEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_id1","type":"uint256"},{"indexed":true,"name":"_id2","type":"uint256"},{"indexed":true,"name":"_id3","type":"uint256"},{"indexed":false,"name":"_fromAddr","type":"address"},{"indexed":false,"name":"_toAddr","type":"address"},{"indexed":false,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_attachmentIdx","type":"uint256"},{"indexed":false,"name":"_ref","type":"uint256"},{"indexed":false,"name":"message","type":"bytes"}],"name":"MessageEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_fromAddr","type":"address"},{"indexed":true,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageTxEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageRxEvent","type":"event"}]',
     mainnet_contract_addr: '0xE212f48e459E6eD3f7F07861781B77c7d3a93032',
-    ropsten_contract_addr: '0x28901fc03008677147A5DEc60dd3993b823b58d4',
+    ropsten_contract_addr: '0x95c1a0ba886286f013deb7918ca1918341b88df4',
     kovan_contract_addr: '',
     firstBlock: 0,
     EMTContractInstance: null,
@@ -37,6 +37,7 @@ const mtEther = module.exports = {
 	    mtEther.firstBlock = 7290243;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.mainnet_contract_addr;
 	} else if (network.indexOf('Ropsten') >= 0) {
+	    mtEther.firstBlock = 5250732;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.ropsten_contract_addr;
 	} else
 	    err = network + ' is not a supported network';
@@ -109,6 +110,20 @@ const mtEther = module.exports = {
 	ether.send(mtEther.EMT_CONTRACT_ADDR, size, 'wei', sendData, 0, cb);
     },
 
+
+    //cb(err, txid)
+    // this version of sendMessage uses sendUsingPrivateKey
+    sendMessagePK: function(privateKey, toAddr, attachmentIdxBN, ref, messageHex, size, gasLimit, gasPrice, cb) {
+	console.log('sendMessageParms: toAddr = ' + toAddr);
+	console.log('sendMessageParms: attachmentIdxBN = ' + attachmentIdxBN.toString(10));
+	console.log('sendMessageParms: ref = ' + ref);
+	const abiSendMessageFcn = mtEther.abiEncodeSendMessage();
+	const abiParms = mtEther.abiEncodeSendMessageParms(toAddr, attachmentIdxBN, ref, messageHex);
+        const sendData = "0x" + abiSendMessageFcn + abiParms;
+	ether.sendUsingPrivateKey(privateKey, mtEther.EMT_CONTRACT_ADDR, size, 'wei', sendData, gasLimit, gasPrice, cb);
+    },
+
+
     //cb(err, txid)
     register: function(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey, cb) {
 	const abiRegisterFcn = mtEther.abiEncodeRegister();
@@ -130,7 +145,7 @@ const mtEther = module.exports = {
     getMessageEventTopic0: function() {
 	if (!mtEther.messageEventTopic0) {
 	    const keccak256 = new keccak(256);
-	    keccak256.update("MessageEvent(uint256,uint256,uint256,address,address,uint256,uint256,uint256,uint256,bytes)");
+	    keccak256.update("MessageEvent(uint256,uint256,uint256,address,address,address,uint256,uint256,uint256,uint256,bytes)");
 	    mtEther.messageEventTopic0 = '0x' + keccak256.digest('hex');
 	}
 	console.log('MessageEventTopic0 = ' + mtEther.messageEventTopic0);
@@ -226,6 +241,7 @@ const mtEther = module.exports = {
 	//                                ],
 	//                    "data"    : "0x000000000000000000000000f48ae436e4813c7dcd5cdeb305131d07ca022469     -- _fromAddr
 	//                                   000000000000000000000000f48ae436e4813c7dcd5cdeb305131d07ca022469     -- _toAddr
+	//                                   0000000000000000000000000000000000000000000000000000000000000005     -- _via
 	//                                   0000000000000000000000000000000000000000000000000000000000000005     -- _txCount
 	//                                   0000000000000000000000000000000000000000000000000000000000000005     -- _rxCount
 	//                                   0000000000000000000000000000000000000000000000000000000000000001     -- _mimeType
@@ -248,24 +264,25 @@ const mtEther = module.exports = {
 	//first 2 chars are '0x'; we want rightmost 20 out of 32 bytes
 	const fromAddr = '0x' + result.data.slice(0+2, 64+2).substring(12*2);
 	const toAddr = '0x' + result.data.slice(64+2, 128+2).substring(12*2);
+	const via = '0x' + result.data.slice(128+2, 192+2).substring(12*2);
 	//console.log('parseMessageEvent: fromAddr = ' + fromAddr);
 	//console.log('parseMessageEvent: toAddr = ' + toAddr);
-	const txCount = '0x' + result.data.slice(128+2, 192+2);
+	const txCount = '0x' + result.data.slice(192+2, 256+2);
 	//console.log('parseMessageEvent: txCount = ' + txCount);
-	const rxCount = '0x' + result.data.slice(192+2, 256+2);
+	const rxCount = '0x' + result.data.slice(256+2, 320+2);
 	//console.log('parseMessageEvent: rxCount = ' + rxCount);
-	const attachmentIdxHex = result.data.slice(256+2, 320+2);
+	const attachmentIdxHex = result.data.slice(320+2, 382+2);
 	const attachmentIdxBN = new BN(attachmentIdxHex, 16);
-	const ref = '0x' + result.data.slice(320+2, 384+2);
+	const ref = '0x' + result.data.slice(384+2, 448+2);
 	//console.log('parseMessageEvent: ref = ' + ref);
-	const msgOffsetHex = result.data.slice(384+2, 448+2);
+	const msgOffsetHex = result.data.slice(448+2, 512+2);
 	const msgOffset = parseInt(msgOffsetHex, 16);
 	const msgLenHex = result.data.slice((2*msgOffset)+2, (2*msgOffset)+64+2);
 	const msgLen = parseInt(msgLenHex, 16);
-	//console.log('parseMessageEvent: msgLen = 0x' + msgLen.toString(16));
+	console.log('parseMessageEvent: msgLen = 0x' + msgLen.toString(16));
 	const msgHex = '0x' + result.data.slice((2*msgOffset)+64+2, (2*msgOffset)+64+2+(msgLen*2));
 	const blockNumber = parseInt(result.blockNumber);
-	//console.log('parseMessageEvent: blockNumber = ' + blockNumber);
+	console.log('parseMessageEvent: blockNumber = ' + blockNumber);
 	if (!!result.timeStamp) {
 	    const timeStamp = parseInt(result.timeStamp);
 	    const date = (new Date(timeStamp * 1000)).toUTCString();
