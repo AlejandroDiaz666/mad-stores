@@ -1,19 +1,15 @@
-Ropsten: 0xdc708707F1D4811E946C03CfA87AFe809A95093F
-  _messageTransport = 0x28901fc03008677147A5DEc60dd3993b823b58d4
-  _madEscrow = 0xd3a338b8A07cB64a69b95f2ed303eC135b27782f
+Ropsten: 0x9972e7c377d078989d1e74bea130094c971de847
+  _messageTransport = 0x95c1a0ba886286f013deb7918ca1918341b88df4
+  _madEscrow = 0xd62d9468054896efa671b7f0997c580ec4622bf5
 
 constructor parms:
-00000000000000000000000028901fc03008677147a5dec60dd3993b823b58d4000000000000000000000000d3a338b8a07cb64a69b95f2ed303ec135b27782f
+00000000000000000000000095c1a0ba886286f013deb7918ca1918341b88df4000000000000000000000000d62d9468054896efa671b7f0997c580ec4622bf5
 
 
-deploy gas: 4084786
 Note: don't forget to a) compile with optimization, b) set trust
 
 
 ----------------------------- old deployments that need to be destructed ----------------------------
-Ropsten: 0xDc83B0117d9D2893797a6A8371a0f201E498c2A7
-Ropsten: 0x74F0733d36Aba511daBd3Cd167633b6CAc5DF03e
-Ropsten: 0xB7858a53345055401E64Dcb7ACf520b914F4e969
 ----------------------------- old deployments that need to be destructed ----------------------------
 
 
