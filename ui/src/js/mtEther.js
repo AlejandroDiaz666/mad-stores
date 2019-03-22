@@ -271,7 +271,7 @@ const mtEther = module.exports = {
 	//console.log('parseMessageEvent: txCount = ' + txCount);
 	const rxCount = '0x' + result.data.slice(256+2, 320+2);
 	//console.log('parseMessageEvent: rxCount = ' + rxCount);
-	const attachmentIdxHex = result.data.slice(320+2, 382+2);
+	const attachmentIdxHex = result.data.slice(320+2, 384+2);
 	const attachmentIdxBN = new BN(attachmentIdxHex, 16);
 	const ref = '0x' + result.data.slice(384+2, 448+2);
 	//console.log('parseMessageEvent: ref = ' + ref);
