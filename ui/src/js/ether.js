@@ -376,16 +376,16 @@ const ether = module.exports = {
 	if (!ether.ens)
 	    ether.ens = new ENS(common.web3.currentProvider);
 	if (!addrIn.startsWith('0x') || addrIn.endsWith('.eth')) {
-	    console.log('ensReveseLookup: invalid address');
+	    console.log('ensReveseLookup: invalid address, ' + addrIn);
 	    cb('ensReveseLookup: invalid address', null);
 	    return;
 	}
 	ether.ens.reverse(addrIn).name().then((name) => {
-	    console.log('ensReveseLookup: got name: ' + name);
+	    console.log('ensReveseLookup: ' + addrIn + ' got name: ' + name);
 	    ether.ensNameCache[addrIn] = name;
 	    cb(null, name);
 	}).catch(() => {
-	    console.log('ensReveseLookup: catch no name found');
+	    console.log('ensReveseLookup: ' + addrIn + ', catch no name found');
 	    ether.ensNameCache[addrIn] = 'X';
 	    cb('ensReveseLookup: no name found', null);
 	});
