@@ -87,14 +87,17 @@ const ether = module.exports = {
 
     //convert an amount in wei to a comfortable representation
     //for example: 1000000000000 => '1 gwei'
-    convertWeiBNToComfort: function(weiBN) {
+    convertWeiBNToComfort: function(weiBN, decimals) {
 	let units =
 	    (weiBN.lt(new BN(ether.gweiHex, 16)))   ? 'Wei'    :
 	    (weiBN.lt(new BN(ether.szaboHex, 16)))  ? 'Gwei'   :
 	    (weiBN.lt(new BN(ether.finneyHex, 16))) ? 'Szabo'  :
 	    (weiBN.lt(new BN(ether.etherHex, 16)))  ? 'Finney' : 'ether';
 	//console.log('convertWeiBNToComfort: weiBN = ' + weiBN.toString(10) + ', units = ' + units);
-	return(common.web3.fromWei(weiBN, units).toString() + ' ' + (units == 'ether' ? 'Eth' : units));
+	let comfort = common.web3.fromWei(weiBN, units).toString();
+	if (!!decimals && comfort.indexOf('.') >= 0)
+	    comfort = comfort.substring(0, comfort.indexOf('.') + decimals + 1);
+	return(comfort + ' ' + (units == 'ether' ? 'Eth' : units));
     },
 
 
@@ -208,8 +211,8 @@ const ether = module.exports = {
     // units: 'szabo' | 'finney' | 'ether'
     // cb(err, balance)
     //
-    getBalance: function(units, cb) {
-	common.web3.eth.getBalance(common.web3.eth.accounts[0], function (err, balance) {
+    getBalance: function(addr, units, cb) {
+	common.web3.eth.getBalance(addr, function (err, balance) {
 	    console.log('getBalance bal = ' + balance.toString() + ', type = ' + typeof(balance));
 	    cb(null, common.web3.fromWei(balance, units).toString());
 	});

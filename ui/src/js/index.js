@@ -357,7 +357,7 @@ function handleUnlockedMetaMask() {
     common.localStoragePrefix = (common.web3.eth.accounts[0]).substring(2, 10) + '-';
     var accountArea = document.getElementById('accountArea');
     accountArea.value = 'Your account: ' + common.web3.eth.accounts[0];
-    ether.getBalance('ether', function(err, balance) {
+    ether.getBalance(common.web3.eth.accounts[0], 'ether', function(err, balance) {
 	const balanceArea = document.getElementById('balanceArea');
 	console.log('balance (eth) = ' + balance);
 	const balanceETH = parseFloat(balance).toFixed(6);
