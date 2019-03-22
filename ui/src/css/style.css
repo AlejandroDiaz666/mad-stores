@@ -103,13 +103,13 @@ h3 { font-size:18px; }
 #productDetailFullDescPre {
     white-space: pre;
 }
-#tooltipTextDepositSpan,
-#tooltipTextApproveSpan,
-#tooltipTextDeclineSpan,
-#tooltipTextBurnSpan,
-#tooltipTextReleaseSpan,
-#tooltipTextModifySpan,
-#tooltipTextStepCancelSpan {
+.tooltip .tooltipTextDepositSpan,
+.tooltip .tooltipTextApproveSpan,
+.tooltip .tooltipTextDeclineSpan,
+.tooltip .tooltipTextBurnSpan,
+.tooltip .tooltipTextReleaseSpan,
+.tooltip .tooltipTextModifySpan,
+.tooltip .tooltipTextStepCancelSpan {
     left: -10em;
     top: 30px;
     position: relative;

@@ -149,8 +149,7 @@ function addStep(escrowIdBN, escrowInfo, idx, className, tipText, addTo, handler
 	const stepSpanTip = document.createElement("span");
 	const tiptextId = className.replace('escrowListStep', 'tooltipText');
 	console.log('addStep: classname = ' + className + ', id = ' + tiptextId);
-	stepSpanTip.id = tiptextId;
-	stepSpanTip.className = 'tooltipText';
+	stepSpanTip.className = 'tooltipText ' + tiptextId;
 	stepSpanTip.textContent = tipText;
 	stepSpan.appendChild(stepSpanTip);
     }
