@@ -599,7 +599,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -680,7 +680,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
 	console.log('doRelease: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -728,7 +728,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
 	console.log('doBurn: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
