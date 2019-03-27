@@ -205,7 +205,7 @@ var meUtil = module.exports = {
     // the message is encyrpted before sending.
     //
     escrowFcnWithParmMsg: function(fcn, fcnDesc, escrowIdBN, parmBN, toAddr, attachmentIdxBN, refBN, message, cb) {
-	console.log('escrowFcnWithParmMsg: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	console.log('escrowFcnWithParmMsg: escrowIdBN = 0x' + escrowIdBN.toString(16) + ', toAddr = ' + toAddr);
 	mtUtil.encryptMsg(toAddr, message, function(err, msgFee, encrypted) {
 	    if (!!err) {
 		cb(err);

@@ -14,6 +14,9 @@ const BN = require("bn.js");
 
 var shop = module.exports = {
 
+    minPrice: 0,
+    maxPrice: 100000,
+
     handleShopPage: function() {
 	common.setMenuButtonState('shopButton',          'Selected');
 	common.setMenuButtonState('dashboardButton',     'Enabled');
@@ -36,6 +39,34 @@ var shop = module.exports = {
     },
 
     setButtonHandlers: function() {
+	//
+	// slider values are 19 || 20 to 100
+	// price is (exponential) 0 to 100000
+	// base is float 0.0 || 1.0 to 5.0
+	// price is 10^0 || 10^1.0 to 10^5.0
+	const minPriceSlider = document.getElementById('minPriceSlider');
+	const maxPriceSlider = document.getElementById('maxPriceSlider');
+	const priceTooltip = document.getElementById('priceTooltip');
+	minPriceSlider.addEventListener('change', function() {
+	    if (parseInt(minPriceSlider.value) >= parseInt(maxPriceSlider.value)) {
+		const newVal = parseInt(minPriceSlider.value) - 3;
+		minPriceSlider.value = newVal;
+	    }
+	    const slideValue = minPriceSlider.value < 20 ? 0 : minPriceSlider.value;
+	    const baseValue = parseFloat(slideValue) / 20;
+	    shop.minPrice = (slideValue == 0) ? 0 : parseInt(Math.pow(10, baseValue));
+	    priceTooltip.textContent = 'Min price: ' + shop.minPrice + ' Dai, Max price: ' + shop.maxPrice + ' Dai';
+	});
+	maxPriceSlider.addEventListener('change', function() {
+	    if (parseInt(maxPriceSlider.value) <= parseInt(minPriceSlider.value)) {
+		const newVal = parseInt(minPriceSlider.value) + 3;
+		maxPriceSlider.value = newVal;
+	    }
+	    const slideValue = maxPriceSlider.value < 20 ? 0 : maxPriceSlider.value;
+	    const baseValue = parseFloat(slideValue) / 20;
+	    shop.maxPrice = (slideValue == 0) ? 0 : parseInt(Math.pow(10, baseValue));
+	    priceTooltip.textContent = 'Min price: ' + shop.minPrice + ' Dai, Max price: ' + shop.maxPrice + ' Dai';
+	});
 	//
 	const shopDoSearchButton = document.getElementById('shopDoSearchButton');
 	shopDoSearchButton.addEventListener('click', function() {
@@ -194,7 +225,16 @@ var shop = module.exports = {
 		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
 		});
 		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
-		    selectedProductSellerName.textContent = name;
+		    if (name.length < 70) {
+			selectedProductSellerName.textContent = name;
+		    } else {
+			selectedProductSellerName.textContent = name.substring(0, 70) + '...';
+			const sellerFullName = document.createElement("span");
+			sellerFullName.className = 'tooltipText';
+			sellerFullName.id = 'productDetailSellerFullName';
+			sellerFullName.textContent = name;
+			selectedProductSellerName.appendChild(sellerFullName);
+		    }
 		    console.log('seller desc length = ' + desc.length);
 		    if (desc.length < 110) {
 			selectedProductSellerDesc.textContent = desc;
@@ -202,7 +242,7 @@ var shop = module.exports = {
 			selectedProductSellerDesc.textContent = desc.substring(0, 110) + '...';
 			const sellerFullDesc = document.createElement("span");
 			sellerFullDesc.className = 'tooltipText';
-			sellerFullDesc.id = 'sellerFullDesc';
+			sellerFullDesc.id = 'productDetailSellerFullDesc';
 			sellerFullDesc.textContent = desc;
 			selectedProductSellerDesc.appendChild(sellerFullDesc);
 		    }

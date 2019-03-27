@@ -167,6 +167,7 @@
 		  <select id="shopCategoryTlcSel">
 		  </select>
 		</td>
+	      </tr>
 	      <tr>
 		<td/>
 		<td>
@@ -174,6 +175,20 @@
 		  </select>
 		</td>
 	      </tr>
+
+	      <tr>
+		<td>
+	      	  <textarea id="pricePromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Price:</textarea>
+		</td>
+		<td>
+		  <div class="slidecontainer tooltip">
+		    <input type="range" min="19" max="100" value="0" class="slider" id="minPriceSlider"/>
+		    <input type="range" min="19" max="100" value="100" class="slider" id="maxPriceSlider"/>
+		    <span id="priceTooltip" class="tooltipText">Min price: 0 Dai, Max price: 100,000 Dai</span>
+		  </div>
+		</td>
+	      </tr>
+
 	      <tr>
 		<td>
 	      	  <textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Addr:</textarea>
@@ -217,7 +232,7 @@
 	<div id="selectedProductSellerDiv">
 	  <span id="selectedProductSellerIntro">About this seller</span>
 	  <img id="selectedProductSellerImg"></img>
-	  <span id="selectedProductSellerName"></span>
+	  <span id="selectedProductSellerName" class="tooltip"></span>
 	  <div id="selectedProductSellerDesc" class="tooltip"></div>
 	  <span id="selectedProductSellerRegion"></span>
 	  <span id="selectedProductSellerRating"></span>

@@ -103,6 +103,23 @@ h3 { font-size:18px; }
 #productDetailFullDescPre {
     white-space: pre;
 }
+#productDetailSellerFullName {
+    text-align: left;
+    min-width: 300px;
+    width: fit-content;
+    white-space: pre-wrap;
+    left: 0%;
+    transform: translate3d(0%, 0px, 0px);
+}
+#productDetailSellerFullDesc {
+    text-align: left;
+    min-width: 300px;
+    width: fit-content;
+    white-space: pre-wrap;
+    left: 0%;
+    transform: translate3d(0%, 0px, 0px);
+}
+
 .tooltip .tooltipTextDepositSpan,
 .tooltip .tooltipTextApproveSpan,
 .tooltip .tooltipTextDeclineSpan,
@@ -115,14 +132,9 @@ h3 { font-size:18px; }
     position: relative;
     white-space: nowrap;
 }
-
-#sellerFullDesc {
-    text-align: left;
-    min-width: 300px;
-    width: fit-content;
-    white-space: pre-wrap;
-    left: 0%;
-    transform: translate3d(0%, 0px, 0px);
+#priceTooltip {
+    top: 187px;
+    left: 93px;
 }
 
 .modal {
@@ -596,7 +608,7 @@ h3 { font-size:18px; }
     transform: translate3d(-230px, 190px, 0px);
     background-color: #dbdcef;
 }
-#regionPromptArea, #categoryPromptArea, #storeAddrPromptArea {
+#regionPromptArea, #categoryPromptArea, #pricePromptArea, #storeAddrPromptArea {
     display: table-cell;
     vertical-align: middle;
     padding-top: 1px;
@@ -605,6 +617,9 @@ h3 { font-size:18px; }
     padding-left: 0px;
     margin: 0px;
     resize: none;
+}
+#pricePromptArea {
+    margin-top: 20px;
 }
 #storeAddrArea {
     display: table-cell;
@@ -877,7 +892,7 @@ h3 { font-size:18px; }
     position: absolute;
     left: 170px;
     top: 30px;
-    width: 80px;
+    width: 182px;
     margin-left: 10px;
     font-family: lato;
     font-size: 20px;
@@ -2113,6 +2128,75 @@ h3 { font-size:18px; }
  */
 
 
+
+/*
+ * slider styling
+ */
+.slider {
+    width: 330px;
+    height: 25px;
+    position: absolute;
+    top: 210px;
+    outline: none;
+}
+.slider input {
+    position: absolute;
+    pointer-events: none;
+    overflow: hidden;
+    left: 25%;
+    top: 15px;
+    width: 50%;
+    outline: none;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 35px;
+    height: 35px;
+    background: #ea4550;
+
+    cursor: pointer;
+    pointer-events: all;
+    position: relative;
+    z-index: 1;
+    outline: 0;
+}
+.slider::-moz-range-thumb {
+
+    width: 20px;
+    height: 20px;
+    background: #ea4550;
+
+    cursor: pointer;
+    pointer-events: all;
+    position: relative;
+    z-index: 10;
+    -moz-appearance: none;
+
+    width: 9px;
+
+}
+.slider input::-moz-range-track {
+    position: relative;
+    z-index: -1;
+    border: 0;
+}
+.slider input:last-of-type::-moz-range-track {
+    -moz-appearance: none;
+    background: none transparent;
+    border: 0;
+}
+.slider input[type=range]::-moz-focus-outer {
+    border: 0;
+}
+/*
+ * end of slider styling
+ */
 
 
 DIV.finalresultstable {
