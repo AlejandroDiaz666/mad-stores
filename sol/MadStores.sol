@@ -72,6 +72,16 @@ contract MadStores is SafeMath {
     bool activeFlag;
   }
 
+  struct SearchParms {
+    bool onlyAvailable;
+    address vendorAddr;
+    uint256 category;
+    uint256 region;
+    uint256 minPrice;
+    uint256 maxPrice;
+  }
+
+
   // -----------------------------------------------------------------------------------------------------
   // data storage
   // -----------------------------------------------------------------------------------------------------
@@ -136,35 +146,37 @@ contract MadStores is SafeMath {
   // bits are a bitmask of sub-categories or sub-regions. if specified then we only look for some overlap
   // between the product bitmap and the search parameter.
   // -----------------------------------------------------------------------------------------------------
-  function isCertainProduct(uint256 _productID, address _vendorAddr, uint256 _category,
-			    uint256 _region, uint256 _maxPrice, bool _onlyAvailable) internal view returns(bool) {
+  function isCertainProduct(uint256 _productID, SearchParms memory _searchParms) internal view returns(bool) {
     Product storage _product = products[_productID];
-    if (_onlyAvailable) {
+    if (_searchParms.onlyAvailable) {
       uint256 _minVendorBond = safeMul(_product.price, 50) / 100;
       uint256 _vendorBalance = madEscrow.balanceOf(_product.vendorAddr);
       if (_product.quantity == 0 || _product.price == 0 || _vendorBalance < _minVendorBond)
 	return(false);
     }
-    uint8 _tlc = uint8(_category >> 248);
-    uint256 _llcBits = _category & ((2 ** 248) - 1);
-    uint8 _tlr = uint8(_region >> 248);
-    uint256 _llrBits = _region & ((2 ** 248) - 1);
+    uint8 _tlc = uint8(_searchParms.category >> 248);
+    uint256 _llcBits = _searchParms.category & ((2 ** 248) - 1);
+    uint8 _tlr = uint8(_searchParms.region >> 248);
+    uint256 _llrBits = _searchParms.region & ((2 ** 248) - 1);
     uint8 _productTlc = uint8(_product.category >> 248);
     uint256 _productLlcBits = _product.category & ((2 ** 248) - 1);
     uint8 _productTlr = uint8(_product.region >> 248);
     uint256 _productLlrBits = _product.region & ((2 ** 248) - 1);
     //note that productLlrBits == 0 => all sub-regions
-    if ((_vendorAddr     == address(0) ||  _product.vendorAddr                == _vendorAddr) &&
-	(_tlc            == 0          ||  _productTlc                        == _tlc       ) &&
-	(_llcBits        == 0          || (_productLlcBits & _llcBits)        != 0          ) &&
-	(_tlr            == 0          ||  _productTlr                        == _tlr       ) &&
-	(_llrBits        == 0          ||
-	 _productLlrBits == 0          || (_productLlrBits & _llrBits)        != 0          ) &&
-	(_maxPrice       == 0          ||  _product.price                     <= _maxPrice  ) ) {
+    if ((_searchParms.vendorAddr     == address(0) ||  _product.vendorAddr                == _searchParms.vendorAddr) &&
+	(_tlc                        == 0          ||  _productTlc                        == _tlc                   ) &&
+	(_llcBits                    == 0          || (_productLlcBits & _llcBits)        != 0                      ) &&
+	(_tlr                        == 0          ||  _productTlr                        == _tlr                   ) &&
+	(_llrBits                    == 0          ||
+	 _productLlrBits             == 0          || (_productLlrBits & _llrBits)        != 0                      ) &&
+	(_searchParms.minPrice       == 0          ||  _product.price                     >= _searchParms.minPrice  ) &&
+	(_searchParms.maxPrice       == 0          ||  _product.price                     <= _searchParms.maxPrice  ) ) {
       return(true);
     }
     return(false);
   }
+
+
 
 
   // _maxProducts >= 1
@@ -174,14 +186,15 @@ contract MadStores is SafeMath {
   // getCategoryProducts, or getRegionProducts. if searching based on 2 or more parameters then compare vendorProductCounts[_vendorAddr] to
   // categoryProductCounts[_tlc], to regionProductCounts[_tlr], and call the function that corresponds to the smallest number of products.
   //
-  function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+  function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
 			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
     //note: first productID is 1
     uint _productID = _productStartIdx;
     for ( ; _productID <= productCount; ++_productID) {
-      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+      if (_productID != 0 && isCertainProduct(_productID, _searchParms)) {
 	_productIDs[_count] = _productID;
 	if (++_count >= _maxResults)
 	  break;
@@ -196,17 +209,18 @@ contract MadStores is SafeMath {
   // if category is specified, then top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have
   // any overlap with product llc bits.
   //
-  function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+  function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    require(_vendorAddr != address(0), "address must be specified");
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    require(_searchParms.vendorAddr != address(0), "address must be specified");
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
-    uint256 _vendorProductCount = vendorProductCounts[_vendorAddr];
-    mapping(uint256 => uint256) storage _vendorProducts = vendorProducts[_vendorAddr];
+    uint256 _vendorProductCount = vendorProductCounts[_searchParms.vendorAddr];
+    mapping(uint256 => uint256) storage _vendorProducts = vendorProducts[_searchParms.vendorAddr];
     //note first productID is at vendorProducts[1];
     for (_idx = _productStartIdx; _idx <= _vendorProductCount; ++_idx) {
       uint _productID = _vendorProducts[_idx];
-      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+      if (_productID != 0 && isCertainProduct(_productID, _searchParms)) {
 	_productIDs[_count] = _productID;
 	if (++_count >= _maxResults)
 	  break;
@@ -219,18 +233,19 @@ contract MadStores is SafeMath {
   // note that array will always have _maxResults entries. ignore productID = 0
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
-  function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
-			       uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    require(_category != 0, "category must be specified");
+  function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
+			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    require(_searchParms.category != 0, "category must be specified");
     uint _count = 0;
-    uint8 _tlc = uint8(_category >> 248);
+    uint8 _tlc = uint8(_searchParms.category >> 248);
     _productIDs = new uint256[](_maxResults);
     uint256 _categoryProductCount = categoryProductCounts[_tlc];
     mapping(uint256 => uint256) storage _categoryProducts = categoryProducts[_tlc];
     //note first productID is at categoryProducts[1];
     for (_idx = _productStartIdx; _idx <= _categoryProductCount; ++_idx) {
       uint _productID = _categoryProducts[_idx];
-      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+      if (_productID != 0 && isCertainProduct(_productID, _searchParms)) {
 	_productIDs[_count] = _productID;
 	if (++_count >= _maxResults)
 	  break;
@@ -244,18 +259,19 @@ contract MadStores is SafeMath {
   // note that array will always have _maxResults entries. ignore productID = 0
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
-  function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _maxPrice,
+  function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    require(_region != 0, "region must be specified");
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    require(_searchParms.region != 0, "region must be specified");
     uint _count = 0;
-    uint8 _tlr = uint8(_region >> 248);
+    uint8 _tlr = uint8(_searchParms.region >> 248);
     _productIDs = new uint256[](_maxResults);
     uint256 _regionProductCount = regionProductCounts[_tlr];
     mapping(uint256 => uint256) storage _regionProducts = regionProducts[_tlr];
     //note first productID is at regionProducts[1];
     for (_idx = _productStartIdx; _idx <= _regionProductCount; ++_idx) {
       uint _productID = _regionProducts[_idx];
-      if (_productID != 0 && isCertainProduct(_productID, _vendorAddr, _category, _region, _maxPrice, _onlyAvailable)) {
+      if (_productID != 0 && isCertainProduct(_productID, _searchParms)) {
 	_productIDs[_count] = _productID;
 	if (++_count >= _maxResults)
 	  break;
