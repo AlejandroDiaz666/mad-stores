@@ -47,6 +47,9 @@ var meUtil = module.exports = {
 	this.onlyAvailable = onlyAvailable;
 	this.previousSearch = null;
 	this.lastSearchLastIdxBN = new BN('0', 16);
+	this.minPriceBN = new BN('0', 16);
+	this.minDeliveriesBN = new BN('0', 16);
+	this.minRatingBN = new BN('0', 16);
 	meUtil.productSearchResults = [];
     },
 
@@ -280,8 +283,8 @@ function efficientGetCertainProducts(productSearchFilter, maxNewProducts, cb) {
 	}
 	const searchStartIdxBN = productSearchFilter.lastSearchLastIdxBN.addn(1);
 	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-		  productSearchFilter.maxPriceBN, productSearchFilter.onlyAvailable, searchStartIdxBN,
-		  maxNewProducts, function(err, lastSearchIdx, products) {
+		  productSearchFilter.minPriceBN, productSearchFilter.maxPriceBN, productSearchFilter.minDeliveriesBN, productSearchFilter.minRatingBN,
+		  productSearchFilter.onlyAvailable, searchStartIdxBN, maxNewProducts, function(err, lastSearchIdx, products) {
 		      if (!err) {
 			  productSearchFilter.lastSearchLastIdxBN = common.numberToBN(lastSearchIdx);
 			  console.log('efficientGetCertainProducts: lastSearchIdx = ' + lastSearchIdx + ', products = ' + products);

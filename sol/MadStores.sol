@@ -57,7 +57,6 @@ contract MadStores is SafeMath {
     uint256 region;
     uint256 regionProductIdx;
     address vendorAddr;
-
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -72,6 +71,10 @@ contract MadStores is SafeMath {
     bool activeFlag;
   }
 
+
+  // -----------------------------------------------------------------------------------------------------
+  // SearchParms struct is used to pass search parameters to isCertainProduct()
+  // -----------------------------------------------------------------------------------------------------
   struct SearchParms {
     bool onlyAvailable;
     address vendorAddr;
@@ -79,6 +82,8 @@ contract MadStores is SafeMath {
     uint256 region;
     uint256 minPrice;
     uint256 maxPrice;
+    uint256 minDeliveries;
+    uint256 minRating;
   }
 
 
@@ -148,10 +153,18 @@ contract MadStores is SafeMath {
   // -----------------------------------------------------------------------------------------------------
   function isCertainProduct(uint256 _productID, SearchParms memory _searchParms) internal view returns(bool) {
     Product storage _product = products[_productID];
+    VendorAccount storage _vendorAccount = vendorAccounts[_product.vendorAddr];
     if (_searchParms.onlyAvailable) {
       uint256 _minVendorBond = safeMul(_product.price, 50) / 100;
       uint256 _vendorBalance = madEscrow.balanceOf(_product.vendorAddr);
       if (_product.quantity == 0 || _product.price == 0 || _vendorBalance < _minVendorBond)
+	return(false);
+    }
+    if (_vendorAccount.deliveriesApproved < _searchParms.minDeliveries)
+      return(false);
+    if (_searchParms.minRating > 0) {
+      uint256 rating = _vendorAccount.ratingSum / safeAdd(_vendorAccount.deliveriesApproved, _vendorAccount.deliveriesRejected);
+      if (rating < _searchParms.minRating)
 	return(false);
     }
     uint8 _tlc = uint8(_searchParms.category >> 248);
@@ -186,9 +199,9 @@ contract MadStores is SafeMath {
   // getCategoryProducts, or getRegionProducts. if searching based on 2 or more parameters then compare vendorProductCounts[_vendorAddr] to
   // categoryProductCounts[_tlc], to regionProductCounts[_tlr], and call the function that corresponds to the smallest number of products.
   //
-  function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
+  function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
 			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
     //note: first productID is 1
@@ -209,9 +222,9 @@ contract MadStores is SafeMath {
   // if category is specified, then top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have
   // any overlap with product llc bits.
   //
-  function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
+  function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
     require(_searchParms.vendorAddr != address(0), "address must be specified");
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
@@ -233,9 +246,9 @@ contract MadStores is SafeMath {
   // note that array will always have _maxResults entries. ignore productID = 0
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
-  function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
+  function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
     require(_searchParms.category != 0, "category must be specified");
     uint _count = 0;
     uint8 _tlc = uint8(_searchParms.category >> 248);
@@ -259,9 +272,9 @@ contract MadStores is SafeMath {
   // note that array will always have _maxResults entries. ignore productID = 0
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
-  function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice,
+  function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
 			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice);
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
     require(_searchParms.region != 0, "region must be specified");
     uint _count = 0;
     uint8 _tlr = uint8(_searchParms.region >> 248);
