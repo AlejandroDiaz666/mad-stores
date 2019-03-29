@@ -31,10 +31,27 @@ const createStore = module.exports = {
 	setViewProductsButtonHandlers();
     },
 
+    doExitWarning: function() {
+	const exitWarning = 'Warning: You don\'t have enough Turms W-Dia to make a bond for all of your products.\n' +
+	      'Whenever a buyer deposits funds to purchase an item, the Turms Mad Escrow contract will automatically ' +
+	      'make an escrow deposit on your behalf, equal to take 50% of the price.\n' +
+	      'Your escrow deposit will be returned to you if the escrow is cancelled or if delivery of the product is approved.\n' +
+	      'Right now you don\'t have sufficient wrapped DAI to create an escrow for your most expensive product. ' +
+	      'You will need to wrap additional DAI for in order for all of your products to be view-able by buyers';
+	if (!!common.wdaiBalanceBN && !!createStore.maxProductPriceBN && common.wdaiBalanceBN.lt(createStore.maxProductPriceBN.divn(2))) {
+	    alert(exitWarning);
+	    //if we don'r set this to null here then the user will get the warning everytime he changes pages (modes), until he re-enters the
+	    //create-my-store page.
+	    //createStore.maxProductPriceBN = null;
+	}
+    },
+
     defaultRegionBN: null,
     productsPerPage: 8,
     productSearchFilter: null,
     displayedProductsStartIdx: 0,
+    maxProductPriceBN: null,
+
 };
 
 
@@ -192,6 +209,7 @@ function setViewProductsButtonHandlers() {
 // create-store - reg-store
 //
 function regStoreSubPage() {
+    createStore.maxProductPriceBN = new BN('0', 16);
     common.setMenuButtonState('shopButton',                    'Enabled');
     common.setMenuButtonState('dashboardButton',               'Enabled');
     common.setMenuButtonState('createStoreButton',             'Selected');
@@ -394,6 +412,9 @@ function addProductDoAdd(productIdBN) {
     const regionBN = createStore.defaultRegionBN;
     console.log('addProdDoAdd: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
     const priceBN = meEther.usdStrToDaiBN(createStoreAddProdPriceArea.value);
+    console.log('addProdDoAdd: priceBN = ' + priceBN.toString(10) + ', createStore.maxProductPriceBN = ' + createStore.maxProductPriceBN.toString(10));
+    if (priceBN.gt(createStore.maxProductPriceBN))
+	createStore.maxProductPriceBN = priceBN;
     const quantityBN = common.numberToBN(createStoreAddProdQuantityArea.value);
     const nameBytes = common.strToUtf8Bytes(createStoreAddProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreAddProdDescArea.value);
@@ -442,7 +463,7 @@ function viewProductsSubPage() {
     var categoryBN = null;
     var maxPriceBN = null;
     var vendorAddr = common.web3.eth.accounts[0];
-    const onlyAvailable = false; //should be true, but now testing
+    const onlyAvailable = false;
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     createStore.displayedProductsStartIdx = 0;
     createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
@@ -529,6 +550,9 @@ function editProdDoEdit(productIdBN) {
     const regionBN = createStore.defaultRegionBN;
     console.log('editProdDoEdit: regionBN = 0x' + regionBN.toString(16) + ' = ' + regionBN.toString(10));
     const priceBN = meEther.usdStrToDaiBN(createStoreEditProdPriceArea.value);
+    console.log('editProdDoEdit: priceBN = ' + priceBN.toString(10) + ', createStore.maxProductPriceBN = ' + createStore.maxProductPriceBN.toString(10));
+    if (priceBN.gt(createStore.maxProductPriceBN))
+	createStore.maxProductPriceBN = priceBN;
     const quantityBN = common.numberToBN(createStoreEditProdQuantityArea.value);
     const nameBytes = common.strToUtf8Bytes(createStoreEditProdNameArea.value);
     const descBytes = common.strToUtf8Bytes(createStoreEditProdDescArea.value);

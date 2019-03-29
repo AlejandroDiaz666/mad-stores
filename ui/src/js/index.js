@@ -127,10 +127,12 @@ function ListEntry(listIdx, div, msgId, msgNo, addr, date, ref, content) {
 function setMainButtonHandlers() {
     var shopButton = document.getElementById('shopButton');
     shopButton.addEventListener('click', function() {
+	createStore.doExitWarning();
 	shop.handleShopPage();
     });
     var dashboardButton = document.getElementById('dashboardButton');
     dashboardButton.addEventListener('click', function() {
+	createStore.doExitWarning();
 	dashboard.handleDashboardPage();
     });
     var createStoreButton = document.getElementById('createStoreButton');
@@ -404,6 +406,7 @@ function updateDaiAndWDai() {
 	daiBalanceArea.value = '  Dai Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
     });
     meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	common.wdaiBalanceBN = wdaiBalanceBN;
 	console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
 	wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
