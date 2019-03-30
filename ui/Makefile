@@ -34,7 +34,6 @@ deploy: all
 	cp $(HTMBLDDIR)/*.html $(HTMBLDDIR)/$(INDEXALIAS) release/
 	cp $(IMGBLDDIR)/* release/images/
 	cp $(CSSBLDDIR)/*_TIMESTAMP*.css release/css/
-	cp $(JSBLDDIR)/SVGAnimation.js release/bundle/
 	cp $(JSBLDDIR)/index_TIMESTAMP*.js release/bundle/
 	tar -czf $(INDEXALIAS)-$(shell cat src/js/autoVersion.txt).tar.gz release
 
