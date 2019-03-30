@@ -31,6 +31,67 @@ var meUtil = module.exports = {
 	};
     },
 
+    ProductTile: function(parentDiv, elemIdx, productId, listener) {
+	const id = elemIdx.toString(10);
+	//const tileImgElemId = 'tile' + id + 'Img';
+	//const tileNameSpanId = 'tile' + id + 'Name';
+	//const tileTextSpanId = 'tile' + id + 'Text';
+	//const tilePriceSpanId = 'tile' + id + 'Price';
+	//const tileQuantitySpanId = 'tile' + id + 'Quantity';
+	const tileId = 'tile' + id;
+	//in case there is already a tile (on some other page?)
+	var altElem = document.getElementById(tileId);
+	if (!!altElem)
+	    altElem.parentNode.removeChild(altElem);
+	this.div = document.createElement('div');
+	this.div.id = tileId;
+	this.div.className = 'tileDivHidden';
+	this.imgElem = document.createElement('img');
+	//this.imgElem.id = tileImgElemId;
+	this.imgElem.className = 'tileImg';
+	this.div.appendChild(this.imgElem);
+	this.nameSpan = document.createElement('span');
+	//this.nameSpan.id = tileNameSpanId;
+	this.nameSpan.className = 'tileName';
+	this.div.appendChild(this.nameSpan);
+	this.textSpan = document.createElement('span');
+	//this.textSpan.id = tileTextSpanId
+	this.textSpan.className = 'tileText';
+	this.div.appendChild(this.textSpan);
+	this.priceSpan = document.createElement('span');
+	//this.priceSpan.id = tilePriceSpanId
+	this.priceSpan.className = 'tilePrice';
+	this.div.appendChild(this.priceSpan);
+	this.quantitySpan = document.createElement('span');
+	//this.quantitySpan.id = tileQuantitySpanId;
+	this.quantitySpan.className = 'tileQuantity';
+	this.div.appendChild(this.quantitySpan);
+	//this.elemIdx = elemIdx;
+	this.productId = productId;
+	console.log('ProductTile: this.productId = ' + productId);
+	parentDiv.appendChild(this.div);
+	if (!!listener) {
+	    this.div.addEventListener('click', function() {
+		console.log('ProductTile: got click, productId = ' + productId);
+		const product = meUtil.productListProducts[productId];
+		!!product && !!product.priceBN && listener(product);
+	    });
+	}
+	//
+	this.drawProduct = function() {
+	    const product = meUtil.productListProducts[this.productId];
+	    if (!!product) {
+		this.imgElem.src = product.image;
+		this.nameSpan.textContent = product.name.substring(0, 22);
+		this.textSpan.textContent = product.desc.substring(0, 70);
+		this.priceSpan.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
+		this.quantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
+		this.div.className = 'tileDivShow';
+	    }
+	};
+    },
+
+
     ProductSearchFilter: function(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable) {
 	if (!vendorAddr)
 	    vendorAddr = '0x0';
@@ -51,9 +112,18 @@ var meUtil = module.exports = {
 	this.minDeliveriesBN = new BN('0', 16);
 	this.minRatingBN = new BN('0', 16);
 	meUtil.productSearchResults = [];
+	//could we somehow save old products?
+	meUtil.productListProducts = [];
+	//should we delete old tiles?
+	meUtil.productTiles = [];
     },
 
+    // just the ids (hex256), in the order returned by the contract search fcn
     productSearchResults: [],
+    // complete Products. indexed by productId's (hex256)
+    productListProducts: [],
+    // list of elems, in display order
+    productTiles: [],
 
 
     //cb(err, results)
@@ -70,52 +140,82 @@ var meUtil = module.exports = {
     },
 
 
-    //
-    // gets products according to the passed productSearchFilter, if necessary (we might already have the products cached)
-    // displays noToDisplay products in the passed div. onclick for each product calls listener(product)
-    //
-    // cb(prevEnable, nextEnable)
-    // listener(product)
-    //
-    displayProducts: function(productSearchFilter, div, listener, startIdx, noToDisplay, cb) {
-	console.log('displayProducts: startIdx = ' + startIdx + ',  productSearchResults.length = ' + meUtil.productSearchResults.length + ', noToDisplay = ' + noToDisplay);
-	clearProducts(div);
-	drawProductTiles(div, listener, startIdx, noToDisplay);
-	let idx = startIdx;
-	let remainToDisplay = noToDisplay;
-	if (!!meUtil.productSearchResults) {
-	    while (remainToDisplay > 0 && idx < meUtil.productSearchResults.length) {
-		drawProduct(idx);
-		++idx;
-		--remainToDisplay;
-	    }
-	    if (remainToDisplay <= 0) {
-		if (!!cb) {
-		    const prevEnable = (startIdx >= noToDisplay);
-		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
-		    cb(prevEnable, nextEnable);
-		}
-		return;
-	    }
-	}
-	const newProductsNeeded = idx + remainToDisplay - meUtil.productSearchResults.length;
-	console.log('displayProducts: need ' + newProductsNeeded + ' more products, starting with ' + idx);
-	efficientGetCertainProducts(productSearchFilter, newProductsNeeded, function(err, productIds) {
+    // cb(err)
+    // note product ids returned from search functions are not necessarily hex256. so be careful!
+    getProductIds: function(productSearchFilter, maxIds, cb) {
+	efficientGetCertainProducts(productSearchFilter, maxIds, function(err, productIds) {
 	    if (!!err) {
-		cb(false, false);
+		cb(err);
 		return;
 	    }
-	    console.log('displayProducts: calling getSaveAndDrawProducts(productIds = ' + productIds + ', idx = ' + idx);
-	    getSaveAndDrawProducts(productIds, 0, idx, function() {
-		if (!!cb) {
-		    const prevEnable = (startIdx >= noToDisplay);
-		    const nextEnable = (meUtil.productSearchResults.length >= startIdx + noToDisplay);
-		    console.log('displayProducts: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
-		    cb(prevEnable, nextEnable);
-		}
-	    });
+	    for (let i = 0; i < productIds.length; ++i) {
+		const productIdBN = common.numberToBN(productIds[i]);
+		if (!productIdBN.isZero())
+		    meUtil.productSearchResults.push(common.BNToHex256(productIdBN));
+		else
+		    break;
+	    }
+	    cb(null);
 	});
     },
+
+
+    //
+    // cb(err)
+    // create sufficient productSearchResults elements to accomodate the current scroll position of the passed productListDiv.
+    // the elements will be populated (ie. filled-in) asynchronously after the product details are retreived
+    //
+    // if minElemIdx is set, then we continue populating at least until we have retreived that idx
+    //
+    populateProductList: function(parentDiv, minElemIdx, listener, cb) {
+	console.log('populateProductList');
+	if (!meUtil.productSearchResults || meUtil.productSearchResults.length == 0) {
+	    cb('no products to display');
+	    return;
+	}
+	let callDepth = 0;
+	let callCount = 0;
+	for (let j = 0; j < 10; ++j) {
+	    //scrollHeight is the entire height, including the part of the elem that is now viewable because it is scrolled
+	    //scrollTop is a measurement of the distance from the element's top to its topmost visible content
+            console.log('populateProductList: scrollHeight = ' + parentDiv.scrollHeight + ', scrollTop = ' + parentDiv.scrollTop + ', clientHeight = ' + parentDiv.clientHeight);
+	    if (meUtil.productTiles.length >= meUtil.productSearchResults.length)
+		break;
+	    else if (!!minElemIdx && meUtil.productTiles.length < minElemIdx + 1)
+		;
+            else if (parentDiv.scrollHeight > parentDiv.scrollTop + parentDiv.clientHeight + 50)
+		break;
+	    if (callDepth == 0)
+		common.setLoadingIcon('start');
+	    ++callCount;
+	    ++callDepth;
+	    //
+	    // now make up to 3 new elems
+	    //
+	    const tilesById = {};
+	    const productIds = [];
+	    const noElems = Math.min(3, meUtil.productSearchResults.length - meUtil.productTiles.length);
+	    //const startProductIdx = elemIdxToMsgNo(isRx, lastElemIdx);
+            console.log('populateMsgList: productTiles.length = ' + meUtil.productTiles.length + ', noElems = ' + noElems);
+	    for (let i = 0; i < noElems; ++i) {
+		const elemIdx = meUtil.productTiles.length;
+		const searchResultIdx = meUtil.productSearchResults.length - elemIdx - 1;
+		const productId = meUtil.productSearchResults[searchResultIdx]
+		console.log('populateMsgList: productTile[' + elemIdx + '], productId = ' + productId);
+		const productTile = new meUtil.ProductTile(parentDiv, elemIdx, productId, listener);
+		meUtil.productTiles.push(productTile);
+		tilesById[productId] = productTile;
+		productIds.push(productId);
+	    }
+	    // colleect and draw those 3 elems asynchronously
+	    const productCb = (err, productId) => { !err && tilesById[productId].drawProduct(); };
+	    const doneCb = () => { if (--callDepth <= 0) { common.setLoadingIcon(null); cb(null); } };
+	    getSaveAndParse3Products(productIds, productCb, doneCb);
+	}
+	if (callCount == 0)
+	    cb(null);
+    },
+
 
 
     // cb(err)
@@ -335,70 +435,16 @@ function selectEfficientSearch(productSearchFilter, cb) {
 }
 
 
-
-//
-// this is a helper for displayProducts
-// recursive fcn, get, save & draw 3 products at a time. recursive to get, save & draw the rest
-// products are saved to meUtil.productSearchResults[] in getSaveAndParse3Products
-//
-//
-// listIdx: idx into productIds
-// productIdx: idx into meUtil.productSearchResults
-//
-function getSaveAndDrawProducts(productIds, listIdx, productIdx, cb) {
-    const threeProductIds = [];
-    const productCookies = {};
-    console.log('getSaveAndDrawProducts: enter: listIdx = ' + listIdx + ', productIdx = ' + productIdx)
-    for (let i = 0; i < 3 && listIdx < productIds.length; ++i, ++listIdx, ++productIdx) {
-	if (common.numberToBN(productIds[listIdx]).isZero())
-	    break;
-	console.log('getAndDrawProducts: productId = ' + productIds[listIdx] + ' goes to listIdx = ' + listIdx);
-	const productId = common.numberToHex256(productIds[listIdx]);
-	const productCookie = { idx: productIdx, id: productId };
-	threeProductIds.push(productId);
-	productCookies[productId] = productCookie;
-    }
-    if (threeProductIds.length == 0) {
-	console.log('getSaveAndDrawProducts: no products from idx ' + productIdx + ' on');
-	cb();
-    } else {
-	//gets up to 3 log entries; second cb when all done
-	let productsToDisplay = 10000;
-	let noProductsDisplayed = 0;
-	getSaveAndParse3Products(threeProductIds, productCookies, function(err, cookie, product) {
-	    if (!!err || !product)
-		console.log('getSaveAndDrawProducts: Product data not found for product id ' + cookie.id);
-	    drawProduct(cookie.idx);
-	    ++noProductsDisplayed;
-	    console.log('getSaveAndDrawProducts: got productCb. err = ' + err + ', productsToDisplay = ' + productsToDisplay + ', noProductsDisplayed = ' + noProductsDisplayed);
-	    if (noProductsDisplayed >= productsToDisplay) {
-		console.log('getSaveAndDrawProducts: exit: listIdx = ' + listIdx + ', productIdx = ' + productIdx);
-		const done = (listIdx < productIds.length && !common.numberToBN(productIds[listIdx]).isZero()) ? false : true;
-	    (done) ? cb() : getSaveAndDrawProducts(productIds, listIdx, productIdx, cb);
-	    }
-	}, function(noProductsProcessed) {
-	    productsToDisplay = noProductsProcessed;
-	    console.log('getSaveAndDrawProducts: got doneCb. listIdx = ' + listIdx + ', noProductsProcessed = ' + noProductsProcessed + ', noProductsDisplayed = ' + noProductsDisplayed);
-	    if (noProductsDisplayed >= productsToDisplay) {
-		console.log('getSaveAndDrawProducts: exit: listIdx = ' + listIdx + ', productIdx = ' + productIdx);
-		const done = (listIdx < productIds.length && !common.numberToBN(productIds[listIdx]).isZero()) ? false : true;
-		(done) ? cb() : getSaveAndDrawProducts(productIds, listIdx, productIdx, cb);
-	    }
-	});
-    }
-}
-
-
 //
 // gets up to 3 products specified in productIds[]
-// products are saved to meUtil.productSearchResults[]
+// products are saved to meUtil.productListProducts[], which is indexed by by Hex256(productIds)
 //
-// productCb(err, cookie, product)
+// productCb(err, productId)
 // doneCb(noProductsProcessed)
 //
 // note: product = { productIdBN, name, desc, image, priceBN, quantityBN, categoryBN, regionBN, vendorAddr }
 //
-function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb) {
+function getSaveAndParse3Products(productIds, productCb, doneCb) {
     console.log('getAndParseIdMsgs: enter productIds = ' + productIds);
     const options = {
 	fromBlock: 0,
@@ -420,49 +466,48 @@ function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb)
     }
     console.log('getSaveAndParse3Products: options = ' + JSON.stringify(options));
     ether.getLogs3(options, function(err, productResults) {
-	console.log('getSaveAndParse3Products: err = ' + err + ', productResults.length = ' + productResults.length);
+	console.log('getSaveAndParse3Products: err = ' + err);
+	if (!!productResults)
+	    console.log('getSaveAndParse3Products: productResults.length = ' + productResults.length);
 	if (!!err || !productResults || productResults.length == 0) {
 	    if (!!err)
 		console.log('getSaveAndParse3Products: err = ' + err);
 	    //either an error, or maybe just no events
 	    for (let i = 0; i < productIds.length; ++i) {
-		const cookie = productCookies[productIds[i]];
-		meUtil.productSearchResults[cookie.idx] = null;
-		productCb(err, cookie, null);
+		meUtil.productListProducts[productIds[i]] = null;
+		productCb(err, productIds[i]);
 	    }
 	    doneCb(productIds.length);
 	    return;
 	}
-	let productCbCount = 0;
 	let bogusCount = 0;
-	const parsedUniq = {};
+	let productCbCount = 0;
+	// scan backwards to get most recent edit of each product
 	for (let i = productResults.length - 1; i >= 0; --i) {
 	    meEther.parseRegisterProductEvent(productResults[i], function(err, productIdBN, name, desc, image) {
-		const id256 = common.BNToHex256(productIdBN);
-		const cookie = productCookies[id256];
-		if (!!cookie && !parsedUniq[id256]) {
-		    parsedUniq[id256] = true;
-		    const newProduct = new meUtil.Product(productIdBN, name, desc, image);
-		    meUtil.productSearchResults[cookie.idx] = newProduct;
+		const productId = common.BNToHex256(productIdBN);
+		if (!!meUtil.productListProducts[productId]) {
+		    //could be a duplicate
+		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN) + ', name = ' + name);
+		    if (productCbCount + ++bogusCount >= productResults.length) {
+			doneCb(productCbCount);
+		    }
+		} else {
+		    const product = new meUtil.Product(productIdBN, name, desc, image);
+		    meUtil.productListProducts[productId] = product;
 		    meEther.productInfoQuery(productIdBN, function(err, productIdBN, productInfo) {
-			let cookie = null;
-			let product = null;
+			const productId = common.BNToHex256(productIdBN);
 			if (!!err) {
-			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', name = ' + name + ', err = ' + err);
+			    console.log('getSaveAndParse3Products: product = ' + productId + ', err = ' + err);
 			} else {
-			    cookie = productCookies[common.BNToHex256(productIdBN)];
-			    product = meUtil.productSearchResults[cookie.idx];
+			    const product = meUtil.productListProducts[productId];
 			    product.setProductInfo(productInfo);
-			    console.log('getSaveAndParse3Products: product = 0x' + product.productIdBN.toString(16) + ', name = ' + name + ', category = 0x' + product.categoryBN.toString(16));
+			    console.log('getSaveAndParse3Products: product = ' + productId);
 			}
-			productCb(err, cookie, product);
+			productCb(err, productId);
 			if (++productCbCount + bogusCount >= productResults.length)
 			    doneCb(productCbCount);
 		    });
-		} else {
-		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN) + ', name = ' + name);
-		    if (productCbCount + ++bogusCount >= productResults.length)
-			doneCb(productCbCount);
 		}
 	    });
 	}
@@ -477,91 +522,4 @@ function getSaveAndParse3Products(productIds, productCookies, productCb, doneCb)
 function clearProducts(div) {
     while (div.hasChildNodes())
 	div.removeChild(div.lastChild);
-}
-
-//
-// draw product tiles in the passed div. tiles are not populated with data yet.
-// onclick for each tile calls listener(product)
-//
-function drawProductTiles(div, listener, startIdx, noTiles) {
-    for (let i = 0; i < noTiles; ++i, ++startIdx) {
-	const id = startIdx.toString(10);
-	const tileImgElemId = 'tile' + id + 'Img';
-	const tileNameSpanId = 'tile' + id + 'Name';
-	const tileTextSpanId = 'tile' + id + 'Text';
-	const tilePriceSpanId = 'tile' + id + 'Price';
-	const tileQuantitySpanId = 'tile' + id + 'Quantity';
-	const tileId = 'tile' + id;
-	//in case there is already a tile (on some other page?)
-	var altElem = document.getElementById(tileId);
-	if (!!altElem)
-	    altElem.parentNode.removeChild(altElem);
-	const tileDiv = document.createElement('div');
-	tileDiv.id = tileId;
-	tileDiv.className = 'tileDivHidden';
-	const tileImgElem = document.createElement('img');
-	tileImgElem.id = tileImgElemId;
-	tileImgElem.className = 'tileImg';
-	tileDiv.appendChild(tileImgElem);
-	const tileNameSpan = document.createElement('span');
-	tileNameSpan.id = tileNameSpanId;
-	tileNameSpan.className = 'tileName';
-	tileDiv.appendChild(tileNameSpan);
-	const tileTextSpan = document.createElement('span');
-	tileTextSpan.id = tileTextSpanId
-	tileTextSpan.className = 'tileText';
-	tileDiv.appendChild(tileTextSpan);
-	const tilePriceSpan = document.createElement('span');
-	tilePriceSpan.id = tilePriceSpanId
-	tilePriceSpan.className = 'tilePrice';
-	tileDiv.appendChild(tilePriceSpan);
-	const tileQuantitySpan = document.createElement('span');
-	tileQuantitySpan.id = tileQuantitySpanId;
-	tileQuantitySpan.className = 'tileQuantity';
-	tileDiv.appendChild(tileQuantitySpan);
-	if (!!listener) {
-	    const productIdx = startIdx;
-	    tileDiv.addEventListener('click', function() {
-		console.log('drawProductTiles: got click, productIdx = ' + productIdx);
-		const product = meUtil.productSearchResults[productIdx];
-		listener(product);
-	    });
-	}
-	div.appendChild(tileDiv);
-    }
-}
-
-
-//
-// draws product specified by idx. onclick for each product calls listener(product)
-// products must already have been retreived to meUtil.productSearchResults[];
-//
-// idx is index into meUtil.productSearchResults[]
-//
-function drawProduct(idx) {
-    console.log('drawProduct: idx = ' + idx);
-    const product = meUtil.productSearchResults[idx];
-    if (!product) {
-	console.log('drawProduct: no product at index, ' + idx + ', productSearchResults.length = ' + meUtil.productSearchResults.length);
-	return;
-    }
-    const id = idx.toString(10);
-    const tileId = 'tile' + id;
-    const tileImgElemId = 'tile' + id + 'Img';
-    const tileNameSpanId = 'tile' + id + 'Name';
-    const tileTextSpanId = 'tile' + id + 'Text';
-    const tilePriceSpanId = 'tile' + id + 'Price';
-    const tileQuantitySpanId = 'tile' + id + 'Quantity';
-    const tileDiv = document.getElementById(tileId);
-    const tileImgElem = document.getElementById(tileImgElemId);
-    const tileNameSpan = document.getElementById(tileNameSpanId);
-    const tileTextSpan = document.getElementById(tileTextSpanId);
-    const tilePriceSpan = document.getElementById(tilePriceSpanId);
-    const tileQuantitySpan = document.getElementById(tileQuantitySpanId);
-    tileImgElem.src = product.image;
-    tileNameSpan.textContent = product.name.substring(0, 22);
-    tileTextSpan.textContent = product.desc.substring(0, 70);
-    tilePriceSpan.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
-    tileQuantitySpan.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
-    tileDiv.className = 'tileDivShow';
 }

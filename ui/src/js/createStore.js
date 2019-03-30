@@ -49,7 +49,6 @@ const createStore = module.exports = {
     defaultRegionBN: null,
     productsPerPage: 8,
     productSearchFilter: null,
-    displayedProductsStartIdx: 0,
     maxProductPriceBN: null,
 
 };
@@ -180,28 +179,6 @@ function setViewProductsButtonHandlers() {
     createStoreEditProdLlcBitsSel.addEventListener('input', enableViewProdsDoEditButton);
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.addEventListener('click', () => { editProdDoEdit(createStoreViewProdsDoEditButton.productIdBN) }, {passive: true} );
-    //
-    const createStoreNextButton = document.getElementById('createStoreNextButton');
-    console.log('setButtonHandlers: shopNextButton = ' + shopNextButton);
-    createStoreNextButton.addEventListener('click', function() {
-	createStore.displayedProductsStartIdx += createStore.productsPerPage;
-	const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
-	meUtil.displayProducts(createStore.productSearchFilter, createStoreViewProdsTilesDiv, viewProdsEditProduct, createStore.displayedProductsStartIdx, createStore.productsPerPage,
-			       function(prevEnable, nextEnable) {
-				   common.setMenuButtonState('createStorePrevButton', prevEnable ? 'Enabled' : 'Disabled');
-				   common.setMenuButtonState('createStoreNextButton', nextEnable ? 'Enabled' : 'Disabled');
-			       });
-    });
-    const createStorePrevButton = document.getElementById('createStorePrevButton');
-    createStorePrevButton.addEventListener('click', function() {
-	createStore.displayedProductsStartIdx -= createStore.productsPerPage;
-	const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
-	meUtil.displayProducts(createStore.productSearchFilter, createStoreViewProdsTilesDiv, viewProdsEditProduct, createStore.displayedProductsStartIdx, createStore.productsPerPage,
-			       function(prevEnable, nextEnable) {
-				   common.setMenuButtonState('createStorePrevButton', prevEnable ? 'Enabled' : 'Disabled');
-				   common.setMenuButtonState('createStoreNextButton', nextEnable ? 'Enabled' : 'Disabled');
-			       });
-    });
 }
 
 
@@ -223,7 +200,6 @@ function regStoreSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-    common.replaceElemClassFromTo('createStoreNextPrevDiv',      'visibleB',   'hidden', null);
     common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
     common.waitingForTxid = false;
     common.clearStatusDiv();
@@ -347,7 +323,6 @@ function addProductSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-    common.replaceElemClassFromTo('createStoreNextPrevDiv',      'visibleB',   'hidden', null);
     common.setMenuButtonState('createStoreAddProdDoAddButton', 'Disabled');
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
@@ -454,7 +429,6 @@ function viewProductsSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-    common.replaceElemClassFromTo('createStoreNextPrevDiv',      'hidden',   'visibleB', null);
     common.waitingForTxid = false;
     common.clearStatusDiv();
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
@@ -465,15 +439,18 @@ function viewProductsSubPage() {
     var vendorAddr = common.web3.eth.accounts[0];
     const onlyAvailable = false;
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
-    createStore.displayedProductsStartIdx = 0;
     createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     common.setLoadingIcon('start');
-    meUtil.displayProducts(createStore.productSearchFilter, createStoreViewProdsTilesDiv, viewProdsEditProduct, createStore.displayedProductsStartIdx, createStore.productsPerPage,
-			   function(prevEnable, nextEnable) {
-			       common.setMenuButtonState('createStorePrevButton', prevEnable ? 'Enabled' : 'Disabled');
-			       common.setMenuButtonState('createStoreNextButton', nextEnable ? 'Enabled' : 'Disabled');
-			       common.setLoadingIcon(null);
-			   });
+    meUtil.getProductIds(createStore.productSearchFilter, 100, function(err) {
+	if (err) {
+	    alert(err)
+	} else {
+	    meUtil.populateProductList(createStoreViewProdsTilesDiv, 0, viewProdsEditProduct, function(err) {
+		if (err)
+		    alert(err)
+	    });
+	}
+    });
 }
 
 
@@ -486,7 +463,6 @@ function viewProdsEditProduct(product) {
     common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'hidden',   'visibleB', null);
-    common.replaceElemClassFromTo('createStoreNextPrevDiv',      'visibleB',   'hidden', null);
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');

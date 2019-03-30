@@ -40,6 +40,17 @@ var shop = module.exports = {
 
     setButtonHandlers: function() {
 	//
+	const shopTilesDiv = document.getElementById('shopTilesDiv');
+	shopTilesDiv.addEventListener('scroll', function() {
+	    console.log('got scroll');
+	    if (!!shop.productSearchFilter) {
+		meUtil.populateProductList(shopTilesDiv, 0, selectProduct, function(err) {
+		    if (err)
+			alert(err)
+		});
+	    }
+	});
+	//
 	// slider values are 19 || 20 to 100
 	// price is (exponential) 0 to 100000
 	// base is float 0.0 || 1.0 to 5.0
@@ -72,33 +83,6 @@ var shop = module.exports = {
 	shopDoSearchButton.addEventListener('click', function() {
 	    shopDoSearch();
 	});
-	const shopNextButton = document.getElementById('shopNextButton');
-	console.log('setButtonHandlers: shopNextButton = ' + shopNextButton);
-	shopNextButton.addEventListener('click', function() {
-	    common.setLoadingIcon('start');
-	    shop.displayedProductsStartIdx += shop.productsPerPage;
-	    const shopTilesDiv = document.getElementById('shopTilesDiv');
-	    console.log('shopNextButton: displayedProductsStartIdx = ' + shop.displayedProductsStartIdx);
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
-				   function(prevEnable, nextEnable) {
-				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
-				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
-				       common.setLoadingIcon(null);
-				   });
-	});
-	const shopPrevButton = document.getElementById('shopPrevButton');
-	shopPrevButton.addEventListener('click', function() {
-	    shop.displayedProductsStartIdx -= shop.productsPerPage;
-	    const shopTilesDiv = document.getElementById('shopTilesDiv');
-	    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
-				   function(prevEnable, nextEnable) {
-				       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
-				       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
-				   });
-	});
-	//initialize these to disabled now. we don't want to modify their state when the page is reloaded
-	common.setMenuButtonState('shopPrevButton', 'Disabled');
-	common.setMenuButtonState('shopNextButton', 'Disabled');
 	//
 	const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
 	const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
@@ -131,7 +115,6 @@ var shop = module.exports = {
 
     productsPerPage: 8,
     productSearchFilter: null,
-    displayedProductsStartIdx: 0,
     selectedProduct: null,
     selectedProductCloseFcn: null,
 
@@ -273,7 +256,6 @@ function handleSearchProducts() {
 
 function shopDoSearch() {
     // after user enters earch parameters....
-    common.replaceElemClassFromTo('shopNextPrevDiv',  'hidden',   'visibleB', null);
     common.setLoadingIcon('start');
     const vendorAddr = null
     const maxPriceBN = null;
@@ -296,16 +278,18 @@ function shopDoSearch() {
     }
     console.log('shopDoSearch: regionBN = 0x' + regionBN.toString(16));
     //
-    shop.displayedProductsStartIdx = 0;
     shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');
-    meUtil.displayProducts(shop.productSearchFilter, shopTilesDiv, selectProduct, shop.displayedProductsStartIdx, shop.productsPerPage,
-			   function(prevEnable, nextEnable) {
-			       console.log('shopDoSearch: prevEnable = ' + prevEnable + ', nextEnable = ' + nextEnable);
-			       common.setMenuButtonState('shopPrevButton', prevEnable ? 'Enabled' : 'Disabled');
-			       common.setMenuButtonState('shopNextButton', nextEnable ? 'Enabled' : 'Disabled');
-			       common.setLoadingIcon(null);
-			   });
+    meUtil.getProductIds(shop.productSearchFilter, 100, function(err) {
+	if (err) {
+	    alert(err)
+	} else {
+	    meUtil.populateProductList(shopTilesDiv, 0, selectProduct, function(err) {
+		if (err)
+		    alert(err)
+	    });
+	}
+    });
 }
 
 

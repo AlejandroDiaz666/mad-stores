@@ -535,8 +535,16 @@ h3 { font-size:18px; }
     width: 100%;
     height: max-content;
 }
-.leftSideDiv, .centerDiv, .rightSideDiv {
-    display: table-cell;
+.leftSideDiv {
+    float: left;
+    min-width: 100px;
+    min-height: 640px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+.centerDiv {
+    float: left;
     min-width: 100px;
     min-height: 640px;
     position: relative;
@@ -545,9 +553,6 @@ h3 { font-size:18px; }
 }
 .leftSideDiv {
     background-color: #dbdcdb;
-}
-.rightSideDiv {
-    background-color: initial;
 }
 .leftSideDiv {
     width: 460px;
@@ -646,6 +651,7 @@ h3 { font-size:18px; }
  * these are for shop page and also for create-store view-products page
  * ====================================================================================================================
  */
+
 .tilesDiv {
     display: grid;
     grid-template-columns: repeat(4, 260px);
@@ -658,6 +664,11 @@ h3 { font-size:18px; }
     position: absolute;
     top: 0%;
     left: 0%;
+
+    height: 100%;
+    min-height: 680px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 .tileDivHidden {
     display: none;
