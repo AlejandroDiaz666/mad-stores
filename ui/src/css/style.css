@@ -542,6 +542,8 @@ h3 { font-size:18px; }
     position: relative;
     top: 0px;
     left: 0px;
+    width: 460px;
+
 }
 .centerDiv {
     float: left;
@@ -551,15 +553,11 @@ h3 { font-size:18px; }
     top: 0px;
     left: 0px;
 }
-.leftSideDiv {
+.height680Div {
     background-color: #dbdcdb;
-}
-.leftSideDiv {
-    width: 460px;
-}
-.height640Div {
+    border-radius: 15px;
     position: relative;
-    height: 640px;
+    height: 680px;
     top: 0px;
     left: 0px;
 }
@@ -1377,7 +1375,7 @@ h3 { font-size:18px; }
     padding-right: 0px;
     padding-bottom: 4px;
     padding-left: 0px;
-    margin-top: 4px;
+    margin-top: 11px;
     margin-bottom: 4px;
     margin-left: 0px;
     margin-right: 0px;
@@ -1641,13 +1639,18 @@ h3 { font-size:18px; }
 #createStoreAddProdDoAddButton,
 #createStoreViewProdsDoEditButton {
     width: auto;
+    min-width: 11em;
     position: absolute;
     top: 145px;
     left: 50%;
-    transform-style: preserve-3d;
-    transform: translate3d(0px, 0px, 0px);
 }
-
+#createStoreViewProdsPreviewButton {
+    width: auto;
+    min-width: 11em;
+    position: absolute;
+    top: 170px;
+    left: 50%;
+}
 #createStoreAddProdStepsDiv,
 #createStoreEditProdStepsDiv {
     position: absolute;

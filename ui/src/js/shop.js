@@ -34,7 +34,6 @@ var shop = module.exports = {
 	const shopRegionLlrBitsSel = document.getElementById('shopRegionLlrBitsSel');
 	regions.addTlrOptionsElems(categoryBN, shopRegionTlrSel);
 	regions.addLlrBitsOptionsElems(shopRegionTlrSel.value, categoryBN, shopRegionLlrBitsSel, null);
-	shop.selectedProductCloseFcn = null;
 	handleSearchProducts();
     },
 
@@ -105,136 +104,11 @@ var shop = module.exports = {
 	    if (!!shop.selectedProduct)
 		handlePurchase(shop.selectedProduct);
 	});
-	const selectedProductCloseImg = document.getElementById('selectedProductCloseImg');
-	selectedProductCloseImg.addEventListener('click', function() {
-	    console.log('selectedProductCloseImg: got click');
-	    if (!!shop.selectedProductCloseFcn)
-		shop.selectedProductCloseFcn();
-	});
     },
 
     productsPerPage: 8,
     productSearchFilter: null,
     selectedProduct: null,
-    selectedProductCloseFcn: null,
-
-    //
-    // this fcn shows the product, as it appears in the shop/product-detail page. but it can be used by other
-    // pages to review how the product advertisement looks
-    //
-    // mode = [ 'shop' | 'view' ]
-    //
-    hideProductDetail: function() {
-	common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden', null);
-	shop.selectedProductCloseFcn = null;
-    },
-    showProductDetail: function(product, mode, closeCB) {
-	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
-	common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden', 'visibleB', null);
-	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', mode);
-	shop.selectedProductCloseFcn = closeCB;
-	//
-	const selectedProductDetailImg = document.getElementById('selectedProductDetailImg');
-	const selectedProductDetailName = document.getElementById('selectedProductDetailName');
-	const selectedProductDetailDesc = document.getElementById('selectedProductDetailDesc');
-	const selectedProductDetailPrice = document.getElementById('selectedProductDetailPrice');
-	const selectedProductDetailQuantity = document.getElementById('selectedProductDetailQuantity');
-	//
-	if (product.name.length < 25) {
-	    selectedProductDetailName.textContent = product.name;
-	} else {
-	    selectedProductDetailName.textContent = product.name.substring(0, 25) + '...';
-	    const productDetailFullName = document.createElement("span");
-	    productDetailFullName.className = 'tooltipText';
-	    productDetailFullName.id = 'productDetailFullName';
-	    productDetailFullName.textContent = product.name;
-	    selectedProductDetailName.appendChild(productDetailFullName);
-	}
-	selectedProductDetailDesc.textContent = (product.desc.length > 120) ? product.desc.substring(0, 120) + '...' : product.desc;
-	if (product.desc.length < 120) {
-	    selectedProductDetailDesc.textContent = product.desc;
-	} else {
-	    selectedProductDetailDesc.textContent = product.desc.substring(0, 120) + '...';
-	    const productDetailFullDesc = document.createElement("span");
-	    productDetailFullDesc.className = 'tooltipText';
-	    productDetailFullDesc.id = product.desc.indexOf('\n') < 0 ? 'productDetailFullDesc' : 'productDetailFullDescPre';
-	    productDetailFullDesc.textContent = product.desc;
-	    selectedProductDetailDesc.appendChild(productDetailFullDesc);
-	}
-	selectedProductDetailImg.src = product.image;
-	//
-	selectedProductDetailPrice.textContent = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai';
-	selectedProductDetailQuantity.textContent = 'Quantity available: ' + product.quantityBN.toString(10);
-	//
-	const selectedProductSellerImg = document.getElementById('selectedProductSellerImg');
-	const selectedProductSellerName = document.getElementById('selectedProductSellerName');
-	const selectedProductSellerDesc = document.getElementById('selectedProductSellerDesc');
-	const selectedProductSellerRegion = document.getElementById('selectedProductSellerRegion');
-	const selectedProductSellerRating = document.getElementById('selectedProductSellerRating');
-	const selectedProductSellerBurns = document.getElementById('selectedProductSellerBurns');
-	//
-	meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
-	    console.log('showProductDetail: result.length = ' + result.length);
-	    if (!!result && result.length > 0) {
-		meEther.vendorAccountQuery(product.vendorAddr, function(err, vendorAcctInfo) {
-		    console.log('regStorePageSubPage: err = ' + err);
-		    console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
-		    console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
-		    const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
-		    const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
-		    const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
-		    const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
-		    const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
-		    const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
-		    let grade = 'A+';
-		    if (totalBN.isZero()) {
-			grade = 'N/A';
-		    } else {
-			switch(avgRatingBN.toNumber()) {
-			case 0: grade = 'F-'; break;
-			case 1: grade = 'F'; break;
-			case 2: grade = 'D-'; break;
-			case 3: grade = 'D'; break;
-			case 4: grade = 'C-'; break;
-			case 5: grade = 'C'; break;
-			case 6: grade = 'B-'; break;
-			case 7: grade = 'B'; break;
-			case 8: grade = 'A-'; break;
-			case 9: grade = 'A'; break;
-			default: grade = 'A+'; break;
-			}
-		    }
-		    selectedProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
-		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
-		});
-		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
-		    if (name.length < 70) {
-			selectedProductSellerName.textContent = name;
-		    } else {
-			selectedProductSellerName.textContent = name.substring(0, 70) + '...';
-			const sellerFullName = document.createElement("span");
-			sellerFullName.className = 'tooltipText';
-			sellerFullName.id = 'productDetailSellerFullName';
-			sellerFullName.textContent = name;
-			selectedProductSellerName.appendChild(sellerFullName);
-		    }
-		    console.log('seller desc length = ' + desc.length);
-		    if (desc.length < 110) {
-			selectedProductSellerDesc.textContent = desc;
-		    } else {
-			selectedProductSellerDesc.textContent = desc.substring(0, 110) + '...';
-			const sellerFullDesc = document.createElement("span");
-			sellerFullDesc.className = 'tooltipText';
-			sellerFullDesc.id = 'productDetailSellerFullDesc';
-			sellerFullDesc.textContent = desc;
-			selectedProductSellerDesc.appendChild(sellerFullDesc);
-		    }
-		    selectedProductSellerImg.src = image;
-		});
-	    }
-	});
-    },
-
 };
 
 
@@ -246,7 +120,6 @@ function handleSearchProducts() {
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
     common.replaceElemClassFromTo('shopPageDiv',            'hidden',   'visibleT', null);
-    common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('dashboardPageDiv',       'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStorePageDiv',     'visibleT', 'hidden',   null);
     common.replaceElemClassFromTo('msgAreaDiv',             'visibleB', 'hidden',   false);
@@ -301,12 +174,11 @@ function selectProduct(product) {
     common.setMenuButtonState('shopButton',        'Enabled');
     common.setMenuButtonState('createStoreButton', 'Disabled');
     common.replaceElemClassFromTo('shopPageDiv',            'visibleT', 'hidden',    null);
-    common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden',   'visibleB',  null);
     common.replaceElemClassFromTo('msgAreaDiv',             'visibleB', 'hidden',    true);
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     shop.selectedProduct = product;
-    shop.showProductDetail(product, 'shop', handleSearchProducts);
+    meUtil.showProductDetail(product, 'shop', handleSearchProducts);
 }
 
 

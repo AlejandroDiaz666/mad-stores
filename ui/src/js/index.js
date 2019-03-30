@@ -24,6 +24,7 @@ var index = module.exports = {
     main: function() {
 	console.log('index.main');
 	index.setButtonHandlers();
+	meUtil.setButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
 	dashboard.setButtonHandlers();
