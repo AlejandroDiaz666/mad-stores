@@ -112,8 +112,6 @@ var meUtil = module.exports = {
 	this.minDeliveriesBN = new BN('0', 16);
 	this.minRatingBN = new BN('0', 16);
 	meUtil.productSearchResults = [];
-	//could we somehow save old products?
-	meUtil.productListProducts = [];
 	//should we delete old tiles?
 	meUtil.productTiles = [];
     },
@@ -161,6 +159,17 @@ var meUtil = module.exports = {
 
 
     //
+    // invalidate either one or all products from product list
+    //
+    invalidateProductCache: function(productId) {
+	if (!!productId)
+	    meUtil.productListProducts[productId] = null;
+	else
+	    meUtil.productListProducts = [];
+    },
+
+
+    //
     // cb(err)
     // create sufficient productSearchResults elements to accomodate the current scroll position of the passed productListDiv.
     // the elements will be populated (ie. filled-in) asynchronously after the product details are retreived
@@ -185,37 +194,41 @@ var meUtil = module.exports = {
 		;
             else if (parentDiv.scrollHeight > parentDiv.scrollTop + parentDiv.clientHeight + 50)
 		break;
-	    if (callDepth == 0)
-		common.setLoadingIcon('start');
-	    ++callCount;
-	    ++callDepth;
 	    //
-	    // now make up to 3 new elems
+	    // now make up to 3 new tile elems. if we already have products for any tiles, then we can just
+	    // draw those tiles right here.
 	    //
 	    const tilesById = {};
 	    const productIds = [];
-	    const noElems = Math.min(3, meUtil.productSearchResults.length - meUtil.productTiles.length);
-	    //const startProductIdx = elemIdxToMsgNo(isRx, lastElemIdx);
-            console.log('populateMsgList: productTiles.length = ' + meUtil.productTiles.length + ', noElems = ' + noElems);
-	    for (let i = 0; i < noElems; ++i) {
+	    do {
 		const elemIdx = meUtil.productTiles.length;
 		const searchResultIdx = meUtil.productSearchResults.length - elemIdx - 1;
 		const productId = meUtil.productSearchResults[searchResultIdx]
-		console.log('populateMsgList: productTile[' + elemIdx + '], productId = ' + productId);
-		const productTile = new meUtil.ProductTile(parentDiv, elemIdx, productId, listener);
-		meUtil.productTiles.push(productTile);
-		tilesById[productId] = productTile;
-		productIds.push(productId);
-	    }
+		const tile = new meUtil.ProductTile(parentDiv, elemIdx, productId, listener);
+		meUtil.productTiles.push(tile);
+		const product = meUtil.productListProducts[productId];
+		if (!!product) {
+		    tile.drawProduct();
+		} else {
+		    tilesById[productId] = tile;
+		    productIds.push(productId);
+		}
+	    } while (productIds.length < 3 && meUtil.productTiles.length < meUtil.productSearchResults.length);
+	    //
 	    // colleect and draw those 3 elems asynchronously
-	    const productCb = (err, productId) => { !err && tilesById[productId].drawProduct(); };
-	    const doneCb = () => { if (--callDepth <= 0) { common.setLoadingIcon(null); cb(null); } };
-	    getSaveAndParse3Products(productIds, productCb, doneCb);
+	    if (productIds.length > 0) {
+		if (callDepth == 0)
+		    common.setLoadingIcon('start');
+		++callCount;
+		++callDepth;
+		const productCb = (err, productId) => { !err && tilesById[productId].drawProduct(); };
+		const doneCb = () => { if (--callDepth <= 0) { common.setLoadingIcon(null); cb(null); } };
+		getSaveAndParse3Products(productIds, productCb, doneCb);
+	    }
 	}
 	if (callCount == 0)
 	    cb(null);
     },
-
 
 
     // cb(err)
@@ -512,14 +525,4 @@ function getSaveAndParse3Products(productIds, productCb, doneCb) {
 	    });
 	}
     });
-}
-
-
-//
-// draws products in the passed div. onclick for each product calls listener(product)
-// products must already have been retreived to meUtil.productSearchResults[];
-//
-function clearProducts(div) {
-    while (div.hasChildNodes())
-	div.removeChild(div.lastChild);
 }

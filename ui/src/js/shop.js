@@ -256,7 +256,6 @@ function handleSearchProducts() {
 
 function shopDoSearch() {
     // after user enters earch parameters....
-    common.setLoadingIcon('start');
     const vendorAddr = null
     const maxPriceBN = null;
     const onlyAvailable = true;
@@ -278,8 +277,9 @@ function shopDoSearch() {
     }
     console.log('shopDoSearch: regionBN = 0x' + regionBN.toString(16));
     //
-    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
     const shopTilesDiv = document.getElementById('shopTilesDiv');
+    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
+    common.clearDivChildren(shopTilesDiv);
     meUtil.getProductIds(shop.productSearchFilter, 100, function(err) {
 	if (err) {
 	    alert(err)

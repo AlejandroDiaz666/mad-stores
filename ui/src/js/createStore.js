@@ -440,7 +440,7 @@ function viewProductsSubPage() {
     const onlyAvailable = false;
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
     createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
-    common.setLoadingIcon('start');
+    common.clearDivChildren(shopTilesDiv);
     meUtil.getProductIds(createStore.productSearchFilter, 100, function(err) {
 	if (err) {
 	    alert(err)
@@ -509,6 +509,8 @@ function enableViewProdsDoEditButton() {
 // user has clicked the edit-product button. execute the transaction.
 //
 function editProdDoEdit(productIdBN) {
+    //make sure we don't keep around an old version of this product info
+    meUtil.invalidateProductCache(common.BNToHex256(productIdBN));
     console.log('editProdDoEdit: about to re-register productId = 0x' + productIdBN.toString(16));
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
