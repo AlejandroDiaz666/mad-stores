@@ -92,8 +92,8 @@ contract MadStores is SafeMath {
   // -----------------------------------------------------------------------------------------------------
   bool public isLocked;
   address payable public owner;
-  MadEscrow madEscrow;
-  MessageTransport messageTransport;
+  MadEscrow public madEscrow;
+  MessageTransport public messageTransport;
   uint256 public productCount;
   //productID to product
   mapping (uint256 => Product) public products;
