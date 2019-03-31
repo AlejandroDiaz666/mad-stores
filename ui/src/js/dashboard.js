@@ -214,7 +214,7 @@ function makeRow(rowDiv, idx) {
 		console.log('productArea: got click');
 		hideAllModals();
 		selectRowIdx(idx);
-		shop.showProductDetail(product, 'view', shop.hideProductDetail);
+		meUtil.showProductDetail(product, 'view', null);
 	    });
 	});
 	if (!escrowInfo.isClosed) {
@@ -762,7 +762,7 @@ function selectRowIdx(idx) {
 }
 
 function hideAllModals() {
-    shop.hideProductDetail();
+    meUtil.hideProductDetail();
     common.replaceElemClassFromTo('approveDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);

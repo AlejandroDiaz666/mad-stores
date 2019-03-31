@@ -209,7 +209,8 @@ function handlePurchase(product) {
 		//new escrow, no surcharge beyond advertised product price
 		meUtil.purchaseProduct(new BN(0), new BN(0),
 				       shop.selectedProduct.productIdBN, shop.selectedProduct.vendorAddr, attachmentIdxBN, new BN(0), message, function(err) {
-		    if (!!err)
+		   meUtil.hideProductDetail();
+		   if (!!err)
 			alert(err);
 		    else
 			alert('You have just ordered a product; please give the seller\n' +
