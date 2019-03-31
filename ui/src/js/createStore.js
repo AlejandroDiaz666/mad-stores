@@ -194,9 +194,9 @@ function regStoreSubPage() {
     common.setMenuButtonState('shopButton',                    'Enabled');
     common.setMenuButtonState('dashboardButton',               'Enabled');
     common.setMenuButtonState('createStoreButton',             'Selected');
-    common.setMenuButtonState('createStoreRegStoreButton',     'Selected');
-    common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
-    common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreRegStoreButton',     'Selected');
+    common.setButtonState('otherButton', 'createStoreAddProductButton',   'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Disabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsNote',  'visibleB', 'hidden',   null);
@@ -204,7 +204,7 @@ function regStoreSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-    common.setMenuButtonState('createStoreRegStoreDoRegButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreRegStoreDoRegButton', 'Disabled');
     common.waitingForTxid = false;
     common.clearStatusDiv();
     //
@@ -237,8 +237,8 @@ function regStoreSubPage() {
 		//image is eg. 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...'
 		createStoreRegStoreImg.src = image;
 	    });
-	    common.setMenuButtonState('createStoreAddProductButton', 'Enabled');
-	    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
+	    common.setButtonState('otherButton', 'createStoreAddProductButton', 'Enabled');
+	    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Enabled');
 	} else {
 	    createStoreRegStoreButton.textContent = 'Create Store';
 	    createStoreRegStoreDoRegButton.textContent = 'Register My Store';
@@ -270,7 +270,7 @@ function enableRegisterStoreDoRegButton() {
 		    createStoreRegStoreDescArea.value.trim().length > 0 != "" &&
 		    createStoreRegStoreImg.src != '#'                         &&
 		    createStoreRegStoreTlrSel.value != 0                         ) ? true : false;
-    common.setMenuButtonState('createStoreRegStoreDoRegButton', (enable) ? 'Enabled' : 'Disabled');
+    common.setButtonState('otherButton', 'createStoreRegStoreDoRegButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
 
@@ -303,9 +303,9 @@ function registerStoreDoReg() {
 	common.setMenuButtonState('shopButton',          'Disabled');
 	common.setMenuButtonState('dashboardButton',     'Disabled');
 	common.setMenuButtonState('createStoreButton',   'Disabled');
-	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
-	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
-	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
+	common.setButtonState('otherButton', 'createStoreRegStoreButton',     'Disabled');
+	common.setButtonState('otherButton', 'createStoreAddProductButton',   'Disabled');
+	common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Disabled');
 	common.waitForTXID(err, txid, 'Register-Vendor', regStoreSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
@@ -317,9 +317,9 @@ function registerStoreDoReg() {
 //
 function addProductSubPage() {
     console.log('addProductSubPage');
-    common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
-    common.setMenuButtonState('createStoreAddProductButton',   'Selected');
-    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
+    common.setButtonState('otherButton', 'createStoreRegStoreButton',     'Enabled');
+    common.setButtonState('otherButton', 'createStoreAddProductButton',   'Selected');
+    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreAddProdNote',    'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsNote',  'visibleB', 'hidden',   null);
@@ -327,7 +327,7 @@ function addProductSubPage() {
     common.replaceElemClassFromTo('createStoreAddProdStepsDiv',  'hidden',   'visibleB', null);
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden',   null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
-    common.setMenuButtonState('createStoreAddProdDoAddButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreAddProdDoAddButton', 'Disabled');
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     //
@@ -367,7 +367,7 @@ function enableAddProductDoAddButton() {
 		    createStoreAddProdTlcSel.value != 0                &&
 		    createStoreAddProdLlcBitsSel.value != 0              ) ? true : false;
     console.log('enableAddProductDoAddButton: createStoreAddProdImg.src = ' + createStoreAddProdImg.src);
-    common.setMenuButtonState('createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
+    common.setButtonState('otherButton', 'createStoreAddProdDoAddButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
 
@@ -405,9 +405,9 @@ function addProductDoAdd(productIdBN) {
 	common.setMenuButtonState('shopButton',          'Disabled');
 	common.setMenuButtonState('dashboardButton',     'Disabled');
 	common.setMenuButtonState('createStoreButton',   'Disabled');
-	common.setMenuButtonState('createStoreRegStoreButton',     'Disabled');
-	common.setMenuButtonState('createStoreAddProductButton',   'Disabled');
-	common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
+	common.setButtonState('otherButton', 'createStoreRegStoreButton',     'Disabled');
+	common.setButtonState('otherButton', 'createStoreAddProductButton',   'Disabled');
+	common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Disabled');
 	common.waitForTXID(err, txid, 'Register-Product', viewProductsSubPage, ether.etherscanioTxStatusHost, function() {
 	});
     });
@@ -423,9 +423,9 @@ function viewProductsSubPage() {
     common.setMenuButtonState('shopButton',                    'Enabled');
     common.setMenuButtonState('dashboardButton',               'Enabled');
     common.setMenuButtonState('createStoreButton',             'Selected');
-    common.setMenuButtonState('createStoreRegStoreButton',     'Enabled');
-    common.setMenuButtonState('createStoreAddProductButton',   'Enabled');
-    common.setMenuButtonState('createStoreViewProductsButton', 'Selected');
+    common.setButtonState('otherButton', 'createStoreRegStoreButton',     'Enabled');
+    common.setButtonState('otherButton', 'createStoreAddProductButton',   'Enabled');
+    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Selected');
     //ensure createstorePageDiv is visible, cuz we are called after showing product detail
     common.replaceElemClassFromTo('createStorePageDiv',        'hidden',   'visibleT', null);
     common.replaceElemClassFromTo('createStoreRegStoreNote',   'visibleB', 'hidden',   null);
@@ -437,8 +437,8 @@ function viewProductsSubPage() {
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'visibleB', 'hidden',   null);
     common.waitingForTxid = false;
     common.clearStatusDiv();
-    common.setMenuButtonState('createStoreViewProdsPreviewButton', 'Disabled');
-    common.setMenuButtonState('createStoreViewProdsDoEditButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProdsPreviewButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProdsDoEditButton', 'Disabled');
     const createStoreViewProdsPreviewButton = document.getElementById('createStoreViewProdsPreviewButton');
     createStoreViewProdsPreviewButton.disabled = true;
     var regionBN = null;
@@ -468,10 +468,10 @@ function viewProductsSubPage() {
 function viewProdsEditProduct(product) {
     console.log('edit product ' + product.productIdBN.toString(10));
     //so the user can go back to view products
-    common.setMenuButtonState('createStoreViewProductsButton', 'Enabled');
+    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'hidden',   'visibleB', null);
-    common.setMenuButtonState('createStoreViewProdsPreviewButton', 'Enabled');
+    common.setButtonState('otherButton', 'createStoreViewProdsPreviewButton', 'Enabled');
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
@@ -489,7 +489,7 @@ function viewProdsEditProduct(product) {
     categories.addLlcBitsOptionsElems(createStoreEditProdTlcSel.value, product.categoryBN, createStoreEditProdLlcBitsSel, 'None');
     const createStoreViewProdsDoEditButton = document.getElementById('createStoreViewProdsDoEditButton');
     createStoreViewProdsDoEditButton.productIdBN = product.productIdBN;
-    common.setMenuButtonState('createStoreViewProdsDoEditButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProdsDoEditButton', 'Disabled');
 }
 
 
@@ -510,7 +510,7 @@ function enableViewProdsDoEditButton() {
 		    createStoreEditProdImg.src != '#'                   &&
 		    createStoreEditProdTlcSel.value != 0                &&
 		    createStoreEditProdLlcBitsSel.value != 0              ) ? true : false;
-    common.setMenuButtonState('createStoreViewProdsDoEditButton', (enable) ? 'Enabled' : 'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProdsDoEditButton', (enable) ? 'Enabled' : 'Disabled');
 }
 
 
@@ -553,7 +553,7 @@ function editProdDoEdit(productIdBN) {
 // user has clicked the product preview button. create a dummy product and display it.
 //
 function prodDoPreview() {
-    common.setMenuButtonState('createStoreViewProductsButton', 'Disabled');
+    common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Disabled');
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT',   'hidden', null);
     /*
     common.replaceElemClassFromTo('createStoreRegStoreNote',     'visibleB', 'hidden', null);

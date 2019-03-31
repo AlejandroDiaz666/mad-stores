@@ -521,18 +521,24 @@ const common = module.exports = {
 
 
     //state = 'Disabled' | 'Enabled' | 'Selected'
-    setMenuButtonState: function(buttonID, state) {
-	var button = document.getElementById(buttonID);
+    setButtonState: function(baseName, buttonID, state) {
+	const button = document.getElementById(buttonID);
 	button.disabled = (state == 'Enabled') ? false : true;
-	var newClassName = 'menuBarButton' + state;
-	if (button.className.indexOf('menuBarButtonDisabled') >= 0)
-	    button.className = (button.className).replace('menuBarButtonDisabled', newClassName);
-	else if (button.className.indexOf('menuBarButtonEnabled') >= 0)
-	    button.className = (button.className).replace('menuBarButtonEnabled', newClassName);
-	else if (button.className.indexOf('menuBarButtonSelected') >= 0)
-	    button.className = (button.className).replace('menuBarButtonSelected', newClassName);
+	const newClassName = baseName + state;
+	if (button.className.indexOf(baseName + 'Disabled') >= 0)
+	    button.className = (button.className).replace(baseName + 'Disabled', newClassName);
+	else if (button.className.indexOf(baseName + 'Enabled') >= 0)
+	    button.className = (button.className).replace(baseName + 'Enabled', newClassName);
+	else if (button.className.indexOf(baseName + 'Selected') >= 0)
+	    button.className = (button.className).replace(baseName + 'Selected', newClassName);
 	else
-	    button.className = (button.className).replace('menuBarButton', newClassName);
+	    button.className = (button.className).replace(baseName, newClassName);
+    },
+
+
+    //state = 'Disabled' | 'Enabled' | 'Selected'
+    setMenuButtonState: function(buttonID, state) {
+	common.setButtonState('menuBarButton', buttonID, state);
     },
 
 

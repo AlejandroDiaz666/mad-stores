@@ -1,16 +1,20 @@
 :root {
+    --clr_toparea: lightsteelblue;
     --clr_maintitletext: white;
     --clr_bodybg: lightblue;
     --clr_border : slategray;
+    --clr_menubar : slategray;
+    --pad_menubar : 10px;
     --clr_buttonbg : white;
     --clr_buttonbgsel : rgb(175, 180, 183);
+    --clr_buttonbgdis : transparent;
     --clr_buttontext : #00008B;
-    --clr_areabg1: lightsteelblue;
-    --clr_areatext : #00008B;
-    --clr_optpanelbg : rgb(249, 249, 249);
-    --pad_menubar : 10px;
-    --martop_msgAreaDiv : 30px;
-    --pad_msgAreaDiv : 20px;
     --bor_butselect: none;
     --bor_butnormal: none;
+    --bor_butdisable: 1px solid var(--clr_buttonbg);
+    --opacity_butdisable: 0.8;
+    --clr_areatext : #00008B;
+    --clr_optpanelbg : rgb(249, 249, 249);
+    --martop_msgAreaDiv : 30px;
+    --pad_msgAreaDiv : 20px;
 }

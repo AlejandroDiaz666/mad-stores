@@ -1,39 +1,24 @@
-/*
-:root {
-    --clr_maintitletext: black;
-    --clr_bodybg: rgb(165, 165, 155);
-    --clr_border : #84a5BA;
-    --clr_buttonbg : rgb(230, 230, 230);
-    --clr_buttonbgsel : rgb(196, 196, 201);
-    --clr_buttontext : rgb(100, 100, 0);
-    --clr_areabg1: #e3eceb;
-    --clr_areatext : rgb(100, 100, 0);
-    --clr_optpanelbg : rgb(249, 249, 249);
-    --pad_menubar : 5px;
-    --martop_msgAreaDiv : 20px;
-    --pad_msgAreaDiv : 15px;
-    --bor_butselect: 1px solid black;
-    --bor_butnormal: 1px solid var(--clr_buttonbg);
-}
-*/
-/* var above are temp placeholders, for hack to make messages work */
-
 html {
     height: 100%;
 }
 body {
     font-family: 'Roboto', sans-serif;
     font-size: 100%;
-    background: #a4a4a4;
+    background: var(--clr_bodybg);
     min-width: 480px;
     min-height: 640px;
     height: 100%;
     margin: 0;
-    padding: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 h1 { font-size:22px; }
-h2 { font-size:20px; }
+h2 {
+    margin: 0px;
+    font-size:20px;
+}
 h3 { font-size:18px; }
+
 
 /*
   modifiers to make blocks disappear and re-appear.
@@ -268,14 +253,45 @@ h3 { font-size:18px; }
 #topSection {
     display: block;
     font-family: 'Lato', sans-serif;
-    background-color: #e3eceb;
-    margin-top:0px;
-    height: 85px;
+    background-color: var(--clr_toparea);
+    margin: 0px;
+    border-top: 10px;
+    border-left: 10px;
+    border-right: 10px;
+    border-bottom: 0px;
+    border-radius: 15px;
+    height: 100px;
+    position: relative;
+    top: 0px;
+    left: 0px;
 }
 
 #mainTitleSpan {
     float: left;
+    margin-left: 20px;
+    color: var(--clr_maintitletext);
+    font-style: italic;
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    max-width: 50%;
+    transform: translateY(-50%);
 }
+@media (max-width: 1450px) and (min-width: 384px) {
+    #mainTitleSpan {
+	max-width: 35%;
+    }
+}
+
+#logoImg {
+    width: 100px;
+    height: 84px;
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 
 /*
  * options panel styles here
@@ -289,8 +305,8 @@ h3 { font-size:18px; }
     width: 30px;
     height: 30px;
     position: relative;
-    top: 10px;
-    left: 58px;
+    top: 20px;
+    left: 71px;
 }
 #optionsButton:hover {
     opacity: 0.7;
@@ -393,6 +409,8 @@ h3 { font-size:18px; }
 
 #rightAcctInfo {
     float:right;
+    margin: 10px;
+    overflow: visible;
 }
 #networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #daiBalanceAreaDiv, #wdaiBalanceAreaDiv  {
     display: block;
@@ -402,7 +420,6 @@ h3 { font-size:18px; }
     padding-left: 0px;
     margin: 0px;
     min-width: 20%;
-    background-color: #e3eceb;
     position: relative;
     top: 0px;
     left: 0px;
@@ -486,8 +503,6 @@ h3 { font-size:18px; }
 }
 
 
-
-
 #topMenuBarDiv, #botMenuBarDiv {
     display: block;
     padding-top: 4px;
@@ -498,28 +513,64 @@ h3 { font-size:18px; }
     margin-bottom: 4px;
     margin-left: 0px;
     margin-right: 0px;
-    height: 26px;
-    background-color: #dbdcdb;
+    background-color: var(--clr_menubar);
     position: relative;
+    border-radius: 12px;
+}
+.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
+.menuBarButtonSelected, .menuBarButton:hover {
+    padding : var(--pad_menubar);
+    color: var(--clr_buttontext);
+    text-align: center;
+    text-decoration: none;
+}
+.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled {
+    background-color: var(--clr_buttonbg);
+    border: var(--bor_butnormal);
+}
+.menuBarButton:hover, .menuBarButtonSelected, .menuBarButtonEnabled:hover {
+    background-color: var(--clr_buttonbgsel);
+    border: var(--bor_butselect);
+}
+.menuBarButton:hover, .menuBarButtonEnabled:hover {
+    cursor: pointer;
 }
 .topMenuButton {
     margin: 5px;
-    height: 80%;
     width: 15%;
+    height: 80%;
     max-width: 280px;
+    font-size: 16px;
+    border-radius: 12px;
 }
-.menuBarButtonEnabled, .menuBarButtonDisabled {
-    background-color: #dbdcee;
-}
-.menuBarButtonSelected, .menuBarButtonEnabled:hover {
-    background-color: #dbeeee;
-    font-weight: bold;
-    color: black;
-}
-
-
 #shopButton, #dashboardButton, #createStoreButton {
 }
+
+.otherButton, .otherButtonEnabled, .otherButtonDisabled,
+.otherButtonSelected, .otherButton:hover {
+    border-radius: 10px;
+    padding : var(--pad_menubar);
+    color: var(--clr_buttontext);
+    text-align: center;
+    text-decoration: none;
+}
+.otherButton, .otherButtonEnabled {
+    background-color: var(--clr_buttonbg);
+    border: var(--bor_butnormal);
+}
+.otherButtonDisabled {
+    background-color: var(--clr_buttonbgdis);
+    border: var(--bor_butdisable);
+    opacity: var(--opacity_butdisable);
+}
+.otherButton:hover, .otherButtonSelected, .otherButtonEnabled:hover {
+    background-color: var(--clr_buttonbgsel);
+    border: var(--bor_butselect);
+}
+.otherButton:hover, .otherButtonEnabled:hover {
+    cursor: pointer;
+}
+
 
 
 /*
@@ -554,7 +605,8 @@ h3 { font-size:18px; }
     left: 0px;
 }
 .height680Div {
-    background-color: #dbdcdb;
+    border-style: solid;
+    border-width: 2px;
     border-radius: 15px;
     position: relative;
     height: 680px;
@@ -588,7 +640,8 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-205px, 20px, 0px);
     background-image: none;
-    background-color: rgb(126, 212, 246);
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
 }
 #sellerSearchNoteText {
     width: 370px;
@@ -606,7 +659,6 @@ h3 { font-size:18px; }
     left: 50%;
     transform-style: preserve-3d;
     transform: translate3d(-230px, 190px, 0px);
-    background-color: #dbdcef;
 }
 #regionPromptArea, #categoryPromptArea, #pricePromptArea, #storeAddrPromptArea {
     display: table-cell;
@@ -635,8 +687,8 @@ h3 { font-size:18px; }
 #shopCategoryTlcSel, #shopCategoryLlcBitsSel {
     width: 25em;
 }
-#loadStoreButton {
-    width: 28em;
+#shopDoSearchButton {
+    padding: 4px;
 }
 
 
@@ -986,7 +1038,7 @@ h3 { font-size:18px; }
 #escrowlistAreaDiv {
     padding: 12px;
     margin: 0px;
-    background-color: var(--clr_areabg1);
+    background-color: var(--clr_toparea);
     border-collapse: collapse;
     color: var(--clr_areatext); /*yellow; */
     position: absolute;
@@ -1004,7 +1056,7 @@ h3 { font-size:18px; }
     clear: both;
     display: inline-table;
     height: 40px;
-    background-color: var(--clr_areabg1);
+    background-color: var(--clr_toparea);
     font-weight: normal;
     overflow: clip;
 }
@@ -1379,15 +1431,20 @@ h3 { font-size:18px; }
     margin-bottom: 4px;
     margin-left: 0px;
     margin-right: 0px;
-    height: 26px;
-    background-color: #dbdcdb;
+    height: 35px;
+    border-radius: 12px;
+    background-color: var(--clr_menubar);
+    width: 97%;
     position: absolute;
     top: 0%;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 .createStoreMenuButton {
-    margin: 5px;
-    height: 80%;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 100%;
+    max-height: 35px;
     width: 30%;
     max-width: 150px;
 }
@@ -1408,7 +1465,9 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-205px, 62px, 0px);
     background-image: none;
-    background-color: rgb(126, 212, 246);
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
+
 }
 #createStoreRegStoreNoteText {
     width: 370px;
@@ -1426,6 +1485,7 @@ h3 { font-size:18px; }
     left: 50%;
     transform-style: preserve-3d;
     transform: translate3d(0px, 0px, 0px);
+    padding: 4px;
 }
 
 #createStoreRegStoreStepsDiv {
@@ -1624,7 +1684,8 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-205px, 62px, 0px);
     background-image: none;
-    background-color: rgb(126, 212, 246);
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
 }
 #createStoreAddProdNoteText,
 #createStoreViewProdsNoteText {
@@ -1648,7 +1709,7 @@ h3 { font-size:18px; }
     width: auto;
     min-width: 11em;
     position: absolute;
-    top: 170px;
+    top: 180px;
     left: 50%;
 }
 #createStoreAddProdStepsDiv,
@@ -2004,7 +2065,7 @@ h3 { font-size:18px; }
     display: table;
     margin: 0px;
     min-width: 85%;
-    background-color: var(--clr_areabg1);
+    background-color: var(--clr_toparea);
     color: var(--clr_areatext);
 }
 #msgPromptArea, #msgAddrArea, #msgPricePromptArea {
@@ -2145,7 +2206,7 @@ h3 { font-size:18px; }
     display: block;
     margin: 0px;
     min-width: 90%;
-    background-color: var(--clr_areabg1);
+    background-color: var(--clr_toparea);
 }
 #msgTextArea {
     padding: 0px;
