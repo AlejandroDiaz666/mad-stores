@@ -198,7 +198,8 @@ const mtUtil = module.exports = {
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
-		const msgFee = (encrypted.length == 0) ? 0 : (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		//must correct fee in MadStores contract
+		const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		cb(null, msgFee, encrypted, sentMsgCtrBN);
 	    });
 	});

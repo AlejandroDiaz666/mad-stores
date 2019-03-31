@@ -277,12 +277,14 @@ var meUtil = module.exports = {
 	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
 	    const ptk = dhcrypt.ptk(toPublicKey, vendorAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
 	    console.log('purchaseProduct: ptk = ' + ptk);
+	    console.log('purchaseProduct: message = X' + message + 'X');
 	    const encrypted = (message.length == 0) ? '' : dhcrypt.encrypt(ptk, message);
 	    console.log('purchaseProduct: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
 	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('purchaseProduct: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
-		const msgFee = (encrypted.length == 0) ? 0 : (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		//must correct fee in MadStores contract
+		const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		console.log('purchaseProduct: msgFee is ' + msgFee + ' wei');
 		common.showWaitingForMetaMask(true);
 		let purchaseErr = null;
