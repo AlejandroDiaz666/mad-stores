@@ -111,7 +111,7 @@ h3 { font-size:18px; }
 .tooltip .tooltipTextBurnSpan,
 .tooltip .tooltipTextReleaseSpan,
 .tooltip .tooltipTextModifySpan,
-.tooltip .tooltipTextStepCancelSpan {
+.tooltip .tooltipTextCancelSpan {
     left: -10em;
     top: 30px;
     position: relative;
@@ -120,6 +120,25 @@ h3 { font-size:18px; }
 #priceTooltip {
     top: -1px;
     left: 38px;
+}
+
+#searchRegionTooltipText {
+    top: -25px;
+}
+#searchCategoryTooltipText {
+    top: 92px;
+}
+#searchPriceTooltipText {
+    top: 217px;
+}
+#searchSalesTooltipText {
+    top: 234px;
+}
+#searchRatingTooltipText {
+    top: 282px;
+}
+#searchAddrTooltipText {
+    top: 313px;
 }
 
 .modal {
