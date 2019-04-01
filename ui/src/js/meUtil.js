@@ -245,7 +245,7 @@ var meUtil = module.exports = {
 		    common.setLoadingIcon('start');
 		++callCount;
 		++callDepth;
-		const productCb = (err, productId) => { !err && tilesById[productId].drawProduct(); };
+		const productCb = (err, productId) => { !err && !!tilesById[productId] && tilesById[productId].drawProduct(); };
 		const doneCb = () => { if (--callDepth <= 0) { common.setLoadingIcon(null); cb(null); } };
 		getSaveAndParse3Products(productIds, productCb, doneCb);
 	    }

@@ -139,48 +139,29 @@
     <div id="shopPageDiv" class="outerDiv hidden">
       <div class="leftSideDiv">
 	<div class="height680Div"></div>
-	<div id="sellerSearchNoteBg"></div>
-	<p id="sellerSearchNoteText">Enter search criteria to find a product or seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to list only items from sellers that serve your area. You can optionally select a product category to list only those items that match your interest.</p>
-	<div id="sellerSearchDiv" style="clear:both">
-	  <table class="">
+	<div id="searchNoteBg"></div>
+	<p id="searchNoteText">Enter search criteria to find a product or seller. If you know the seller's Ethereum address you can enter it into the address field. Otherwise select a region to list only items from sellers that serve your area. You can optionally select a product category to list only those items that match your interest.</p>
+	<div id="searchDiv" style="clear:both">
+	  <table class="searchTable">
 	    <tbody>
 	      <tr>
-		<td>
-	      	  <textarea id="regionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea>
-		</td>
-		<td>
-		  <select id="shopRegionTlrSel">
-		  </select>
-		</td>
+		<td><textarea id="regionPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Region:</textarea> </td>
+		<td><select id="shopRegionTlrSel"></select></td>
 	      </tr>
 	      <tr>
 		<td/>
-		<td>
-		  <select id="shopRegionLlrBitsSel" multiple="t" size="4">
-		  </select>
-		</td>
+		<td><select id="shopRegionLlrBitsSel" multiple="t" size="5"></select></td>
 	      </tr>
-	      <tr>
-		<td>
-	      	  <textarea id="categoryPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Category:</textarea>
-		</td>
-		<td>
-		  <select id="shopCategoryTlcSel">
-		  </select>
-		</td>
+	      <tr id="searchCategoryRow">
+		<td><textarea id="categoryPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Category:</textarea></td>
+		<td><select id="shopCategoryTlcSel"></select></td>
 	      </tr>
 	      <tr>
 		<td/>
-		<td>
-		  <select id="shopCategoryLlcBitsSel" multiple="t" size="4">
-		  </select>
-		</td>
+		<td><select id="shopCategoryLlcBitsSel" multiple="t" size="5"></select></td>
 	      </tr>
-
-	      <tr>
-		<td>
-	      	  <textarea id="pricePromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Price:</textarea>
-		</td>
+	      <tr id="searchPriceRow">
+		<td><textarea id="pricePromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Price:</textarea></td>
 		<td>
 		  <div class="slidecontainer tooltip">
 		    <input type="range" min="19" max="100" value="0" class="slider" id="minPriceSlider"/>
@@ -189,23 +170,41 @@
 		  </div>
 		</td>
 	      </tr>
-
-	      <tr>
-		<td>
-	      	  <textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Addr:</textarea>
-		</td>
-		<td>
-		  <textarea id="storeAddrArea" rows="1" cols="42">&nbsp;</textarea>
-		</td>
+	      <tr id="searchSalesRow">
+		<td><textarea id="salesPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Sales:</textarea></td>
+		<td><select id="searchSalesSelect">
+		    <option value="0">0</option>
+		    <option value="1">1</option>
+		    <option value="5">5</option>
+		    <option value="100">100</option>
+		    <option value="1000">1000</option>
+		  </select>
 	      </tr>
-	      <tr>
-		<td colspan="2">
-		  <button id="shopDoSearchButton" type="button" class="otherButton">Search Products and Sellers</button>
-		</td>
+	      <tr id="searchRatingRow">
+		<td><textarea id="ratingPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Rating:</textarea></td>
+		<td><select id="searchRatingSelect">
+		    <option value="0">0</option>
+		    <option value="1">1</option>
+		    <option value="2">2</option>
+		    <option value="3">3</option>
+		    <option value="4">4</option>
+		    <option value="5">5</option>
+		    <option value="6">6</option>
+		    <option value="7">7</option>
+		    <option value="8">8</option>
+		    <option value="9">9</option>
+		    <option value="10">10</option>
+		  </select>
+	      </tr>
+	      <tr id="searchAddrRow">
+		<td><textarea id="storeAddrPromptArea" rows="1" readonly="readonly" disabled="disabled" cols="8">Addr:</textarea></td>
+		<td><textarea id="storeAddrArea" rows="1" cols="42">&nbsp;</textarea></td>
+	      </tr>
+	      <tr id="searchDoSearchRow">
+		<td colspan="2"><button id="shopDoSearchButton" type="button" class="otherButton">Search Products and Sellers</button></td>
 	      </tr>
 	    </tbody>
 	  </table>
-
 	</div>
       </div>
       <div id="shopTilesDiv" class="tilesDiv">

@@ -118,8 +118,8 @@ h3 { font-size:18px; }
     white-space: nowrap;
 }
 #priceTooltip {
-    top: 187px;
-    left: 93px;
+    top: -1px;
+    left: 38px;
 }
 
 .modal {
@@ -631,7 +631,11 @@ h3 { font-size:18px; }
  * shop page
  * ====================================================================================================================
  */
-#sellerSearchNoteBg {
+.searchTable {
+    margin-left: 10px;
+    border-collapse: collapse;
+}
+#searchNoteBg {
     width: 410px;
     height: 150px;
     position: absolute;
@@ -643,7 +647,7 @@ h3 { font-size:18px; }
     background-color: var(--clr_toparea);
     border-radius: 12px;
 }
-#sellerSearchNoteText {
+#searchNoteText {
     width: 370px;
     height: 125px;
     position: absolute;
@@ -652,7 +656,7 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-180px, 20px, 0px);
 }
-#sellerSearchDiv {
+#searchDiv {
     width: 460px;
     position: absolute;
     top: 0%;
@@ -660,7 +664,15 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
     transform: translate3d(-230px, 190px, 0px);
 }
-#regionPromptArea, #categoryPromptArea, #pricePromptArea, #storeAddrPromptArea {
+#searchCategoryRow, #searchSalesRow, #searchRatingRow, #searchAddrRow {
+    border-top: 10px solid transparent;
+}
+#searchDoSearchRow {
+    border-top: 15px solid transparent;
+}
+#searchPriceRow {
+}
+#regionPromptArea, #categoryPromptArea, #salesPromptArea, #ratingPromptArea, #pricePromptArea, #storeAddrPromptArea {
     display: table-cell;
     vertical-align: middle;
     padding-top: 1px;
@@ -672,6 +684,13 @@ h3 { font-size:18px; }
 }
 #pricePromptArea {
     margin-top: 20px;
+}
+.slidecontainer {
+    position: relative;
+    height: 40px;
+}
+#searchSalesSelect, #searchRatingSelect {
+    width: 4em;
 }
 #storeAddrArea {
     display: table-cell;
@@ -688,6 +707,9 @@ h3 { font-size:18px; }
     width: 25em;
 }
 #shopDoSearchButton {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 4px;
 }
 
@@ -2227,7 +2249,7 @@ h3 { font-size:18px; }
     width: 330px;
     height: 25px;
     position: absolute;
-    top: 210px;
+    top: 17px;
     outline: none;
 }
 .slider input {
