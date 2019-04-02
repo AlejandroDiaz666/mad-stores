@@ -370,6 +370,19 @@ contract MadStores is SafeMath {
 
 
   // -----------------------------------------------------------------------------------------------------
+  // send a response to an escrow function
+  // -----------------------------------------------------------------------------------------------------
+  function recordReponse(uint256 _escrowId, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
+    address _otherAddr = madEscrow.verifyEscrowAny(_escrowID);
+    //ensure message fees
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _otherAddr);
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _otherAddr, _attachmentIdx, _ref, _message);
+    madEscrow.recordReponse(_escrowId, _msgId, _ref);
+  }
+
+
+  // -----------------------------------------------------------------------------------------------------
   // deposit funds to purchase a Product
   // this creates an escrow
   // called by customer

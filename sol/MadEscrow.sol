@@ -279,6 +279,27 @@ contract MadEscrow is iERC20Token, SafeMath {
 
 
   // -------------------------------------------------------------------------------------------------------
+  // record response
+  // just update the latest transaction id for the specified escrow
+  // -------------------------------------------------------------------------------------------------------
+  function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public trustedOnly {
+    require(_XactId != 0, "invalid transaction id");
+    require(_ref != 0, "invalid ref");
+    Escrow storage _escrow = escrows[_escrowId];
+    if (_escrow.releaseBurnXactId == _ref)
+      _escrow.releaseBurnXactId = _XactId;
+    else if (_escrow.approveCancelXactId == _ref)
+      _escrow.approveCancelXactId = _XactId;
+    else if (_escrow.modifyXactId == _ref)
+      _escrow.modifyXactId = _XactId;
+    else {
+      require(_escrow.createXactId == ref, "unknown ref");
+      _escrow.createXactId = _XactId;
+    }
+  }
+
+
+  // -------------------------------------------------------------------------------------------------------
   // modify the price for a product
   // called by customer to add additional funds to an escrow
   // -------------------------------------------------------------------------------------------------------
