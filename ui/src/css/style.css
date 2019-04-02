@@ -2072,11 +2072,11 @@ h3 { font-size:18px; }
  */
 #msgAreaDiv  {
     position: absolute;
-    top: 490px;
+    top: 50%;
     left: 50%;
     width: 70%;
     min-width: 1070px;
-    transform: translateX(-50%);
+    transform: translate3d(-50%, -50%, 0px);
     padding: var(--pad_msgAreaDiv);
     margin-top: var(--martop_msgAreaDiv);
     margin-left: 0px;
