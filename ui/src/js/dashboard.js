@@ -346,7 +346,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 	console.log('showDeposit: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
@@ -378,7 +378,7 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	const deliveryDate = parseInt(escrowInfo.deliveryDate);
 	const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
 	const priceDesc = 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr;
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
@@ -409,7 +409,7 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 	console.log('showCancelOrDecline: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const priceDesc = (escrowInfo.vendorAddr == fromAddr) ? 'this purchase was declined' : 'this purchase was canceled';
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showCancelOrDecline: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -440,7 +440,7 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 	}
 	console.log('showRelease: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const priceDesc = 'delivery of this item was confirmed; all escrow funds have been released';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showRelease: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -471,7 +471,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 	}
 	console.log('showBurn: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const priceDesc = 'item not delivered, or delivery was rejected; all escrow funds have been burned';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showBurn: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);

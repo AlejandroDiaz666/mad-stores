@@ -64,7 +64,7 @@ const mtUtil = module.exports = {
 
     //
     // get and parse a single msg
-    // cb(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
+    // cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
     //
     getAndParseIdMsg: function(msgId, cb) {
 	console.log('getAndParseIdMsg: enter msgId = ' + msgId);
@@ -79,7 +79,7 @@ const mtUtil = module.exports = {
 		if (!!err)
 		    console.log('getAndParseIdMsg: err = ' + err);
 		//either an error, or maybe just no events
-		cb(err, '', '', '', '', '', null, '', '', '', '');
+		cb(err, '', '', '', '', '', '', null, '', '', '', '');
 		return;
 	    }
 	    mtEther.parseMessageEvent(msgResult[0], cb);
@@ -89,7 +89,7 @@ const mtUtil = module.exports = {
 
     //
     // gets up to 3 messages specified in msgIds[]
-    // msgCb(err, cookie, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
+    // msgCb(err, cookie, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
     // doneCb(noMessagesProcessed)
     //
     getAndParseIdMsgs: function(msgIds, msgCookies, msgCb, doneCb) {
@@ -120,17 +120,17 @@ const mtUtil = module.exports = {
 		    console.log('getAndParseIdMsgs: err = ' + err);
 		//either an error, or maybe just no events
 		for (let i = 0; i < msgIds.length; ++i)
-		    msgCb(err, msgCookies[msgIds[i]], msgIds[i], '', '', '', '', null, '', '', '', '');
+		    msgCb(err, msgCookies[msgIds[i]], msgIds[i], '', '', '', '', '', null, '', '', '', '');
 		doneCb(msgIds.length);
 		return;
 	    }
 	    let msgCbCount = 0;
 	    let bogusCount = 0;
 	    for (let i = 0; i < msgResults.length; ++i) {
-		mtEther.parseMessageEvent(msgResults[i], function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+		mtEther.parseMessageEvent(msgResults[i], function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 		    if (!!msgCookies[msgId]) {
 			console.log('getAndParseIdMsgs: msgId = ' + msgId + ', fromAddr = ' + fromAddr + ', toAddr = ' + toAddr);
-			msgCb(err, msgCookies[msgId], msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
+			msgCb(err, msgCookies[msgId], msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 			++msgCbCount;
 		    } else {
 			console.log('getAndParseIdMsgs: got an unexpected msg, msgId = ' + msgId + ', fromAddr = ' + fromAddr + ', toAddr = ' + toAddr);
@@ -161,6 +161,7 @@ const mtUtil = module.exports = {
 		let messageText = decrypted;
 		let attachment = null;
 		if (!!attachmentIdxBN && !attachmentIdxBN.isZero()) {
+		    console.log('decryptMsg: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
 		    const idx = attachmentIdxBN.maskn(248).toNumber();
 		    console.log('decryptMsg: attachment at idx ' + idx);
 		    messageText = decrypted.substring(0, idx);
@@ -345,6 +346,8 @@ const mtUtil = module.exports = {
 	const attachmentInput  = common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
 	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', false);
 	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
+	common.replaceElemClassFromTo('msgIdArea',    'hidden',    'visibleB',  false);
+	common.replaceElemClassFromTo('msgRefButton', 'hidden',    'visibleB',  false);
 	const sendButton = document.getElementById('sendButton');
 	sendButton.textContent = sendButtonText;
 	msgPriceArea.value = priceDesc;
@@ -387,7 +390,7 @@ const mtUtil = module.exports = {
     // handlers). the reply message is not encrypted.
     // clears the loading-icon when the msg is displayed
     //
-    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, msgHex, attachmentIdxBN, cb) {
+    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, cb) {
 	console.log('setupDisplayMsgArea: enter');
 	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'visibleIB', 'hidden',    true);
 	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'visibleIB', 'hidden',    true);
@@ -396,6 +399,7 @@ const mtUtil = module.exports = {
                                  common.replaceElemClassFromTo('msgPricePromptArea', 'hidden',    'visibleTC', true);
 	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', true);
 	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
+	showIdAndRef(msgId, ref, true);
 	const sendButton = document.getElementById('sendButton');
 	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
 	sendButton.textContent = (fromAddr == common.web3.eth.accounts[0]) ? 'Send again' : 'Reply';
@@ -483,4 +487,25 @@ function replyToMsg(destAddr, refId, cb) {
 	    mtUtil.sendCB = cb;
 	});
     });
+}
+
+
+//if enable is set, then the msgRefButton is enabled, but only if ref is nz
+function showIdAndRef(msgId, ref, enable) {
+    if (!!msgId) {
+	const msgIdArea = document.getElementById('msgIdArea');
+	msgIdArea.value = 'Msg ID: ' + mtUtil.abbreviateMsgId(msgId);
+	msgIdArea.msgId = msgId;
+    }
+    const msgRefButton = document.getElementById('msgRefButton');
+    const refShortBN = common.numberToBN(ref);
+    if (refShortBN.isZero()) {
+	msgRefButton.textContent = 'Ref: none';
+	msgRefButton.ref = '';
+	msgRefButton.disabled = true;
+    } else {
+	msgRefButton.textContent = 'Ref: ' + mtUtil.abbreviateMsgId(ref);
+	msgRefButton.ref = ref;
+	msgRefButton.disabled = (enable) ? false : true;
+    }
 }

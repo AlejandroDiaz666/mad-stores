@@ -2109,7 +2109,7 @@ h3 { font-size:18px; }
     background-color: var(--clr_toparea);
     color: var(--clr_areatext);
 }
-#msgPromptArea, #msgAddrArea, #msgPricePromptArea {
+#msgPromptArea, #msgAddrArea, #msgIdArea, #msgRefButton, #msgPricePromptArea, #msgPriceArea, #msgFeeArea, #msgDateArea {
     vertical-align: middle;
     padding-top: 1px;
     padding-right: 0px;
@@ -2129,14 +2129,22 @@ h3 { font-size:18px; }
     width: 46em;
     min-width: 20%;
 }
+#msgIdArea {
+    display: table-cell;
+    width: 20em;
+}
+#msgRefButton {
+    display: table-cell;
+    padding-right: 6px;
+    padding-left: 6px;
+    width: 20em;
+    min-width: 10em;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+}
 
 #msgFeeArea, #msgDateArea {
     float: right;
-    vertical-align: middle;
-    padding-top: 1px;
-    padding-right: 0px;
-    padding-bottom: 1px;
-    padding-left: 0px;
     margin: 0px;
     resize: none;
 }
@@ -2154,13 +2162,7 @@ h3 { font-size:18px; }
 }
 #msgPriceArea {
     float: left;
-    vertical-align: middle;
-    padding-top: 1px;
-    padding-right: 0px;
-    padding-bottom: 1px;
-    padding-left: 0px;
     margin: 0px;
-    resize: none;
     width: 77em;
     min-width: 20%;
 }
