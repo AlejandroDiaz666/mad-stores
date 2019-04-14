@@ -88,7 +88,7 @@ const mtUtil = module.exports = {
 
 
     //
-    // gets up to 3 messages specified in msgIds[]
+    // gets up to 9 messages specified in msgIds[]
     // msgCb(err, cookie, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
     // doneCb(noMessagesProcessed)
     //
@@ -98,20 +98,11 @@ const mtUtil = module.exports = {
 	    fromBlock: mtEther.firstBlock,
 	    toBlock: 'latest',
 	    address: mtEther.EMT_CONTRACT_ADDR,
-	    topics: [ mtEther.getMessageEventTopic0() ]
+	    topics: [ mtEther.getMessageEventTopic0(), [] ]
 	};
-	if (msgIds.length > 0) {
-	    if (!!msgIds[0])
-		options.topics.push(msgIds[0]);
-	    if (options.topics.length > 1) {
-		if (!!msgIds[1])
-		    options.topics.push(msgIds[1]);
-		if (options.topics.length > 2) {
-		    if (!!msgIds[2])
-			options.topics.push(msgIds[2]);
-		}
-	    }
-	}
+	const topicGroup = options.topics[1];
+	for (let i = 0; i < msgIds.length; ++i)
+	    topicGroup.push(msgIds[i]);
 	console.log('getAndParseIdMsgs: options = ' + JSON.stringify(options));
 	ether.getLogs3(options, function(err, msgResults) {
 	    console.log('getAndParseIdMsgs: err = ' + err + ', msgResults.length = ' + msgResults.length);

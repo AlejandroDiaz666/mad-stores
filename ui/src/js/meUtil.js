@@ -219,7 +219,7 @@ var meUtil = module.exports = {
             else if (parentDiv.scrollHeight > parentDiv.scrollTop + parentDiv.clientHeight + 50)
 		break;
 	    //
-	    // now make up to 3 new tile elems. if we already have products for any tiles, then we can just
+	    // now make up to 9 new tile elems. if we already have products for any tiles, then we can just
 	    // draw those tiles right here.
 	    //
 	    const tilesById = {};
@@ -237,9 +237,9 @@ var meUtil = module.exports = {
 		    tilesById[productId] = tile;
 		    productIds.push(productId);
 		}
-	    } while (productIds.length < 3 && meUtil.productTiles.length < meUtil.productSearchResults.length);
+	    } while (productIds.length < 9 && meUtil.productTiles.length < meUtil.productSearchResults.length);
 	    //
-	    // colleect and draw those 3 elems asynchronously
+	    // colleect and draw those 9 elems asynchronously
 	    if (productIds.length > 0) {
 		if (callDepth == 0)
 		    common.setLoadingIcon('start');
@@ -247,7 +247,7 @@ var meUtil = module.exports = {
 		++callDepth;
 		const productCb = (err, productId) => { !err && !!tilesById[productId] && tilesById[productId].drawProduct(); };
 		const doneCb = () => { if (--callDepth <= 0) { common.setLoadingIcon(null); cb(null); } };
-		getSaveAndParse3Products(productIds, productCb, doneCb);
+		getSaveAndParse9Products(productIds, productCb, doneCb);
 	    }
 	}
 	if (callCount == 0)
@@ -610,34 +610,25 @@ function selectEfficientSearch(productSearchFilter, cb) {
 //
 // note: product = { productIdBN, name, desc, image, priceBN, quantityBN, categoryBN, regionBN, vendorAddr }
 //
-function getSaveAndParse3Products(productIds, productCb, doneCb) {
+function getSaveAndParse9Products(productIds, productCb, doneCb) {
     console.log('getAndParseIdMsgs: enter productIds = ' + productIds);
     const options = {
 	fromBlock: 0,
 	toBlock: 'latest',
 	address: meEther.MS_CONTRACT_ADDR,
-	topics: [ meEther.getRegisterProductEventTopic0() ]
+	topics: [ meEther.getRegisterProductEventTopic0(), [] ]
     };
-    if (productIds.length > 0) {
-	if (!!productIds[0])
-	    options.topics.push(productIds[0]);
-	if (options.topics.length > 1) {
-	    if (!!productIds[1])
-		options.topics.push(productIds[1]);
-	    if (options.topics.length > 2) {
-		if (!!productIds[2])
-		    options.topics.push(productIds[2]);
-	    }
-	}
-    }
-    console.log('getSaveAndParse3Products: options = ' + JSON.stringify(options));
+    const topicGroup = options.topics[1];
+    for (let i = 0; i < productIds.length; ++i)
+	topicGroup.push(productIds[i]);
+    console.log('getSaveAndParse9Products: options = ' + JSON.stringify(options));
     ether.getLogs3(options, function(err, productResults) {
-	console.log('getSaveAndParse3Products: err = ' + err);
+	console.log('getSaveAndParse9Products: err = ' + err);
 	if (!!productResults)
-	    console.log('getSaveAndParse3Products: productResults.length = ' + productResults.length);
+	    console.log('getSaveAndParse9Products: productResults.length = ' + productResults.length);
 	if (!!err || !productResults || productResults.length == 0) {
 	    if (!!err)
-		console.log('getSaveAndParse3Products: err = ' + err);
+		console.log('getSaveAndParse9Products: err = ' + err);
 	    //either an error, or maybe just no events
 	    for (let i = 0; i < productIds.length; ++i) {
 		meUtil.productListProducts[productIds[i]] = null;
@@ -654,7 +645,7 @@ function getSaveAndParse3Products(productIds, productCb, doneCb) {
 		const productId = common.BNToHex256(productIdBN);
 		if (!!meUtil.productListProducts[productId]) {
 		    //could be a duplicate
-		    console.log('getSaveAndParse3Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN) + ', name = ' + name);
+		    console.log('getSaveAndParse9Products: got an unexpected product, productId = ' + common.BNToHex256(productIdBN) + ', name = ' + name);
 		    if (productCbCount + ++bogusCount >= productResults.length) {
 			doneCb(productCbCount);
 		    }
@@ -664,11 +655,11 @@ function getSaveAndParse3Products(productIds, productCb, doneCb) {
 		    meEther.productInfoQuery(productIdBN, function(err, productIdBN, productInfo) {
 			const productId = common.BNToHex256(productIdBN);
 			if (!!err) {
-			    console.log('getSaveAndParse3Products: product = ' + productId + ', err = ' + err);
+			    console.log('getSaveAndParse9Products: product = ' + productId + ', err = ' + err);
 			} else {
 			    const product = meUtil.productListProducts[productId];
 			    product.setProductInfo(productInfo);
-			    console.log('getSaveAndParse3Products: product = ' + productId);
+			    console.log('getSaveAndParse9Products: product = ' + productId);
 			}
 			productCb(err, productId);
 			if (++productCbCount + bogusCount >= productResults.length)

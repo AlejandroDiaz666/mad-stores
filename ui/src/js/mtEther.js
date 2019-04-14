@@ -16,7 +16,7 @@ const mtEther = module.exports = {
     //kovan
     EMT_CONTRACT_ADDR: null,
     EMT_CONTRACT_ABI:  '[{"constant":false,"inputs":[],"name":"killContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_messageFee","type":"uint256"},{"name":"_spamFee","type":"uint256"},{"name":"_publicKey","type":"bytes"},{"name":"_encryptedPrivateKey","type":"bytes"}],"name":"register","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_toAddr","type":"address"},{"name":"attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"accounts","outputs":[{"name":"isValid","type":"bool"},{"name":"messageFee","type":"uint256"},{"name":"spamFee","type":"uint256"},{"name":"feeBalance","type":"uint256"},{"name":"recvMessageCount","type":"uint256"},{"name":"sentMessageCount","type":"uint256"},{"name":"publicKey","type":"bytes"},{"name":"encryptedPrivateKey","type":"bytes"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"tokenAddr","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"trusted","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_to","type":"address"},{"name":"_startIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"}],"name":"getRecvMsgs","outputs":[{"name":"_idx","type":"uint256"},{"name":"_messageIds","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"isLocked","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"}],"name":"getPeerMessageCount","outputs":[{"name":"_messageCount","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdrawRetainedFees","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"},{"name":"attachmentIdx","type":"uint256"},{"name":"_ref","type":"uint256"},{"name":"_message","type":"bytes"}],"name":"sendMessage","outputs":[{"name":"_messageId","type":"uint256"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_contractSendGas","type":"uint256"}],"name":"tune","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_trustedAddr","type":"address"},{"name":"_trust","type":"bool"}],"name":"setTrust","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_from","type":"address"},{"name":"_startIdx","type":"uint256"},{"name":"_maxResults","type":"uint256"}],"name":"getSentMsgs","outputs":[{"name":"_idx","type":"uint256"},{"name":"_messageIds","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"lock","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_fromAddr","type":"address"},{"name":"_toAddr","type":"address"}],"name":"getFee","outputs":[{"name":"_fee","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"_tokenAddr","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_fromAddr","type":"address"}],"name":"InviteEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_id1","type":"uint256"},{"indexed":true,"name":"_id2","type":"uint256"},{"indexed":true,"name":"_id3","type":"uint256"},{"indexed":false,"name":"_fromAddr","type":"address"},{"indexed":false,"name":"_toAddr","type":"address"},{"indexed":false,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_attachmentIdx","type":"uint256"},{"indexed":false,"name":"_ref","type":"uint256"},{"indexed":false,"name":"message","type":"bytes"}],"name":"MessageEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_fromAddr","type":"address"},{"indexed":true,"name":"_txCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageTxEvent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_toAddr","type":"address"},{"indexed":true,"name":"_rxCount","type":"uint256"},{"indexed":false,"name":"_id","type":"uint256"}],"name":"MessageRxEvent","type":"event"}]',
-    mainnet_contract_addr: '0xE212f48e459E6eD3f7F07861781B77c7d3a93032',
+    mainnet_contract_addr: '0x6a973275f5bccfe0c7309c9934d7f945c3138dfd',
     ropsten_contract_addr: '0x95c1a0ba886286f013deb7918ca1918341b88df4',
     kovan_contract_addr: '',
     firstBlock: 0,
@@ -26,6 +26,7 @@ const mtEther = module.exports = {
     messageRxEventTopic0: null,
     sendMessageABI: null,
     registerABI: null,
+    modifyAccountABI: null,
     withdrawABI: null,
 
 
@@ -34,12 +35,13 @@ const mtEther = module.exports = {
     setNetwork: function(network) {
 	let err = null;
 	if (network.indexOf('Mainnet') >= 0) {
-	    mtEther.firstBlock = 7290243;
+	    mtEther.firstBlock = 7498310;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.mainnet_contract_addr;
 	} else if (network.indexOf('Ropsten') >= 0) {
 	    mtEther.firstBlock = 5250732;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.ropsten_contract_addr;
-	} else
+	}
+	if (!mtEther.EMT_CONTRACT_ADDR)
 	    err = network + ' is not a supported network';
 	console.log('setNetwork: emt contract addr = ' + mtEther.EMT_CONTRACT_ADDR);
 	return(err);
@@ -129,15 +131,26 @@ const mtEther = module.exports = {
 	const abiRegisterFcn = mtEther.abiEncodeRegister();
 	const abiParms = mtEther.abiEncodeRegisterParms(messageFeeBN, spamFeeBN, publicKey, encryptedPrivateKey);
         const sendData = "0x" + abiRegisterFcn + abiParms;
-	console.log('sendData = ' + sendData);
+	console.log('register: sendData = ' + sendData);
 	ether.send(mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
+
+
+    //cb(err, txid)
+    modifyAccount: function(messageFeeBN, spamFeeBN, cb) {
+	const abiModifyAccountFcn = mtEther.abiEncodeModifyAccount();
+	const abiParms = mtEther.abiEncodeModifyAccountParms(messageFeeBN, spamFeeBN);
+        const sendData = "0x" + abiModifyAccountFcn + abiParms;
+	console.log('modifyAccount: sendData = ' + sendData);
+	ether.send(mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
+    },
+
 
     //cb(err, txid)
     withdraw: function(cb) {
 	const abiWithdrawFcn = mtEther.abiEncodeWithdraw();
         const sendData = "0x" + abiWithdrawFcn;
-	console.log('sendData = ' + sendData);
+	console.log('withdraw: sendData = ' + sendData);
 	ether.send(mtEther.EMT_CONTRACT_ADDR, 0, 'wei', sendData, 0, cb);
     },
 
@@ -217,6 +230,22 @@ const mtEther = module.exports = {
 	return(encoded);
     },
 
+
+    abiEncodeModifyAccount: function() {
+	//uint256 messageFee, uint256 spamFee
+	if (!mtEther.modifyAccountABI)
+	    mtEther.modifyAccountABI = ethabi.methodID('modifyAccount', [ 'uint256', 'uint256' ]).toString('hex');
+	return(mtEther.modifyAccountABI);
+    },
+
+    abiEncodeModifyAccountParms: function(messageFeeBN, spamFeeBN) {
+	console.log('abiEncodeModifyAccountParms: messageFee = ' + messageFeeBN.toString(10));
+	console.log('abiEncodeModifyAccountParms: spamFee = ' + spamFeeBN.toString(10));
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint256' ],
+					 [ messageFeeBN, spamFeeBN ] ).toString('hex');
+	return(encoded);
+    },
+
     abiEncodeWithdraw: function() {
 	if (!mtEther.withdrawABI)
 	    mtEther.withdrawABI = ethabi.methodID('withdraw', [ ]).toString('hex');
@@ -225,7 +254,7 @@ const mtEther = module.exports = {
 
 
 
-    //cb(null, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
+    //cb(null, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date)
     //pass in in a single result object
     //note: numbers may be in hex or dec. hex if preceeded by 0x. topics and data are always hex.
     //note: this is a synchronous fcn
@@ -264,7 +293,7 @@ const mtEther = module.exports = {
 	//first 2 chars are '0x'; we want rightmost 20 out of 32 bytes
 	const fromAddr = '0x' + result.data.slice(0+2, 64+2).substring(12*2);
 	const toAddr = '0x' + result.data.slice(64+2, 128+2).substring(12*2);
-	const via = '0x' + result.data.slice(128+2, 192+2).substring(12*2);
+	const viaAddr = '0x' + result.data.slice(128+2, 192+2).substring(12*2);
 	//console.log('parseMessageEvent: fromAddr = ' + fromAddr);
 	//console.log('parseMessageEvent: toAddr = ' + toAddr);
 	const txCount = '0x' + result.data.slice(192+2, 256+2);
@@ -286,13 +315,13 @@ const mtEther = module.exports = {
 	if (!!result.timeStamp) {
 	    const timeStamp = parseInt(result.timeStamp);
 	    const date = (new Date(timeStamp * 1000)).toUTCString();
-	    cb(null, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
+	    cb(null, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 	} else {
 	    common.web3.eth.getBlock(blockNumber, function(err, block) {
 		console.log('parseMessageEvent: ts = ' + block.timestamp);
 		const timeStamp = block.timestamp;
 		const date = (new Date(timeStamp * 1000)).toUTCString();
-		cb(null, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
+		cb(null, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 	    });
 	}
     },

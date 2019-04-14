@@ -336,7 +336,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.createXactId);
     console.log('showDeposit: createXactId = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    common.setLoadingIcon(null);
 	    alert(err);
@@ -367,7 +367,7 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showApprove: approveCancelXactId = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    common.setLoadingIcon(null);
 	    alert(err);
@@ -399,7 +399,7 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showCancelOrDecline: approveCancelXactId = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    common.setLoadingIcon(null);
 	    alert(err);
@@ -431,7 +431,7 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showRelease: releaseBurnXactId = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    common.setLoadingIcon(null);
 	    alert(err);
@@ -462,7 +462,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showBurn: releaseBurnXactId = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
 	    common.setLoadingIcon(null);
 	    alert(err);
