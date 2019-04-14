@@ -88,6 +88,11 @@ h3 { font-size:18px; }
 #productDetailFullDescPre {
     white-space: pre-wrap;
 }
+#selectedProductSellerAddrFull {
+    transform: translate3d(-50%, 83%, 0px);
+    left: 50%;
+    width: 28em;
+}
 #productDetailSellerFullName {
     text-align: left;
     min-width: 300px;
@@ -873,7 +878,7 @@ h3 { font-size:18px; }
 .shop #selectedProductFrameDiv {
     top: 10px;
     width: 940px;
-    height: 340px;
+    height: 360px;
     background-color: #e3eceb;
 }
 .view #selectedProductFrameDiv {
@@ -894,7 +899,7 @@ h3 { font-size:18px; }
     top: 50%;
     left: 40px;
     width: 450px;
-    height: 320px;
+    height: 340px;
     transform: translateY(-50%);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
@@ -919,7 +924,7 @@ h3 { font-size:18px; }
     top: 50%;
     left: 100%;
     width: 370px;
-    height: 320px;
+    height: 340px;
     transform: translate3d(-410px, -50%, 0px);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
@@ -998,18 +1003,26 @@ h3 { font-size:18px; }
     font-weight: normal;
     font-style: italic;
 }
+#selectedProductSellerAddrArea {
+    width: 27em;
+    position: absolute;
+    left: 50%;
+    top: 26px;
+    transform: translate3d(-50%, 0px, 0px);
+    resize: none;
+}
 #selectedProductSellerImg {
     width: 160px;
     height: 160px;
     position: absolute;
     left: 10px;
-    top: 30px;
+    top: 50px;
 }
 #selectedProductSellerName {
     background-color: transparent;
     position: absolute;
     left: 170px;
-    top: 30px;
+    top: 50px;
     width: 182px;
     margin-left: 10px;
     font-family: lato;
@@ -1019,7 +1032,7 @@ h3 { font-size:18px; }
 #selectedProductSellerDesc {
     position: absolute;
     left: 10%;
-    top: 187px;
+    top: 207px;
     height: 57px;
     padding-right: 10px;
     margin-top: 10px;
@@ -1029,7 +1042,7 @@ h3 { font-size:18px; }
 #selectedProductSellerRating {
     position: absolute;
     left: 50%;
-    top: 310px;
+    top: 330px;
     width: 240px;
     transform: translate3d(-50%, -100%, 0px);
     text-align: center;
@@ -1043,7 +1056,7 @@ h3 { font-size:18px; }
 #selectedProductSellerBurns {
     position: absolute;
     left: 50%;
-    top: 280px;
+    top: 300px;
     width: 240px;
     transform: translate3d(-50%, -100%, 0px);
     text-align: center;
@@ -2084,6 +2097,7 @@ h3 { font-size:18px; }
     background-color: var(--clr_border);
     border-radius: 12px;
     color: var(--clr_areatext);
+    z-index: 2;
 }
 .msgInfoAreaButton {
     margin: 1px;

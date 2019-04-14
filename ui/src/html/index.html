@@ -234,13 +234,19 @@
         <div id="selectedProductDetailDiv">
 	  <img id="selectedProductDetailImg"></img>
 	  <div id="selectedProductDetailName" class="tooltip"></div>
+	  <!-- tooltip only created if necessary -->
 	  <div id="selectedProductDetailDesc" class="tooltip"></div>
+	  <!-- tooltip only created if necessary -->
 	  <span id="selectedProductDetailPrice"></span>
 	  <span id="selectedProductDetailQuantity"></span>
 	  <button id="purchaseProductButton" class="menuBarButton" type="button">Buy this product</button>
 	</div>
 	<div id="selectedProductSellerDiv">
 	  <span id="selectedProductSellerIntro">About this seller</span>
+	  <div id="selectedProductSellerAddrDiv" class="tooltip">
+	    <textarea id="selectedProductSellerAddrArea" rows="1" cols="68" readonly="readonly">&nbsp;</textarea>
+	    <span id="selectedProductSellerAddrFull" class="tooltipText"></span>
+	  </div>
 	  <img id="selectedProductSellerImg"></img>
 	  <span id="selectedProductSellerName" class="tooltip"></span>
 	  <div id="selectedProductSellerDesc" class="tooltip"></div>

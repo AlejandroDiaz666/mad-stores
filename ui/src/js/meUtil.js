@@ -430,12 +430,20 @@ var meUtil = module.exports = {
 	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', mode);
 	meUtil.productDetailCloseFcn = closeCB;
 	//
+	const selectedProductSellerAddr = document.getElementById('selectedProductSellerAddr');
 	const selectedProductDetailImg = document.getElementById('selectedProductDetailImg');
 	const selectedProductDetailName = document.getElementById('selectedProductDetailName');
 	const selectedProductDetailDesc = document.getElementById('selectedProductDetailDesc');
 	const selectedProductDetailPrice = document.getElementById('selectedProductDetailPrice');
 	const selectedProductDetailQuantity = document.getElementById('selectedProductDetailQuantity');
 	//
+	ether.ensReverseLookup(product.vendorAddr, function(err, name) {
+	    let addrStr = product.vendorAddr;
+	    if (!err && !!name)
+		addrStr = abbreviateAddrForEns(-2, product.vendorAddr, name);
+	    document.getElementById('selectedProductSellerAddrArea').value = addrStr;
+	    document.getElementById('selectedProductSellerAddrFull').textContent = product.vendorAddr;
+	});
 	if (product.name.length < 25) {
 	    selectedProductDetailName.textContent = product.name;
 	} else {
@@ -669,4 +677,24 @@ function getSaveAndParse9Products(productIds, productCb, doneCb) {
 	    });
 	}
     });
+}
+
+
+// maxEnsLength is the maximum length ens name that will fit in the field, together without abbreviating
+// as in, 'ensname (0xADDRESS)'
+// note: maxEnsLength can be negative if you can't fit the ' ()'
+function abbreviateAddrForEns(maxEnsLength, addr, ensName) {
+    let addrNumericStr = addr;
+    if (ensName.length >= maxEnsLength) {
+	console.log('abbreviateAddrForEns: ensName = ' + ensName);
+	// normal length of addr is '0x' + 40 chars. field can fit maxEnsLength + ' (' + '0x' + 40 + ')'. or
+	// replace addr chars with XXXX...XXXX
+	const noAddrChars = Math.max( 40 - (((ensName.length - maxEnsLength) + 3 + 1) & 0xfffe), 6);
+	const cut = 40 - noAddrChars;
+	console.log('abbreviateAddrForEns: ensName.length = ' + ensName.length + ', cut = ' + cut);
+	const remain2 = (40 - cut) / 2;
+	console.log('abbreviateAddrForEns: remain2 = ' + remain2);
+	addrNumericStr = addr.substring(0, 2 + remain2) + '...' + addr.substring(2 + 40 - remain2);
+    }
+    return(ensName + ' (' + addrNumericStr + ')');
 }
