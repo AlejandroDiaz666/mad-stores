@@ -523,20 +523,14 @@
       -->
     <div id="msgAreaDiv" class="hidden" style="clear:both">
       <form action="javascript:void(0);">
-	<img id="msgCloseImg" src="images/close.png"></img>
-	<a id="attachmentSaveA" style="display: none;"><span id="attachmentSaveSpan"></span></a>
-	<button id="attachmentButton" type="button" class="msgInfoAreaButton hidden">Attach</button>
-	<input id="attachmentInput" type="file" name="filename" class="hidden"></input>
-	<img id="deleteImg" src="images/delete.png"></img>
 	<div id="msgInfoAreaDiv">
 	  <span style="display:table-row">
-	    <button id="sendButton" type="button" class="msgInfoAreaButton">Send/Purchase</button>
 	    <textarea id="msgFeeArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
 	    <textarea id="msgDateArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
 	    <textarea id="msgPromptArea" rows="1" readonly="readonly" disabled="disabled">&nbsp;</textarea>
 	    <textarea id="msgAddrArea" rows="1">&nbsp;</textarea>
 	  </span>
-	  <span style="display:table-row">
+	  <span id="msgAreaIdAndRef" class="visibleTR">
 	    <textarea id="msgIdArea" rows="1" class="hidden">&nbsp;</textarea>
 	    <button id="msgRefButton" type="button" class="msgInfoAreaButton hidden">Ref: N/A</button>
 	  </span>
@@ -545,6 +539,16 @@
 	    <textarea id="msgPriceArea" rows="1" readonly="readonly" disabled="disabled" class="hidden">&nbsp;</textarea>
 	  </span>
 	</div>
+	<span id="msgRightButtonsSpan">
+	  <img id="msgCloseImg" src="images/close.png"></img>
+	  <button id="sendButton" type="button" class="msgRightButton">Send/Purchase</button>
+	  <button id="attachmentButton" type="button" class="msgRightButton hidden">Attach</button>
+	  <input id="attachmentInput" type="file" name="filename" class="hidden"></input>
+	  <div id="attachmentSaveADiv">
+	    <img id="deleteImg" src="images/delete.png"></img>
+	    <a id="attachmentSaveA" style="display: none;"><span id="attachmentSaveSpan"></span></a>
+	  </div>
+	</span>
 	<div id="msgTextAreaDiv">
 	  <textarea id="msgTextArea" rows="14" class="hidden">&nbsp;</textarea>
 	</div>

@@ -37,6 +37,9 @@ h3 { font-size:18px; }
 .visibleTC {
     display: table-cell;
 }
+.visibleTR {
+    display: table-row;
+}
 .hidden, .statusDivHide, .metaMaskDivHide {
     display: none;
 }
@@ -568,6 +571,26 @@ h3 { font-size:18px; }
     border-radius: 12px;
 }
 #shopButton, #dashboardButton, #createStoreButton {
+}
+
+.msgInfoAreaButton, .msgRightButton {
+    margin: 1px;
+    border: var(--bor_butnormal);
+    background-color: var(--clr_buttonbg);
+}
+.msgInfoAreaButton:hover, .msgRightButton:hover {
+    cursor: pointer;
+    border: var(--bor_butselect);
+    background-color: var(--clr_buttonbgsel);
+}
+.msgInfoAreaButton[disabled], .msgInfoAreaButton[disabled]:hover, .msgInfoAreaButton[disabled]:focus, .msgInfoAreaButton[disabled]:active,
+.msgRightButton[disabled], .msgRightButton[disabled]:hover, .msgRightButton[disabled]:focus, .msgRightButton[disabled]:active {
+    cursor: default;
+    border: var(--bor_butnormal);
+    background-color: var(--clr_buttonbg);
+}
+.msgRightButton {
+    height: 26px;
 }
 
 .otherButton, .otherButtonEnabled, .otherButtonDisabled,
@@ -2099,30 +2122,19 @@ h3 { font-size:18px; }
     color: var(--clr_areatext);
     z-index: 2;
 }
-.msgInfoAreaButton {
-    margin: 1px;
-    border: var(--bor_butnormal);
-}
-.msgInfoAreaButton:hover {
-    cursor: pointer;
-    border: var(--bor_butselect);
-}
-.msgInfoAreaButton[disabled], .msgInfoAreaButton[disabled]:hover, .msgInfoAreaButton[disabled]:focus, .msgInfoAreaButton[disabled]:active {
-    cursor: default;
-    border: var(--bor_butnormal);
-}
 #msgInfoAreaDiv {
-    clear: both;
+    float: left;
     padding-top: 10px;
     padding-right: 10px;
     padding-bottom: 0px;
     padding-left: 10px;
     display: table;
     margin: 0px;
-    min-width: 85%;
+    min-width: 67em;
     background-color: var(--clr_toparea);
     color: var(--clr_areatext);
 }
+
 #msgPromptArea, #msgAddrArea, #msgIdArea, #msgRefButton, #msgPricePromptArea, #msgPriceArea, #msgFeeArea, #msgDateArea {
     vertical-align: middle;
     padding-top: 1px;
@@ -2140,7 +2152,7 @@ h3 { font-size:18px; }
 }
 #msgAddrArea {
     display: table-cell;
-    width: 46em;
+    width: 36em;
     min-width: 20%;
 }
 #msgIdArea {
@@ -2180,6 +2192,16 @@ h3 { font-size:18px; }
     width: 77em;
     min-width: 20%;
 }
+
+@media (max-width: 1875px) and (min-width: 384px) {
+    #msgInfoAreaDiv {
+	min-width: 47em;
+    }
+    #msgPriceArea {
+        width: 57em;
+    }
+}
+
 #sendButton {
     float: right;
     vertical-align: middle;
@@ -2191,16 +2213,19 @@ h3 { font-size:18px; }
     color: var(--clr_buttontext);
 }
 #msgCloseImg {
-    float:left;
+    float: right;
     width: 28px;
     height: 28px;
-    padding: 2px;
+    padding-left: 2px;
 }
 #msgCloseImg:hover {
     cursor: pointer;
 }
+#msgRightButtonsSpan {
+    padding: 0px;
+}
 #attachmentButton, #attachmentInput {
-    float:right;
+    float:left;
     vertical-align: middle;
     padding-top: 0px;
     padding-bottom: 0px;
@@ -2210,33 +2235,39 @@ h3 { font-size:18px; }
 }
 #attachmentButton {
     padding-right: 6px;
-    margin-top: 5px;
-    margin-bottom: 6px;
+    margin-top: 1px;
+    margin-bottom: 0px;
 }
 #attachmentInput {
-    margin-top: 5px;
-    margin-bottom: 4px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     padding-right: 0px;
     max-width: 15em; /* emough space for no file chosen */
 }
 #attachmentInput:hover {
     cursor: pointer;
 }
+#attachmentSaveADiv {
+    float: left;
+}
 #deleteImg {
     display: none;
-    float: right;
+    float: left;
     position: relative;
-    top: -5px;
-    left: -5px;
-    width: 30px;
-    height: 30px;
+    top: 0px;
+    left: 0px;
+    width: 21px;
+    height: 21px;
+    margin-left: 4px;
+    margin-right: 4px;
 }
 #deleteImg:hover {
     cursor: pointer;
 }
 #attachmentSaveA {
-    float: right;
+    float: left;
     margin-right: 10px;
+    margin-top: 0px;
 }
 #attachmentSaveSpan {
     display: block;
@@ -2256,6 +2287,7 @@ h3 { font-size:18px; }
     background-position: 0px 0px;
 }
 #msgTextAreaDiv {
+    clear: both;
     padding-top: 0px;
     padding-right: 10px;
     padding-bottom: 10px;

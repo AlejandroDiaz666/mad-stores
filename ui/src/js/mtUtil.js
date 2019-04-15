@@ -329,6 +329,7 @@ const mtUtil = module.exports = {
 	    cb('Error: vendor has an invalid Ethereum address.', null, null);
 	    return;
 	}
+	common.replaceElemClassFromTo('msgAreaIdAndRef', 'visibleTR', 'hidden',    true);
 	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
 	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
 	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
@@ -383,6 +384,7 @@ const mtUtil = module.exports = {
     //
     setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, cb) {
 	console.log('setupDisplayMsgArea: enter');
+	common.replaceElemClassFromTo('msgAreaIdAndRef', 'hidden', 'visibleTR', true);
 	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'visibleIB', 'hidden',    true);
 	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'visibleIB', 'hidden',    true);
 	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'hidden',    'visibleIB', true);
@@ -439,6 +441,7 @@ function replyToMsg(destAddr, refId, cb) {
 	return;
     }
     console.log('setupComposeMsgArea: enter');
+    common.replaceElemClassFromTo('msgAreaIdAndRef', 'visibleTR', 'hidden',    true);
     const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
     const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
     const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
