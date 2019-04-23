@@ -20,6 +20,8 @@ contract MadEscrow is iERC20Token {
   function verifyEscrow(uint256 _escrowID, address _vendorAddr, address _customerAddr) public view returns (uint256 _productID);
   function verifyEscrowVendor(uint256 _escrowID, address _vendorAddr) public view returns (uint256 _productID, address _customerAddr);
   function verifyEscrowCustomer(uint256 _escrowID, address _customerAddr) public view returns (uint256 _productID, address _vendorAddr);
+  function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr);
+  function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public;
   function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
   function cancelEscrow(uint256 _escrowID, uint256 _XactId) public;
   function approveEscrow(uint256 _escrowID, uint256 _deliveryTime, uint256 _XactId) public;
@@ -373,7 +375,8 @@ contract MadStores is SafeMath {
   // send a response to an escrow function
   // -----------------------------------------------------------------------------------------------------
   function recordReponse(uint256 _escrowId, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
-    address _otherAddr = madEscrow.verifyEscrowAny(_escrowID);
+    address _otherAddr;
+    (, _otherAddr) = madEscrow.verifyEscrowAny(_escrowId, msg.sender);
     //ensure message fees
     uint256 _msgFee = messageTransport.getFee(msg.sender, _otherAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");

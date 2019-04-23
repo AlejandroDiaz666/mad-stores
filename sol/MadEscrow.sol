@@ -256,14 +256,14 @@ contract MadEscrow is iERC20Token, SafeMath {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed       == false &&
 	    _escrow.vendorAddr   == _vendorAddr &&
-	    _escrow.customerAddr == _customerAddr);
+	    _escrow.customerAddr == _customerAddr, "escrow closed or invalid address");
     _productId = _escrow.productId;
   }
 
   function verifyEscrowVendor(uint256 _escrowId, address _vendorAddr) public view returns (uint256 _productId, address _customerAddr) {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed       == false &&
-	    _escrow.vendorAddr  == _vendorAddr);
+	    _escrow.vendorAddr  == _vendorAddr, "escrow closed or invalid address");
     _productId = _escrow.productId;
     _customerAddr = _escrow.customerAddr;
 
@@ -272,11 +272,22 @@ contract MadEscrow is iERC20Token, SafeMath {
   function verifyEscrowCustomer(uint256 _escrowId, address _customerAddr) public view returns (uint256 _productId, address _vendorAddr) {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed       == false &&
-	    _escrow.customerAddr == _customerAddr);
+	    _escrow.customerAddr == _customerAddr, "escrow closed or invalid address");
     _productId = _escrow.productId;
     _vendorAddr = _escrow.vendorAddr;
   }
 
+  function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr) {
+    Escrow storage _escrow = escrows[_escrowId];
+    require(_escrow.closed == false, "escrow closed");
+    _productId = _escrow.productId;
+    if (_escrow.vendorAddr  == _firstAddr)
+      _otherAddr = _escrow.customerAddr;
+    else if (_escrow.customerAddr == _firstAddr)
+      _otherAddr = _escrow.vendorAddr;
+    else
+      revert("invalid address");
+  }
 
   // -------------------------------------------------------------------------------------------------------
   // record response
@@ -293,7 +304,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     else if (_escrow.modifyXactId == _ref)
       _escrow.modifyXactId = _XactId;
     else {
-      require(_escrow.createXactId == ref, "unknown ref");
+      require(_escrow.createXactId == _ref, "unknown ref");
       _escrow.createXactId = _XactId;
     }
   }
