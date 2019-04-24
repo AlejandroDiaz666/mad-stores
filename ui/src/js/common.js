@@ -487,6 +487,7 @@ const common = module.exports = {
     // start or stop the wait/loading icon
     // an elem with id waitIcon must exist
     setLoadingIcon: function(start) {
+	console.log('setLoadingIcon: start = ' + start);
 	const waitIcon = document.getElementById('waitIcon');
 	waitIcon.style.display = (!!start) ? 'block' : 'none';
     },

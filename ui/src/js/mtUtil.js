@@ -12,7 +12,11 @@ const BN = require("bn.js");
 const mtUtil = module.exports = {
     acctInfo: null,
     publicKey: null,
+    //sendCB(null, attachmentIdxBN, message);
     sendCB: null,
+    //refCB(refId)
+    refCB: null,
+
 
     // create a shorter base64 message id from a long hex msgId
     // note: every 3 bytes produces 4 base64 chars; so use a multiple of 3 bytes to avoid padding chars, '=='
@@ -238,6 +242,18 @@ const mtUtil = module.exports = {
 	    common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', true);
 	});
     },
+
+    setRefHandler: function() {
+	const msgRefButton = document.getElementById('msgRefButton');
+	msgRefButton.addEventListener('click', function() {
+	    console.log('setRefHandler: refId = ' + msgRefButton.ref);
+	    if (!!msgRefButton.ref) {
+		const refId = common.numberToHex256(msgRefButton.ref);
+		mtUtil.refCB(refId);
+	    }
+	});
+    },
+
     setAttachButtonHandler: function() {
 	const attachmentButton = document.getElementById('attachmentButton');
 	const attachmentInput = document.getElementById('attachmentInput');
@@ -323,26 +339,32 @@ const mtUtil = module.exports = {
     // set up the compose area. before calling the cb any attachment is appended to the message (via the
     // attachButton and sendButton click handlers). the message is not encrypted.
     //
-    setupComposeMsgArea: function(destAddr, placeholderText, priceDesc, sendButtonText, cb) {
+    setupComposeMsgArea: function(destAddr, placeholderText, msgDesc, msgId, ref, sendButtonText, cb) {
 	console.log('setupComposeMsgArea: enter');
 	if (!ether.validateAddr(destAddr)) {
 	    cb('Error: vendor has an invalid Ethereum address.', null, null);
 	    return;
 	}
-	common.replaceElemClassFromTo('msgAreaIdAndRef', 'visibleTR', 'hidden',    true);
+	if (!!msgId || !!ref) {
+	    common.replaceElemClassFromTo('msgIdArea',    'hidden',    'visibleB',  false);
+	    common.replaceElemClassFromTo('msgRefButton', 'hidden',    'visibleB',  false);
+	    common.replaceElemClassFromTo('msgAreaIdAndRef', 'hidden',    'visibleTR', true);
+	    //we don't support backtracking references in the compose mode
+	    showIdAndRef(msgId, ref, false);
+	} else {
+	    common.replaceElemClassFromTo('msgAreaIdAndRef', 'visibleTR', 'hidden',    true);
+	}
 	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
 	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
 	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
-	const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'hidden',    'visibleTC', true);
-                                 common.replaceElemClassFromTo('msgPricePromptArea', 'hidden',    'visibleTC', true);
+	const msgDescArea      = common.replaceElemClassFromTo('msgDescArea',        'hidden',    'visibleTC', true);
+                                 common.replaceElemClassFromTo('msgDescPromptArea',  'hidden',    'visibleTC', true);
 	const attachmentInput  = common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
 	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', false);
 	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
-	common.replaceElemClassFromTo('msgIdArea',    'hidden',    'visibleB',  false);
-	common.replaceElemClassFromTo('msgRefButton', 'hidden',    'visibleB',  false);
-	const sendButton = document.getElementById('sendButton');
+	const sendButton       = common.replaceElemClassFromTo('sendButton',         'hidden',    'visibleB',  false);
 	sendButton.textContent = sendButtonText;
-	msgPriceArea.value = priceDesc;
+	msgDescArea.value = msgDesc;
 	sendButton.disabled = true;
 	mtUtil.sendCB = null
 	//
@@ -382,21 +404,29 @@ const mtUtil = module.exports = {
     // handlers). the reply message is not encrypted.
     // clears the loading-icon when the msg is displayed
     //
-    setupDisplayMsgArea: function(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, cb) {
+    setupDisplayMsgArea: function(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, cb) {
 	console.log('setupDisplayMsgArea: enter');
-	common.replaceElemClassFromTo('msgAreaIdAndRef', 'hidden', 'visibleTR', true);
+	common.replaceElemClassFromTo('msgIdArea',       'hidden',    'visibleB',  false);
+	common.replaceElemClassFromTo('msgRefButton',    'hidden',    'visibleB',  false);
+	common.replaceElemClassFromTo('msgAreaIdAndRef', 'hidden',    'visibleTR', true);
+	showIdAndRef(msgId, ref, true);
 	const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'visibleIB', 'hidden',    true);
 	const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'visibleIB', 'hidden',    true);
 	const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'hidden',    'visibleIB', true);
-	const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'hidden',    'visibleTC', true);
-                                 common.replaceElemClassFromTo('msgPricePromptArea', 'hidden',    'visibleTC', true);
+	const msgDescArea      = common.replaceElemClassFromTo('msgDescArea',        'hidden',    'visibleTC', true);
+                                 common.replaceElemClassFromTo('msgDescPromptArea',  'hidden',    'visibleTC', true);
 	const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', true);
 	const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
-	showIdAndRef(msgId, ref, true);
 	const sendButton = document.getElementById('sendButton');
 	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	sendButton.textContent = (fromAddr == common.web3.eth.accounts[0]) ? 'Send again' : 'Reply';
-	sendButton.disabled = true;
+	if (!!cb) {
+	    common.replaceElemClassFromTo('sendButton', 'hidden', 'visibleB', false);
+	    sendButton.textContent = (fromAddr == common.web3.eth.accounts[0]) ? 'Send again' : 'Reply';
+	    sendButton.disabled = true;
+	} else {
+	    common.replaceElemClassFromTo('sendButton', 'visibleB', 'hidden', true);
+	}
+	mtUtil.refCb = null;
 	mtUtil.sendCB = null;
 	const msgPromptArea = document.getElementById('msgPromptArea');
 	msgPromptArea.value = (fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
@@ -404,12 +434,10 @@ const mtUtil = module.exports = {
 	msgAddrArea.disabled = true;
 	msgAddrArea.readonly = 'readonly';
 	msgAddrArea.value = otherAddr;
-	msgPriceArea.value = priceDesc;
+	msgDescArea.value = msgDesc;
 	msgDateArea.value = date;
 	//
 	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, attachmentIdxBN, (err, text, attachment) => {
-	    //msgDateArea.value = date;
-	    //msgNoNotButton.textContent = parseInt(msgNo).toString(10);
 	    console.log('setupDisplayMsgArea: text = ' + text);
 	    msgTextArea.value = text;
 	    msgTextArea.readonly = 'true';
@@ -425,7 +453,31 @@ const mtUtil = module.exports = {
 	    }
 	    sendButton.disabled = false;
 	    common.setLoadingIcon(null);
-	    mtUtil.sendCB = () => { replyToMsg(fromAddr, msgId, cb); };
+	    if (!!ref) {
+		mtUtil.refCB = (refId) => {
+		    common.setLoadingIcon('start');
+		    mtUtil.getAndParseIdMsg(refId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+			if (!!err) {
+			    common.setLoadingIcon(null);
+			    alert(err);
+			    return;
+			}
+			const msgDesc = 'This is the the previous ' + msgName + ' message';
+			//no reply except replying to the most recent message
+			mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null);
+		    });
+		};
+	    }
+	    if (!!cb) {
+		mtUtil.sendCB = () => {
+		    const msgDesc = 'Enter additional notes regarding the previous ' + msgName + ' message';
+		    const placeholderText =
+			  '\n' +
+			  'Type your message here...\n\n' +
+			  'The previous message was:\n' + text;
+		    mtUtil.setupComposeMsgArea(otherAddr, placeholderText, msgDesc, null, msgId, 'send', cb);
+		};
+	    }
 	});
     },
 }
@@ -445,8 +497,8 @@ function replyToMsg(destAddr, refId, cb) {
     const attachmentButton = common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
     const msgFeeArea       = common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
     const msgDateArea      = common.replaceElemClassFromTo('msgDateArea',        'visibleIB', 'hidden',    true);
-    const msgPriceArea     = common.replaceElemClassFromTo('msgPriceArea',       'visibleTC', 'hidden',    true);
-                             common.replaceElemClassFromTo('msgPricePromptArea', 'visibleTC', 'hidden',    true);
+    const msgDescArea      = common.replaceElemClassFromTo('msgDescArea',        'visibleTC', 'hidden',    true);
+                             common.replaceElemClassFromTo('msgDescPromptArea',  'visibleTC', 'hidden',    true);
     const attachmentInput  = common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
     const msgTextArea      = common.replaceElemClassFromTo('msgTextArea',        'hidden',    'visibleIB', false);
     const msgAreaDiv       = common.replaceElemClassFromTo('msgAreaDiv',         'hidden',    'visibleB',  false);
@@ -486,10 +538,13 @@ function replyToMsg(destAddr, refId, cb) {
 
 //if enable is set, then the msgRefButton is enabled, but only if ref is nz
 function showIdAndRef(msgId, ref, enable) {
+    console.log('showIdAndRef: msgId = ' + msgId + ', ref = ' + ref);
+    const msgIdArea = document.getElementById('msgIdArea');
     if (!!msgId) {
-	const msgIdArea = document.getElementById('msgIdArea');
 	msgIdArea.value = 'Msg ID: ' + mtUtil.abbreviateMsgId(msgId);
 	msgIdArea.msgId = msgId;
+    } else {
+	msgIdArea.value = 'Msg ID: unassigned';
     }
     const msgRefButton = document.getElementById('msgRefButton');
     const refShortBN = common.numberToBN(ref);

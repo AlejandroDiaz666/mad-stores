@@ -333,6 +333,7 @@ function buildDashboard() {
 // below are the handlers for the various steps-completed, next-steps buttons
 //
 function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
+    const idx = dashboard.selectedRow;
     const msgId = common.numberToHex256(escrowInfo.createXactId);
     console.log('showDeposit: createXactId = ' + msgId);
     common.setLoadingIcon('start');
@@ -344,18 +345,28 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showDeposit: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const priceDesc = 'this is the initial escrow deposit and product-purchase for this order';
+	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
+	const msgName = 'deposit/purchase';
+	const msgDesc = refBN.isZero()
+	      ? 'this is the initial escrow deposit and product-purchase for this order'
+	      : 'this message followed the initial escrow deposit and product-purchase for this order';
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
 		return;
 	    }
 	    console.log('showDeposit: reply -- about to send reply');
-	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
+	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
+	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, refBN, message, function(err) {
 		if (!!err)
 		    alert(err);
+		else
+		    alert('You have just attached a new message to this purchase!\n' +
+			  'The escrow is still active.');
+		remakeRow(idx);
 		dashboard.handleDashboardPage();
 	    });
 	});
@@ -364,6 +375,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 
 
 function showApprove(escrowIdBN, escrowInfo, productIdBN) {
+    const idx = dashboard.selectedRow;
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showApprove: approveCancelXactId = ' + msgId);
     common.setLoadingIcon('start');
@@ -377,8 +389,9 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	console.log('showApprove: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const deliveryDate = parseInt(escrowInfo.deliveryDate);
 	const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
-	const priceDesc = 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr;
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	const msgName = 'approve';
+	const msgDesc = 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr;
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
@@ -396,6 +409,7 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 
 
 function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
+    const idx = dashboard.selectedRow;
     const msgId = common.numberToHex256(escrowInfo.approveCancelXactId);
     console.log('showCancelOrDecline: approveCancelXactId = ' + msgId);
     common.setLoadingIcon('start');
@@ -407,9 +421,14 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showCancelOrDecline: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const priceDesc = (escrowInfo.vendorAddr == fromAddr) ? 'this purchase was declined' : 'this purchase was canceled';
+	let msgName = 'cancel';
+	let msgDesc = 'this purchase was canceled';
+	if (escrowInfo.vendorAddr == fromAddr) {
+	    msgName = 'decline';
+	    msgDesc = 'this purchase was declined';
+	}
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showCancelOrDecline: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -428,6 +447,7 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 
 
 function showRelease(escrowIdBN, escrowInfo, productIdBN) {
+    const idx = dashboard.selectedRow;
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showRelease: releaseBurnXactId = ' + msgId);
     common.setLoadingIcon('start');
@@ -439,8 +459,9 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showRelease: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const priceDesc = 'delivery of this item was confirmed; all escrow funds have been released';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	const msgName = 'release';
+	const msgDesc = 'delivery of this item was confirmed; all escrow funds have been released';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showRelease: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -459,6 +480,7 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 
 
 function showBurn(escrowIdBN, escrowInfo, productIdBN) {
+    const idx = dashboard.selectedRow;
     const msgId = common.numberToHex256(escrowInfo.releaseBurnXactId);
     console.log('showBurn: releaseBurnXactId = ' + msgId);
     common.setLoadingIcon('start');
@@ -470,8 +492,9 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 	    return;
 	}
 	console.log('showBurn: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const priceDesc = 'item not delivered, or delivery was rejected; all escrow funds have been burned';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, priceDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	const msgName = 'burn';
+	const msgDesc = 'item not delivered, or delivery was rejected; all escrow funds have been burned';
+	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
 	console.log('showBurn: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -482,7 +505,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 	    mtUtil.encryptAndSendMsg('Message-Reply', fromAddr, msgId, attachmentIdxBN, message, function(err) {
 		if (!!err)
 		    alert(err);
-		remakeRow(dashboard.selectedRow);
+		remakeRow(idx);
 		dashboard.handleDashboardPage();
 	    });
 	});
@@ -516,16 +539,16 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 	  'pick-up location or any required code. If none of these are applicable to this purchase, then you can simply use this message to thank the buyer for ' +
 	  'his patronage.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Approve Escrow', function(err, attachmentIdxBN, message) {
+    const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+    const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doApprove: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
-	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
 	meUtil.escrowFcnWithParmMsg(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, secsBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		  alert(err);
@@ -566,16 +589,16 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	  'Additional bond funds, equal to 150% of the increase in price will be added to the \'MAD\' escrow account for this purchase.\n\n' +
 	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
     const escrowBN = addAmountBN.muln(3).divn(2);
-    const priceDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Modify Escrow', function(err, attachmentIdxBN, message) {
+    const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
+    const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+    const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doModify: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
-	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
 	//since we specify escrow, we can omit productID
 	meUtil.purchaseProduct(escrowIdBN, addAmountBN, new BN(0), escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
@@ -598,16 +621,16 @@ function doCancel(escrowIdBN, escrowInfo) {
 	  'You are about to cancel this purchase!\n\n' +
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+    const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
-	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
 	meUtil.escrowFcnWithMsg(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
@@ -632,16 +655,16 @@ function doDecline(escrowIdBN, escrowInfo) {
 	  'Note: if you only require more information (eg. shipping information) from the buyer, then you can send him a response to his original deposit ' +
 	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const priceDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, priceDesc, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
+    const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
+    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
 	console.log('doDecline: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
-	const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
 	meUtil.escrowFcnWithMsg(meEther.purchaseDecline, 'Purchase-Decline', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
@@ -679,15 +702,15 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	  'The buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
+    const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
+    const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
 	console.log('doRelease: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
 	meUtil.escrowFcnWithParmMsg(meEther.deliveryApprove, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
@@ -727,15 +750,15 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	  'This is a drastic measure, but it is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
 	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
-    const priceDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, priceDesc, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
+    const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
+    const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
+    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
 	console.log('doBurn: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
 	meUtil.escrowFcnWithParmMsg(meEther.deliveryReject, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);

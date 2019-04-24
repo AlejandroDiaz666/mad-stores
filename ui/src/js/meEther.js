@@ -29,6 +29,7 @@ const meEther = module.exports = {
     registerVendorABI: null,
     registerProductABI: null,
     withdrawABI: null,
+    recordReponseABI: null,
     purchaseDepositABI: null,
     purchaseApproveABI: null,
     purchaseDeclineABI: null,
@@ -379,6 +380,43 @@ const meEther = module.exports = {
     },
 
 
+
+    // ---------------------------------------------------------------------------------------------------------
+    // recordReponse & friends
+    // ---------------------------------------------------------------------------------------------------------
+    //
+    // cb(err, txid)
+    //
+    //   function recordReponse(uint256 _escrowId, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
+    //
+    //
+    recordReponse: function(escrowIdBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
+	console.log('recordResponse: escrowIdBN = 0x' + escrowIdBN.toString(16));
+	console.log('recordResponse: msgFee = ' + msgFee);
+	console.log('recordResponse: attachmentIdxBN = 0x' + attachmentIdxBN.toString(16));
+	console.log('recordResponse: refBN = 0x' + refBN.toString(16));
+	console.log('recordResponse: messageHex = ' + messageHex);
+	const abiRecordReponseFcn = meEther.abiEncodeRecordReponse();
+	const abiParms = meEther.abiEncodeRecordReponseParms(escrowIdBN, attachmentIdxBN, refBN, messageHex);
+        const sendData = "0x" + abiRecordReponseFcn + abiParms;
+	ether.send(meEther.MS_CONTRACT_ADDR, msgFee, 'wei', sendData, 0, cb);
+    },
+
+    abiEncodeRecordReponse: function() {
+	console.log('abiEncodeRecordReponse');
+	if (!meEther.recordReponseABI)
+	    meEther.recordReponseABI = ethabi.methodID('recordReponse', [ 'uint256', 'uint256', 'uint256', 'bytes' ]).toString('hex');
+	return(meEther.recordReponseABI);
+    },
+
+    abiEncodeRecordReponseParms: function(escrowIdBN, attachmentIdxBN, refBN, messageHex) {
+	const bytes = common.hexToBytes(messageHex);
+	const encoded = ethabi.rawEncode([ 'uint256', 'uint256', 'uint256', 'bytes' ],
+					 [ escrowIdBN, attachmentIdxBN, refBN, bytes ] ).toString('hex');
+	return(encoded);
+    },
+
+
     // ---------------------------------------------------------------------------------------------------------
     // purchaseDeposit & friends
     // ---------------------------------------------------------------------------------------------------------
@@ -388,7 +426,7 @@ const meEther = module.exports = {
     //   function purchaseDeposit(uint256 _escrowID, uint256 _productID, uint256 _surcharge, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable;
     //
     // pass escrowID of zero for a new purchase, else nz to add funds (specified by surchage) to an existing escrow
-    // pass
+    //
     //
     purchaseDeposit: function(escrowIdBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, messageHex, cb) {
 	console.log('purchaseDeposit: escrowIdBN = 0x' + escrowIdBN.toString(16));

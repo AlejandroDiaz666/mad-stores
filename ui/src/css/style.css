@@ -194,7 +194,7 @@ h3 { font-size:18px; }
     left: 50%;
     width: 80px;
     height: 80px;
-    z-index: 2;
+    z-index: 99;
     animation-name: waitIconAnimation;
     animation-duration: 2s;
     animation-timing-function: linear;
@@ -2135,7 +2135,7 @@ h3 { font-size:18px; }
     color: var(--clr_areatext);
 }
 
-#msgPromptArea, #msgAddrArea, #msgIdArea, #msgRefButton, #msgPricePromptArea, #msgPriceArea, #msgFeeArea, #msgDateArea {
+#msgPromptArea, #msgAddrArea, #msgIdArea, #msgRefButton, #msgDescPromptArea, #msgDescArea, #msgFeeArea, #msgDateArea {
     vertical-align: middle;
     padding-top: 1px;
     padding-right: 0px;
@@ -2180,13 +2180,13 @@ h3 { font-size:18px; }
 #msgDateArea {
     width: 20em;
 }
-#msgPricePromptArea {
+#msgDescPromptArea {
     clear: both;
     float: left;
     width: 4em;
     max-width: 4em;
 }
-#msgPriceArea {
+#msgDescArea {
     float: left;
     margin: 0px;
     width: 77em;
@@ -2197,7 +2197,7 @@ h3 { font-size:18px; }
     #msgInfoAreaDiv {
 	min-width: 47em;
     }
-    #msgPriceArea {
+    #msgDescArea {
         width: 57em;
     }
 }
