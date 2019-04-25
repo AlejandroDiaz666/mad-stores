@@ -81,7 +81,7 @@ const mtDisplay = module.exports = {
 	console.log('setupDisplayMsgArea: enter msgId = ' + msgId);
 	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
 	const addrPrompt = (fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
-	const sendButtonText = !!prevMsgId ? 'Back' : (fromAddr == common.web3.eth.accounts[0]) ? 'Send more' : 'Reply';
+	const sendButtonText = !!prevMsgId ? 'Back' : (fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply';
 	setMsgArea(mtDisplay.DISPLAY_MODE, addrPrompt, otherAddr, msgId, ref, msgDesc, date, sendButtonText);
 	mtDisplay.refCb = null;
 	mtDisplay.sendCb = null;
