@@ -74,6 +74,7 @@ $(JSBLDDIR)/index.js: $(JSSRCDIR)/index.js $(JSSRCDIR)/autoVersion.js \
 	$(JSBLDDIR)/meEther.js \
 	$(JSBLDDIR)/common.js \
 	$(JSBLDDIR)/meUtil.js \
+	$(JSBLDDIR)/mtDisplay.js \
 	$(JSBLDDIR)/shop.js \
 	$(JSBLDDIR)/dashboard.js \
 	$(JSBLDDIR)/createStore.js \

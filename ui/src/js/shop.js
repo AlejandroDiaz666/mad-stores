@@ -7,6 +7,7 @@ const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
 const mtUtil = require('./mtUtil');
+const mtDisplay = require('./mtDisplay');
 const categories = require('./categories');
 const regions = require('./regions');
 const BN = require("bn.js");
@@ -201,7 +202,7 @@ function handlePurchase(product) {
 		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
 		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
 	    const msgDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-	    mtUtil.setupComposeMsgArea(product.vendorAddr, placeholderText, msgDesc, null, null, 'Send/Purchase', function(err, attachmentIdxBN, message) {
+	    mtDisplay.setupComposeMsgArea(product.vendorAddr, placeholderText, msgDesc, null, null, 'Send/Purchase', function(err, attachmentIdxBN, message) {
 		if (!!err) {
 		    alert(err);
 		    return;

@@ -8,6 +8,7 @@ const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
 const mtUtil = require('./mtUtil');
+const mtDisplay = require('./mtDisplay');
 const categories = require('./categories');
 const regions = require('./regions');
 const BN = require("bn.js");
@@ -352,7 +353,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 	      ? 'this is the initial escrow deposit and product-purchase for this order'
 	      : 'this message followed the initial escrow deposit and product-purchase for this order';
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
@@ -391,7 +392,7 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 	const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
 	const msgName = 'approve';
 	const msgDesc = 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr;
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
@@ -428,7 +429,7 @@ function showCancelOrDecline(escrowIdBN, escrowInfo, productIdBN) {
 	    msgDesc = 'this purchase was declined';
 	}
 	//clears loading-icon
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	console.log('showCancelOrDecline: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -461,7 +462,7 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 	console.log('showRelease: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const msgName = 'release';
 	const msgDesc = 'delivery of this item was confirmed; all escrow funds have been released';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	console.log('showRelease: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -494,7 +495,7 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 	console.log('showBurn: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
 	const msgName = 'burn';
 	const msgDesc = 'item not delivered, or delivery was rejected; all escrow funds have been burned';
-	mtUtil.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, function(err, attachmentIdxBN, message) {
+	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	console.log('showBurn: setupDisplayMsgArea came back');
 	    if (!!err) {
 		alert(err);
@@ -542,7 +543,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
     const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doApprove: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -592,7 +593,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
     const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
     const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
     const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doModify: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -624,7 +625,7 @@ function doCancel(escrowIdBN, escrowInfo) {
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
     const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -658,7 +659,7 @@ function doDecline(escrowIdBN, escrowInfo) {
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     const modifyIdBN = common.numberToBN(escrowInfo.modifyXactId);
     const refBN = modifyIdBN.isZero() ? common.numberToBN(escrowInfo.createXactId) : modifyIdBN;
-    mtUtil.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
 	console.log('doDecline: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -704,7 +705,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
 	console.log('doRelease: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -752,7 +753,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
     const refBN = common.numberToBN(escrowInfo.approveCancelXactId);
-    mtUtil.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
 	console.log('doBurn: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);

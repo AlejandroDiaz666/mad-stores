@@ -5,6 +5,7 @@ const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
 const mtUtil = require('./mtUtil');
+const mtDisplay = require('./mtDisplay');
 const autoVersion = require('./autoVersion');
 const dashboard = require('./dashboard');
 const createStore = require('./createStore');
@@ -25,6 +26,7 @@ var index = module.exports = {
 	console.log('index.main');
 	index.setButtonHandlers();
 	meUtil.setButtonHandlers();
+	mtDisplay.setButtonHandlers();
 	createStore.setButtonHandlers();
 	shop.setButtonHandlers();
 	dashboard.setButtonHandlers();
@@ -36,11 +38,6 @@ var index = module.exports = {
 	setMainButtonHandlers();
 	setWrapButtonHandlers();
 	setUnwrapButtonHandlers();
-	//for message transport
-	mtUtil.setMsgCloseHandler();
-	mtUtil.setRefHandler();
-	mtUtil.setAttachButtonHandler();
-	mtUtil.setSendButtonHandler();
     },
 
 };
