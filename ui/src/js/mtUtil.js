@@ -12,10 +12,32 @@ const BN = require("bn.js");
 const mtUtil = module.exports = {
     acctInfo: null,
     publicKey: null,
+    //set internally by encryptMsg
+    reCacheAccount: true,
     //sendCB(null, attachmentIdxBN, message);
     sendCB: null,
     //refCB(refId)
     refCB: null,
+
+
+    //cb(err, acctInfo)
+    refreshAcctInfo: function(force, cb) {
+	if (!force && !mtUtil.reCacheAccount && !!mtUtil.acctInfo &&  !!mtUtil.acctInfo.publicKey) {
+	    cb(null, mtUtil.acctInfo);
+	} else {
+	    mtEther.accountQuery(common.web3.eth.accounts[0], function(err, _acctInfo) {
+		console.log('refreshAcctInfo: acctInfo: ' + JSON.stringify(_acctInfo));
+		if (!!err) {
+		    cb(err, null);
+		} else {
+		    mtUtil.reCacheAccount = false;
+		    mtUtil.acctInfo = _acctInfo;
+		    mtUtil.publicKey = (!!mtUtil.acctInfo) ? mtUtil.acctInfo.publicKey : null;
+		    cb(err, mtUtil.acctInfo);
+		}
+	    });
+	}
+    },
 
 
     // create a shorter base64 message id from a long hex msgId
@@ -183,20 +205,23 @@ const mtUtil = module.exports = {
 		cb('Encryption error: unable to look up destination address in contract!', null, null);
 		return;
 	    }
-	    //console.log('encryptMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
-	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
-	    sentMsgCtrBN.iaddn(1);
-	    //console.log('encryptMsg: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    //console.log('encryptMsg: ptk = ' + ptk);
-	    const encrypted = (message.length == 0) ? '' : dhcrypt.encrypt(ptk, message);
-	    console.log('encryptMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
-	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
-		//must correct fee in MadStores contract
-		const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		cb(null, msgFee, encrypted, sentMsgCtrBN);
+	    mtUtil.refreshAcctInfo(false, function() {
+		//console.log('encryptMsg: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
+		const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
+		sentMsgCtrBN.iaddn(1);
+		//console.log('encryptMsg: toPublicKey = ' + toPublicKey);
+		const ptk = dhcrypt.ptk(toPublicKey, toAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
+		//console.log('encryptMsg: ptk = ' + ptk);
+		const encrypted = (message.length == 0) ? '' : dhcrypt.encrypt(ptk, message);
+		console.log('encryptMsg: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
+		//in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
+		mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
+		    console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
+		    //TODO: must correct fee in MadStores contract
+		    const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		    mtUtil.reCacheAccount = true;
+		    cb(null, msgFee, encrypted, sentMsgCtrBN);
+		});
 	    });
 	});
     },
@@ -214,8 +239,11 @@ const mtUtil = module.exports = {
 	    console.log('encryptAndSendMsg: msgFee is ' + msgFee + ' wei');
 	    common.showWaitingForMetaMask(true);
 	    const continueFcn = (err, receipt) => {
-		if (!err)
+		if (!err) {
+		    //this is not really reliable, cuz the message might never be sent. no matter
+		    //we always refresh the sentMsgCount before encrypting
 		    mtUtil.acctInfo.sentMsgCount = msgNoBN.toString(10);
+		}
 		common.waitingForTxid = false;
 		common.clearStatusDiv(statusDiv);
 		cb(err);

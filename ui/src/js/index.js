@@ -381,10 +381,8 @@ function handleUnlockedMetaMask() {
 		return;
 	    }
 	}
-	mtEther.accountQuery(common.web3.eth.accounts[0], function(err, _acctInfo) {
+	mtUtil.refreshAcctInfo(false, function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
-	    mtUtil.acctInfo = _acctInfo;
-	    mtUtil.publicKey = (!!mtUtil.acctInfo) ? mtUtil.acctInfo.publicKey : null;
 	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(mtUtil.acctInfo));
 	    //console.log('handleUnlockedMetaMask: publicKey: ' + mtUtil.publicKey);
 	    if (!mtUtil.publicKey || mtUtil.publicKey == '0x') {

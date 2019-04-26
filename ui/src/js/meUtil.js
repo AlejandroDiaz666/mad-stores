@@ -6,7 +6,6 @@ const common = require('./common');
 const meEther = require('./meEther');
 const mtEther = require('./mtEther');
 const mtUtil = require('./mtUtil');
-const dhcrypt = require('./dhcrypt');
 const ether = require('./ether');
 const BN = require("bn.js");
 
@@ -263,42 +262,23 @@ var meUtil = module.exports = {
     //
     purchaseProduct: function(escrowIDBN, surchargeBN, productIdBN, vendorAddr, attachmentIdxBN, refBN, message, cb) {
 	console.log('purchaseProduct: productIdBN = 0x' + productIdBN.toString(16));
-	mtEther.accountQuery(vendorAddr, function(err, toAcctInfo) {
-	    //encrypt the message...
-	    const toPublicKey = (!!toAcctInfo) ? toAcctInfo.publicKey : null;
-	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
-	    if (!toPublicKey || toPublicKey == '0x') {
-		cb('Encryption error: unable to look up destination address in contract!');
+	mtUtil.encryptMsg(vendorAddr, message, function(err, msgFee, encrypted) {
+	    if (!!err) {
+		cb(err);
 		return;
 	    }
-	    console.log('purchaseProduct: mtUtil.acctInfo.sentMsgCount = ' + mtUtil.acctInfo.sentMsgCount);
-	    const sentMsgCtrBN = common.numberToBN(mtUtil.acctInfo.sentMsgCount);
-	    sentMsgCtrBN.iaddn(1);
-	    console.log('purchaseProduct: toPublicKey = ' + toPublicKey);
-	    const ptk = dhcrypt.ptk(toPublicKey, vendorAddr, common.web3.eth.accounts[0], '0x' + sentMsgCtrBN.toString(16));
-	    console.log('purchaseProduct: ptk = ' + ptk);
-	    console.log('purchaseProduct: message = X' + message + 'X');
-	    const encrypted = (message.length == 0) ? '' : dhcrypt.encrypt(ptk, message);
-	    console.log('purchaseProduct: encrypted (length = ' + encrypted.length + ') = ' + encrypted);
-	    //in order to figure the message fee we need to see how many messages have been sent from the proposed recipient to me
-	    mtEther.getPeerMessageCount(vendorAddr, common.web3.eth.accounts[0], function(err, msgCount) {
-		console.log('purchaseProduct: ' + msgCount.toString(10) + ' messages have been sent from ' + vendorAddr + ' to me');
-		//must correct fee in MadStores contract
-		const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		console.log('purchaseProduct: msgFee is ' + msgFee + ' wei');
-		common.showWaitingForMetaMask(true);
-		let purchaseErr = null;
-		const continueFcn = () => {
-		    common.waitingForTxid = false;
-		    common.clearStatusDiv();
-		    cb(purchaseErr);
-		};
-		meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
-		    console.log('purchaseProduct: txid = ' + txid);
-		    common.showWaitingForMetaMask(false);
-		    common.waitForTXID(err, txid, 'Purchase-Deposit', continueFcn, ether.etherscanioTxStatusHost, function(err) {
-			purchaseErr = err;
-		    });
+	    common.showWaitingForMetaMask(true);
+	    let purchaseErr = null;
+	    const continueFcn = () => {
+		common.waitingForTxid = false;
+		common.clearStatusDiv();
+		cb(purchaseErr);
+	    };
+	    meEther.purchaseDeposit(escrowIDBN, productIdBN, surchargeBN, msgFee, attachmentIdxBN, refBN, encrypted, function(err, txid) {
+		console.log('purchaseProduct: txid = ' + txid);
+		common.showWaitingForMetaMask(false);
+		common.waitForTXID(err, txid, 'Purchase-Deposit', continueFcn, ether.etherscanioTxStatusHost, function(err) {
+		    purchaseErr = err;
 		});
 	    });
 	});

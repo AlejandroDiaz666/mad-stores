@@ -738,7 +738,8 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
     const escrowBN = addAmountBN.muln(3).divn(2);
     const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
-    const refBN = new BN('0');
+    //if nz, then we want to refernce any existing modify... they will all be chained together
+    const refBN = escrowInfo.modifyXactIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doModify: setupComposeMsgArea came back');
 	if (!!err) {
