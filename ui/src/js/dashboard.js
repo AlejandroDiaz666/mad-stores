@@ -15,7 +15,7 @@ const BN = require("bn.js");
 
 
 var dashboard = module.exports = {
-    selectedRow: -1,
+    selectedEscrowIdx: -1,
     escrowCount: 0,
     rowCount: 0,
     selectedEscrowIdBN: null,
@@ -30,6 +30,9 @@ var dashboard = module.exports = {
     RELEASE_STEP:  5,
     BURN_STEP:     6,
     STEP_COMPLETE: true,
+    //
+    // prefix for local stoarage of highest msgId that has been read for each escrow
+    HI_MSG_ID_PREFIX: 'escrowHiMsg',
     //
     steps:            [ this.CREATE_STEP, this.MODIFY_STEP, this.CANCEL_STEP,
 			this.DECLINE_STEP, this.APPROVE_STEP, this.RELEASE_STEP, this.BURN_STEP ],
@@ -170,16 +173,16 @@ var dashboard = module.exports = {
 // each step is represented by a tile, which is added to the addTo div.
 // clicking the tile will invoke the passed handler.
 //
-function addStep(escrowIdBN, escrowInfo, rowIdx, step, complete, addTo, handler) {
+function addStep(escrowIdBN, escrowInfo, escrowIdx, step, complete, addTo, handler) {
     const className = dashboard.stepTileClasses[step];
     const tipText = complete ? dashboard.completeStepTips[step] : dashboard.toDoStepTips[step]
-    console.log('addStep: rowIdx = ' + rowIdx + ', className = ' + className);
+    console.log('addStep: escrowIdx = ' + escrowIdx + ', className = ' + className);
     const stepSpan = document.createElement("span");
     stepSpan.className = className;
-    if (dashboard.escrowCount - rowIdx < 15) {
-	//at some point of scrolling the tooltips stop lining up up with the buttons;
-	//anyhow, after the first few line the user probably gets the idea and the tooltips are
-	//just plain annoying
+    if (escrowIdx > dashboard.escrowCount - 15) {
+	//at some point of scrolling the tooltips stop lining up up with the buttons; anyhow, after
+	//the first few line the user probably gets the idea and the tooltips are just plain annoying.
+	//first 15 (highest numbered) escrow only..
 	stepSpan.className = className + ' tooltip';
 	const stepSpanTip = document.createElement("span");
 	const tiptextId = className.replace('escrowListStep', 'tooltipText');
@@ -190,7 +193,7 @@ function addStep(escrowIdBN, escrowInfo, rowIdx, step, complete, addTo, handler)
     }
     stepSpan.addEventListener('click', function() {
 	hideAllModals();
-	selectRowIdx(rowIdx);
+	selectRow(escrowIdx);
 	handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
     });
     addTo.appendChild(stepSpan);
@@ -198,11 +201,69 @@ function addStep(escrowIdBN, escrowInfo, rowIdx, step, complete, addTo, handler)
 
 
 //
+// helper fcn for makeRow
+// add step tiles to the completedSpan for each completed step
+//
+function addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan) {
+    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CREATE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDeposit);
+    if (!escrowInfo.modifyXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.MODIFY_STEP, dashboard.STEP_COMPLETE, completedSpan, showModify);
+    if (!escrowInfo.cancelXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CANCEL_STEP, dashboard.STEP_COMPLETE, completedSpan, showCancel)
+    if (!escrowInfo.declineXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.DECLINE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDecline)
+    if (!escrowInfo.approveXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.APPROVE_STEP, dashboard.STEP_COMPLETE, completedSpan, showApprove);
+    if (!escrowInfo.releaseXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.RELEASE_STEP, dashboard.STEP_COMPLETE, completedSpan, showRelease)
+    if (!escrowInfo.burnXactIdBN.isZero())
+	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.BURN_STEP, dashboard.STEP_COMPLETE, completedSpan, showBurn);
+}
+
+//
+// helper fcn for makeRow
+// add step tiles to the nextStepsSpan for each possible next step
+//
+function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan) {
+    const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+    if (escrowInfo.createXactIdBN.gt(hiMsgIdBN)  ||
+	escrowInfo.modifyXactIdBN.gt(hiMsgIdBN)  ||
+	escrowInfo.cancelXactIdBN.gt(hiMsgIdBN)  ||
+	escrowInfo.declineXactIdBN.gt(hiMsgIdBN) ||
+	escrowInfo.approveXactIdBN.gt(hiMsgIdBN) ||
+	escrowInfo.releaseXactIdBN.gt(hiMsgIdBN) ||
+	escrowInfo.burnXactIdBN.gt(hiMsgIdBN)     ) {
+	nextStepsSpan.textContent = 'Check Messaages!';
+	nextStepsSpan.className += ' attention';
+    } else if (escrowInfo.isClosed) {
+	nextStepsSpan.textContent = 'Escrow Is Closed';
+    } else if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && !escrowInfo.approveXactIdBN.isZero()) {
+	nextStepsSpan.textContent = 'Delivery is Pending';
+    } else {
+	if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && escrowInfo.approveXactIdBN.isZero()) {
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.APPROVE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.DECLINE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doDecline);
+	}
+	if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
+	    if (escrowInfo.approveXactIdBN.isZero()) {
+		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.MODIFY_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doModifyDialog);
+		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CANCEL_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doCancel);
+	    } else if (!escrowInfo.isClosed) {
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.RELEASE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doReleaseDialog);
+		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.BURN_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doBurnDialog);
+	    }
+	}
+    }
+}
+
+
+//
 // another helper for addRow
 // creates the entire row, given just an empty div container
-function makeRow(rowDiv, rowIdx) {
+function makeRow(rowDiv, escrowIdx) {
+    console.log('makeRow: escrowIdx = ' + escrowIdx);
     rowDiv.className = 'escrowListItemDiv';
-    rowDiv.id = 'row-' + rowIdx;
+    rowDiv.id = 'row-' + escrowIdx;
     //
     const leftDiv = document.createElement("div");
     leftDiv.className = 'escrowListItemLeftDiv';
@@ -237,9 +298,9 @@ function makeRow(rowDiv, rowIdx) {
     const msgAreaDiv = document.getElementById('msgAreaDiv');
     leftDiv.addEventListener('mouseover', function() {
 	if (!dashboard.inDialog && selectedProductPageDiv.className.indexOf('hidden') >= 0 && msgAreaDiv.className.indexOf('hidden') >= 0)
-	    selectRowIdx(rowIdx);
+	    selectRow(escrowIdx);
     });
-    meEther.escrowQuery(common.web3.eth.accounts[0], rowIdx, function(err, escrowIdBN, escrowInfo) {
+    meEther.escrowQuery(common.web3.eth.accounts[0], escrowIdx, function(err, escrowIdBN, escrowInfo) {
         console.log('addRow: escrowIdBN = ' + escrowIdBN.toString(10));
         escrowNoArea.value = escrowIdBN.toString(10);
 	productArea.value = 'loading...';
@@ -248,7 +309,7 @@ function makeRow(rowDiv, rowIdx) {
 	    leftDiv.addEventListener('click', function() {
 		console.log('productArea: got click');
 		hideAllModals();
-		selectRowIdx(rowIdx);
+		selectRow(escrowIdx);
 		meUtil.showProductDetail(product, 'view', null);
 	    });
 	});
@@ -257,48 +318,17 @@ function makeRow(rowDiv, rowIdx) {
 	    const buyerBN = common.numberToBN(escrowInfo.customerBalance);
 	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN) + ' W-Dai';
 	}
-	addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.CREATE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDeposit);
-	//completed steps
-	if (!escrowInfo.modifyXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.MODIFY_STEP, dashboard.STEP_COMPLETE, completedSpan, showModify);
-        if (!escrowInfo.cancelXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.CANCEL_STEP, dashboard.STEP_COMPLETE, completedSpan, showCancel)
-        if (!escrowInfo.declineXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.DECLINE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDecline)
-        if (!escrowInfo.approveXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.APPROVE_STEP, dashboard.STEP_COMPLETE, completedSpan, showApprove);
-        if (!escrowInfo.releaseXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.RELEASE_STEP, dashboard.STEP_COMPLETE, completedSpan, showRelease)
-        if (!escrowInfo.burnXactIdBN.isZero())
-	    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.BURN_STEP, dashboard.STEP_COMPLETE, completedSpan, showBurn)
-	if (escrowInfo.isClosed)
-	    nextStepsSpan.textContent = 'Escrow Is Closed';
-	//next steps
+	// completed steps, next steps
+	addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan);
+	addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan);
+	// transaction type
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
             addrArea.value = escrowInfo.customerAddr;
-            if (!escrowInfo.isClosed) {
-		if (!escrowInfo.approveXactIdBN.isZero()) {
-		    nextStepsSpan.textContent = 'Delivery is Pending';
-		} else {
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.APPROVE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.DECLINE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doDecline);
-		}
-	    }
         }
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
-	    console.log('addRow: escrowInfo.isClosed = ' + escrowInfo.isClosed + ', escrowInfo.isApproved = ' + !escrowInfo.approveXactIdBN.isZero());
-            if (!escrowInfo.isClosed) {
-		if (!escrowInfo.approveXactIdBN.isZero()) {
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.RELEASE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doReleaseDialog);
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.BURN_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doBurnDialog);
-		} else {
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.MODIFY_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doModifyDialog);
-		    addStep(escrowIdBN, escrowInfo, rowIdx, dashboard.CANCEL_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doCancel);
-		}
-	    }
         }
     });
 }
@@ -307,23 +337,23 @@ function makeRow(rowDiv, rowIdx) {
 //
 // repaint a row
 //
-function remakeRow(rowIdx) {
-    const id = 'row-' + rowIdx;
+function remakeRow(escrowIdx) {
+    const id = 'row-' + escrowIdx;
     const rowDiv = document.getElementById(id);
     common.clearDivChildren(rowDiv);
-    makeRow(rowDiv, rowIdx);
+    makeRow(rowDiv, escrowIdx);
 }
 
 
 //
 // add a new row
 //
-function addRow(table) {
+function addRow(tableElem) {
     console.log('addRow: enter');
-    const rowIdx = dashboard.escrowCount - dashboard.rowCount - 1;
+    const escrowIdx = dashboard.escrowCount - dashboard.rowCount - 1;
     const rowDiv = document.createElement("div");
-    makeRow(rowDiv, rowIdx);
-    table.appendChild(rowDiv);
+    makeRow(rowDiv, escrowIdx);
+    tableElem.appendChild(rowDiv);
     ++dashboard.rowCount;
     console.log('addRow: exit');
 }
@@ -349,9 +379,23 @@ function populateRows() {
 }
 
 
+function selectRow(escrowIdx) {
+    if (dashboard.selectedEscrowIdx >= 0) {
+	const oldId = 'row-' + dashboard.selectedEscrowIdx;
+	common.replaceElemClassFromTo(oldId, 'escrowListItemDivSelected', 'escrowListItemDiv', null);
+    }
+    dashboard.selectedEscrowIdx = escrowIdx;
+    if (escrowIdx >= 0) {
+	const id = 'row-' + escrowIdx;
+	common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
+    }
+}
+
+
+
 function buildDashboard() {
     console.log('buildDashboard');
-    selectRowIdx(-1);
+    selectRow(-1);
     hideAllModals();
     //TODO: must update w-dai balance
     meEther.escrowCountQuery(common.web3.eth.accounts[0], function(err, escrowCountBN) {
@@ -371,7 +415,7 @@ function buildDashboard() {
 // below are the handlers for the various steps-completed, next-steps buttons
 //
 function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.createXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showDeposit: createXactId = ' + msgId);
@@ -403,10 +447,13 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 		else
 		    alert('You have attached a new message to the purchase transaction!\n' +
 			  'The escrow is still active.');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
@@ -414,7 +461,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 // below are the handlers for the various steps-completed, next-steps buttons
 //
 function showModify(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.modifyXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showDeposit: createXactId = ' + msgId);
@@ -447,16 +494,19 @@ function showModify(escrowIdBN, escrowInfo, productIdBN) {
 		else
 		    alert('You have attached a new message to the purchase transaction!\n' +
 			  'The escrow is still active.');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
 
 function showApprove(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.approveXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showApprove: approveCancelXactId = ' + msgId);
@@ -490,16 +540,19 @@ function showApprove(escrowIdBN, escrowInfo, productIdBN) {
 		else
 		    alert('You have attached a new message to the approve transaction!\n' +
 			  'The escrow is still active.');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
 
 function showCancel(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.cancelXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showCancel: cancelXactId = ' + msgId);
@@ -530,16 +583,19 @@ function showCancel(escrowIdBN, escrowInfo, productIdBN) {
 		    alert(err);
 		else
 		    alert('This escrow is already closed and you have attached a new message to the cancel transaction!\n');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
 
 function showDecline(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.declineXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showDecline: declineXactId = ' + msgId);
@@ -570,16 +626,19 @@ function showDecline(escrowIdBN, escrowInfo, productIdBN) {
 		    alert(err);
 		else
 		    alert('This escrow is already closed and you have attached a new message to the decline transaction!\n');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
 
 function showRelease(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.releaseXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showRelease: releaseBurnXactId = ' + msgId);
@@ -611,16 +670,19 @@ function showRelease(escrowIdBN, escrowInfo, productIdBN) {
 		    alert(err);
 		else
 		    alert('This escrow is already successfully completed and you have attached a new message to the release transaction!\n');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
 
 function showBurn(escrowIdBN, escrowInfo, productIdBN) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const msgBN = escrowInfo.burnXactIdBN;
     const msgId = common.BNToHex256(msgBN);
     console.log('showBurn: releaseBurnXactId = ' + msgId);
@@ -652,10 +714,13 @@ function showBurn(escrowIdBN, escrowInfo, productIdBN) {
 		    alert(err);
 		else
 		    alert('This escrow is already burned and you have attached a new message to the burn transaction!\n');
-		remakeRow(rowIdx);
+		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
 	});
+	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
+	if (msgBN.gt(hiMsgIdBN))
+	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
     });
 }
 
@@ -675,7 +740,7 @@ function doApproveDialog(escrowIdBN, escrowInfo) {
 }
 
 function doApprove(secsBN, escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     console.log('doApprove: secsBN = ' + secsBN.toString(10));
     const placeholderText =
 	  '\n' +
@@ -706,7 +771,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 		      'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
 		      'please make every effort to meet the buyer\'s expectations...\n\n' +
 		      'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -728,7 +793,7 @@ function doModifyDialog(escrowIdBN, escrowInfo) {
 }
 
 function doModify(addAmountBN, escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
@@ -754,7 +819,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just added extra funds to an escrow!\n' +
 		      'Be sure to check Turms Message Transport, periodically, to see if the seller has sent you any messages.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -762,7 +827,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 
 
 function doCancel(escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
@@ -785,7 +850,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just canceled this purchase!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -793,7 +858,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 
 
 function doDecline(escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     console.log('doDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
@@ -819,7 +884,7 @@ function doDecline(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just declined selling a product!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -840,7 +905,7 @@ function doReleaseDialog(escrowIdBN, escrowInfo) {
 }
 
 function doRelease(ratingBN, escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
+    const escrowIdx = dashboard.selectedEscrowIdx;
     console.log('doRelease: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
@@ -867,7 +932,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 		alert('You have just released all funds from an escrow account!\n' +
 		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai is returned to you; and the full price of the product, plus the seller\'s bond is released ' +
 		      'to the seller.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
@@ -888,8 +953,8 @@ function doBurnDialog(escrowIdBN, escrowInfo) {
 }
 
 function doBurn(ratingBN, escrowIdBN, escrowInfo) {
-    const rowIdx = dashboard.selectedRow;
-    console.log('doBurn: rowIdx = ' + rowIdx + ', escrowIdBN = 0x' + escrowIdBN.toString(16));
+    const escrowIdx = dashboard.selectedEscrowIdx;
+    console.log('doBurn: escrowIdx = ' + escrowIdx + ', escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
@@ -915,24 +980,12 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just burned all funds from an escrow account!\n' +
 		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited is lost; the seller\'s bond is also burned.');
-	    remakeRow(rowIdx);
+	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
     });
 }
 
-
-function selectRowIdx(rowIdx) {
-    if (dashboard.selectedRow >= 0) {
-	const oldId = 'row-' + dashboard.selectedRow;
-	common.replaceElemClassFromTo(oldId, 'escrowListItemDivSelected', 'escrowListItemDiv', null);
-    }
-    dashboard.selectedRow = rowIdx;
-    if (rowIdx >= 0) {
-	const id = 'row-' + rowIdx;
-	common.replaceElemClassFromTo(id, 'escrowListItemDiv', 'escrowListItemDivSelected', null);
-    }
-}
 
 function hideAllModals() {
     meUtil.hideProductDetail();

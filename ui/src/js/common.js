@@ -300,6 +300,26 @@ const common = module.exports = {
     },
 
 
+    // index,value can be numbers or BNs
+    setIndexedBN: function(prefix, index, value) {
+	const idxBN = common.numberToBN(index);
+	const valBN = common.numberToBN(value);
+	const valStr = '0x' + valBN.toString(16);
+	const idxStr = prefix + '-' + '0x' + idxBN.toString(16);
+	localStorage[idxStr] = valStr;
+	console.log('setIndexedHex256: localStorage[' + idxStr + '] = ' + valStr);
+    },
+
+    // index,value can be numbers or BNs
+    getIndexedBN: function(prefix, index) {
+	const idxBN = common.numberToBN(index);
+	const idxStr = prefix + '-' + '0x' + idxBN.toString(16);
+	const valStr = localStorage[idxStr];
+	const value = !!valStr ? valStr : '0';
+	return(common.numberToBN(value));
+    },
+
+
     //
     // query string: ?foo=lorem&bar=&baz
     // var foo = getUrlParameterByName('foo'); // "lorem"
