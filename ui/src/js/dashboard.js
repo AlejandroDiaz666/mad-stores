@@ -769,10 +769,10 @@ function doCancel(escrowIdBN, escrowInfo) {
 	  'NOTE: always include the escrow ID in your message...\n\n' +
 	  'You are about to cancel this purchase!\n\n' +
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
-    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    const escrowBN = common.numberToBN(escrowInfo.customerBalance);
+    const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const refBN = new BN('0');
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Cancel this Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -804,9 +804,9 @@ function doDecline(escrowIdBN, escrowInfo) {
 	  'Note: if you only require more information (eg. shipping information) from the buyer, then you can send him a response to his original deposit ' +
 	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
-    const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
+    const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const refBN = new BN('0');
-    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Purchase-Decline', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Decline', function(err, attachmentIdxBN, message) {
 	console.log('doDecline: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
