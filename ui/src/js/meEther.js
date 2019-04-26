@@ -604,6 +604,25 @@ const meEther = module.exports = {
 	});
     },
 
+    //
+    // these are the steps of an escow (they follow the order of escrowXacts
+    //
+    STEP_CREATE:  0,
+    STEP_MODIFY:  1,
+    STEP_CANCEL:  2,
+    STEP_DECLINE: 3,
+    STEP_APPROVE: 4,
+    STEP_RELEASE: 5,
+    STEP_BURN:    6,
+    xactKeys: [ 'createXactIdBN',
+		'modifyXactIdBN',
+		'cancelXactIdBN',
+		'declineXactIdBN',
+		'approveXactIdBN',
+		'releaseXactIdBN',
+		'burnXactIdBN' ],
+
+
     // cb(err, escrowInfo);
     escrowQuery: function(acctAddr, idx, cb) {
 	if (!meEther.MEContractInstance)
@@ -625,10 +644,9 @@ const meEther = module.exports = {
 		                                (resultArray[i] == 'true' ) ? true  : resultArray[i];
 		meEther.MEContractInstance.escrowXacts('0x' + escrowIdBN.toString(16), (err, resultObj) => {
 		    console.log('escrowQuery: escrowId = 0x' + escrowIdBN.toString(16) + ' => err = ' + err + ', result = ' + resultObj.toString());
-		    const xactKeys = [ 'createXactIdBN', 'modifyXactIdBN', 'cancelXactIdBN', 'declineXactIdBN', 'approveXactIdBN', 'releaseXactIdBN', 'burnXactIdBN' ];
 		    const resultArray = Array.from(resultObj);
 		    for (let i = 0; i < resultArray.length; ++i)
-			escrowInfo[xactKeys[i]] = common.numberToBN(resultArray[i]);
+			escrowInfo[meEther.xactKeys[i]] = common.numberToBN(resultArray[i]);
 		    console.log('escrowQuery: acctAddr = ' + acctAddr + ', idx = ' + idx + ', escrowInfo = ' + JSON.stringify(escrowInfo));
 		    cb(err, escrowIdBN, escrowInfo);
 		});

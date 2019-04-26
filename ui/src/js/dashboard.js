@@ -21,21 +21,11 @@ var dashboard = module.exports = {
     selectedEscrowIdBN: null,
     selectedEscrowInfo: null,
     inDialog: false,
-    //
-    CREATE_STEP:   0,
-    MODIFY_STEP:   1,
-    CANCEL_STEP:   2,
-    DECLINE_STEP:  3,
-    APPROVE_STEP:  4,
-    RELEASE_STEP:  5,
-    BURN_STEP:     6,
     STEP_COMPLETE: true,
     //
     // prefix for local stoarage of highest msgId that has been read for each escrow
     HI_MSG_ID_PREFIX: 'escrowHiMsg',
     //
-    steps:            [ this.CREATE_STEP, this.MODIFY_STEP, this.CANCEL_STEP,
-			this.DECLINE_STEP, this.APPROVE_STEP, this.RELEASE_STEP, this.BURN_STEP ],
     stepNames:        [ 'purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn' ],
     stepTileClasses:  [ 'escrowListStepDepositSpan', 'escrowListStepModifySpan', 'escrowListStepCancelSpan',
 		        'escrowListStepDeclineSpan', 'escrowListStepApproveSpan', 'escrowListStepReleaseSpan', 'escrowListStepBurnSpan' ],
@@ -55,7 +45,31 @@ var dashboard = module.exports = {
 			'approve this purchase; will lock funds into escrow',
 			'confirm satisfactory delivery of product; all escrow funds will be released',
 			'burn this escrow; ALL FUNDS WILL BE LOST!' ],
-
+    //name of message passed to mtDisplay.setupDisplayMsgArea
+    msgNames: [ 'deposit/purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn' ],
+    //description of original transaction message passed to mtDisplay.setupDisplayMsgArea
+    firstMsgDescs: [ 'this is the initial escrow deposit and product-purchase for this order',
+		     'this is the transaction that modifed the escrow deposit for this order',
+		     'the customer canceled this purchase',
+		     'the vendor declined this purchase',
+		     'the vendor approved this escrow, and committed to deliver this product by DATE',
+		     'delivery of this item was confirmed; all escrow funds have been released',
+		     'item not delivered, or delivery was rejected; all escrow funds have been burned' ],
+    //description of follow-up transaction message passed to mtDisplay.setupDisplayMsgArea
+    followMsgDescs: [ 'this is a follow-up message to product-purchase transaction for this order',
+		      'this is a follow-up message to the escrow modification transaction for this order',
+		      'this is a follow-up message to the escrow cancellation transaction for this order',
+		      'this is a follow-up message to the decline transaction for this order',
+		      'this is a follow-up message to the approve transaction for this order',
+		      'this is a follow-up message to the delivery confirmation transaction for this order',
+		      'this is a follow-up message to the burn transaction for this order' ],
+    replyAlerts:  [ 'You have attached a new message to the purchase transaction!\n',
+		    'You have attached a new message to the modify transaction!\n',
+		    'This escrow is already closed and you have attached a new message to the cancel transaction!\n',
+		    'This escrow is already closed and you have attached a new message to the decline transaction!\n',
+		    'You have attached a new message to the approve transaction!\n',
+		    'This escrow is already successfully completed and you have attached a new message to the release transaction!\n',
+		    'This escrow is already burned and you have attached a new message to the burn transaction!\n' ],
 
 
     handleDashboardPage: function() {
@@ -194,7 +208,7 @@ function addStep(escrowIdBN, escrowInfo, escrowIdx, step, complete, addTo, handl
     stepSpan.addEventListener('click', function() {
 	hideAllModals();
 	selectRow(escrowIdx);
-	handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId));
+	handler(escrowIdBN, escrowInfo, common.numberToBN(escrowInfo.productId), step);
     });
     addTo.appendChild(stepSpan);
 }
@@ -205,19 +219,10 @@ function addStep(escrowIdBN, escrowInfo, escrowIdx, step, complete, addTo, handl
 // add step tiles to the completedSpan for each completed step
 //
 function addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan) {
-    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CREATE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDeposit);
-    if (!escrowInfo.modifyXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.MODIFY_STEP, dashboard.STEP_COMPLETE, completedSpan, showModify);
-    if (!escrowInfo.cancelXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CANCEL_STEP, dashboard.STEP_COMPLETE, completedSpan, showCancel)
-    if (!escrowInfo.declineXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.DECLINE_STEP, dashboard.STEP_COMPLETE, completedSpan, showDecline)
-    if (!escrowInfo.approveXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.APPROVE_STEP, dashboard.STEP_COMPLETE, completedSpan, showApprove);
-    if (!escrowInfo.releaseXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.RELEASE_STEP, dashboard.STEP_COMPLETE, completedSpan, showRelease)
-    if (!escrowInfo.burnXactIdBN.isZero())
-	addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.BURN_STEP, dashboard.STEP_COMPLETE, completedSpan, showBurn);
+    for (let step = 0; step < meEther.xactKeys.length; ++step) {
+	if (!(escrowInfo[meEther.xactKeys[step]]).isZero())
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, step, dashboard.STEP_COMPLETE, completedSpan, showCompletedStep);
+    }
 }
 
 //
@@ -225,14 +230,16 @@ function addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan
 // add step tiles to the nextStepsSpan for each possible next step
 //
 function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan) {
+    let haveUnread = false;
     const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-    if (escrowInfo.createXactIdBN.gt(hiMsgIdBN)  ||
-	escrowInfo.modifyXactIdBN.gt(hiMsgIdBN)  ||
-	escrowInfo.cancelXactIdBN.gt(hiMsgIdBN)  ||
-	escrowInfo.declineXactIdBN.gt(hiMsgIdBN) ||
-	escrowInfo.approveXactIdBN.gt(hiMsgIdBN) ||
-	escrowInfo.releaseXactIdBN.gt(hiMsgIdBN) ||
-	escrowInfo.burnXactIdBN.gt(hiMsgIdBN)     ) {
+    for (let step = 0; step < meEther.xactKeys.length; ++step) {
+	console.log('addNextStepsToRow: step = ' + step + ', meEther.xactKeys[step] = ' + meEther.xactKeys[step]);
+	if ((escrowInfo[meEther.xactKeys[step]]).gt(hiMsgIdBN)) {
+	    haveUnread = true;
+	    break;
+	}
+    }
+    if (haveUnread) {
 	nextStepsSpan.textContent = 'Check Messaages!';
 	nextStepsSpan.className += ' attention';
     } else if (escrowInfo.isClosed) {
@@ -241,16 +248,16 @@ function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan) {
 	nextStepsSpan.textContent = 'Delivery is Pending';
     } else {
 	if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && escrowInfo.approveXactIdBN.isZero()) {
-	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.APPROVE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
-	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.DECLINE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doDecline);
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_APPROVE, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_DECLINE, !dashboard.STEP_COMPLETE, nextStepsSpan, doDecline);
 	}
 	if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
 	    if (escrowInfo.approveXactIdBN.isZero()) {
-		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.MODIFY_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doModifyDialog);
-		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.CANCEL_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doCancel);
+		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_MODIFY, !dashboard.STEP_COMPLETE, nextStepsSpan, doModifyDialog);
+		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_CANCEL, !dashboard.STEP_COMPLETE, nextStepsSpan, doCancel);
 	    } else if (!escrowInfo.isClosed) {
-	    addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.RELEASE_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doReleaseDialog);
-		addStep(escrowIdBN, escrowInfo, escrowIdx, dashboard.BURN_STEP, !dashboard.STEP_COMPLETE, nextStepsSpan, doBurnDialog);
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_RELEASE, !dashboard.STEP_COMPLETE, nextStepsSpan, doReleaseDialog);
+		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_BURN, !dashboard.STEP_COMPLETE, nextStepsSpan, doBurnDialog);
 	    }
 	}
     }
@@ -414,11 +421,12 @@ function buildDashboard() {
 //
 // below are the handlers for the various steps-completed, next-steps buttons
 //
-function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
+function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
     const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.createXactIdBN;
+    console.log('step = ' + step);
+    const msgBN = escrowInfo[meEther.xactKeys[step]];
     const msgId = common.BNToHex256(msgBN);
-    console.log('showDeposit: createXactId = ' + msgId);
+    console.log('showDeposit: meEther.xactKeys[step] = ' + msgId);
     common.setLoadingIcon('start');
     mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
 	if (!!err) {
@@ -427,11 +435,14 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	console.log('showDeposit: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const msgName = 'deposit/purchase';
-	const msgDesc = common.numberToBN(ref).isZero()
-	      ? 'this is the initial escrow deposit and product-purchase for this order'
-	      : 'this is a follow-up message to product-purchase transaction for this order';
+	const msgName = dashboard.msgNames[step];
+	const msgDesc = common.numberToBN(ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
+	dateIdx = msgDesc.indexOf('DATE');
+	if (dateIdx >= 0) {
+	    const deliveryDate = parseInt(escrowInfo.deliveryDate);
+	    const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
+	    msgDesc = msgDesc.replace('DATE', dateStr);
+	}
 	//clears loading-icon
 	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
 	    if (!!err) {
@@ -445,275 +456,7 @@ function showDeposit(escrowIdBN, escrowInfo, productIdBN) {
 		if (!!err)
 		    alert(err);
 		else
-		    alert('You have attached a new message to the purchase transaction!\n' +
-			  'The escrow is still active.');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-//
-// below are the handlers for the various steps-completed, next-steps buttons
-//
-function showModify(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.modifyXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showDeposit: createXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showDeposit: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const msgName = 'modify';
-	const refBN = common.numberToBN(ref);
-	const msgDesc = refBN.isZero()
-	      ? 'this is the transaction that modifed the escrow deposit for this order'
-	      : 'this is a follow-up message to the escrow modification transaction for this order';
-	//clears loading-icon
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showDeposit: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('You have attached a new message to the purchase transaction!\n' +
-			  'The escrow is still active.');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-
-function showApprove(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.approveXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showApprove: approveCancelXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showApprove: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const deliveryDate = parseInt(escrowInfo.deliveryDate);
-	const dateStr = (new Date(deliveryDate * 1000)).toUTCString();
-	const msgName = 'approve';
-	const refBN = common.numberToBN(ref);
-	const msgDesc = refBN.isZero()
-	      ? 'the vendor approved this escrow, and committed to deliver this product by ' + dateStr
-	      : 'this is a follow-up message to the approve transaction for this order';
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showApprove: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('You have attached a new message to the approve transaction!\n' +
-			  'The escrow is still active.');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-
-function showCancel(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.cancelXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showCancel: cancelXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showCancel: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const refBN = common.numberToBN(ref);
-	const msgName = 'cancel';
-	const msgDesc = 'this purchase was canceled';
-	//clears loading-icon
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	console.log('showCancel: setupDisplayMsgArea came back');
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showCancel: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('This escrow is already closed and you have attached a new message to the cancel transaction!\n');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-
-function showDecline(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.declineXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showDecline: declineXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showDecline: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const refBN = common.numberToBN(ref);
-	const msgName = 'decline';
-	const msgDesc = 'this purchase was declined';
-	//clears loading-icon
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	console.log('showDecline: setupDisplayMsgArea came back');
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showCancelOrDecline: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('This escrow is already closed and you have attached a new message to the decline transaction!\n');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-
-function showRelease(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.releaseXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showRelease: releaseBurnXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showRelease: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const msgName = 'release';
-	const refBN = common.numberToBN(ref);
-	const msgDesc = refBN.isZero()
-	      ? 'delivery of this item was confirmed; all escrow funds have been released'
-	      : 'this is a follow-up message to the delivery confirmation transaction for this order';
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	console.log('showRelease: setupDisplayMsgArea came back');
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showRelease: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('This escrow is already successfully completed and you have attached a new message to the release transaction!\n');
-		remakeRow(escrowIdx);
-		dashboard.handleDashboardPage();
-	    });
-	});
-	const hiMsgIdBN = common.getIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx);
-	if (msgBN.gt(hiMsgIdBN))
-	    common.setIndexedBN(dashboard.HI_MSG_ID_PREFIX, escrowIdx, msgBN);
-    });
-}
-
-
-function showBurn(escrowIdBN, escrowInfo, productIdBN) {
-    const escrowIdx = dashboard.selectedEscrowIdx;
-    const msgBN = escrowInfo.burnXactIdBN;
-    const msgId = common.BNToHex256(msgBN);
-    console.log('showBurn: releaseBurnXactId = ' + msgId);
-    common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	if (!!err) {
-	    common.setLoadingIcon(null);
-	    alert(err);
-	    dashboard.handleDashboardPage();
-	    return;
-	}
-	console.log('showBurn: attachmentIdxBN = ' + (!!attachmentIdxBN ? ('0x' + attachmentIdxBN.toString(16)) : 'null'));
-	const msgName = 'burn';
-	const refBN = common.numberToBN(ref);
-	const msgDesc = refBN.isZero()
-	      ? 'item not delivered, or delivery was rejected; all escrow funds have been burned'
-	      : 'this is a follow-up message to the burn transaction for this order';
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, function(err, attachmentIdxBN, message) {
-	console.log('showBurn: setupDisplayMsgArea came back');
-	    if (!!err) {
-		alert(err);
-		dashboard.handleDashboardPage();
-		return;
-	    }
-	    console.log('showBurn: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
-		if (!!err)
-		    alert(err);
-		else
-		    alert('This escrow is already burned and you have attached a new message to the burn transaction!\n');
+		    alert(dashboard.replyAlerts[step]);
 		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
