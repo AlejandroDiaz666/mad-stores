@@ -378,7 +378,8 @@ contract MadStores is SafeMath {
     address _otherAddr;
     (, _otherAddr) = madEscrow.verifyEscrowAny(_escrowId, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _otherAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _otherAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _otherAddr, _attachmentIdx, _ref, _message);
     madEscrow.recordReponse(_escrowId, _msgId, _ref);
@@ -404,7 +405,8 @@ contract MadStores is SafeMath {
     Product storage _product = products[_productID];
     _vendorAddr = _product.vendorAddr;
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _vendorAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     if (_escrowID == 0) {
@@ -430,7 +432,8 @@ contract MadStores is SafeMath {
   function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _otherAddr) = madEscrow.verifyEscrowAny(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _otherAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _otherAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _otherAddr, _attachmentIdx, _ref, _message);
     Product storage _product = products[_productID];
@@ -450,7 +453,8 @@ contract MadStores is SafeMath {
   function purchaseApprove(uint256 _escrowID, uint256 _deliveryTime, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _customerAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _customerAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
     madEscrow.approveEscrow(_escrowID, _deliveryTime, _msgId);
@@ -465,7 +469,8 @@ contract MadStores is SafeMath {
   function deliveryApprove(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _vendorAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     madEscrow.releaseEscrow(_escrowID, _msgId);
@@ -486,7 +491,8 @@ contract MadStores is SafeMath {
   function deliveryReject(uint256 _escrowID, uint8 _rating, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _vendorAddr) = madEscrow.verifyEscrowCustomer(_escrowID, msg.sender);
     //ensure message fees
-    uint256 _msgFee = messageTransport.getFee(msg.sender, _vendorAddr);
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _vendorAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _vendorAddr, _attachmentIdx, _ref, _message);
     madEscrow.burnEscrow(_escrowID, _msgId);
