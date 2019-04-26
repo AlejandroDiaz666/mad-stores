@@ -58,8 +58,6 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------------------------------------
   struct Escrow {
     bool closed;                        // escrow is no more
-    bool approved;                      // purchase has been approved by vendor
-    bool burned;                        // escrow was burned by customer
     address partnerAddr;                // contract that created this escrow
     address vendorAddr;
     address customerAddr;
@@ -67,10 +65,15 @@ contract MadEscrow is iERC20Token, SafeMath {
     uint256 vendorBalance;              // amount that vendor has put into escrow
     uint256 customerBalance;            // amount that customer has put into escrow
     uint256 deliveryDate;
+  }
+  struct EscrowXact {
     uint256 createXactId;
     uint256 modifyXactId;
-    uint256 approveCancelXactId;        // approve or cancel
-    uint256 releaseBurnXactId;          // release or burn
+    uint256 cancelXactId;
+    uint256 declineXactId;
+    uint256 approveXactId;
+    uint256 releaseXactId;
+    uint256 burnXactId;
   }
 
 
@@ -92,6 +95,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   FeesTokenContract feesTokenContract;
   mapping (address => bool) public trusted;
   mapping (uint256 => Escrow) public escrows;
+  mapping (uint256 => EscrowXact) public escrowXacts;
   mapping (address => uint256) public balances;
   mapping (address => uint256) public escrowsCounts;
   mapping (address => mapping (uint256 => uint256)) public escrowIds;
@@ -227,12 +231,13 @@ contract MadEscrow is iERC20Token, SafeMath {
   function createEscrow(uint256 _productId, uint256 _XactId, uint256 _price, address _vendorAddr, address _customerAddr) public trustedOnly returns (uint256 _escrowId) {
     _escrowId = escrowCount = safeAdd(escrowCount, 1);
     Escrow storage _escrow = escrows[_escrowId];
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
     require(_productId != 0 && _price != 0, "product ID and price cannot be zero");
     _escrow.productId = _productId;
     _escrow.vendorAddr = _vendorAddr;
     _escrow.customerAddr = _customerAddr;
-    _escrow.createXactId = _XactId;
     _escrow.partnerAddr = msg.sender;
+    _escrowXact.createXactId = _XactId;
     uint256 _vendorEscrowCount = escrowsCounts[_vendorAddr];
     escrowIds[_vendorAddr][_vendorEscrowCount] = _escrowId;
     uint256 _customerEscrowCount = escrowsCounts[_customerAddr];
@@ -248,7 +253,8 @@ contract MadEscrow is iERC20Token, SafeMath {
     balances[_customerAddr] = safeSub(balances[_customerAddr], _minCustomerBond);
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);
-    _escrow.approved = false;
+    //default is zero
+    //_escrowXact.approveXact = 0;
   }
 
 
@@ -296,16 +302,22 @@ contract MadEscrow is iERC20Token, SafeMath {
   function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public trustedOnly {
     require(_XactId != 0, "invalid transaction id");
     require(_ref != 0, "invalid ref");
-    Escrow storage _escrow = escrows[_escrowId];
-    if (_escrow.releaseBurnXactId == _ref)
-      _escrow.releaseBurnXactId = _XactId;
-    else if (_escrow.approveCancelXactId == _ref)
-      _escrow.approveCancelXactId = _XactId;
-    else if (_escrow.modifyXactId == _ref)
-      _escrow.modifyXactId = _XactId;
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
+    if (_escrowXact.burnXactId == _ref)
+      _escrowXact.burnXactId = _XactId;
+    else if (_escrowXact.releaseXactId == _ref)
+      _escrowXact.releaseXactId = _XactId;
+    else if (_escrowXact.approveXactId == _ref)
+      _escrowXact.approveXactId = _XactId;
+    else if (_escrowXact.declineXactId == _ref)
+      _escrowXact.declineXactId = _XactId;
+    else if (_escrowXact.cancelXactId == _ref)
+      _escrowXact.cancelXactId = _XactId;
+    else if (_escrowXact.modifyXactId == _ref)
+      _escrowXact.modifyXactId = _XactId;
     else {
-      require(_escrow.createXactId == _ref, "unknown ref");
-      _escrow.createXactId = _XactId;
+      require(_escrowXact.createXactId == _ref, "unknown ref");
+      _escrowXact.createXactId = _XactId;
     }
   }
 
@@ -316,10 +328,11 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------------------------------------
   function modifyEscrowPrice(uint256 _escrowId, uint256 _XactId, uint256 _surcharge) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
     require(_escrow.closed   == false, "escrow is closed");
-    require(_escrow.approved == false, "cannot modify price after approval");
+    require(_escrowXact.approveXactId == 0, "cannot modify price after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
-    _escrow.modifyXactId = _XactId;
+    _escrowXact.modifyXactId = _XactId;
     uint256 _minVendorBond = safeMul(_surcharge, 50) / 100;
     uint256 _minCustomerBond = safeAdd(_surcharge, _minVendorBond);
     address _vendorAddr = _escrow.vendorAddr;
@@ -337,14 +350,18 @@ contract MadEscrow is iERC20Token, SafeMath {
   // cancel an escrow
   // called by customer or vendor, but only before purchase has been approved by vendor
   // -------------------------------------------------------------------------------------------------------
-  function cancelEscrow(uint256 _escrowId, uint256 _XactId) public trustedOnly {
+  function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
     require(_escrow.closed   == false, "escrow is closed");
-    require(_escrow.approved == false, "cannot cancel after approval");
+    require(_escrowXact.approveXactId == 0, "cannot cancel after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
-    _escrow.approveCancelXactId = _XactId;
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
+    if (_initiatorAddr == _vendorAddr)
+      _escrowXact.declineXactId = _XactId;
+    else
+      _escrowXact.cancelXactId = _XactId;
     balances[_vendorAddr] = safeAdd(balances[_vendorAddr], _escrow.vendorBalance);
     balances[_customerAddr] = safeAdd(balances[_customerAddr], _escrow.customerBalance);
     _escrow.vendorBalance = 0;
@@ -360,12 +377,12 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------------------------------------
   function approveEscrow(uint256 _escrowId, uint256 _deliveryTime, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
     require(_escrow.closed == false, "escrow is closed");
-    require(_escrow.approved == false, "escrow is already approved");
+    require(_escrowXact.approveXactId == 0, "escrow is already approved");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     _escrow.deliveryDate = safeAdd(now, _deliveryTime);
-    _escrow.approveCancelXactId = _XactId;
-    _escrow.approved = true;
+    _escrowXact.approveXactId = _XactId;
   }
 
 
@@ -377,7 +394,9 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------
   function claimAbandonedEscrow(uint256 _escrowId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
-    require(_escrow.approved == true, "cannot until after approval");
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
+    require(_escrow.closed == false, "already closed");
+    require(_escrowXact.approveXactId != 0, "cannot until after approval");
     require(_escrow.vendorAddr == msg.sender, "only vendor contract can claim abandoned escrow");
     require(now > _escrow.deliveryDate + 30 days, "only 30 days after promised delivery date");
     address _vendorAddr = _escrow.vendorAddr;
@@ -397,9 +416,10 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------
   function releaseEscrow(uint256 _escrowId, uint256 _XactId) public trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
-    require(_escrow.approved == true, "only after approval");
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
+    require(_escrowXact.approveXactId != 0, "only after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
-    _escrow.releaseBurnXactId = _XactId;
+    _escrowXact.releaseXactId = _XactId;
     address _vendorAddr = _escrow.vendorAddr;
     address _customerAddr = _escrow.customerAddr;
     uint256 _price = safeSub(_escrow.customerBalance, _escrow.vendorBalance);
@@ -420,13 +440,13 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------
   function burnEscrow(uint256 _escrowId, uint256 _XactId) public payable trustedOnly {
     Escrow storage _escrow = escrows[_escrowId];
-    require(_escrow.approved == true, "only after approval");
+    EscrowXact storage _escrowXact = escrowXacts[_escrowId];
+    require(_escrowXact.approveXactId != 0, "only after approval");
     require(_escrow.partnerAddr == msg.sender, "only partner contract can modify escrow");
     retainedFees = safeAdd(retainedFees, _escrow.customerBalance + _escrow.vendorBalance);
-    _escrow.releaseBurnXactId = _XactId;
+    _escrowXact.burnXactId = _XactId;
     _escrow.customerBalance = 0;
     _escrow.vendorBalance = 0;
-    _escrow.burned = true;
     _escrow.closed = true;
   }
 

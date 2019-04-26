@@ -99,7 +99,7 @@ const common = module.exports = {
     },
 
 
-    //number can be a number or a string, with or without '0x'
+    //number can be a BN, number or a string, with or without '0x'
     //Hex256 string will be '0x' followed by 64 hex digits
     numberToHex256: function(number) {
 	if (typeof(number) === 'number')
