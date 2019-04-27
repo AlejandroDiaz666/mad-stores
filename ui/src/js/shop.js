@@ -213,7 +213,7 @@ function handlePurchase(product) {
 		   meUtil.hideProductDetail();
 		   if (!!err)
 			alert(err);
-		    else
+		   else
 			alert('You have just ordered a product; please give the seller\n' +
 			      'some time to review and approve or reject your order.\n' +
 			      'You can track the progress of your order on the dashboard\n' +

@@ -12,6 +12,8 @@ const BN = require("bn.js");
 const mtDisplay = module.exports = {
     //sendCb(null, attachmentIdxBN, message);
     sendCb: null,
+    //closeCb()
+    closeCb: null,
     //refCb(refId)
     refCb: null,
     COMPOSE_MODE: true,
@@ -64,6 +66,7 @@ const mtDisplay = module.exports = {
     },
 
 
+    // closeCb()
     // sendCb(err, attachmentIdxBN, message)
     //
     // set up the message-display area.
@@ -77,18 +80,19 @@ const mtDisplay = module.exports = {
     // recursive call. but in that call prevMsgId is non-null. also the sendCb fcn that is passed in the recursive call just redisplays
     // the current message; that is to say, the send button acts as a back button.
     //
-    setupDisplayMsgArea: function(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, sendCb) {
+    setupDisplayMsgArea: function(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, closeCb, sendCb) {
 	console.log('setupDisplayMsgArea: enter msgId = ' + msgId);
 	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
 	const addrPrompt = (fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
 	const sendButtonText = !!prevMsgId ? 'Back' : (fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply';
 	setMsgArea(mtDisplay.DISPLAY_MODE, addrPrompt, otherAddr, msgId, ref, msgDesc, date, sendButtonText);
+	mtDisplay.closeCb = closeCb;
 	mtDisplay.refCb = null;
 	mtDisplay.sendCb = null;
 	//
 	// iff there's a nz ref, and the user clicks on the ref to display it, then we pass the backCb to the display fcn in place of the sendCb.
 	// in that case the send button acts as a back button, to redisplay the current message
-	const backCb = () => mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, sendCb);
+	const backCb = () => mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, closeCb, sendCb);
 	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, attachmentIdxBN, (err, text, attachment) => {
 	    console.log('setupDisplayMsgArea: text = ' + text);
 	    document.getElementById('msgTextArea').readonly = 'true';
@@ -120,7 +124,7 @@ const mtDisplay = module.exports = {
 			}
 			const msgDesc = 'This is the the previous ' + msgName + ' message';
 			//no reply except replying to the most recent message
-			mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, thisMsgId, backCb);
+			mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, thisMsgId, closeCb, backCb);
 		    });
 		};
 	    }
@@ -150,6 +154,8 @@ function setMsgCloseHandler() {
     const msgCloseImg = document.getElementById('msgCloseImg');
     msgCloseImg.addEventListener('click', function() {
 	common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', true);
+	if (!!mtDisplay.closeCb)
+	    mtDisplay.closeCb();
     });
 }
 
