@@ -400,15 +400,21 @@ const common = module.exports = {
     waitForTXID: function(err, txid, desc, continueFcn, txStatusHost, cb) {
 	console.log('waitForTXID');
 	const statusDiv = common.replaceElemClassFromTo('statusDiv', 'statusDivHide', 'statusDivShow', true);
-	const leftDiv = document.createElement("div");
-	leftDiv.className = 'visibleIB';
-	statusDiv.appendChild(leftDiv);
-	const rightDiv = document.createElement("div");
-	rightDiv.className = 'visibleIB';
-	statusDiv.appendChild(rightDiv);
+	const statusCtrDiv = document.createElement("div");
+	statusCtrDiv.id = 'statusCtrDiv';
+	statusCtrDiv.className = 'visibleB';
+	statusDiv.appendChild(statusCtrDiv);
+	const viewLinkDiv = document.createElement("div");
+	viewLinkDiv.id = 'statusViewLinkDiv';
+	viewLinkDiv.className = 'visibleB';
+	statusDiv.appendChild(viewLinkDiv);
+	const continueDiv = document.createElement("div");
+	continueDiv.id = 'statusContinueDiv';
+	continueDiv.className = 'visibleB';
+	statusDiv.appendChild(continueDiv);
 	let statusCtr = 0;
 	const statusText = document.createTextNode('No status yet...');
-	leftDiv.appendChild(statusText);
+	statusCtrDiv.appendChild(document.createElement("p")).appendChild(statusText);
 	if (!!err || !txid) {
 	    if (!err)
 		err = 'No transaction hash was generated.';
@@ -419,7 +425,7 @@ const common = module.exports = {
 		reloadLink.href = 'javascript:null;';
 		reloadLink.innerHTML = "<h2>Continue</h2>";
 		reloadLink.disabled = false;
-		rightDiv.appendChild(reloadLink);
+		continueDiv.appendChild(reloadLink);
 	    }
 	    if (!!cb)
 		cb(err, null);
@@ -427,16 +433,19 @@ const common = module.exports = {
 	}
 	//
 	const viewTxLink = document.createElement('a');
+	viewTxLink.id = 'statusViewLink';
 	viewTxLink.href = 'https://' + txStatusHost + '/tx/' + txid;
 	viewTxLink.innerHTML = "<h2>View transaction</h2>";
 	viewTxLink.target = '_blank';
 	viewTxLink.disabled = false;
-	leftDiv.appendChild(viewTxLink);
+	viewLinkDiv.appendChild(viewTxLink);
 	//
 	const noteDiv = document.createElement("div");
-	noteDiv.className = 'hidden';
-	const noteText = document.createTextNode('Note: it may take several minutes for changes to be reflected...');
-	noteDiv.appendChild(noteText);
+	noteDiv.className = 'visibleB';
+	noteDiv.id = 'statusNoteDiv';
+	const noteText = document.createTextNode('Note: You cannot continue until this transaction completes... ' +
+						 'If you speed up the transaction via MetaMask, then you will need to reload the page (after the transaction completes).');
+	noteDiv.appendChild(document.createElement("p")).appendChild(noteText);
 	statusDiv.appendChild(noteDiv);
 	//
 	//cleared in handleUnlockedMetaMask, after the user clicks 'continue'
@@ -453,6 +462,7 @@ const common = module.exports = {
 			    err = "Transaction Failed with REVERT opcode";
 			statusText.textContent = (!!err) ? 'Error in ' + desc + ' transaction: ' + err : desc + ' transaction succeeded!';
 			console.log('transaction is in block ' + (!!receipt ? receipt.blockNumber : 'err'));
+			noteText.textContent = 'Note: it may take several minutes for changes to be reflected...';
 			noteDiv.className = 'visibleB';
 			clearInterval(timer);
 			//
@@ -462,7 +472,7 @@ const common = module.exports = {
 			    reloadLink.href = 'javascript:null;';
 			    reloadLink.innerHTML = "<h2>Continue</h2>";
 			    reloadLink.disabled = false;
-			    rightDiv.appendChild(reloadLink);
+			    continueDiv.appendChild(reloadLink);
 			}
 			if (!!cb)
 			    cb(err, receipt);
@@ -508,7 +518,6 @@ const common = module.exports = {
     // start or stop the wait/loading icon
     // an elem with id waitIcon must exist
     setLoadingIcon: function(start) {
-	console.log('setLoadingIcon: start = ' + start);
 	const waitIcon = document.getElementById('waitIcon');
 	waitIcon.style.display = (!!start) ? 'block' : 'none';
     },

@@ -21,10 +21,10 @@ h3 { font-size:18px; }
 
 
 /*
-  modifiers to make blocks disappear and re-appear.
-  visibleIB: for normal divs (inline-block)
-  visibleTC: for buttons (table-cells) for vertical alignment
-*/
+ * modifiers to make blocks disappear and re-appear.
+ *  visibleIB: for normal divs (inline-block)
+ *  visibleTC: for buttons (table-cells) for vertical alignment
+ */
 .visibleB, .statusDivShow, .metaMaskDivShow {
     display: block;
 }
@@ -78,6 +78,47 @@ h3 { font-size:18px; }
     font-size: 14px;
 }
 /* individual tooltip custmizations */
+.tooltip .tooltipTextDepositSpan,
+.tooltip .tooltipTextApproveSpan,
+.tooltip .tooltipTextDeclineSpan,
+.tooltip .tooltipTextBurnSpan,
+.tooltip .tooltipTextReleaseSpan,
+.tooltip .tooltipTextModifySpan,
+.tooltip .tooltipTextCancelSpan {
+    left: -10em;
+    top: 30px;
+    position: relative;
+    white-space: nowrap;
+}
+#priceTooltip {
+    top: -1px;
+    left: 38px;
+}
+
+#searchRegionTooltipText {
+    top: -25px;
+}
+#searchCategoryTooltipText {
+    top: 92px;
+}
+#searchPriceTooltipText {
+    top: 217px;
+}
+#searchSalesTooltipText {
+    top: 234px;
+}
+#searchRatingTooltipText {
+    top: 282px;
+}
+#searchAddrTooltipText {
+    top: 313px;
+}
+
+#accountAreaFull {
+    transform: translate3d(-28px, 58%, 0px);
+    width: 43em;
+}
+
 #productDetailFullName {
     font-family: lato;
     font-size: 24px;
@@ -123,41 +164,6 @@ h3 { font-size:18px; }
     transform: translate3d(0%, 0px, 0px);
 }
 
-.tooltip .tooltipTextDepositSpan,
-.tooltip .tooltipTextApproveSpan,
-.tooltip .tooltipTextDeclineSpan,
-.tooltip .tooltipTextBurnSpan,
-.tooltip .tooltipTextReleaseSpan,
-.tooltip .tooltipTextModifySpan,
-.tooltip .tooltipTextCancelSpan {
-    left: -10em;
-    top: 30px;
-    position: relative;
-    white-space: nowrap;
-}
-#priceTooltip {
-    top: -1px;
-    left: 38px;
-}
-
-#searchRegionTooltipText {
-    top: -25px;
-}
-#searchCategoryTooltipText {
-    top: 92px;
-}
-#searchPriceTooltipText {
-    top: 217px;
-}
-#searchSalesTooltipText {
-    top: 234px;
-}
-#searchRatingTooltipText {
-    top: 282px;
-}
-#searchAddrTooltipText {
-    top: 313px;
-}
 
 .modal {
     display: none; /* Hidden by default */
@@ -231,7 +237,7 @@ h3 { font-size:18px; }
 #metaMaskDiv {
     position: fixed;
     z-index: 3;
-    left: 55%;
+    left: 50%;
     top: 15%;
     width: 300px;
     height: 50px;
@@ -239,8 +245,8 @@ h3 { font-size:18px; }
     overflow: none;
     border: 1px solid #888;
     background-color: #60ff60;
-    text-align: center;
 }
+
 .metaMaskNoPulse {
 }
 .metaMaskPulse {
@@ -264,7 +270,13 @@ h3 { font-size:18px; }
 	   transform: translate3d(0px, 0px, 0px); }
 
 }
-
+#metaMaskDiv p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
 
 #newMsgModal {
     display: none; /* Hidden by default */
@@ -278,6 +290,51 @@ h3 { font-size:18px; }
     overflow: none;
     border: 1px solid #888;
     background-color: #9cd9db;
+}
+
+#statusDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 450px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* only the loading icon has a higher z-index */
+    z-index: 98;
+}
+#statusCtrDiv {
+    position: relative;
+    width: 70%;
+    left: 50%;
+    margin-top: 20px;
+    min-height: 40px;
+    transform: translateX(-50%);
+}
+#statusViewLinkDiv {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min-content;
+    white-space: nowrap;
+    margin-top: 10px;
+}
+#statusNoteDiv {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, -150%);
+    width: 70%;
+}
+#statusContinueDiv {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min-content;
+    margin-top: 20px;
 }
 
 
@@ -554,6 +611,7 @@ h3 { font-size:18px; }
     position: relative;
     border-radius: 12px;
 }
+
 .menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
 .menuBarButtonSelected, .menuBarButton:hover {
     padding : var(--pad_menubar);
@@ -1340,15 +1398,18 @@ h3 { font-size:18px; }
 }
 /* dashboard page -- approve dialog */
 #approveDialogDiv {
-    position: absolute;
-    z-index: 1;
-    left: 30%;
-    top: 120px;
+    position: fixed;
+    top: 40%;
+    left: 50%;
     width: 640px;
     height: 285px;
-    padding: 10px;
-    border: 1px solid #888;
-    background-color: #9cd9db;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
 }
 #approveDialogInstr {
     position: absolute;
@@ -1399,20 +1460,22 @@ h3 { font-size:18px; }
 }
 /* dashboard page -- release dialog */
 #releaseDialogDiv {
-    position: absolute;
-    z-index: 1;
-    left: 30%;
-    top: 120px;
-    width: 420px;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 500px;
     height: 200px;
-    padding: 10px;
-    overflow: none;
-    border: 1px solid #888;
-    background-color: #9cd9db;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
 }
 #releaseDialogInstr {
     position: absolute;
-    top: 10px;
+    top: 15px;
     left: 50%;
     margin: 10px;
     width: 75%;
@@ -1451,20 +1514,22 @@ h3 { font-size:18px; }
 }
 /* dashboard page -- burn dialog */
 #burnDialogDiv {
-    position: absolute;
-    z-index: 1;
-    left: 30%;
-    top: 120px;
+    position: fixed;
+    top: 40%;
+    left: 50%;
     width: 600px;
-    height: 210px;
-    padding: 10px;
-    overflow: none;
-    border: 1px solid #888;
-    background-color: #9cd9db;
+    height: 230px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
 }
 #burnDialogInstr {
     position: absolute;
-    top: 10px;
+    top: 15px;
     left: 50%;
     margin: 10px;
     width: 75%;
@@ -1473,7 +1538,7 @@ h3 { font-size:18px; }
 }
 #burnDialogNote {
     position: absolute;
-    top: 115px;
+    top: 140px;
     left: 50%;
     margin: 10px;
     width: 70%;
@@ -1485,19 +1550,19 @@ h3 { font-size:18px; }
 #burnDialogSelect {
     resize: none;
     position: absolute;
-    top: 100px;
+    top: 115px;
     left: 50%;
     transform: translateX(-50%);
 }
 #burnDialogCancelButton {
     position: absolute;
-    top: 195px;
+    top: 230px;
     left: 35%;
     transform: translateX(-50%);
 }
 #burnDialogDoButton {
     position: absolute;
-    top: 195px;
+    top: 230px;
     left: 65%;
     transform: translateX(-50%);
 }

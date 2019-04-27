@@ -311,7 +311,7 @@ var meUtil = module.exports = {
 		console.log('escrowFcnWithMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
 		common.waitForTXID(err, txid, fcnDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-		    approveErr = err;
+		    fcnErr = err;
 		});
 	    });
 	});
@@ -344,7 +344,7 @@ var meUtil = module.exports = {
 		console.log('escrowFcnWithParmMsg: txid = ' + txid);
 		common.showWaitingForMetaMask(false);
 		common.waitForTXID(err, txid, fcnDesc, continueFcn, ether.etherscanioTxStatusHost, function(err) {
-		    approveErr = err;
+		    fcnErr = err;
 		});
 	    });
 	});

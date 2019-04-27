@@ -230,10 +230,11 @@ function addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan
 }
 
 //
+// cb()
 // helper fcn for makeRow
 // add step tiles to the nextStepsSpan for each possible next step
 //
-function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan) {
+function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan, cb) {
     const hiMsgIdBN = common.getIndexedBN(dashboard.hiMsgIdPrefix, escrowIdBN);
     checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, 0, function(haveUnread) {
 	if (haveUnread) {
@@ -258,14 +259,18 @@ function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan) {
 		}
 	    }
 	}
+	if (!!cb)
+	    cb();
     });
 }
 
 
 //
+// cb()
 // another helper for addRow
 // creates the entire row, given just an empty div container
-function makeRow(rowDiv, escrowIdx) {
+//
+function makeRow(rowDiv, escrowIdx, cb) {
     console.log('makeRow: escrowIdx = ' + escrowIdx);
     rowDiv.className = 'escrowListItemDiv';
     rowDiv.id = 'row-' + escrowIdx;
@@ -323,9 +328,6 @@ function makeRow(rowDiv, escrowIdx) {
 	    const buyerBN = common.numberToBN(escrowInfo.customerBalance);
 	    leftSubDiv1.textContent = 'Buyer deposit: ' + meEther.daiBNToUsdStr(buyerBN) + ' W-Dai; Seller deposit: ' + meEther.daiBNToUsdStr(sellerBN) + ' W-Dai';
 	}
-	// completed steps, next steps
-	addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan);
-	addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan);
 	// transaction type
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
@@ -335,6 +337,9 @@ function makeRow(rowDiv, escrowIdx) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
             addrArea.value = escrowInfo.vendorAddr;
         }
+	// completed steps, next steps
+	addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan);
+	addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan, cb);
     });
 }
 
@@ -346,41 +351,59 @@ function remakeRow(escrowIdx) {
     const id = 'row-' + escrowIdx;
     const rowDiv = document.getElementById(id);
     common.clearDivChildren(rowDiv);
-    makeRow(rowDiv, escrowIdx);
+    makeRow(rowDiv, escrowIdx, null);
 }
 
 
 //
+// cb()
 // add a new row
 //
-function addRow(tableElem) {
+function addRow(tableElem, cb) {
     console.log('addRow: enter');
     const escrowIdx = dashboard.escrowCount - dashboard.rowCount - 1;
     const rowDiv = document.createElement("div");
-    makeRow(rowDiv, escrowIdx);
+    makeRow(rowDiv, escrowIdx, cb);
     tableElem.appendChild(rowDiv);
     ++dashboard.rowCount;
     console.log('addRow: exit');
 }
 
 
-function populateRows() {
+//
+// cb()
+// cb when the main loading work is done... specific product loading might continue...
+//
+function populateRows(cb) {
     console.log('populate');
     const escrowListDiv = document.getElementById('escrowListDiv');
+    let callDepth = 0;
+    let callCount = 0;
     for (let j = 0; j < 100; ++j) {
         console.log('scroll: scrollTop = ' + escrowListDiv.scrollTop + ', scrollHeight = ' + escrowListDiv.scrollHeight + ', clientHeight = ' + escrowListDiv.clientHeight);
         if (escrowListDiv.scrollTop + escrowListDiv.clientHeight < escrowListDiv.scrollHeight - 100)
             break;
         if (dashboard.rowCount >= dashboard.escrowCount)
             break;
-        console.log('buildDashboard: dashboard.rowCount = ' + dashboard.rowCount);
-        console.log('buildDashboard: dashboard.escrowCount = ' + dashboard.escrowCount);
+        console.log('populateRows: dashboard.rowCount = ' + dashboard.rowCount);
+        console.log('populateRows: dashboard.escrowCount = ' + dashboard.escrowCount);
         for (let i = 0; i < 20; ++i) {
             if (dashboard.rowCount >= dashboard.escrowCount)
                 break;
-            addRow(escrowListDiv);
+	    if (callDepth == 0)
+		common.setLoadingIcon('start');
+	    ++callCount;
+	    ++callDepth;
+            addRow(escrowListDiv, function() {
+		if (--callDepth <= 0) {
+		    common.setLoadingIcon(null);
+		    cb();
+		}
+	    });
         }
     }
+    if (callCount == 0)
+	cb();
 }
 
 
@@ -465,7 +488,7 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    return;
 	}
 	const msgName = dashboard.msgNames[step];
-	const msgDesc = common.numberToBN(ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
+	let msgDesc = common.numberToBN(ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
 	dateIdx = msgDesc.indexOf('DATE');
 	if (dateIdx >= 0) {
 	    const deliveryDate = parseInt(escrowInfo.deliveryDate);
