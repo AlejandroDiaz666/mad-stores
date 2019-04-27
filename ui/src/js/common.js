@@ -240,8 +240,8 @@ const common = module.exports = {
 
     setIndexedFlag: function(prefix, index, flag) {
 	//javascript bit operations are 32 bit
-	const wordIdx = Math.floor(index / 32);
-	const bitIdx = index % 32;
+	const wordIdx = Math.floor(index / 31);
+	const bitIdx = index % 31;
 	const wordIdxStr = '0x' + wordIdx.toString(16)
 	let wordStr = localStorage[prefix + '-' + wordIdxStr];
 	let word = (!!wordStr) ? parseInt(wordStr) : 0;
@@ -255,8 +255,8 @@ const common = module.exports = {
     },
 
     chkIndexedFlag: function(prefix, index) {
-	const wordIdx = Math.floor(index / 32);
-	const bitIdx = index % 32;
+	const wordIdx = Math.floor(index / 31);
+	const bitIdx = index % 31;
 	const wordIdxStr = '0x' + wordIdx.toString(16)
 	const wordStr = localStorage[prefix + '-' + wordIdxStr];
 	console.log('chkIndexedFlag: localStorage[' + prefix + '-' + wordIdxStr + '] = ' + wordStr);
@@ -269,10 +269,11 @@ const common = module.exports = {
     //find the index of the first flag that is z or nz, starting with begIndex, goin forward or backwards
     //to endIndex. returns -1 if no flag found.
     findIndexedFlag: function(prefix, begIndex, endIndex, nz) {
-	const allOnes = 0xffffffff;
+	console.log('findIndexedFlag: begIndex = ' + begIndex + ', endIndex = ' + endIndex + ', nz = ' + nz);
+	const allOnes = 0x7fffffff;
 	const increment = (endIndex > begIndex) ? 1 : -1;
-	let wordIdx = Math.floor(begIndex / 32);
-	let bitIdx = begIndex % 32;
+	let wordIdx = Math.floor(begIndex / 31);
+	let bitIdx = begIndex % 31;
 	do {
 	    const wordIdxStr = '0x' + wordIdx.toString(16)
 	    const wordStr = localStorage[prefix + '-' + wordIdxStr];
@@ -282,20 +283,20 @@ const common = module.exports = {
 		do {
 		    if ((!!nz && (word & (1 << bitIdx)) != 0) ||
 			( !nz && (word & (1 << bitIdx)) == 0) ) {
-			const foundIdx = wordIdx * 32 + bitIdx;
+			const foundIdx = wordIdx * 31 + bitIdx;
 			console.log('findFlag: foundIdx = ' + foundIdx);
 			return((increment > 0 && foundIdx <= endIndex) ||
 			       (increment < 0 && foundIdx >= endIndex) ? foundIdx : -1);
 		    }
 		    bitIdx += increment;
-		} while ((increment > 0 && bitIdx < 32) || (increment < 0 && bitIdx >= 0));
+		} while ((increment > 0 && bitIdx < 31) || (increment < 0 && bitIdx >= 0));
 		//first time through it's possible to fall out, if the nz bit was
 		//lt the start bitIdx
 	    }
-	    bitIdx = (increment > 0) ? 0 : 47;
+	    bitIdx = (increment > 0) ? 0 : 30;
 	    wordIdx += increment;
-	} while ((increment > 0 &&  wordIdx      * 32 < endIndex) ||
-		 (increment < 0 && (wordIdx + 1) * 32 > endIndex));
+	} while ((increment > 0 &&  wordIdx      * 31 < endIndex) ||
+		 (increment < 0 && (wordIdx + 1) * 31 > endIndex));
 	return(-1);
     },
 
