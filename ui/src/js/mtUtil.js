@@ -14,9 +14,9 @@ const mtUtil = module.exports = {
     publicKey: null,
     //set internally by encryptMsg
     reCacheAccount: true,
-    //sendCB(null, attachmentIdxBN, message);
+    //sendCb(null, attachmentIdxBN, message);
     sendCB: null,
-    //refCB(refId)
+    //refCb(refId)
     refCB: null,
 
 
