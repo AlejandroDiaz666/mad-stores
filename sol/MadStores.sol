@@ -20,6 +20,7 @@ contract MadEscrow is iERC20Token {
   function verifyEscrow(uint256 _escrowID, address _vendorAddr, address _customerAddr) public view returns (uint256 _productID);
   function verifyEscrowVendor(uint256 _escrowID, address _vendorAddr) public view returns (uint256 _productID, address _customerAddr);
   function verifyEscrowCustomer(uint256 _escrowID, address _customerAddr) public view returns (uint256 _productID, address _vendorAddr);
+  function verifyEscrowParty(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr);
   function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr);
   function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public;
   function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
@@ -430,7 +431,7 @@ contract MadStores is SafeMath {
   // -- only before purchase has been approved by vendor
   // -----------------------------------------------------------------------------------------------------
   function purchaseCancel(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
-    (uint256 _productID, address _otherAddr) = madEscrow.verifyEscrowAny(_escrowID, msg.sender);
+    (uint256 _productID, address _otherAddr) = madEscrow.verifyEscrowParty(_escrowID, msg.sender);
     //ensure message fees
     uint256 _noDataLength = 4 + 32 + 32 + 32 + 64;
     uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _otherAddr) : 0;

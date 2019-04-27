@@ -283,9 +283,15 @@ contract MadEscrow is iERC20Token, SafeMath {
     _vendorAddr = _escrow.vendorAddr;
   }
 
-  function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr) {
+  function verifyEscrowParty(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr) {
     Escrow storage _escrow = escrows[_escrowId];
     require(_escrow.closed == false, "escrow closed");
+    return(verifyEscrowAny(_escrowId, _firstAddr));
+  }
+
+  // verify any party to an escrow, even if the escrow is closed
+  function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr) {
+    Escrow storage _escrow = escrows[_escrowId];
     _productId = _escrow.productId;
     if (_escrow.vendorAddr  == _firstAddr)
       _otherAddr = _escrow.customerAddr;
@@ -294,6 +300,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     else
       revert("invalid address");
   }
+
 
   // -------------------------------------------------------------------------------------------------------
   // record response
