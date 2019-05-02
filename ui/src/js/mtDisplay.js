@@ -80,68 +80,62 @@ const mtDisplay = module.exports = {
     // recursive call. but in that call prevMsgId is non-null. also the sendCb fcn that is passed in the recursive call just redisplays
     // the current message; that is to say, the send button acts as a back button.
     //
-    setupDisplayMsgArea: function(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, closeCb, sendCb) {
-	console.log('setupDisplayMsgArea: enter msgId = ' + msgId);
-	const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	const addrPrompt = (fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
-	const sendButtonText = !!prevMsgId ? 'Back' : (fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply';
-	setMsgArea(mtDisplay.DISPLAY_MODE, addrPrompt, otherAddr, msgId, ref, msgDesc, date, sendButtonText);
+    setupDisplayMsgArea: function(msgName, msgDesc, message, prevMsgId, closeCb, sendCb) {
+	console.log('setupDisplayMsgArea: enter msgId = ' + message.msgId + ', text = ' + message.text);
+	const addrPrompt = (message.fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
+	const sendButtonText = !!prevMsgId ? 'Back' : (message.fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply';
+	setMsgArea(mtDisplay.DISPLAY_MODE, addrPrompt, message.otherAddr, message.msgId, message.ref, msgDesc, message.date, sendButtonText);
 	mtDisplay.closeCb = closeCb;
 	mtDisplay.refCb = null;
 	mtDisplay.sendCb = null;
 	//
 	// iff there's a nz ref, and the user clicks on the ref to display it, then we pass the backCb to the display fcn in place of the sendCb.
 	// in that case the send button acts as a back button, to redisplay the current message
-	const backCb = () => mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, prevMsgId, closeCb, sendCb);
-	mtUtil.decryptMsg(otherAddr, fromAddr, toAddr, txCount, msgHex, attachmentIdxBN, (err, text, attachment) => {
-	    console.log('setupDisplayMsgArea: text = ' + text);
-	    document.getElementById('msgTextArea').readonly = 'true';
-	    document.getElementById('msgTextArea').value = text;
-	    const attachmentSaveA = document.getElementById('attachmentSaveA');
-	    if (!!attachment) {
-		attachmentSaveA.href = attachment.blob;
-		attachmentSaveA.download = attachment.name;
-		const attachmentSaveSpan = document.getElementById('attachmentSaveSpan');
-		attachmentSaveSpan.textContent = attachment.name;
-		attachmentSaveA.style.display = 'inline-block';
-	    } else {
-		attachmentSaveA.style.display = 'none';
-	    }
-	    document.getElementById('sendButton').disabled = false;
-	    common.setLoadingIcon(null);
-	    //
-	    // if there is a ref, then clicking on it displays the ref, and the sendCb is really a back button, which bring us back to the current msg
-	    //
-	    if (!!ref) {
-		const thisMsgId = msgId;
-		mtDisplay.refCb = (refId) => {
-		    common.setLoadingIcon('start');
-		    mtUtil.getAndParseIdMsg(refId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-			if (!!err) {
-			    common.setLoadingIcon(null);
-			    alert(err);
-			    return;
-			}
-			const msgDesc = 'This is the the previous ' + msgName + ' message';
-			//no reply except replying to the most recent message
-			mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, thisMsgId, closeCb, backCb);
-		    });
-		};
-	    }
-	    if (!!prevMsgId) {
-		mtDisplay.sendCb = sendCb;
-	    } else {
-		mtDisplay.sendCb = () => {
-		    const msgDesc = 'Enter additional notes regarding the previous ' + msgName + ' message';
-		    const placeholderText =
-			  '\n' +
-			  'Type your message here...\n' +
-			  'NOTE: always include the escrow ID in your message...\n\n' +
-			  'The previous message was:\n' + text;
-		    mtDisplay.setupComposeMsgArea(otherAddr, placeholderText, msgDesc, null, msgId, 'send', sendCb);
-		};
-	    }
-	});
+	const backCb = () => mtDisplay.setupDisplayMsgArea(msgName, msgDesc, message, prevMsgId, closeCb, sendCb);
+	document.getElementById('msgTextArea').readonly = 'true';
+	document.getElementById('msgTextArea').value = message.text;
+	if (!!message.attachment) {
+	    attachmentSaveA.href = message.attachment.blob;
+	    attachmentSaveA.download = message.attachment.name;
+	    const attachmentSaveSpan = document.getElementById('attachmentSaveSpan');
+	    attachmentSaveSpan.textContent = message.attachment.name;
+	    attachmentSaveA.style.display = 'inline-block';
+	} else {
+	    attachmentSaveA.style.display = 'none';
+	}
+	document.getElementById('sendButton').disabled = false;
+	//
+	// if there is a ref, then clicking on it displays the ref, and the sendCb is really a back button, which bring us back to the current msg
+	//
+	if (!!message.ref) {
+	    const thisMsgId = message.msgId;
+	    mtDisplay.refCb = (refId) => {
+		common.setLoadingIcon('start');
+		mtUtil.getParseDecryptMsg(refId, function(err, refMessage) {
+		    common.setLoadingIcon(null);
+		    if (!!err) {
+			alert(err);
+			return;
+		    }
+		    const msgDesc = 'This is the the previous ' + msgName + ' message';
+		    //no reply except replying to the most recent message
+		    mtDisplay.setupDisplayMsgArea(msgName, msgDesc, refMessage, thisMsgId, closeCb, backCb);
+		});
+	    };
+	}
+	if (!!prevMsgId) {
+	    mtDisplay.sendCb = sendCb;
+	} else {
+	    mtDisplay.sendCb = () => {
+		const msgDesc = 'Enter additional notes regarding the previous ' + msgName + ' message';
+		const placeholderText =
+		      '\n' +
+		      'Type your message here...\n' +
+		      'NOTE: always include the escrow ID in your message...\n\n' +
+		      'The previous message was:\n' + message.text;
+		mtDisplay.setupComposeMsgArea(message.otherAddr, placeholderText, msgDesc, null, message.msgId, 'send', sendCb);
+	    };
+	}
     },
 }
 

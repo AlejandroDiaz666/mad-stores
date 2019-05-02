@@ -371,10 +371,9 @@ function addRow(tableElem, cb) {
 
 
 //
-// cb()
-// cb when the main loading work is done... specific product loading might continue...
 //
-function populateRows(cb) {
+//
+function populateRows() {
     console.log('populate');
     const escrowListDiv = document.getElementById('escrowListDiv');
     let callDepth = 0;
@@ -397,13 +396,10 @@ function populateRows(cb) {
             addRow(escrowListDiv, function() {
 		if (--callDepth <= 0) {
 		    common.setLoadingIcon(null);
-		    cb();
 		}
 	    });
         }
     }
-    if (callCount == 0)
-	cb();
 }
 
 
@@ -455,8 +451,8 @@ function checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, step, cb) {
 	    checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, step + 1, cb);
     } else {
 	const msgId = common.BNToHex256(msgIdBN);
-	mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
-	    if (fromAddr != common.web3.eth.accounts[0]) {
+	mtUtil.getAndParseIdMsg(msgId, function(err, message, attachmentIdxBN, msgHex) {
+	    if (message.fromAddr != common.web3.eth.accounts[0]) {
 		cb(true);
 	    } else {
 		// since this msg was sent by user, set it to read, to speed this process up next time round
@@ -471,7 +467,7 @@ function checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, step, cb) {
 }
 
 //
-// below are the handlers for the various steps-completed, next-steps buttons
+// this is the unified handlers for all completed  steps
 //
 function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
     const escrowIdx = dashboard.selectedEscrowIdx;
@@ -480,15 +476,15 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
     const msgId = common.BNToHex256(msgBN);
     console.log('showCompletedStep: meEther.xactKeys[step] = ' + msgId);
     common.setLoadingIcon('start');
-    mtUtil.getAndParseIdMsg(msgId, function(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date) {
+    mtUtil.getParseDecryptMsg(msgId, function(err, message) {
+	common.setLoadingIcon(null);
 	if (!!err) {
-	    common.setLoadingIcon(null);
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
 	const msgName = dashboard.msgNames[step];
-	let msgDesc = common.numberToBN(ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
+	let msgDesc = common.numberToBN(message.ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
 	dateIdx = msgDesc.indexOf('DATE');
 	if (dateIdx >= 0) {
 	    const deliveryDate = parseInt(escrowInfo.deliveryDate);
@@ -502,15 +498,14 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    newHiMsgId = true;
 	}
 	// if the user sends a reply
-	const sendCb = (err, attachmentIdxBN, message) => {
+	const sendCb = (err, attachmentIdxBN, sendMsgText) => {
 	    if (!!err) {
 		alert(err);
 		dashboard.handleDashboardPage();
 		return;
 	    }
 	    console.log('showCompletedStep: reply -- about to send reply');
-	    const otherAddr = (fromAddr == common.web3.eth.accounts[0]) ? toAddr : fromAddr;
-	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, otherAddr, attachmentIdxBN, msgBN, message, function(err) {
+	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, message.otherAddr, attachmentIdxBN, msgBN, sendMsgText, function(err) {
 		if (!!err)
 		    alert(err);
 		else
@@ -528,7 +523,7 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    }
 	};
 	//clears loading-icon
-	mtDisplay.setupDisplayMsgArea(fromAddr, toAddr, msgName, msgDesc, txCount, date, msgId, ref, msgHex, attachmentIdxBN, null, closeCb, sendCb);
+	mtDisplay.setupDisplayMsgArea(msgName, msgDesc, message, null, closeCb, sendCb);
     });
 }
 
