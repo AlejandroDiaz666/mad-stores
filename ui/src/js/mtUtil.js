@@ -19,7 +19,10 @@ const mtUtil = module.exports = {
     sentMsgIdsCache: [],
     // complete messages, by msgId
     messageCache: [],
+    // storageMode: 'ethereum' | 'swarm' | 'auto'
     storageMode: 'ethereum',
+    //timeout in ms
+    swarmTimeout: 4000,
     swarm: null,
 
     //
@@ -56,6 +59,10 @@ const mtUtil = module.exports = {
 	console.log('setMessageStorage: mtUtil.swarm = ' + !!mtUtil.swarm + ', gateway = ' + swarmGateway);
     },
 
+    // timeout is timeout in ms
+    setSwarmTimeout(timeout) {
+	mtUtil.swarmTimeout = timeout;
+    },
 
     //cb(err, acctInfo)
     refreshAcctInfo: function(force, cb) {
@@ -194,7 +201,7 @@ const mtUtil = module.exports = {
     // messages that are sucessfully decrypted are cached
     //
     getParseDecryptMsgs: function(msgIds, msgCookies, msgCb, doneCb) {
-	console.log('getParseDecryptMsgs: enter msgIds = ' + msgIds.toString());
+	console.log('getParseDecryptMsgs: ' + msgIds.length + ' msgIds');
 	const msgFcn = (err, cookie, message, attachmentIdxBN, msgHex) => {
 	    if (!!err) {
 		if (!message.text)
@@ -336,7 +343,7 @@ function parseMessageEvent(msgResult, cb) {
 	    const bit247BN = (new BN('0', 16)).setn(247, 1);
 	    attachmentIdxBN.ixor(bit247BN);
 	    const hash = msgHex.substring(2);
-	    console.log('parseMessageEvent: swarm hash = ' + hash);
+	    console.log('parseMessageEvent: msgId = ' + msgId + ', swarm hash = ' + hash);
 	    //
 	    let timeout = false;
 	    let complete = false;
@@ -345,32 +352,42 @@ function parseMessageEvent(msgResult, cb) {
 		if (complete == true) {
 		    return;
 		} else {
-		    console.log("parseMessageEvent: timeout retrieving " + hash);
+		    console.log('parseMessageEvent: msgId = ' + msgId + ', timeout retrieving ' + hash);
 		    const err = 'timeout retrieving message from Swarm';
 		    cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 		}
-	    }, 10000);
+	    }, mtUtil.swarmTimeout);
 	    //
 	    mtUtil.swarm.download(hash).then(array => {
 		clearTimeout(swarmTimer);
 		complete = true;
-		if (timeout == true) {
-		    console.log("parseMessageEvent: download returned after timeout! hash = " + hash);
-		    return;
-		}
 		const swarmMsgHex = mtUtil.swarm.toString(array);
 		//msg should be encrypted, never 'Code:'
 		const err = swarmMsgHex.startsWith('Code:') ? 'error retrieving message from Swarm\n' + swarmMsgHex : null;
-		//console.log("parseMessageEvent: swarm downloaded:", swarmMsgHex);
-		cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, swarmMsgHex, blockNumber, date);
+		if (timeout == false) {
+		    //console.log("parseMessageEvent: swarm downloaded:", swarmMsgHex);
+		    cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, swarmMsgHex, blockNumber, date);
+		} else {
+		    // we can't call the cb function, since the timeout already occurred, but we can processs the message
+		    // and put it into the cache, to avoid future timeouts..
+		    console.log('parseMessageEvent: msgId = ' + msgId + ', download returned after timeout!');
+		    if (!err) {
+			//                                 msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, date, ref, text)
+			const message = new mtUtil.Message(msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, date, ref, '');
+			cb(err, message, attachmentIdxBN, msgHex);
+			mtUtil.decryptMsg(message, attachmentIdxBN, swarmMsgHex, (err, message) => {
+			    if (!err)
+				console.log('parseMessageEvent: msgId = ' + msgId + ', swarm message successfully cached after timeout');
+			});
+		    }
+		}
 	    }).catch(err => {
 		complete = true;
 		console.log('parseMessageEvent: swarm error downloading: err = ' + err + ', hash = ', hash);
-		if (timeout == true) {
-		    console.log("parseMessageEvent: error occurred after timeout! hash = " + hash);
-		    return;
-		}
-		cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
+		if (timeout == true)
+		    console.log('parseMessageEvent: error occurred after timeout! hash = ' + hash);
+		else
+		    cb(err, msgId, fromAddr, toAddr, viaAddr, txCount, rxCount, attachmentIdxBN, ref, msgHex, blockNumber, date);
 	    });
 	}
     });
@@ -415,7 +432,7 @@ function getAndParseMsg(msgId, cb) {
 // msgCb is called once for each message passing msgCookies[msgId]
 //
 function getAndParseMsgs(msgIds, msgCookies, msgCb, doneCb) {
-    console.log('getAndParseIdMsgs: enter msgIds = ' + msgIds.toString());
+    console.log('getAndParseIdMsgs: ' + msgIds.length + ' msgIds');
     const options = {
 	fromBlock: mtEther.firstBlock,
 	toBlock: 'latest',
