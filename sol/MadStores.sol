@@ -71,7 +71,9 @@ contract MadStores is SafeMath {
     uint256 deliveriesRejected;
     uint256 region;
     uint256 ratingSum;
+    uint256 lastActivity;
     bool activeFlag;
+    bool isValid;
   }
 
 
@@ -87,6 +89,7 @@ contract MadStores is SafeMath {
     uint256 maxPrice;
     uint256 minDeliveries;
     uint256 minRating;
+    uint256 lastActivity;
   }
 
 
@@ -179,14 +182,15 @@ contract MadStores is SafeMath {
     uint8 _productTlr = uint8(_product.region >> 248);
     uint256 _productLlrBits = _product.region & ((2 ** 248) - 1);
     //note that productLlrBits == 0 => all sub-regions
-    if ((_searchParms.vendorAddr     == address(0) ||  _product.vendorAddr                == _searchParms.vendorAddr) &&
-	(_tlc                        == 0          ||  _productTlc                        == _tlc                   ) &&
-	(_llcBits                    == 0          || (_productLlcBits & _llcBits)        != 0                      ) &&
-	(_tlr                        == 0          ||  _productTlr                        == _tlr                   ) &&
+    if ((_searchParms.vendorAddr     == address(0) ||  _product.vendorAddr                == _searchParms.vendorAddr  ) &&
+	(_tlc                        == 0          ||  _productTlc                        == _tlc                     ) &&
+	(_llcBits                    == 0          || (_productLlcBits & _llcBits)        != 0                        ) &&
+	(_tlr                        == 0          ||  _productTlr                        == _tlr                     ) &&
 	(_llrBits                    == 0          ||
-	 _productLlrBits             == 0          || (_productLlrBits & _llrBits)        != 0                      ) &&
-	(_searchParms.minPrice       == 0          ||  _product.price                     >= _searchParms.minPrice  ) &&
-	(_searchParms.maxPrice       == 0          ||  _product.price                     <= _searchParms.maxPrice  ) ) {
+	 _productLlrBits             == 0          || (_productLlrBits & _llrBits)        != 0                        ) &&
+	(_searchParms.minPrice       == 0          ||  _product.price                     >= _searchParms.minPrice    ) &&
+	(_searchParms.maxPrice       == 0          ||  _product.price                     <= _searchParms.maxPrice    ) &&
+        (                                              _vendorAccount.lastActivity        >= _searchParms.lastActivity) ) {
       return(true);
     }
     return(false);
@@ -203,8 +207,8 @@ contract MadStores is SafeMath {
   // categoryProductCounts[_tlc], to regionProductCounts[_tlr], and call the function that corresponds to the smallest number of products.
   //
   function getCertainProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
-			      uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
+			      uint256 _lastActivity, uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating, _lastActivity);
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
     //note: first productID is 1
@@ -226,8 +230,8 @@ contract MadStores is SafeMath {
   // any overlap with product llc bits.
   //
   function getVendorProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
-			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
+			     uint256 _lastActivity, uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating, _lastActivity);
     require(_searchParms.vendorAddr != address(0), "address must be specified");
     uint _count = 0;
     _productIDs = new uint256[](_maxResults);
@@ -250,8 +254,8 @@ contract MadStores is SafeMath {
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
   function getCategoryProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
-			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
+			       uint256 _lastActivity, uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating, _lastActivity);
     require(_searchParms.category != 0, "category must be specified");
     uint _count = 0;
     uint8 _tlc = uint8(_searchParms.category >> 248);
@@ -276,8 +280,8 @@ contract MadStores is SafeMath {
   // top-level-category (top 8 bits) must match product tlc exactly, whereas low-level-category bits must have any overlap with product llc bits.
   //
   function getRegionProducts(address _vendorAddr, uint256 _category, uint256 _region, uint256 _minPrice, uint256 _maxPrice, uint256 _minDeliveries, uint256 _minRating,
-			     uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
-    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating);
+			     uint256 _lastActivity, uint256 _productStartIdx, uint256 _maxResults, bool _onlyAvailable) public view returns(uint256 _idx, uint256[] memory _productIDs) {
+    SearchParms memory _searchParms = SearchParms(_onlyAvailable, _vendorAddr, _category, _region, _minPrice, _maxPrice, _minDeliveries, _minRating, _lastActivity);
     require(_searchParms.region != 0, "region must be specified");
     uint _count = 0;
     uint8 _tlr = uint8(_searchParms.region >> 248);
@@ -301,8 +305,15 @@ contract MadStores is SafeMath {
   // -----------------------------------------------------------------------------------------------------
   function registerVendor(uint256 _defaultRegion, bytes memory _name, bytes memory _desc, bytes memory _image) public {
     vendorAccounts[msg.sender].activeFlag = true;
+    vendorAccounts[msg.sender].isValid = true;
     vendorAccounts[msg.sender].region = _defaultRegion;
     emit RegisterVendorEvent(msg.sender, _name, _desc, _image);
+  }
+
+  function modifyVendor(uint256 _defaultRegion, bool active) public {
+    require(vendorAccounts[msg.sender].isValid == true, "invalid  vendor");
+    vendorAccounts[msg.sender].activeFlag = active;
+    vendorAccounts[msg.sender].region = _defaultRegion;
   }
 
 
@@ -337,6 +348,7 @@ contract MadStores is SafeMath {
     uint256 _regionProductIdx;
     uint8 _newTlc = uint8(_category >> 248);
     uint8 _newTlr = uint8(_region >> 248);
+    require(vendorAccounts[msg.sender].isValid == true, "invalid  vendor");
     if (_productID == 0) {
       _productID = productCount = safeAdd(productCount, 1);
       uint256 _vendorProductIdx = vendorProductCounts[msg.sender] = safeAdd(vendorProductCounts[msg.sender], 1);
@@ -453,6 +465,8 @@ contract MadStores is SafeMath {
   // -----------------------------------------------------------------------------------------------------
   function purchaseApprove(uint256 _escrowID, uint256 _deliveryTime, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
     (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
+    require(vendorAccounts[msg.sender].isValid == true, "invalid  vendor");
+    vendorAccounts[msg.sender].lastActivity = now;
     //ensure message fees
     uint256 _noDataLength = 4 + 32 + 32 + 32 + 32 + 64;
     uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _customerAddr) : 0;
@@ -479,6 +493,7 @@ contract MadStores is SafeMath {
     if (_rating > 10)
         _rating = 10;
     vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
+    vendorAccounts[_vendorAddr].lastActivity = now;
     emit DeliveryApproveEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
   }
 

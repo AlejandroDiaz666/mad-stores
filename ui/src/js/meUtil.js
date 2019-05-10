@@ -535,9 +535,10 @@ function efficientGetCertainProducts(productSearchFilter, maxNewProducts, cb) {
 	    cb(err, null);
 	    return;
 	}
+	const lastActivityBN = new BN('0', 16);
 	const searchStartIdxBN = productSearchFilter.lastSearchLastIdxBN.addn(1);
-	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN,
-		  productSearchFilter.minPriceBN, productSearchFilter.maxPriceBN, productSearchFilter.minDeliveriesBN, productSearchFilter.minRatingBN,
+	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN, productSearchFilter.minPriceBN,
+		  productSearchFilter.maxPriceBN, productSearchFilter.minDeliveriesBN, productSearchFilter.minRatingBN, lastActivityBN,
 		  productSearchFilter.onlyAvailable, searchStartIdxBN, maxNewProducts, function(err, lastSearchIdx, products) {
 		      if (!err) {
 			  productSearchFilter.lastSearchLastIdxBN = common.numberToBN(lastSearchIdx);
