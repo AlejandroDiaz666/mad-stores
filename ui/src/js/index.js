@@ -404,7 +404,7 @@ function updateDaiAndWDai() {
     });
     meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
 	common.wdaiBalanceBN = wdaiBalanceBN;
-	console.log('handleRegisteredAcct: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	console.log('updateDaiAndWDai: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
 	wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
     });

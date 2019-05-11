@@ -231,20 +231,60 @@ h3 { font-size:18px; }
     }
 }
 
+
+#noteDialogDiv {
+    position: fixed;
+    top: 35%;
+    left: 50%;
+    width: 350px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+.noteDialogSmall {
+    height: 180px;
+}
+.noteDialogLarge {
+    height: 260px;
+}
+#noteDialogNote p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+#noteDialogNote {
+    margin-top: 1em;
+}
+#noteDialogOkButton {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -125%);
+}
+
+
 /* this modal has a message telling the user that we are waiting
    for metamask
 */
 #metaMaskDiv {
     position: fixed;
-    z-index: 3;
     left: 50%;
-    top: 15%;
-    width: 300px;
-    height: 50px;
+    top: 20%;
+    width: 325px;
+    height: 70px;
     padding: 10px;
     overflow: none;
     border: 1px solid #888;
+    border-radius: 15px;
     background-color: #60ff60;
+    /* same as the status div */
+    z-index: 98;
 }
 
 .metaMaskNoPulse {
@@ -272,7 +312,7 @@ h3 { font-size:18px; }
 }
 #metaMaskDiv p {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
@@ -542,11 +582,14 @@ h3 { font-size:18px; }
     left: 50%;
     top: 150px;
     width: 300px;
-    height: 150px;
-    padding: 10px;
+    height: 165px;
     overflow: none;
-    border: 1px solid #888;
-    background-color: #9cd9db;
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
 }
 #wrapDialogInstr, #unwrapDialogInstr {
     position: absolute;
@@ -560,7 +603,7 @@ h3 { font-size:18px; }
 #wrapDialogErr, #wrapDialogNote,
 #unwrapDialogErr, #unwrapDialogNote {
     position: absolute;
-    top: 50px;
+    top: 60px;
     left: 50%;
     margin: 10px;
     width: 60%;
