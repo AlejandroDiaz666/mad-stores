@@ -405,7 +405,7 @@ var meUtil = module.exports = {
     // set mode = 'shop' | 'view'
     //
     showProductDetail: function(product, mode, closeCB) {
-	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name);
+	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name + ', mode = ' + mode);
 	common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden', 'visibleB', null);
 	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', mode);
 	meUtil.productDetailCloseFcn = closeCB;

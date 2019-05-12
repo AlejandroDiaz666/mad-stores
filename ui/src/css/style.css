@@ -789,14 +789,21 @@ h3 { font-size:18px; }
  */
 #selectedProductPageDiv, #dashboardPageDiv {
     position: relative;
-    flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
     top: 0px;
     left: 0px;
     height: 0px;
 }
-
+#selectedProductPageDiv.shop {
+    flex-grow: 1;
+}
+#selectedProductPageDiv.view {
+    flex-grow: 0;
+}
+#dashboardPageDiv {
+    flex-grow: 0;
+}
 
 
 /*
