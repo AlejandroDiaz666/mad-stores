@@ -599,5 +599,45 @@ const common = module.exports = {
 	return(elem);
     },
 
+    /** Function that count occurrences of a substring in a string;
+     * @param {String} str                  The string
+     * @param {String} subStr               The sub string to search for
+     * @param {Boolean} [allowOverlapping]  Optional. (Default:false)
+     *
+     * @author Vitim.us https://gist.github.com/victornpb/7736865
+     * @see Unit Test https://jsfiddle.net/Victornpb/5axuh96u/
+     * @see http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+     */
+    occurrences: function(str, subStr, allowOverlapping) {
+	str += "";
+	subStr += "";
+	if (subStr.length <= 0)
+	    return (str.length + 1);
+	let n = 0;
+	let pos = 0;
+	let step = allowOverlapping ? 1 : subStr.length;
+	while (true) {
+            pos = str.indexOf(subStr, pos);
+            if (pos >= 0) {
+		++n;
+		pos += step;
+            } else break;
+	}
+	return n;
+    },
 
+
+    isOverflown: function(elem) {
+	return elem.scrollHeight > elem.clientHeight || elem.scrollWidth > elem.clientWidth;
+    },
+
+    /*
+    boxedSubstring(str, noNewlines, lineLen) {
+	let pos = 0;
+	let subStr = "";
+	while (true) {
+	    const nlIdx = str.indexOf
+	    const line =
+    },
+    */
 };

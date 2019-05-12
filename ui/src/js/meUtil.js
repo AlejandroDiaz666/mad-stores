@@ -434,11 +434,26 @@ var meUtil = module.exports = {
 	    productDetailFullName.textContent = product.name;
 	    selectedProductDetailName.appendChild(productDetailFullName);
 	}
+	//product description height is adjustable!
+	selectedProductDetailDesc.style.height = (selectedProductFrameDiv.clientHeight - 260) + 'px';
+	console.log('showProductDetail: frame height = ' + selectedProductFrameDiv.clientHeight);
+	console.log('showProductDetail: desc  height = ' + selectedProductDetailDesc.clientHeight);
+	selectedProductDetailDesc.textContent = product.desc;
+
+	/*
 	selectedProductDetailDesc.textContent = (product.desc.length > 120) ? product.desc.substring(0, 120) + '...' : product.desc;
-	if (product.desc.length < 120) {
-	    selectedProductDetailDesc.textContent = product.desc;
-	} else {
-	    selectedProductDetailDesc.textContent = product.desc.substring(0, 120) + '...';
+	console.log('showProductDetail: ' + common.occurrences(product.desc, '\n', false) + ' newlines');
+	//product.desc.length < 1200 && common.occurrences(product.desc, '\n', false) < 5) {
+	*/
+
+	if (common.isOverflown(selectedProductDetailDesc)) {
+	    let limit = product.desc.length - 4;
+	    while (common.isOverflown(selectedProductDetailDesc)) {
+		selectedProductDetailDesc.textContent = product.desc.substring(0, limit) + '...';
+		if (--limit < 10)
+		    break;
+	    }
+	    //selectedProductDetailDesc.textContent = product.desc.substring(0, 120) + '...';
 	    const productDetailFullDesc = document.createElement("span");
 	    productDetailFullDesc.className = 'tooltipText';
 	    productDetailFullDesc.id = product.desc.indexOf('\n') < 0 ? 'productDetailFullDesc' : 'productDetailFullDescPre';

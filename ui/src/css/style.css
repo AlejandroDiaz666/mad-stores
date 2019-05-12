@@ -5,9 +5,11 @@ body {
     font-family: 'Roboto', sans-serif;
     font-size: 100%;
     background: var(--clr_bodybg);
+    display: flex;
+    flex-flow: column;
+    height: 100%;
     min-width: 480px;
     min-height: 640px;
-    height: 100%;
     margin: 0;
     padding-left: 20px;
     padding-right: 20px;
@@ -133,6 +135,7 @@ h3 { font-size:18px; }
 }
 #productDetailFullDesc,
 #productDetailFullDescPre {
+    position: fixed;
     text-align: left;
     min-width: 400px;
     width: fit-content;
@@ -386,6 +389,9 @@ h3 { font-size:18px; }
 
 #topSection {
     display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
     font-family: 'Lato', sans-serif;
     background-color: var(--clr_toparea);
     margin: 0px;
@@ -642,6 +648,9 @@ h3 { font-size:18px; }
 
 #topMenuBarDiv, #botMenuBarDiv {
     display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
     padding-top: 4px;
     padding-right: 4px;
     padding-bottom: 4px;
@@ -739,6 +748,9 @@ h3 { font-size:18px; }
      * via class visibleT
      *  display: table
      */
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
     padding: 0px;
     margin: 0px;
     width: 100%;
@@ -777,6 +789,9 @@ h3 { font-size:18px; }
  */
 #selectedProductPageDiv, #dashboardPageDiv {
     position: relative;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
     top: 0px;
     left: 0px;
     height: 0px;
@@ -935,6 +950,7 @@ h3 { font-size:18px; }
 }
 .tileDivShow:hover {
     border: 1px solid black;
+    cursor: pointer;
 }
 .tileDiv:hover {
     border: 1px solid black;
@@ -964,6 +980,7 @@ h3 { font-size:18px; }
 .tileText {
     width: 240px;
     height: 60px;
+    overflow: hidden;
     background-color: transparent;
     position: absolute;
     left: 50%;
@@ -1006,19 +1023,20 @@ h3 { font-size:18px; }
     position: relative;
     left: 50%;
     z-index: 2;
+    min-width: 940px;
+    width: 80%;
+    height: 100%;
     border-radius: 15px;
     transform: translate3d(-50%, 0, 0);
 }
 .shop #selectedProductFrameDiv {
     top: 10px;
-    width: 940px;
-    height: 360px;
+    min-height: 360px;
     background-color: #e3eceb;
 }
 .view #selectedProductFrameDiv {
     top: 50px;
-    width: 940px;
-    height: 400px;
+    min-height: 400px;
     background-color: whitesmoke;
 }
 #selectedProductCloseImg {
@@ -1032,8 +1050,10 @@ h3 { font-size:18px; }
     position: absolute;
     top: 50%;
     left: 40px;
-    width: 450px;
-    height: 340px;
+    min-width: 450px;
+    width: 45%;
+    min-height: 340px;
+    height: 90%;
     transform: translateY(-50%);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
@@ -1041,10 +1061,10 @@ h3 { font-size:18px; }
 }
 .shop #purchaseProductButton {
     position: absolute;
-    top: 220px;
+    top: 100%;
     left: 50%;
     width: 110px;
-    transform: translateX(-50%);
+    transform: translate3d(-50%, -95px, 0px);
 }
 .shop #purchaseProductButton:hover {
     cursor: pointer;
@@ -1057,9 +1077,11 @@ h3 { font-size:18px; }
     position: absolute;
     top: 50%;
     left: 100%;
-    width: 370px;
-    height: 340px;
-    transform: translate3d(-410px, -50%, 0px);
+    min-width: 370px;
+    width: 40%;
+    min-height: 340px;
+    height: 90%;
+    transform: translate3d(-110%, -50%, 0px);
     background-color: whitesmoke;
     border: 1px solid rgb(150, 150, 179);
     border-radius: 15px;
@@ -1073,7 +1095,8 @@ h3 { font-size:18px; }
     transform-style: preserve-3d;
 }
 #selectedProductDetailName {
-    width: 240px;
+    min-width: 240px;
+    width: 70%;
     height: 55px;
     background-color: transparent;
     position: absolute;
@@ -1085,8 +1108,8 @@ h3 { font-size:18px; }
     font-weight: bold;
 }
 #selectedProductDetailDesc {
-    width: 230px;
-    height: 120px;
+    min-width: 230px;
+    margin-right: 15px;
     background-color: transparent;
     position: absolute;
     left: 185px;
@@ -1094,6 +1117,8 @@ h3 { font-size:18px; }
     font-family: lato;
     font-size: 18px;
     font-weight: normal;
+    overflow: hidden;
+    white-space: pre-wrap;
 }
 #selectedProductDetailPrice {
     width: 240px;
@@ -1157,7 +1182,8 @@ h3 { font-size:18px; }
     position: absolute;
     left: 170px;
     top: 50px;
-    width: 182px;
+    min-width: 182px;
+    margin-right: 15px;
     margin-left: 10px;
     font-family: lato;
     font-size: 20px;
@@ -1176,9 +1202,9 @@ h3 { font-size:18px; }
 #selectedProductSellerRating {
     position: absolute;
     left: 50%;
-    top: 330px;
+    top: 100%;
     width: 240px;
-    transform: translate3d(-50%, -100%, 0px);
+    transform: translate3d(-50%, -35px, 0px);
     text-align: center;
     font-size: 16px;
     font-weight: normal;
@@ -1190,9 +1216,9 @@ h3 { font-size:18px; }
 #selectedProductSellerBurns {
     position: absolute;
     left: 50%;
-    top: 300px;
+    top: 100%;
     width: 240px;
-    transform: translate3d(-50%, -100%, 0px);
+    transform: translate3d(-50%, -65px, 0px);
     text-align: center;
     font-size: 16px;
     font-weight: normal;
