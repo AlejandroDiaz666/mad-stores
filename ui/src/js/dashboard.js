@@ -451,7 +451,7 @@ function checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, step, cb) {
 	    checkForUnreadMsgs(hiMsgIdBN, escrowIdBN, escrowInfo, step + 1, cb);
     } else {
 	const msgId = common.BNToHex256(msgIdBN);
-	mtUtil.getAndParseIdMsg(msgId, function(err, message, attachmentIdxBN, msgHex) {
+	mtUtil.getParseDecryptMsg(msgId, function(err, message) {
 	    if (message.fromAddr != common.web3.eth.accounts[0]) {
 		cb(true);
 	    } else {
