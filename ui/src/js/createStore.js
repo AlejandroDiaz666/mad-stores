@@ -468,10 +468,13 @@ function viewProductsSubPage() {
 function viewProdsEditProduct(product) {
     console.log('edit product ' + product.productIdBN.toString(10));
     //so the user can go back to view products
+    common.replaceElemClassFromTo('createStorePageDiv',        'hidden',   'visibleT', null);
     common.setButtonState('otherButton', 'createStoreViewProductsButton', 'Enabled');
     common.replaceElemClassFromTo('createStoreViewProdsDiv',     'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('createStoreEditProdStepsDiv', 'hidden',   'visibleB', null);
     common.setButtonState('otherButton', 'createStoreViewProdsPreviewButton', 'Enabled');
+    common.replaceElemClassFromTo('createStoreViewProdsNote',  'hidden',   'visibleB', null);
+
     const createStoreEditProdNameArea = document.getElementById('createStoreEditProdNameArea');
     const createStoreEditProdDescArea = document.getElementById('createStoreEditProdDescArea');
     const createStoreEditProdImg = document.getElementById('createStoreEditProdImg');
@@ -583,5 +586,5 @@ function prodDoPreview() {
     const vendorAddr = common.web3.eth.accounts[0];
     const productInfo = new meUtil.ProductInfo(common.BNToHex256(priceBN), quantity, common.BNToHex256(categoryBN), common.BNToHex256(regionBN), vendorAddr);
     product.setProductInfo(productInfo);
-    meUtil.showProductDetail(product, 'view', viewProductsSubPage);
+    meUtil.showProductDetail(product, 'view', () => viewProdsEditProduct(product));
 }
