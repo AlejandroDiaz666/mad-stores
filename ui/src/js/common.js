@@ -631,6 +631,19 @@ const common = module.exports = {
 	return elem.scrollHeight > elem.clientHeight || elem.scrollWidth > elem.clientWidth;
     },
 
+
+    // returns true if content was abbreviated
+    abbreviateElemContent: function(elem, str) {
+	elem.textContent = str;
+	if (common.isOverflown(elem)) {
+	    let limit = str.length - 4;
+	    while (common.isOverflown(elem) && limit >= 0)
+		elem.textContent = str.substring(0, limit--) + '...';
+	    return true;
+	}
+	return false;
+    },
+
     /*
     boxedSubstring(str, noNewlines, lineLen) {
 	let pos = 0;

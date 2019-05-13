@@ -424,10 +424,7 @@ var meUtil = module.exports = {
 	    document.getElementById('selectedProductSellerAddrArea').value = addrStr;
 	    document.getElementById('selectedProductSellerAddrFull').textContent = product.vendorAddr;
 	});
-	if (product.name.length < 25) {
-	    selectedProductDetailName.textContent = product.name;
-	} else {
-	    selectedProductDetailName.textContent = product.name.substring(0, 25) + '...';
+	if (common.abbreviateElemContent(selectedProductDetailName, product.name)) {
 	    const productDetailFullName = document.createElement("span");
 	    productDetailFullName.className = 'tooltipText';
 	    productDetailFullName.id = 'productDetailFullName';
@@ -438,22 +435,7 @@ var meUtil = module.exports = {
 	selectedProductDetailDesc.style.height = (selectedProductFrameDiv.clientHeight - 260) + 'px';
 	console.log('showProductDetail: frame height = ' + selectedProductFrameDiv.clientHeight);
 	console.log('showProductDetail: desc  height = ' + selectedProductDetailDesc.clientHeight);
-	selectedProductDetailDesc.textContent = product.desc;
-
-	/*
-	selectedProductDetailDesc.textContent = (product.desc.length > 120) ? product.desc.substring(0, 120) + '...' : product.desc;
-	console.log('showProductDetail: ' + common.occurrences(product.desc, '\n', false) + ' newlines');
-	//product.desc.length < 1200 && common.occurrences(product.desc, '\n', false) < 5) {
-	*/
-
-	if (common.isOverflown(selectedProductDetailDesc)) {
-	    let limit = product.desc.length - 4;
-	    while (common.isOverflown(selectedProductDetailDesc)) {
-		selectedProductDetailDesc.textContent = product.desc.substring(0, limit) + '...';
-		if (--limit < 10)
-		    break;
-	    }
-	    //selectedProductDetailDesc.textContent = product.desc.substring(0, 120) + '...';
+	if (common.abbreviateElemContent(selectedProductDetailDesc, product.desc)) {
 	    const productDetailFullDesc = document.createElement("span");
 	    productDetailFullDesc.className = 'tooltipText';
 	    productDetailFullDesc.id = product.desc.indexOf('\n') < 0 ? 'productDetailFullDesc' : 'productDetailFullDescPre';
@@ -471,6 +453,8 @@ var meUtil = module.exports = {
 	const selectedProductSellerRegion = document.getElementById('selectedProductSellerRegion');
 	const selectedProductSellerRating = document.getElementById('selectedProductSellerRating');
 	const selectedProductSellerBurns = document.getElementById('selectedProductSellerBurns');
+	//seller description height is adjustable!
+	selectedProductSellerDesc.style.height = (selectedProductFrameDiv.clientHeight - 390) + 'px';
 	//
 	meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
 	    console.log('showProductDetail: result.length = ' + result.length);
@@ -507,21 +491,14 @@ var meUtil = module.exports = {
 		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
 		});
 		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
-		    if (name.length < 70) {
-			selectedProductSellerName.textContent = name;
-		    } else {
-			selectedProductSellerName.textContent = name.substring(0, 70) + '...';
+		    if (common.abbreviateElemContent(selectedProductSellerName, name)) {
 			const sellerFullName = document.createElement("span");
 			sellerFullName.className = 'tooltipText';
 			sellerFullName.id = 'productDetailSellerFullName';
 			sellerFullName.textContent = name;
 			selectedProductSellerName.appendChild(sellerFullName);
 		    }
-		    console.log('seller desc length = ' + desc.length);
-		    if (desc.length < 110) {
-			selectedProductSellerDesc.textContent = desc;
-		    } else {
-			selectedProductSellerDesc.textContent = desc.substring(0, 110) + '...';
+		    if (common.abbreviateElemContent(selectedProductSellerDesc, desc)) {
 			const sellerFullDesc = document.createElement("span");
 			sellerFullDesc.className = 'tooltipText';
 			sellerFullDesc.id = 'productDetailSellerFullDesc';

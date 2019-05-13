@@ -680,10 +680,10 @@ function infuraGetLogs3(options, cb) {
 	options.fromBlock = 'earliest';
     }
     const paramsStr = JSON.stringify(options);
-    console.log('infuraGetLogs3: paramsStr = ' + paramsStr);
+    //console.log('infuraGetLogs3: paramsStr = ' + paramsStr);
     const body = '{"jsonrpc":"2.0","method":"eth_getLogs","params":[' + paramsStr + '],"id":1}';
     options = { method: 'post', body: body, headers: { 'Content-Type': 'application/json' } };
-    console.log('infuraGetLogs3: body = ' + body);
+    //console.log('infuraGetLogs3: body = ' + body);
     //
     common.fetch(url, options, function(str, err) {
 	if (!str || !!err) {
@@ -692,7 +692,7 @@ function infuraGetLogs3(options, cb) {
 	    cb(errMsg, '');
 	    return;
 	}
-	console.log('infuraGetLogs3: err = ' + err + ', str = ' + str);
+	//console.log('infuraGetLogs3: err = ' + err + ', str = ' + str);
 	const eventsResp = JSON.parse(str);
 	cb(null, eventsResp.result);
     });
