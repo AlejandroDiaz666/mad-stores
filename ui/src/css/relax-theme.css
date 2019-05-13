@@ -7,7 +7,7 @@
     --pad_menubar : 5px;
     --clr_buttonbg : rgb(196, 196, 201);
     --clr_buttonbgsel : gray;
-    --clr_buttonbgdis : rgb(230, 230, 230);
+    --clr_buttonbgdis : transparent;
     --clr_buttontext : rgb(100, 100, 0);
     --bor_butselect: 1px solid black;
     --bor_butnormal: 1px solid gray;
