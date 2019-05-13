@@ -320,7 +320,7 @@ function makeRow(rowDiv, escrowIdx, cb) {
 		console.log('productArea: got click');
 		hideAllModals();
 		selectRow(escrowIdx);
-		meUtil.showProductDetail(product, 'view', null);
+		meUtil.showProductDetail(product, 'view', 'limit', null);
 	    });
 	});
 	if (!escrowInfo.isClosed) {

@@ -179,7 +179,7 @@ function selectProduct(product) {
     const statusDiv = document.getElementById('statusDiv');
     common.clearStatusDiv(statusDiv);
     shop.selectedProduct = product;
-    meUtil.showProductDetail(product, 'shop', handleSearchProducts);
+    meUtil.showProductDetail(product, 'shop', 'extend', handleSearchProducts);
 }
 
 

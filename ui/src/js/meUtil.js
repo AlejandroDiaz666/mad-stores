@@ -393,8 +393,6 @@ var meUtil = module.exports = {
     // this fcn shows the product, as it appears in the shop/product-detail page. but it can be used by other
     // pages to review how the product advertisement looks
     //
-    // mode = [ 'shop' | 'view' ]
-    //
     hideProductDetail: function() {
 	common.replaceElemClassFromTo('selectedProductPageDiv', 'visibleB', 'hidden', null);
 	meUtil.productDetailCloseFcn = null;
@@ -402,12 +400,14 @@ var meUtil = module.exports = {
 
     //
     // this fcn displays a product's details
-    // set mode = 'shop' | 'view'
+    // viewMode   = 'shop' | 'view'
+    // extendMode = 'limit' | 'extend'
     //
-    showProductDetail: function(product, mode, closeCB) {
-	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name + ', mode = ' + mode);
+    showProductDetail: function(product, viewMode, extendMode, closeCB) {
+	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name + ', viewMode = ' + viewMode);
 	common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden', 'visibleB', null);
-	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', mode);
+	common.setElemClassToOneOf('selectedProductPageDiv', 'shop', 'view', viewMode);
+	common.setElemClassToOneOf('selectedProductPageDiv', 'limit', 'extend', extendMode);
 	meUtil.productDetailCloseFcn = closeCB;
 	//
 	const selectedProductSellerAddr = document.getElementById('selectedProductSellerAddr');

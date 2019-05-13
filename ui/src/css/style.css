@@ -802,10 +802,15 @@ h3 { font-size:18px; }
     left: 0px;
     height: 0px;
 }
-#selectedProductPageDiv.shop {
+/*
+ * selectedProductPageDiv will have:
+ *   one class of either:     "shop" or "view"
+ *   and one class of either: "extend" or "limit"
+ */
+#selectedProductPageDiv.extend {
     flex-grow: 1;
 }
-#selectedProductPageDiv.view {
+#selectedProductPageDiv.limit {
     flex-grow: 0;
 }
 #dashboardPageDiv {
@@ -1032,7 +1037,12 @@ h3 { font-size:18px; }
     font-weight: bold;
 }
 
-/* frame for selected product */
+/* frame for selected product
+ * selectedProductPageDiv will have:
+ *   one class of either:     "shop" or "view"
+ *   and one class of either: "extend" or "limit"
+ */
+
 .shop #selectedProductFrameDiv, .view #selectedProductFrameDiv {
     position: relative;
     left: 50%;
@@ -1043,14 +1053,18 @@ h3 { font-size:18px; }
     border-radius: 15px;
     transform: translate3d(-50%, 0, 0);
 }
-.shop #selectedProductFrameDiv {
+.extend #selectedProductFrameDiv {
     top: 10px;
     min-height: 360px;
-    background-color: #e3eceb;
 }
-.view #selectedProductFrameDiv {
+.limit #selectedProductFrameDiv {
     top: 50px;
     min-height: 400px;
+}
+.shop #selectedProductFrameDiv {
+    background-color: var(--clr_toparea);
+}
+.view #selectedProductFrameDiv {
     background-color: whitesmoke;
 }
 #selectedProductCloseImg {
@@ -1276,7 +1290,6 @@ h3 { font-size:18px; }
 }
 #escrowListDiv {
     height: 640px;
-    overflow-y: scroll;
 }
 #escrowListHeaderDiv {
     border: none;
@@ -1941,6 +1954,7 @@ h3 { font-size:18px; }
     top: 145px;
     left: 50%;
 }
+#createStoreAddProdPreviewButton,
 #createStoreViewProdsPreviewButton {
     width: auto;
     min-width: 11em;
