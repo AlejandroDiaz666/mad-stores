@@ -1092,7 +1092,7 @@ h3 { font-size:18px; }
     position: absolute;
     top: 100%;
     left: 50%;
-    width: 110px;
+    width: 130px;
     transform: translate3d(-50%, -95px, 0px);
 }
 .shop #purchaseProductButton:hover {
