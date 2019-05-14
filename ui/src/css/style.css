@@ -1074,6 +1074,10 @@ h3 { font-size:18px; }
     height: 28px;
     padding: 6px;
 }
+#selectedProductCloseImg:hover {
+    cursor: pointer;
+}
+
 #selectedProductDetailDiv {
     display: block;
     position: absolute;

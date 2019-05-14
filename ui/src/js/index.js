@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var index = module.exports = {
     localStoragePrefix: '',
+    introCompletePromise: null,
 
     main: function() {
 	console.log('index.main');
@@ -264,6 +265,85 @@ function setUnwrapButtonHandlers() {
 }
 
 
+//
+// display the while series of intro screens
+//
+async function doFirstIntro(ignoreFirstIntroCompleteFlag) {
+    if (!ignoreFirstIntroCompleteFlag && !!localStorage['FirstIntroCompleteFlag']) {
+	return(new Promise((resolve, reject) => {
+	    resolve(1);
+	}));
+    }
+    common.replaceElemClassFromTo('intro0Div', 'hidden', 'visibleB', null);
+    if (!index.introCompletePromise) {
+	index.introCompletePromise = new Promise((resolve, reject) => {
+	    document.getElementById('intro0Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro0Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro1Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro1Prev').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro1Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro0Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro1Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro1Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro2Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro2Prev').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro2Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro1Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro2Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro2Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro3Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro3Prev').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro3Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro2Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro3Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro3Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro4Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro4Prev').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro4Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro3Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro4Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro4Div', 'visibleB', 'hidden', null);
+		//if we wanted to stop displaying the intro once the user had clicked through
+		//to the end at least one time...
+		//localStorage['FirstIntroCompleteFlag'] = true;
+		resolve(null);
+	    });
+	    document.getElementById('intro0Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro0Div', 'visibleB', 'hidden', null);
+		resolve(null);
+	    });
+	    document.getElementById('intro1Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro1Div', 'visibleB', 'hidden', null);
+		resolve(null);
+	    });
+	    document.getElementById('intro2Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro2Div', 'visibleB', 'hidden', null);
+		resolve(null);
+	    });
+	    document.getElementById('intro3Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro3Div', 'visibleB', 'hidden', null);
+		resolve(null);
+	    });
+	    document.getElementById('intro4Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro4Div', 'visibleB', 'hidden', null);
+		//if we wanted to stop displaying the intro once the user had clicked through
+		//to the end at least one time...
+		//localStorage['FirstIntroCompleteFlag'] = true;
+		resolve(null);
+	    });
+	});
+    }
+    return(index.introCompletePromise);
+}
+
 
 //
 // beginTheBeguine -- start this enchilada
@@ -278,7 +358,7 @@ var timerIsPaused = () => {
 }
 
 async function beginTheBeguine() {
-    //await doFirstIntro(false);
+    await doFirstIntro(false);
     if (!common.acctCheckTimer) {
 	console.log('init acctCheckTimer');
 	var count = 0;

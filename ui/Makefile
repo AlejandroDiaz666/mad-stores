@@ -16,7 +16,7 @@ JSBLDFILES := $(patsubst $(JSSRCDIR)/%.js,$(JSBLDDIR)/%.js,$(JSSRCFILES))
 IMGBLDFILES := $(patsubst $(IMGSRCDIR)/%,$(IMGBLDDIR)/%,$(IMGSRCFILES))
 HTMBLDFILES := $(patsubst $(HTMSRCDIR)/%,$(HTMBLDDIR)/%,$(HTMSRCFILES))
 CSSSTYLEFILES := $(patsubst $(CSSSRCDIR)/%-theme.css,$(CSSBLDDIR)/%-style.css,$(CSSTHEMEFILES))
-CSSBLDFILES := $(CSSSTYLEFILES)
+CSSBLDFILES := $(CSSSTYLEFILES) $(CSSBLDDIR)/intro.css
 INDEXALIAS := stores
 
 all:	$(HTMBLDDIR)/index.html
@@ -36,6 +36,10 @@ deploy: all
 	cp $(CSSBLDDIR)/*_TIMESTAMP*.css release/css/
 	cp $(JSBLDDIR)/index_TIMESTAMP*.js release/bundle/
 	tar -czf $(INDEXALIAS)-$(shell cat src/js/autoVersion.txt).tar.gz release
+
+$(CSSBLDDIR)/intro.css : $(CSSSRCDIR)/intro.css
+	if [ ! -d $(CSSBLDDIR) ]; then mkdir -p $(CSSBLDDIR); fi
+	cp $< $@
 
 $(CSSBLDDIR)/%-style.css : $(CSSSRCDIR)/%-theme.css $(CSSSRCDIR)/style.css
 	if [ ! -d $(CSSBLDDIR) ]; then mkdir -p $(CSSBLDDIR); fi

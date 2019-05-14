@@ -1,0 +1,83 @@
+
+
+.popup-bg-intro0,
+.popup-bg-intro1,
+.popup-bg-intro2,
+.popup-bg-intro3,
+.popup-bg-intro4 {
+    z-index: 200;
+    position: absolute;
+    background-color: rgb(250, 246, 246);
+    width: 1174px;
+    height: 677px;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-587px, -338px, 0px);
+    perspective: 1400px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-bg-intro0,
+.popup-bg-intro2,
+.popup-bg-intro4 {
+    background-image: url("../images/bg-intro-main.jpg");
+}
+.popup-bg-intro1,
+.popup-bg-intro3 {
+    background-image: url("../images/bg-intro-alt.jpg");
+}
+
+.intro-close {
+    position: absolute;
+    top: 5px;
+    left: 1169px;
+    width: 28px;
+    height: 28px;
+    padding-left: 2px;
+    transform: translate3d(-100%, 0px, 0px);
+}
+.intro-close:hover {
+    cursor: pointer;
+}
+.intro-fwd,
+.intro-bak {
+    position: absolute;
+    top: 650px;
+    height: 38px;
+    width: max-content;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    background-repeat: no-repeat;
+    background-color: gray;
+}
+.intro-fwd {
+    left: 1150px;
+    padding-left: 20px;
+    padding-right: 60px;
+    transform: translate3d(-100%, -100%, 0px);
+    background-image: url("../images/dotted-arrow-right.png");
+    background-position: right center;
+}
+.intro-bak {
+    left: 24px;
+    padding-left: 60px;
+    padding-right: 20px;
+    transform: translate3d(0px, -100%, 0px);
+    background-image: url("../images/dotted-arrow-left.png");
+    background-position: left center;
+}
+.intro-fwd:hover,
+.intro-bak:hover {
+    cursor: pointer;
+}
+.intro-fwd p,
+.intro-bak p {
+    font-family: Lato;
+    color: rgb(253, 252, 252);
+    font-size: 23px;
+    position: relative;
+    top: 2px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
