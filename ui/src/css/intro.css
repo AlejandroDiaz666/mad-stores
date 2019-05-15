@@ -96,7 +96,8 @@
 /* intro 0
  */
 #intro0-title,
-#intro1-title {
+#intro1-title,
+#intro2-title {
     position: absolute;
     top: 10px;
     left: 50%;
@@ -104,7 +105,7 @@
 }
 #intro0-subtitle0 {
     position: absolute;
-    top: 63px;
+    top: 85px;
     left: 50%;
     transform: translateX(-50%);
     width: 80%;
@@ -136,4 +137,34 @@
 
 #intro1-para0 li {
     margin-top: 32px;
+}
+
+/* intro 2
+ */
+#intro2-para0 {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 67%;
+}
+
+#intro2-para1 {
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 67%;
+}
+
+#intro2-para1 li {
+    margin-top: 32px;
+}
+
+#intro2Img0 {
+    position: absolute;
+    top: 175px;
+    left: 660px;
+    width: 312px;
+    height: 460px;
 }
