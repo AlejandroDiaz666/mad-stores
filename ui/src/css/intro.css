@@ -81,3 +81,40 @@
     margin-block-start: 0px;
     margin-block-end: 0px;
 }
+
+.intro-title {
+    font-family: lato;
+    font-size: 33px;
+    font-weight: bold;
+}
+.intro-text {
+    font-family: Lato;
+    font-size: 23px;
+}
+#intro0-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#intro0-subtitle0 {
+    position: absolute;
+    top: 63px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+#intro0-para0 {
+    position: absolute;
+    top: 175px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+}
+#intro0-para1 {
+    position: absolute;
+    top: 487px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
