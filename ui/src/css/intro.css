@@ -8,7 +8,7 @@
     z-index: 200;
     position: absolute;
     background-color: rgb(250, 246, 246);
-    width: 1174px;
+    width: 1175px;
     height: 677px;
     left: 50%;
     top: 50%;
@@ -97,7 +97,8 @@
  */
 #intro0-title,
 #intro1-title,
-#intro2-title {
+#intro2-title,
+#intro3-title {
     position: absolute;
     top: 10px;
     left: 50%;
@@ -167,4 +168,48 @@
     left: 660px;
     width: 312px;
     height: 460px;
+}
+
+/* intro 3
+ */
+#intro3-para0 {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro3-para1 {
+    position: absolute;
+    top: 230px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro3-para2 {
+    position: absolute;
+    top: 375px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro3Img0 {
+    position: absolute;
+    top: 115px;
+    left: 50%;
+    width: 1000px;
+    height: 123px;
+    transform: translateX(-50%);
+}
+
+#intro3Img1,
+#intro3Img2 {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 40px;
+    height: 40px;
 }
