@@ -331,11 +331,21 @@ function makeRow(rowDiv, escrowIdx, cb) {
 	// transaction type
         if (escrowInfo.vendorAddr == common.web3.eth.accounts[0]) {
             typeArea.value = 'Sale ';
-            addrArea.value = escrowInfo.customerAddr;
+	    ether.ensReverseLookup(escrowInfo.customerAddr, function(err, name) {
+		let addrStr = escrowInfo.customerAddr;
+		if (!err && !!name)
+		    addrStr = common.abbreviateAddrForEns(escrowInfo.customerAddr, name, 8);
+		addrArea.value = addrStr;
+	    });
         }
         if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
             typeArea.value += (!!typeArea.value) ? '/ Purchase' : 'Purchase';
-            addrArea.value = escrowInfo.vendorAddr;
+	    ether.ensReverseLookup(escrowInfo.vendorAddr, function(err, name) {
+		let addrStr = escrowInfo.vendorAddr;
+		if (!err && !!name)
+		    addrStr = common.abbreviateAddrForEns(escrowInfo.vendorAddr, name, 0);
+		addrArea.value = addrStr;
+	    });
         }
 	// completed steps, next steps
 	addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan);

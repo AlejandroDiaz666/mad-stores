@@ -644,13 +644,24 @@ const common = module.exports = {
 	return false;
     },
 
-    /*
-    boxedSubstring(str, noNewlines, lineLen) {
-	let pos = 0;
-	let subStr = "";
-	while (true) {
-	    const nlIdx = str.indexOf
-	    const line =
+    //
+    // abbreviateAddrForEns
+    // helper for handleUnlockedMetaMask
+    //
+    abbreviateAddrForEns: function(addr, ensName, nominalEnsLength) {
+	let addrNumericStr = addr;
+	if (ensName.length >= nominalEnsLength) {
+	    console.log('abbreviateAddrForEns: ensName = ' + ensName);
+	    // normal length of addr is '0x' + 40 chars. field can fit '(0x' + 40 + ') ' + nominalEnsLength ens
+	    // or replace addr chars with XXXX...XXXX
+	    const noAddrChars = Math.max( 40 - (((ensName.length - nominalEnsLength) + 3 + 1) & 0xfffe), 6);
+	    const cut = 40 - noAddrChars;
+	    console.log('abbreviateAddrForEns: ensName.length = ' + ensName.length + ', cut = ' + cut);
+	    const remain2 = (40 - cut) / 2;
+	    console.log('abbreviateAddrForEns: remain2 = ' + remain2);
+	    addrNumericStr = addr.substring(0, 2 + remain2) + '...' + addr.substring(2 + 40 - remain2);
+	}
+	return(ensName + ' (' + addrNumericStr + ')');
     },
-    */
+
 };

@@ -119,8 +119,9 @@ h3 { font-size:18px; }
 }
 
 #accountAreaFull {
-    transform: translate3d(-28px, 58%, 0px);
-    width: 43em;
+    position: absolute;
+    transform: translate3d(90px, 58%, 0px);
+    width: 35em;
 }
 
 #productDetailFullName {

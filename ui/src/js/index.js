@@ -436,8 +436,14 @@ function handleUnlockedMetaMask() {
     //timer to check for changed status
     common.waitingForTxid = false;
     common.localStoragePrefix = (common.web3.eth.accounts[0]).substring(2, 10) + '-';
-    var accountArea = document.getElementById('accountArea');
-    accountArea.value = 'Your account: ' + common.web3.eth.accounts[0];
+    //
+    ether.ensReverseLookup(common.web3.eth.accounts[0], function(err, name) {
+	let addrStr = common.web3.eth.accounts[0];
+	if (!err && !!name)
+	    addrStr = common.abbreviateAddrForEns(common.web3.eth.accounts[0], name, 10);
+	document.getElementById('accountArea').value = 'Account: ' + addrStr;
+	document.getElementById('accountAreaFull').textContent = common.web3.eth.accounts[0];
+    });
     ether.getBalance(common.web3.eth.accounts[0], 'ether', function(err, balance) {
 	const balanceArea = document.getElementById('balanceArea');
 	console.log('balance (eth) = ' + balance);
@@ -474,8 +480,10 @@ function handleUnlockedMetaMask() {
     });
 }
 
+
 //
-// handle unregistered account
+// updateDaiAndWDai
+// helper for handleUnlockedMetaMask
 //
 function updateDaiAndWDai() {
     meEther.getDaiBalance(common.web3.eth.accounts[0], function(err, daiBalanceBN) {
