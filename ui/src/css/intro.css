@@ -98,7 +98,8 @@
 #intro0-title,
 #intro1-title,
 #intro2-title,
-#intro3-title {
+#intro3-title,
+#intro4-title {
     position: absolute;
     top: 10px;
     left: 50%;
@@ -196,6 +197,14 @@
     width: 85%;
 }
 
+#intro3-para3 {
+    position: absolute;
+    top: 445px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
 #intro3Img0 {
     position: absolute;
     top: 115px;
@@ -206,10 +215,66 @@
 }
 
 #intro3Img1,
-#intro3Img2 {
+#intro3Img2,
+#intro3Img3 {
     position: relative;
     top: 0px;
     left: 0px;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid black;
+}
+
+/* intro 4
+ */
+#intro4-para0 {
+    position: absolute;
+    top: 170px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro4-para1 {
+    position: absolute;
+    top: 230px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro4-para2 {
+    position: absolute;
+    top: 464px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+}
+
+#intro4Img0 {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    width: 1000px;
+    height: 123px;
+    transform: translateX(-50%);
+}
+
+#intro4Img1 {
+    position: absolute;
+    top: 352px;
+    left: 50%;
+    width: 1000px;
+    height: 123px;
+    transform: translateX(-50%);
+}
+
+#intro4Img2,
+#intro4Img3 {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid black;
 }

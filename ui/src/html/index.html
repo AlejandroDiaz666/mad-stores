@@ -107,7 +107,7 @@
 	<p>MAD Escrow</p>
       </div>
       <div id="intro2Next" class="intro-fwd">
-	<p>The Dashboard</p>
+	<p>The Dashboard (Purchase)</p>
       </div>
     </div>
 
@@ -116,7 +116,7 @@
 	intro page 3
       -->
     <div id="intro3Div" class="popup-bg-intro3 hidden">
-      <span id="intro3-title" class="intro-title">The Dashboard</span>
+      <span id="intro3-title" class="intro-title">Dashboard (Purchase)</span>
       <div id="intro3-para0" class="intro-text">
 	<p>The MAD Stores &quot;Dashboard&quot; shows you all of your purchase and selling history</p>
       </div>
@@ -127,13 +127,14 @@
 	  relating to the purchase.</p>
       </div>
       <div id="intro3-para2" class="intro-text">
-	<p>When the seller approves your purchase you will the the approval
-	  icon <img id="intro3Img2" src="images/locked-handshake.jpg"/>. Click this icon to see the sellers commitment to
-	  deliver the product. If you send the seller a reply, then clicking on the approval icon will show you the most recent
-	  message relating to the approval. Once the seller approves the purchase the escrow is &quot;locked&quot;. That means
-	  that neither the buyer nor seller can cancel the escrow.</p>
+	<p>You have the ability to cancel the escrow <img id="intro3Img2" src="images/cancel.jpg"/> up until the time that the
+	  seller approves the purchase.</p>
       </div>
-      <img id="intro3Img0" src="images/dashboard.png"/>
+      <div id="intro3-para3" class="intro-text">
+	<p>You can add additional funds to the escrow <img id="intro3Img3" src="images/funds-deposited.jpg"/>, for example if
+	  you requested a extra option with your purchase.
+      </div>
+      <img id="intro3Img0" src="images/intro-dash-deposit.png"/>
       <img id="intro3Close" class="intro-close" src="images/close.png"></img>
       <div id="intro3Prev" class="intro-bak">
 	<p>Rating System</p>
@@ -147,29 +148,26 @@
 	intro page 4
       -->
     <div id="intro4Div" class="popup-bg-intro4 hidden">
-      <span class="heading-title-intro3"><span class="">Conversation Threading</span></span>
-      <div class="heading-para1-intro4">
-	<p>Message ID's and Ref ID's</p>
+      <span id="intro4-title" class="intro-title">Dashboard (Ending an Escrow)</span>
+      <div id="intro4-para0" class="intro-text">
+	<p>When the seller approves your purchase you will see the approval icon <img id="intro4Img2" src="images/locked-handshake.jpg"/>.
+	  Click this icon to see the sellers commitment to deliver the product. If you send the seller a reply, then clicking on the
+	  approval icon will show you the most recent message relating to the approval. Once the seller approves the purchase the escrow
+	  is &quot;locked&quot;. That means that neither the buyer nor seller can cancel the escrow.</p>
       </div>
-      <div class="para1-intro4">
-	<p>Conversation threading is a feature used by many email clients in which the software aids the user by visually grouping messages with their replies. For an ongoing conversation this creates a chain of messages called a "message thread."</p><br/>
-	<p>In Turms AMT we do not display message threads. :(</p>
-	<p>This is because the is no central "server" to keep track of the relationships between messages.<br/>
-	  Instead:</p>
-	<ul>
-	  <li>Each Turms message needs to be retreived individually from the blockchain</li>
-	  <li>Each Turms message is completely encrypted, including the subject line</li>
-	  <li>Each Turms message's unique decryption key needs to be computed separately</li>
-	</ul>
-	<p>To provide a capability similar to conversation threading each Turms message is identified by a unique message ID, which is encoded in base64 (eg. 'AAAAAAAAAAAAAAAAAAAAAAAA'). When you reply to a
-message, the message ID of the original message is stored with the reply as a 'Ref. ID.'&nbsp; So when the reply is displayed the Ref. ID is also displayed - and if you click on the Ref. ID, then that will bring up the original message. In this way you can trace back through the chain of messages that make up a conversation's message thread.</p>
+      <div id="intro4-para2" class="intro-text">
+	<p>Click the Release icon, <img id="intro4Img2" src="images/release.jpg"/>, to confirm satisfactory delivery of the item.<br/>
+	  Or click the Burn icon, <img id="intro4Img2" src="images/burn.jpg"/> in the unlikely event that you are completely unsatisfied, and
+	  you are unable to come to a resolution with the seller.
       </div>
+      <img id="intro4Img0" src="images/intro-dash-approved.png"/>
+      <img id="intro4Img1" src="images/intro-dash-complete.png"/>
       <img id="intro4Close" class="intro-close" src="images/close.png"></img>
       <div id="intro4Prev" class="intro-bak">
-	<p>Welcome</p>
+	<p>Dashboard (Purchase)</p>
       </div>
       <div id="intro4Next" class="intro-fwd">
-	<p>How it Works</p>
+	<p>Exit</p>
       </div>
     </div>
 
