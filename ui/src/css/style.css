@@ -691,6 +691,10 @@ h3 { font-size:18px; }
 .menuBarButton:hover, .menuBarButtonEnabled:hover {
     cursor: pointer;
 }
+#importantInfoButton {
+    float: right;
+    margin-right: 10px;
+}
 .topMenuButton {
     margin: 5px;
     width: 15%;

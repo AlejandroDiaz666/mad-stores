@@ -125,19 +125,19 @@ function ListEntry(listIdx, div, msgId, msgNo, addr, date, ref, content) {
 
 
 function setMainButtonHandlers() {
-    var shopButton = document.getElementById('shopButton');
-    shopButton.addEventListener('click', function() {
+    document.getElementById('shopButton').addEventListener('click', function() {
 	createStore.doExitWarning();
 	shop.handleShopPage();
     });
-    var dashboardButton = document.getElementById('dashboardButton');
-    dashboardButton.addEventListener('click', function() {
+    document.getElementById('dashboardButton').addEventListener('click', function() {
 	createStore.doExitWarning();
 	dashboard.handleDashboardPage();
     });
-    var createStoreButton = document.getElementById('createStoreButton');
-    createStoreButton.addEventListener('click', function() {
+    document.getElementById('createStoreButton').addEventListener('click', function() {
 	createStore.handleCreateStorePage();
+    });
+    document.getElementById('importantInfoButton').addEventListener('click', function() {
+	doFirstIntro(true);
     });
 }
 
