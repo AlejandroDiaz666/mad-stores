@@ -650,7 +650,7 @@ const common = module.exports = {
     //
     abbreviateAddrForEns: function(addr, ensName, nominalEnsLength) {
 	let addrNumericStr = addr;
-	if (ensName.length >= nominalEnsLength) {
+	if (!!ensName && ensName.length >= nominalEnsLength) {
 	    console.log('abbreviateAddrForEns: ensName = ' + ensName);
 	    // normal length of addr is '0x' + 40 chars. field can fit '(0x' + 40 + ') ' + nominalEnsLength ens
 	    // or replace addr chars with XXXX...XXXX

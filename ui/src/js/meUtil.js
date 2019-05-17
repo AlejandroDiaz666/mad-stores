@@ -122,25 +122,31 @@ var meUtil = module.exports = {
     },
 
 
-    ProductSearchFilter: function(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable) {
+    ProductSearchFilter: function(vendorAddr, regionBN, categoryBN, minPriceBN, maxPriceBN, minDeliveriesBN, minRatingBN, onlyAvailable) {
 	if (!vendorAddr)
 	    vendorAddr = '0x0';
 	if (!regionBN)
 	    regionBN = new BN('0', 16);
 	if (!categoryBN)
 	    categoryBN = new BN('0', 16);
+	if (!minPriceBN)
+	    minPriceBN = new BN('0', 16);
 	if (!maxPriceBN)
 	    maxPriceBN = new BN('0', 16);
+	if (!minDeliveriesBN)
+	    minDeliveriesBN = new BN('0', 16);
+	if (!minRatingBN)
+	    minRatingBN = new BN('0', 16);
 	this.vendorAddr = vendorAddr;
 	this.regionBN = regionBN;
 	this.categoryBN = categoryBN;
+	this.minPriceBN = minPriceBN;
 	this.maxPriceBN = maxPriceBN;
+	this.minDeliveriesBN = minDeliveriesBN;
+	this.minRatingBN = minRatingBN;
 	this.onlyAvailable = onlyAvailable;
 	this.previousSearch = null;
 	this.lastSearchLastIdxBN = new BN('0', 16);
-	this.minPriceBN = new BN('0', 16);
-	this.minDeliveriesBN = new BN('0', 16);
-	this.minRatingBN = new BN('0', 16);
 	meUtil.productSearchResults = [];
 	//should we delete old tiles?
 	meUtil.productTiles = [];
@@ -529,6 +535,7 @@ function efficientGetCertainProducts(productSearchFilter, maxNewProducts, cb) {
 	}
 	const lastActivityBN = new BN('0', 16);
 	const searchStartIdxBN = productSearchFilter.lastSearchLastIdxBN.addn(1);
+	console.log('efficientGetCertainProducts: productSearchFilter = ' + JSON.stringify(productSearchFilter));
 	searchFcn(productSearchFilter.vendorAddr, productSearchFilter.categoryBN, productSearchFilter.regionBN, productSearchFilter.minPriceBN,
 		  productSearchFilter.maxPriceBN, productSearchFilter.minDeliveriesBN, productSearchFilter.minRatingBN, lastActivityBN,
 		  productSearchFilter.onlyAvailable, searchStartIdxBN, maxNewProducts, function(err, lastSearchIdx, products) {

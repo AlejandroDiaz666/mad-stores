@@ -485,13 +485,16 @@ function viewProductsSubPage() {
     common.setButtonState('otherButton', 'createStoreViewProdsDoEditButton', 'Disabled');
     const createStoreViewProdsPreviewButton = document.getElementById('createStoreViewProdsPreviewButton');
     createStoreViewProdsPreviewButton.disabled = true;
-    var regionBN = null;
-    var categoryBN = null;
-    var maxPriceBN = null;
+    const regionBN = null;
+    const categoryBN = null;
+    const minPriceBN = null;
+    const maxPriceBN = null;
+    const minDeliveriesBN = null;
+    const minRatingBN = null;
     const vendorAddr = common.web3.eth.accounts[0];
     const onlyAvailable = false;
     const createStoreViewProdsTilesDiv = document.getElementById('createStoreViewProdsTilesDiv');
-    createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
+    createStore.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, minPriceBN, maxPriceBN, minDeliveriesBN, minRatingBN, onlyAvailable);
     common.clearDivChildren(shopTilesDiv);
     meUtil.getProductIds(createStore.productSearchFilter, 100, function(err) {
 	if (err) {

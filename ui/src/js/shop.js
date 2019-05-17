@@ -129,11 +129,10 @@ function handleSearchProducts() {
 
 
 function shopDoSearch() {
-    // after user enters earch parameters....
-    const vendorAddr = null
-    const maxPriceBN = null;
-    const onlyAvailable = true;
-    //
+    const minPriceBN = meEther.usdStrToDaiBN(shop.minPrice);
+    const maxPriceBN = meEther.usdStrToDaiBN(shop.maxPrice);
+    const minRatingBN = common.numberToBN(document.getElementById('searchRatingSelect').value);
+    const minDeliveriesBN = common.numberToBN(document.getElementById('searchSalesSelect').value);
     const shopCategoryTlcSel = document.getElementById('shopCategoryTlcSel');
     const shopCategoryLlcBitsSel = document.getElementById('shopCategoryLlcBitsSel');
     const categoryBN = common.numberToBN(shopCategoryTlcSel.value).iushln(248);
@@ -150,17 +149,51 @@ function shopDoSearch() {
 	regionBN.iuor(llrBitsBn);
     }
     console.log('shopDoSearch: regionBN = 0x' + regionBN.toString(16));
-    //
-    const shopTilesDiv = document.getElementById('shopTilesDiv');
-    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, maxPriceBN, onlyAvailable);
-    common.clearDivChildren(shopTilesDiv);
-    meUtil.getProductIds(shop.productSearchFilter, 100, function(err) {
-	if (err) {
-	    alert(err)
+    const onlyAvailable = true;
+    const storeAddrArea = document.getElementById('storeAddrArea');
+    // fcn to validate vendor addr
+    const validateAddr = (vendorAddrIn, cb) => {
+	console.log('shopDoSearch: vendorAddrIn = ' + vendorAddrIn);
+	if (!!vendorAddrIn && vendorAddrIn.indexOf(' ') >= 0) {
+	    //for ens names, pick up the name
+	    vendorAddrIn = vendorAddrIn.substring(0, vendorAddrIn.indexOf(' '));
+	    console.log('shopDoSearch: extracted vendorAddrIn = ' + vendorAddrIn);
+	}
+	if (!vendorAddrIn) {
+	    cb(null, null);
+	} else if (ether.validateAddr(vendorAddrIn)) {
+	    ether.ensReverseLookup(vendorAddrIn, function(err, name) {
+		console.log('validateAddrButton: reverse ENS results: err = ' + err + ', name = ' + name);
+		if (!err && !!name)
+		    storeAddrArea.value = common.abbreviateAddrForEns(vendorAddrIn, name, -3);
+	    });
+	    cb(null, vendorAddrIn);
 	} else {
-	    meUtil.populateProductList(shopTilesDiv, 0, selectProduct, function(err) {
-		if (err)
+	    ether.ensLookup(vendorAddrIn, function(err, addr) {
+		if (!err && !!addr) {
+		    storeAddrArea.value = common.abbreviateAddrForEns(addr, vendorAddrIn, -3);
+		    cb(null, addr);
+		} else
+		    cb('invalid vendor address', null);
+	    });
+	}
+    };
+    validateAddr(storeAddrArea.value.trim(), function(err, vendorAddr) {
+	if (!!err) {
+	    alert(err);
+	} else {
+	    const shopTilesDiv = document.getElementById('shopTilesDiv');
+	    shop.productSearchFilter = new meUtil.ProductSearchFilter(vendorAddr, regionBN, categoryBN, minPriceBN, maxPriceBN, minDeliveriesBN, minRatingBN, onlyAvailable);
+	    common.clearDivChildren(shopTilesDiv);
+	    meUtil.getProductIds(shop.productSearchFilter, 100, function(err) {
+		if (err) {
 		    alert(err)
+		} else {
+		    meUtil.populateProductList(shopTilesDiv, 0, selectProduct, function(err) {
+			if (err)
+			    alert(err)
+		    });
+		}
 	    });
 	}
     });
