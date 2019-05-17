@@ -390,12 +390,6 @@ h3 { font-size:18px; }
 }
 
 
-#importantInfoButton {
-    float: left;
-    margin-left:10px;
-    margin-right: auto;
-}
-
 #topSection {
     display: block;
     flex-grow: 0;
@@ -673,6 +667,12 @@ h3 { font-size:18px; }
     border-radius: 12px;
 }
 
+#importantInfoButton {
+    float: left;
+    margin-left:10px;
+    margin-right: auto;
+}
+
 .menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
 .menuBarButtonSelected, .menuBarButton:hover {
     padding : var(--pad_menubar);
@@ -704,6 +704,7 @@ h3 { font-size:18px; }
     border-radius: 12px;
 }
 #shopButton, #dashboardButton, #createStoreButton {
+    min-width: fit-content;
 }
 
 .msgInfoAreaButton, .msgRightButton {
