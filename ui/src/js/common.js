@@ -10,6 +10,7 @@ const common = module.exports = {
     web3: null,
     waitingForTxid: false,
     wdaiBalanceBN: null,
+    noteOkHandler: null,
 
     //
     // cb(err, web3, netId)

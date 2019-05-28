@@ -102,8 +102,20 @@ var shop = module.exports = {
 	//shopCategoryLlcBitsSel.addEventListener('input', enableSearchButton);
 	const purchaseProductButton = document.getElementById('purchaseProductButton');
 	purchaseProductButton.addEventListener('click', function() {
-	    if (!!shop.selectedProduct)
-		handlePurchase(shop.selectedProduct);
+	    if (!mtUtil.publicKey || mtUtil.publicKey == '0x' || !dhcrypt.dh || mtUtil.publicKey != dhcrypt.publicKey()) {
+		document.getElementById('noteDialogIntro').textContent =
+		    'The current MetaMask account is not registered with Turms AMT. in order to purchase an item ' +
+		    'you will need an Ethereum address registered with Turms AMT.';
+		document.getElementById('noteDialogNote').innerHTML =
+		    'To register this address please visit<br/>' +
+		    '<a href="https://ipfs.io/ipns/messagetransport.turmsanonymous.io/">Turms AMT</a>';
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    } else {
+		if (!!shop.selectedProduct)
+		    handlePurchase(shop.selectedProduct);
+	    }
 	});
     },
 

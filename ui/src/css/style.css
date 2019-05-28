@@ -49,15 +49,17 @@ h3 { font-size:18px; }
     background-color: #9cd9db;
 }
 
+.notBlinking {
+}
 .blinking {
     animation: blinkingText 0.8s infinite;
 }
-@keyframes blinkingText{
-    0%{     color: #000;    }
-    49%{    color: transparent; }
-    50%{    color: red; }
-    99%{    color: transparent;  }
-    100%{   color: #000;    }
+@keyframes blinkingText {
+    0%   { color: #000;        }
+    49%  { color: transparent; }
+    50%  { color: transparent; }
+    99%  { color: transparent;  }
+    100% { color: #000;        }
 }
 
 .tooltip {

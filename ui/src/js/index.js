@@ -125,6 +125,11 @@ function ListEntry(listIdx, div, msgId, msgNo, addr, date, ref, content) {
 
 
 function setMainButtonHandlers() {
+    document.getElementById('noteDialogOkButton').addEventListener('click', function() {
+	common.replaceElemClassFromTo('noteDialogDiv', 'visibleB', 'hidden', true);
+	if (!!common.noteOkHandler)
+	    common.noteOkHandler();
+    });
     document.getElementById('shopButton').addEventListener('click', function() {
 	createStore.doExitWarning();
 	shop.handleShopPage();
@@ -359,6 +364,7 @@ var timerIsPaused = () => {
 
 async function beginTheBeguine() {
     await doFirstIntro(false);
+    /*
     if (!common.acctCheckTimer) {
 	console.log('init acctCheckTimer');
 	var count = 0;
@@ -375,6 +381,7 @@ async function beginTheBeguine() {
 	    });
 	}, 10000);
     }
+    */
     common.checkForMetaMask(true, function(err, w3) {
 	var acct = (!err && !!w3) ? w3.eth.accounts[0] : null;
 	console.log('beginTheBeguine: checkForMetaMask acct = ' + acct);
@@ -470,11 +477,28 @@ function handleUnlockedMetaMask() {
 	mtUtil.refreshAcctInfo(false, function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);
 	    console.log('handleUnlockedMetaMask: acctInfo: ' + JSON.stringify(mtUtil.acctInfo));
-	    //console.log('handleUnlockedMetaMask: publicKey: ' + mtUtil.publicKey);
 	    if (!mtUtil.publicKey || mtUtil.publicKey == '0x') {
-		handleUnregisteredAcct();
+		document.getElementById('noteDialogIntro').textContent =
+		    'The current MetaMask account is not registered with Turms AMT. You can still ' +
+		    'browse products and sellers -- but to purchase an item, you will need an Ethereum ' +
+		    'address registered with Turms AMT.';
+		document.getElementById('noteDialogNote').innerHTML =
+		    'To register this address please visit<br/>' +
+		    '<a href="https://ipfs.io/ipns/messagetransport.turmsanonymous.io/">Turms AMT</a>';
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = prepareToShop;
+		//handleUnregisteredAcct();
 	    } else {
-		handleRegisteredAcct();
+		common.showWaitingForMetaMask(true);
+		const encryptedPrivateKey = mtUtil.acctInfo.encryptedPrivateKey;
+		dhcrypt.initDH(encryptedPrivateKey, function(err) {
+		    common.showWaitingForMetaMask(false);
+		    if (!!err)
+			alert(err);
+		    else
+			prepareToShop();
+		});
 	    }
 	});
     });
@@ -500,43 +524,15 @@ function updateDaiAndWDai() {
 
 
 //
-// handle unregistered account
+// coupls last minute items.... then go shopping
 //
-function handleUnregisteredAcct() {
-    common.setMenuButtonState('shopButton',          'Disabled');
-    common.setMenuButtonState('dashboardButton',     'Disabled');
-    common.setMenuButtonState('createStoreButton',   'Disabled');
-    common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
-    common.replaceElemClassFromTo('shopPageDiv',       'visibleT', 'hidden', null);
-    common.replaceElemClassFromTo('createStorePageDiv','visibleT', 'hidden', null);
-    common.clearStatusDiv();
-    alert('You must first register with Turms Anonymous Message Transport before using Turms MAD Escrow');
-}
-
-
-//
-// handle registered account
-//
-function handleRegisteredAcct() {
+function prepareToShop() {
     console.log('handleRegisteredAcct');
     common.setMenuButtonState('shopButton',          'Selected');
     common.setMenuButtonState('dashboardButton',     'Enabled');
     common.setMenuButtonState('createStoreButton',   'Enabled');
     common.replaceElemClassFromTo('shopPageDiv',        'hidden',   'visibleT', null);
     common.replaceElemClassFromTo('createStorePageDiv', 'visibleT', 'hidden',   null);
-    // we need access to the message transport private key
-    if (!!dhcrypt.dh && mtUtil.publicKey == dhcrypt.publicKey()) {
-	console.log('handleRegisteredAcct: messageTransport key is already unlocked');
-    } else {
-	common.showWaitingForMetaMask(true);
-	const encryptedPrivateKey = mtUtil.acctInfo.encryptedPrivateKey;
-	dhcrypt.initDH(encryptedPrivateKey, function(err) {
-	    common.showWaitingForMetaMask(false);
-	    if (!!err)
-		alert(err);
-	    else
-		shop.handleShopPage();
-	});
-    }
     common.clearStatusDiv();
+    shop.handleShopPage();
 }
