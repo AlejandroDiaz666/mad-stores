@@ -273,6 +273,17 @@ function setMsgArea(composeMode, addrPrompt, otherAddr, msgId, ref, msgDesc, dat
     msgAddrArea.disabled = true;
     msgAddrArea.readonly = 'readonly';
     msgAddrArea.value = otherAddr;
+    if (ether.validateAddr(otherAddr)) {
+	ether.ensReverseLookup(otherAddr, function(err, name) {
+	    if (!err && !!name)
+		msgAddrArea.value = common.abbreviateAddrForEns(otherAddr, name, 5);
+	});
+    } else {
+	ether.ensLookup(otherAddr, function(err, addr) {
+	    if (!err && !!addr)
+		msgAddrArea.value = common.abbreviateAddrForEns(addr, otherAddr, 5);
+	});
+    }
     //
     if (!msgId && !ref) {
 	common.replaceElemClassFromTo('msgAreaIdAndRef', 'visibleTR', 'hidden',    true);

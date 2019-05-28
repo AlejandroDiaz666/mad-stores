@@ -334,7 +334,7 @@ function makeRow(rowDiv, escrowIdx, cb) {
 	    ether.ensReverseLookup(escrowInfo.customerAddr, function(err, name) {
 		let addrStr = escrowInfo.customerAddr;
 		if (!err && !!name)
-		    addrStr = common.abbreviateAddrForEns(escrowInfo.customerAddr, name, 8);
+		    addrStr = common.abbreviateAddrForEns(escrowInfo.customerAddr, name, 0);
 		addrArea.value = addrStr;
 	    });
         }
