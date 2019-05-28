@@ -17,6 +17,9 @@ var shop = module.exports = {
 
     minPrice: 0,
     maxPrice: 100000,
+    productsPerPage: 8,
+    productSearchFilter: null,
+    selectedProduct: null,
 
     handleShopPage: function() {
 	common.setMenuButtonState('shopButton',          'Selected');
@@ -119,9 +122,22 @@ var shop = module.exports = {
 	});
     },
 
-    productsPerPage: 8,
-    productSearchFilter: null,
-    selectedProduct: null,
+    //
+    // updateDaiAndWDai
+    // helper for handleUnlockedMetaMask
+    //
+    updateDaiAndWDai: function() {
+	meEther.getDaiBalance(common.web3.eth.accounts[0], function(err, daiBalanceBN) {
+	    const daiBalanceArea = document.getElementById('daiBalanceArea');
+	    daiBalanceArea.value = '  Dai Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
+	});
+	meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
+	    common.wdaiBalanceBN = wdaiBalanceBN;
+	    console.log('updateDaiAndWDai: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
+	    const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
+	    wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
+	});
+    },
 };
 
 

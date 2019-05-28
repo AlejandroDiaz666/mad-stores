@@ -172,7 +172,7 @@ function setWrapButtonHandlers() {
 		    unwrapButton.disabled = false;
 		    common.waitingForTxid = false;
 		    common.clearStatusDiv();
-		    updateDaiAndWDai();
+		    shop.updateDaiAndWDai();
 		};
 		meEther.wrapDaiApprove(daiAmountBN, function(err, approveTxid) {
 		    common.showWaitingForMetaMask(false, false);
@@ -237,7 +237,7 @@ function setUnwrapButtonHandlers() {
 		    unwrapButton.disabled = false;
 		    common.waitingForTxid = false;
 		    common.clearStatusDiv();
-		    updateDaiAndWDai();
+		    shop.updateDaiAndWDai();
 		};
 		meEther.unwrapDai(wdaiAmountBN, function(err, txid) {
 		    common.showWaitingForMetaMask(false, false);
@@ -457,7 +457,7 @@ function handleUnlockedMetaMask() {
 	const balanceETH = parseFloat(balance).toFixed(6);
 	balanceArea.value = '  Eth Balance: ' + balanceETH.toString(10) + ' Eth';
     });
-    updateDaiAndWDai();
+    shop.updateDaiAndWDai();
     ether.getNetwork(function(err, network) {
 	const networkArea = document.getElementById('networkArea');
 	if (!!err) {
@@ -501,24 +501,6 @@ function handleUnlockedMetaMask() {
 		});
 	    }
 	});
-    });
-}
-
-
-//
-// updateDaiAndWDai
-// helper for handleUnlockedMetaMask
-//
-function updateDaiAndWDai() {
-    meEther.getDaiBalance(common.web3.eth.accounts[0], function(err, daiBalanceBN) {
-	const daiBalanceArea = document.getElementById('daiBalanceArea');
-	daiBalanceArea.value = '  Dai Balance: ' + meEther.daiBNToUsdStr(daiBalanceBN, 6) + ' Dai';
-    });
-    meEther.getWDaiBalance(common.web3.eth.accounts[0], function(err, wdaiBalanceBN) {
-	common.wdaiBalanceBN = wdaiBalanceBN;
-	console.log('updateDaiAndWDai: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
-	const wdaiBalanceArea = document.getElementById('wdaiBalanceArea');
-	wdaiBalanceArea.value = 'W-Dai Balance: ' + meEther.daiBNToUsdStr(wdaiBalanceBN) + ' W-Dai';
     });
 }
 

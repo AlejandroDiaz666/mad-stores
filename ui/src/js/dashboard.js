@@ -632,6 +632,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just added extra funds to an escrow!\n' +
 		      'Be sure to check Turms Message Transport, periodically, to see if the seller has sent you any messages.');
+	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
@@ -663,6 +664,7 @@ function doCancel(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just canceled this purchase!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
@@ -697,6 +699,7 @@ function doDecline(escrowIdBN, escrowInfo) {
 	    else
 		alert('You have just declined selling a product!\n' +
 		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
@@ -745,6 +748,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 		alert('You have just released all funds from an escrow account!\n' +
 		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai is returned to you; and the full price of the product, plus the seller\'s bond is released ' +
 		      'to the seller.');
+	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
