@@ -4,7 +4,8 @@
 .popup-bg-intro1,
 .popup-bg-intro2,
 .popup-bg-intro3,
-.popup-bg-intro4 {
+.popup-bg-intro4,
+.popup-bg-intro5 {
     z-index: 200;
     position: absolute;
     background-color: rgb(250, 246, 246);
@@ -25,7 +26,8 @@
     background-image: url("../images/bg-intro-main.jpg");
 }
 .popup-bg-intro1,
-.popup-bg-intro3 {
+.popup-bg-intro3,
+.popup-bg-intro5 {
     background-image: url("../images/bg-intro-alt.jpg");
 }
 
@@ -100,7 +102,8 @@
 #intro1-title,
 #intro2-title,
 #intro3-title,
-#intro4-title {
+#intro4-title,
+#intro5-title {
     position: absolute;
     top: 10px;
     left: 50%;
@@ -278,4 +281,32 @@
     width: 32px;
     height: 32px;
     border: 1px solid black;
+}
+
+
+/* intro 5
+ */
+#intro5-para0 {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+#intro5-para1 {
+    position: absolute;
+    top: 475px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+#intro5Img0 {
+    position: absolute;
+    width: 692px;
+    height: 163px;
+    top: 320px;
+    left: 50%;
+    transform: translateX(-50%);
 }
