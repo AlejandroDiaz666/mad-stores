@@ -3,6 +3,7 @@
    ------------------------------------------------------------------------------------------------------------------ */
 const common = require('./common');
 const ether = require('./ether');
+const dhcrypt = require('./dhcrypt');
 const mtEther = require('./mtEther');
 const meEther = require('./meEther');
 const meUtil = require('./meUtil');
@@ -249,9 +250,14 @@ function handlePurchase(product) {
 	console.log('handlePurchase: wdaiBalanceBN = ' + wdaiBalanceBN.toString(10));
 	const escrowBN = product.priceBN.muln(3).divn(2);
 	if (wdaiBalanceBN.lt(escrowBN)) {
-	    alert('You don\'t have enough W-Dai to purchase this product.\n\n' +
-		  'The price is ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai, so you will need ' +
-		  meEther.daiBNToUsdStr(escrowBN) + ' W-Dai to put into escrow.');
+	    document.getElementById('noteDialogIntro').textContent =
+		'You don\'t have enough W-Dai to purchase this product.';
+	    document.getElementById('noteDialogNote').textContent =
+		'The price is ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai, so you will need ' +
+		meEther.daiBNToUsdStr(escrowBN) + ' W-Dai to put into escrow.';
+	    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+	    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+	    common.noteOkHandler = null;
 	} else {
 	    const placeholderText =
 		  '\n' +
@@ -274,14 +280,16 @@ function handlePurchase(product) {
 		   meUtil.hideProductDetail();
 		   if (!!err)
 			alert(err);
-		   else
-			alert('You have just ordered a product; please give the seller\n' +
-			      'some time to review and approve or reject your order.\n' +
-			      'You can track the progress of your order on the dashboard\n' +
-			      'page\n\n' +
-			      'Be sure to check Turms Message Transport, periodically,\n' +
-			      'to see if the seller has sent you any messages.');
-		    handleSearchProducts();
+		   else {
+		       document.getElementById('noteDialogIntro').textContent =
+			   'You have just ordered a product; please give the seller some time to review and approve ' +
+			   'or reject your order. You can track the progress of your order on the dashboard page.';
+		       document.getElementById('noteDialogNote').textContent =
+			   'Be sure to check periodically to see if the seller has sent you any messages.';
+		       common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		       common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		       common.noteOkHandler = handleSearchProducts;
+		   }
 		});
 	    });
 	}
