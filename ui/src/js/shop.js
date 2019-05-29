@@ -256,7 +256,7 @@ function handlePurchase(product) {
 	    const placeholderText =
 		  '\n' +
 		  'Type your message here...\n\n' +
-		  'You are about to move funds into an escrow account to purchase this prodct!\n\n' +
+		  'You are about to move funds into an escrow account to purchase this product!\n\n' +
 		  'Enter data pertinent to your purchase here.\n' +
 		  'For example, if a shipping address is required, then enter it here. Also if you have any special instructions for a custom order, ' +
 		  'enter them here.\n\n' +
