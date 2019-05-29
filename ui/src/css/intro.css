@@ -10,10 +10,11 @@
     background-color: rgb(250, 246, 246);
     width: 1175px;
     height: 677px;
+    max-height: 90%;
     left: 50%;
     top: 50%;
     transform-style: preserve-3d;
-    transform: translate3d(-587px, -338px, 0px);
+    transform: translate3d(-587px, -50%, 0px);
     perspective: 1400px;
     background-color: rgba(0, 0, 0, 0.5);
 }
