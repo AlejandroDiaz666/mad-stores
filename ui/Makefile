@@ -93,3 +93,4 @@ $(HTMBLDDIR)/index.html : $(HTMSRCDIR)/index.html \
 	cp $< $@
 	./set_timestamp.sh
 	cp $(HTMBLDDIR)/index.html $(HTMBLDDIR)/$(INDEXALIAS)
+	cp $(IMGSRCDIR)/favicon.ico $(HTMBLDDIR)/
