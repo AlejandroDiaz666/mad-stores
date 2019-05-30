@@ -5,7 +5,8 @@
 .popup-bg-intro2,
 .popup-bg-intro3,
 .popup-bg-intro4,
-.popup-bg-intro5 {
+.popup-bg-intro5,
+.popup-bg-intro6 {
     z-index: 200;
     position: absolute;
     background-color: rgb(250, 246, 246);
@@ -22,7 +23,8 @@
 
 .popup-bg-intro0,
 .popup-bg-intro2,
-.popup-bg-intro4 {
+.popup-bg-intro4,
+.popup-bg-intro6 {
     background-image: url("../images/bg-intro-main.jpg");
 }
 .popup-bg-intro1,
@@ -30,6 +32,7 @@
 .popup-bg-intro5 {
     background-image: url("../images/bg-intro-alt.jpg");
 }
+
 
 .intro-close {
     position: absolute;
@@ -92,7 +95,7 @@
 }
 .intro-text {
     font-family: Lato;
-    font-size: 23px;
+    font-size: 22px;
 }
 
 
@@ -103,11 +106,13 @@
 #intro2-title,
 #intro3-title,
 #intro4-title,
-#intro5-title {
+#intro5-title,
+#intro6-title {
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
+    width: fit-content;
 }
 #intro0-subtitle0 {
     position: absolute;
@@ -303,6 +308,38 @@
 }
 
 #intro5Img0 {
+    position: absolute;
+    width: 692px;
+    height: 163px;
+    top: 320px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* intro 6
+ */
+#intro6-para0 {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 75%;
+    background-color: rgb(250, 246, 246);
+    font-family: Lato;
+    font-size: 18px;
+    overflow-y: scroll;
+}
+
+#intro6-para1 {
+    position: absolute;
+    top: 475px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+#intro6Img0 {
     position: absolute;
     width: 692px;
     height: 163px;

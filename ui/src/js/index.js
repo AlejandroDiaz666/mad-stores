@@ -312,7 +312,7 @@ async function doFirstIntro(ignoreFirstIntroCompleteFlag) {
 	    });
 	    document.getElementById('intro4Prev').addEventListener('click', function() {
 		common.replaceElemClassFromTo('intro4Div', 'visibleB', 'hidden', null);
-		common.replaceElemClassFromTo('intro5Div', 'hidden', 'visibleB', null);
+		common.replaceElemClassFromTo('intro3Div', 'hidden', 'visibleB', null);
 	    });
 	    document.getElementById('intro4Next').addEventListener('click', function() {
 		common.replaceElemClassFromTo('intro4Div', 'visibleB', 'hidden', null);
@@ -324,6 +324,14 @@ async function doFirstIntro(ignoreFirstIntroCompleteFlag) {
 	    });
 	    document.getElementById('intro5Next').addEventListener('click', function() {
 		common.replaceElemClassFromTo('intro5Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro6Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro6Prev').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro6Div', 'visibleB', 'hidden', null);
+		common.replaceElemClassFromTo('intro5Div', 'hidden', 'visibleB', null);
+	    });
+	    document.getElementById('intro6Next').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro6Div', 'visibleB', 'hidden', null);
 		//if we wanted to stop displaying the intro once the user had clicked through
 		//to the end at least one time...
 		//localStorage['FirstIntroCompleteFlag'] = true;
@@ -351,6 +359,10 @@ async function doFirstIntro(ignoreFirstIntroCompleteFlag) {
 	    });
 	    document.getElementById('intro5Close').addEventListener('click', function() {
 		common.replaceElemClassFromTo('intro5Div', 'visibleB', 'hidden', null);
+		resolve(null);
+	    });
+	    document.getElementById('intro6Close').addEventListener('click', function() {
+		common.replaceElemClassFromTo('intro6Div', 'visibleB', 'hidden', null);
 		//if we wanted to stop displaying the intro once the user had clicked through
 		//to the end at least one time...
 		//localStorage['FirstIntroCompleteFlag'] = true;
