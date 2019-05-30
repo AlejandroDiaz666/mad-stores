@@ -509,6 +509,7 @@ function handleUnlockedMetaMask() {
 		document.getElementById('noteDialogNote').innerHTML =
 		    'To register this address please visit<br/>' +
 		    '<a href="https://ipfs.io/ipns/messagetransport.turmsanonymous.io/">Turms AMT</a>';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 		common.noteOkHandler = prepareToShop;

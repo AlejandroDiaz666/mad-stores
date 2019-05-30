@@ -259,11 +259,26 @@ h3 { font-size:18px; }
     /* just below statusDiv and loading icon */
     z-index: 97;
 }
+#noteDialogTitle {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    width: min-content;
+    font-size: 18px;
+    font-weight: bold;
+    transform: translate(-50%, 0px);
+    margin-bottom: 2em;
+}
 .noteDialogSmall {
     height: 180px;
 }
 .noteDialogLarge {
     height: 260px;
+}
+#noteDialogIntro {
+}
+#noteDialogIntro p {
+    font-size: 16px;
 }
 #noteDialogNote p {
     position: absolute;
@@ -271,6 +286,7 @@ h3 { font-size:18px; }
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    font-size: 16px;
 }
 #noteDialogNote {
     margin-top: 1em;

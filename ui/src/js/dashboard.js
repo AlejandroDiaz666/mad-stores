@@ -518,8 +518,14 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    meUtil.escrowFcnWithMsg(meEther.recordReponse, 'Record-Response', escrowIdBN, message.otherAddr, attachmentIdxBN, msgBN, sendMsgText, function(err) {
 		if (!!err)
 		    alert(err);
-		else
-		    alert(dashboard.replyAlerts[step]);
+		else {
+		    document.getElementById('noteDialogIntro').textContent = dashboard.replyAlerts[step];
+		    document.getElementById('noteDialogNote').textContent = escrowStateLine(escrowInfo);
+		    common.replaceElemClassFromTo('noteDialogTitle', 'hidden', 'visibleB', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		    common.noteOkHandler = null;
+		}
 		remakeRow(escrowIdx);
 		dashboard.handleDashboardPage();
 	    });
@@ -577,13 +583,19 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 	meUtil.escrowFcnWithParmMsg(meEther.purchaseApprove, 'Purchase-Approve', escrowIdBN, secsBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		  alert(err);
-	    else
-		alert('You have just approved an escrow for a product and committed to a delivery-date!\n\n' +
-		      'It\'s very important that you deliver the product to the customer within the agreed-upon / expected timeframe.\n\n' +
-		      'Since the escrow is \"locked,\" the buyer can no longer cancel the purchase -- but if you do not deliver the product ' +
-		      'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
-		      'please make every effort to meet the buyer\'s expectations...\n\n' +
-		      'Also be sure to check Turms Message Transport, periodically, to see if the buyer has sent you any messages.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just approved an escrow for a product and committed to a delivery-date! It\'s very important that you ' +
+		    'deliver the product to the customer within the agreed-upon / expected timeframe.';
+		document.getElementById('noteDialogNote').textContent =
+		    'Since the escrow is \"locked,\" the buyer can no longer cancel the purchase -- but if you do not deliver the product ' +
+		    'in a timely manner he could \'burn\' the escrow, which would cause both of you to lose all of the deposited funds. So ' +
+		    'please make every effort to meet the buyer\'s expectations.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogSmall', 'noteDialogLarge', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
@@ -629,9 +641,19 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	meUtil.purchaseProduct(escrowIdBN, addAmountBN, new BN(0), escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		  alert(err);
-	    else
-		alert('You have just added extra funds to an escrow!\n' +
-		      'Be sure to check Turms Message Transport, periodically, to see if the seller has sent you any messages.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just added extra funds to an escrow. This represents a negotiated increase in the product\'s price. The extra ' +
+		    'funds that you deposited are equal to 150% of the increase in price. Automatically, the seller\'s bond has also been ' +
+		    'increased proportionally (by 50% of the increase in price).';
+		document.getElementById('noteDialogNote').textContent =
+		    'Since the escrow has not yet been "approved" by the seller, it is not \"locked,\". So you can still cancel, or the seller ' +
+		    'could still decline the escrow.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogSmall', 'noteDialogLarge', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
@@ -661,9 +683,16 @@ function doCancel(escrowIdBN, escrowInfo) {
 	meUtil.escrowFcnWithMsg(meEther.purchaseCancel, 'Purchase-Cancel', escrowIdBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
-	    else
-		alert('You have just canceled this purchase!\n' +
-		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just canceled this escrow';
+		document.getElementById('noteDialogNote').textContent =
+		    'All funds that were held in the escrow have been returned to the respective parties.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
@@ -696,9 +725,16 @@ function doDecline(escrowIdBN, escrowInfo) {
 	meUtil.escrowFcnWithMsg(meEther.purchaseCancel, 'Purchase-Decline', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
-	    else
-		alert('You have just declined selling a product!\n' +
-		      'All funds that were held in escrow for the sale of this product have been returned to the respective parties.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just declined this escrow';
+		document.getElementById('noteDialogNote').textContent =
+		    'All funds that were held in the escrow have been returned to the respective parties.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
@@ -744,10 +780,17 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	meUtil.escrowFcnWithParmMsg(meEther.deliveryApprove, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
-	    else
-		alert('You have just released all funds from an escrow account!\n' +
-		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai is returned to you; and the full price of the product, plus the seller\'s bond is released ' +
-		      'to the seller.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just released this escrow';
+		document.getElementById('noteDialogNote').textContent =
+		    'Your bond of ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai has been returned to you. The full price of the product, plus the ' +
+		    'seller\'s bond has been released to the seller.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    shop.updateDaiAndWDai();
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
@@ -794,9 +837,16 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	meUtil.escrowFcnWithParmMsg(meEther.deliveryReject, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
-	    else
-		alert('You have just burned all funds from an escrow account!\n' +
-		      meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited is lost; the seller\'s bond is also burned.');
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just burned this escrow';
+		document.getElementById('noteDialogNote').textContent =
+		    'All the funds you deposited, ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai, is lost. The seller\'s bond is also burned.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
 	    remakeRow(escrowIdx);
 	    dashboard.handleDashboardPage();
 	});
@@ -813,4 +863,28 @@ function hideAllModals() {
     common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
     dashboard.inDialog = false;
 
+}
+
+//
+// create a line such as:
+// 'Funds have been deposited into the escrow, but the escrow hasn't been approved yet'
+// suitable for disaply as a note in the noteDialog
+//
+function escrowStateLine(escrowInfo) {
+    if (!escrowInfo.burnXactIdBN.isZero())
+	return('This escrow has been "burned". All the funds that were deposited, including the purchase price and the buyer\'s and seller\'s bonds have been forfeit.');
+    else if (!escrowInfo.releaseXactIdBN.isZero())
+	return('This escrow has been "released". The seller has been credited with the purchase price, and the buyer\'s and seller\'s bonds have been returned.');
+    else if (!escrowInfo.approveXactIdBN.isZero())
+	return('This escrow has been "approved". The seller will deliver the product. Then it\'s up to the buyer to "release" the escrow (or "burn" it in case of fraud).');
+    else if (!escrowInfo.declineXactIdBN.isZero())
+	return('This escrow has been "declined" by the seller. All the funds that were deposited have been returned to their respective parties.');
+    else if (!escrowInfo.cancelXactIdBN.isZero())
+	return('This escrow has been "canceled" by the buyer. All the funds that were deposited have been returned to their respective parties.');
+    else if (!escrowInfo.modifyXactIdBN.isZero())
+	return('Additional funds have been deposited into this escrow, but it has yet not been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
+    else if (!escrowInfo.createXactIdBN.isZero())
+	return('Funds have been deposited into this escrow, but it has yet not been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
+    else
+	return('The initial deposit transaction for this escrow is missing!');
 }

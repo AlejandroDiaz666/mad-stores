@@ -113,6 +113,7 @@ var shop = module.exports = {
 		document.getElementById('noteDialogNote').innerHTML =
 		    'To register this address please visit<br/>' +
 		    '<a href="https://ipfs.io/ipns/messagetransport.turmsanonymous.io/">Turms AMT</a>';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 		common.noteOkHandler = null;
@@ -255,6 +256,7 @@ function handlePurchase(product) {
 	    document.getElementById('noteDialogNote').textContent =
 		'The price is ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai, so you will need ' +
 		meEther.daiBNToUsdStr(escrowBN) + ' W-Dai to put into escrow.';
+	    common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 	    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 	    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 	    common.noteOkHandler = null;
@@ -286,6 +288,7 @@ function handlePurchase(product) {
 			   'or reject your order. You can track the progress of your order on the dashboard page.';
 		       document.getElementById('noteDialogNote').textContent =
 			   'Be sure to check periodically to see if the seller has sent you any messages.';
+		       common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 		       common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 		       common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 		       common.noteOkHandler = handleSearchProducts;
