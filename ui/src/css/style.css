@@ -1419,7 +1419,7 @@ h3 { font-size:18px; }
     margin-top: 2px;
 }
 .escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan, .escrowListStepDeclineSpan,
-.escrowListStepApproveSpan, .escrowListStepReleaseSpan, .escrowListStepBurnSpan {
+.escrowListStepApproveSpan, .escrowListStepReleaseSpan, .escrowListStepBurnSpan, .escrowListStepClaimSpan {
     float: left;
     background-size: 40px 40px;
     background-repeat: no-repeat;
@@ -1452,6 +1452,9 @@ h3 { font-size:18px; }
 }
 .escrowListStepBurnSpan  {
     background-image: url('../images/burn.jpg');
+}
+.escrowListStepClaimSpan  {
+    background-image: url('../images/wait-for-delivery.jpg');
 }
 .escrowListStepDepositSpan:hover, .escrowListStepModifySpan:hover, .escrowListStepCancelSpan:hover, .escrowListStepDeclineSpan:hover,
 .escrowListStepApproveSpan:hover, .escrowListStepReleaseSpan:hover, .escrowListStepBurnSpan:hover {

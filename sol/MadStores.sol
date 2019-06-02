@@ -25,9 +25,10 @@ contract MadEscrow is iERC20Token {
   function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public;
   function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
   function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public;
-  function approveEscrow(uint256 _escrowID, uint256 _deliveryTime, uint256 _XactId) public;
+  function approveEscrow(uint256 _escrowID, uint256 _deliveryTime, uint256 _XactId) public returns (uint _responseTime);
   function releaseEscrow(uint256 _escrowID, uint256 _XactId) public;
-  function burnEscrow(uint256 _escrowID, uint256 _XactId) public payable;
+  function burnEscrow(uint256 _escrowID, uint256 _XactId) public;
+  function claimAbandonedEscrow(uint256 _escrowId, uint256 _XactId) public;
 }
 
 
@@ -47,6 +48,7 @@ contract MadStores is SafeMath {
   event PurchaseDeclineEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryApproveEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
   event DeliveryRejectEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
+  event ClaimAbandonedEvent(address indexed _vendorAddr, address indexed customerAddr, uint256 _escrowID, uint256 _productID, uint256 _msgId);
 
 
   // -----------------------------------------------------------------------------------------------------
@@ -71,6 +73,7 @@ contract MadStores is SafeMath {
     uint256 deliveriesRejected;
     uint256 region;
     uint256 ratingSum;
+    uint256 responseTimeSum;
     uint256 lastActivity;
     bool activeFlag;
     bool isValid;
@@ -472,7 +475,8 @@ contract MadStores is SafeMath {
     uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _customerAddr) : 0;
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
-    madEscrow.approveEscrow(_escrowID, _deliveryTime, _msgId);
+    uint256 _responseTime = madEscrow.approveEscrow(_escrowID, _deliveryTime, _msgId);
+    vendorAccounts[msg.sender].responseTimeSum = safeAdd(vendorAccounts[msg.sender].responseTimeSum, _responseTime);
     emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _deliveryTime, _msgId);
   }
 
@@ -517,6 +521,25 @@ contract MadStores is SafeMath {
       _rating = 10;
     vendorAccounts[_vendorAddr].ratingSum = safeAdd(vendorAccounts[_vendorAddr].ratingSum, _rating);
     emit DeliveryRejectEvent(_vendorAddr, msg.sender, _escrowID, _productID, _msgId);
+  }
+
+
+  // -----------------------------------------------------------------------------------------------------
+  // claim an esrcow that has been abandoned by the buyer
+  // called by vendor
+  // if customer neither burns nor releases the escrow, then after a certain amount of time the vendor
+  // can claim all the funds.
+  // -----------------------------------------------------------------------------------------------------
+  function claimAbandonedEscrow(uint256 _escrowID, uint256 _attachmentIdx, uint256 _ref, bytes memory _message) public payable {
+    (uint256 _productID, address _customerAddr) = madEscrow.verifyEscrowVendor(_escrowID, msg.sender);
+    //ensure message fees
+    uint256 _noDataLength = 4 + 32 + 32 + 32 + 64;
+    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _customerAddr) : 0;
+    require(msg.value == _msgFee, "incorrect funds for message fee");
+    uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
+    madEscrow.claimAbandonedEscrow(_escrowID, _msgId);
+    vendorAccounts[msg.sender].lastActivity = now;
+    emit ClaimAbandonedEvent(msg.sender, _customerAddr, _escrowID, _productID, _msgId);
   }
 
 

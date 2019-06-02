@@ -37,7 +37,8 @@ var dashboard = module.exports = {
 			'this purchase was declined; escrow is closed',
 			'this purchase was approved; escrow is locked',
 			'this escrow is completed',
-			'this escrow was burned' ],
+			'this escrow was burned',
+			'this escrow was abandoned by the buyer and claimed by the seller' ],
     //tooltips per to-do step
     toDoStepTips:     [ null,
 			'add additional funds into escrow for this purchase',
@@ -45,9 +46,10 @@ var dashboard = module.exports = {
 			'decline this purchase; funds will be released from escrow',
 			'approve this purchase; will lock funds into escrow',
 			'confirm satisfactory delivery of product; all escrow funds will be released',
-			'burn this escrow; ALL FUNDS WILL BE LOST!' ],
+			'burn this escrow; ALL FUNDS WILL BE LOST!',
+			'claim all funds from this abandoned escrow' ],
     //name of message passed to mtDisplay.setupDisplayMsgArea
-    msgNames: [ 'deposit/purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn' ],
+    msgNames: [ 'deposit/purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn', 'claim' ],
     //description of original transaction message passed to mtDisplay.setupDisplayMsgArea
     firstMsgDescs: [ 'this is the initial escrow deposit and product-purchase for this order',
 		     'this is the transaction that modifed the escrow deposit for this order',
@@ -55,7 +57,8 @@ var dashboard = module.exports = {
 		     'the vendor declined this purchase',
 		     'the vendor approved this escrow, and committed to deliver this product by DATE',
 		     'delivery of this item was confirmed; all escrow funds have been released',
-		     'item not delivered, or delivery was rejected; all escrow funds have been burned' ],
+		     'item not delivered, or delivery was rejected; all escrow funds have been burned',
+		     'buyer abandoned this escrow, and vendor claimed all funds'],
     //description of follow-up transaction message passed to mtDisplay.setupDisplayMsgArea
     followMsgDescs: [ 'this is a follow-up message to product-purchase transaction for this order',
 		      'this is a follow-up message to the escrow modification transaction for this order',
@@ -63,14 +66,16 @@ var dashboard = module.exports = {
 		      'this is a follow-up message to the decline transaction for this order',
 		      'this is a follow-up message to the approve transaction for this order',
 		      'this is a follow-up message to the delivery confirmation transaction for this order',
-		      'this is a follow-up message to the burn transaction for this order' ],
+		      'this is a follow-up message to the burn transaction for this order',
+		      'this is a follow-up message to the claim-abandoned transaction for this escrow' ],
     replyAlerts:  [ 'You have attached a new message to the purchase transaction!\n',
 		    'You have attached a new message to the modify transaction!\n',
 		    'This escrow is already closed and you have attached a new message to the cancel transaction!\n',
 		    'This escrow is already closed and you have attached a new message to the decline transaction!\n',
 		    'You have attached a new message to the approve transaction!\n',
 		    'This escrow is already successfully completed and you have attached a new message to the release transaction!\n',
-		    'This escrow is already burned and you have attached a new message to the burn transaction!\n' ],
+		    'This escrow is already burned and you have attached a new message to the burn transaction!\n',
+		    'This escrow was abandoned and claimed and you have attached a new message to the claim transaction!\n' ],
 
 
     handleDashboardPage: function() {
@@ -243,7 +248,7 @@ function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan, cb)
 	} else if (escrowInfo.isClosed) {
 	    nextStepsSpan.textContent = 'Escrow Is Closed';
 	} else if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && !escrowInfo.approveXactIdBN.isZero()) {
-	    nextStepsSpan.textContent = 'Delivery is Pending';
+	    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_CLAIM, !dashboard.STEP_COMPLETE, nextStepsSpan, doClaimDialog);
 	} else {
 	    if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && escrowInfo.approveXactIdBN.isZero()) {
 		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_APPROVE, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
@@ -852,6 +857,43 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	});
     });
 }
+
+function doClaimDialog(escrowIdBN, escrowInfo) {
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
+    //
+    const nowSec = Date.now() * 1000;
+    const deliveryDate = parseInt(escrowInfo.deliveryDate);
+    const deliveryDateSec = deliveryDate * 1000;
+    const abandonedDateSec = deliveryDateSec + (30 * 24 * 60 * 60);
+    const deliveryDateStr = (new Date(deliveryDateSec)).toUTCString();
+    const abandonedDateStr = (new Date(deliveryDateSec)).toUTCString();
+    if (nowSec < abandonedDateSec) {
+	document.getElementById('noteDialogIntro').textContent =
+	    'You commited to deliver this product before ' + deliveryDateStr + '. The buyer has until ' + abandonedDateStr + ' to decide either to ' +
+	    'release the funds, or to burn the escrow';
+	document.getElementById('noteDialogNote').textContent =
+	    'If by ' + abandonedDateStr + ' the buyer neither releases the escrow funds, nor burns the escrow, then the escrow will be considered abandoned, ' +
+	    'and you can claim all the escrow funds';
+	common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+	common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+	common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+	common.noteOkHandler = null;
+    }
+    //
+    /*
+    common.replaceElemClassFromTo('burnDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('burnDialogDiv', 'hidden', 'visibleB', null);
+    const burnDialogDoButton = document.getElementById('burnDialogDoButton');
+    const burnDialogCancelButton = document.getElementById('burnDialogCancelButton');
+    const burnDialogSelect = document.getElementById('burnDialogSelect');
+    burnDialogDoButton.disabled = false;
+    burnDialogCancelButton.disabled = false;
+    */
+}
+
+
 
 
 function hideAllModals() {
