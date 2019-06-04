@@ -292,7 +292,7 @@ const mtUtil = module.exports = {
 		mtEther.getPeerMessageCount(toAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		    console.log('encryptMsg: ' + msgCount.toString(10) + ' messages have been sent from ' + toAddr + ' to me');
 		    //TODO: must correct fee in MadStores contract
-		    const msgFee = /*(encrypted.length == 0) ? 0 :*/ (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		    const msgFee = (encrypted.length == 0) ? 0 : (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
 		    mtUtil.reCacheAccount = true;
 		    cb(null, msgFee, encrypted, sentMsgCtrBN);
 		});
