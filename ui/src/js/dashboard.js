@@ -29,7 +29,8 @@ var dashboard = module.exports = {
     //
     stepNames:        [ 'purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn' ],
     stepTileClasses:  [ 'escrowListStepDepositSpan', 'escrowListStepModifySpan', 'escrowListStepCancelSpan',
-		        'escrowListStepDeclineSpan', 'escrowListStepApproveSpan', 'escrowListStepReleaseSpan', 'escrowListStepBurnSpan' ],
+		        'escrowListStepDeclineSpan', 'escrowListStepApproveSpan', 'escrowListStepReleaseSpan',
+			'escrowListStepBurnSpan', 'escrowListStepClaimSpan' ],
     //tooltips per completed step
     completeStepTips: [ 'funds for this purchase have been deposited into escrow',
 			'additional funds for this purchase have been deposited into escrow',
@@ -39,6 +40,15 @@ var dashboard = module.exports = {
 			'this escrow is completed',
 			'this escrow was burned',
 			'this escrow was abandoned by the buyer and claimed by the seller' ],
+    //description of xact when no message was sent
+    noMsgDefaultDesc: [ 'funds for this purchase have been deposited into escrow.',
+			'additional funds for this purchase have been deposited into escrow.',
+			'this purchase was canceled by the buyer. Escrow is closed.',
+			'this purchase was declined by the seller. Escrow is closed.',
+			'this purchase was approved by the seller. Escrow is locked.',
+			'delivery was confirmed by the buyer. Escrow is completed.',
+			'this escrow was burned by the buyer. All funds are lost!',
+			'this escrow was abandoned by the buyer and claimed by the seller.' ],
     //tooltips per to-do step
     toDoStepTips:     [ null,
 			'add additional funds into escrow for this purchase',
@@ -58,7 +68,7 @@ var dashboard = module.exports = {
 		     'the vendor approved this escrow, and committed to deliver this product by DATE',
 		     'delivery of this item was confirmed; all escrow funds have been released',
 		     'item not delivered, or delivery was rejected; all escrow funds have been burned',
-		     'buyer abandoned this escrow, and vendor claimed all funds'],
+		     'buyer abandoned this escrow, and vendor claimed all funds' ],
     //description of follow-up transaction message passed to mtDisplay.setupDisplayMsgArea
     followMsgDescs: [ 'this is a follow-up message to product-purchase transaction for this order',
 		      'this is a follow-up message to the escrow modification transaction for this order',
@@ -228,8 +238,9 @@ function addStep(escrowIdBN, escrowInfo, escrowIdx, step, complete, addTo, handl
 //
 function addCompletedStepsToRow(escrowIdBN, escrowInfo, escrowIdx, completedSpan) {
     for (let step = 0; step < meEther.xactKeys.length; ++step) {
+	const mask = (1 << step)
 	// some message was sent for this step
-	if (!(escrowInfo[meEther.xactKeys[step]]).isZero())
+	if ((escrowInfo.state & mask) != 0)
 	    addStep(escrowIdBN, escrowInfo, escrowIdx, step, dashboard.STEP_COMPLETE, completedSpan, showCompletedStep);
     }
 }
@@ -247,15 +258,15 @@ function addNextStepsToRow(escrowIdBN, escrowInfo, escrowIdx, nextStepsSpan, cb)
 	    nextStepsSpan.className += ' attention';
 	} else if (escrowInfo.isClosed) {
 	    nextStepsSpan.textContent = 'Escrow Is Closed';
-	} else if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && !escrowInfo.approveXactIdBN.isZero()) {
+	} else if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && (escrowInfo.state & (1 << meEther.STEP_APPROVE)) != 0) {
 	    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_CLAIM, !dashboard.STEP_COMPLETE, nextStepsSpan, doClaimDialog);
 	} else {
-	    if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && escrowInfo.approveXactIdBN.isZero()) {
+	    if (escrowInfo.vendorAddr == common.web3.eth.accounts[0] && (escrowInfo.state & (1 << meEther.STEP_APPROVE)) == 0) {
 		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_APPROVE, !dashboard.STEP_COMPLETE, nextStepsSpan, doApproveDialog);
 		addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_DECLINE, !dashboard.STEP_COMPLETE, nextStepsSpan, doDecline);
 	    }
 	    if (escrowInfo.customerAddr == common.web3.eth.accounts[0]) {
-		if (escrowInfo.approveXactIdBN.isZero()) {
+		if ((escrowInfo.state & (1 << meEther.STEP_APPROVE)) == 0) {
 		    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_MODIFY, !dashboard.STEP_COMPLETE, nextStepsSpan, doModifyDialog);
 		    addStep(escrowIdBN, escrowInfo, escrowIdx, meEther.STEP_CANCEL, !dashboard.STEP_COMPLETE, nextStepsSpan, doCancel);
 		} else if (!escrowInfo.isClosed) {
@@ -490,6 +501,16 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
     const msgBN = escrowInfo[meEther.xactKeys[step]];
     const msgId = common.BNToHex256(msgBN);
     console.log('showCompletedStep: meEther.xactKeys[step] = ' + msgId);
+    if (msgBN.isZero()) {
+	document.getElementById('noteDialogTitle').textContent = 'No Message';
+	document.getElementById('noteDialogIntro').textContent = 'No message was sent with this transaction, however ' + dashboard.noMsgDefaultDesc[step];
+	document.getElementById('noteDialogNote').textContent = 'Note: sometimes people don\'t send messages because your message fee is set too high.';
+	common.replaceElemClassFromTo('noteDialogTitle', 'hidden', 'visibleB', true);
+	common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+	common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+	common.noteOkHandler = null;
+	return;
+    }
     common.setLoadingIcon('start');
     mtUtil.getParseDecryptMsg(msgId, function(err, message) {
 	common.setLoadingIcon(null);

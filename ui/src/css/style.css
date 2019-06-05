@@ -260,14 +260,15 @@ h3 { font-size:18px; }
     z-index: 97;
 }
 #noteDialogTitle {
-    position: absolute;
+    position: relative;
     top: 0px;
     left: 50%;
-    width: min-content;
+    width: max-content;
     font-size: 18px;
     font-weight: bold;
     transform: translate(-50%, 0px);
-    margin-bottom: 2em;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 .noteDialogSmall {
     height: 180px;
@@ -276,19 +277,11 @@ h3 { font-size:18px; }
     height: 260px;
 }
 #noteDialogIntro {
-}
-#noteDialogIntro p {
-    font-size: 16px;
-}
-#noteDialogNote p {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
     font-size: 16px;
 }
 #noteDialogNote {
+    text-align: center;
+    font-size: 16px;
     margin-top: 1em;
 }
 #noteDialogOkButton {
@@ -388,7 +381,7 @@ h3 { font-size:18px; }
     position: relative;
     left: 50%;
     transform: translateX(-50%);
-    width: min-content;
+    width: max-content;
     white-space: nowrap;
     margin-top: 10px;
 }
@@ -403,7 +396,7 @@ h3 { font-size:18px; }
     position: relative;
     left: 50%;
     transform: translateX(-50%);
-    width: min-content;
+    width: max-content;
     margin-top: 20px;
 }
 
