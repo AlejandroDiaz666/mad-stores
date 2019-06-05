@@ -16,9 +16,10 @@ const mtDisplay = module.exports = {
     closeCb: null,
     //refCb(refId)
     refCb: null,
+    //fee iff message is not empty
+    composeFee: 0,
     COMPOSE_MODE: true,
     DISPLAY_MODE: false,
-
     //
     // needs to be called once, on document load
     //
@@ -27,6 +28,7 @@ const mtDisplay = module.exports = {
 	setRefHandler();
 	setAttachButtonHandler();
 	setSendButtonHandler();
+	setTextAreaHandler();
     },
 
 
@@ -57,8 +59,8 @@ const mtDisplay = module.exports = {
 	    //fees: see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
-		const fee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		document.getElementById('msgFeeArea').value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(fee));
+		mtDisplay.composeFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
+		document.getElementById('msgFeeArea').value = 'Fee: 0 Wei';
 		document.getElementById('sendButton').disabled = false;
 		mtDisplay.sendCb = sendCb;
 	    });
@@ -187,6 +189,8 @@ function setAttachButtonHandler() {
 	common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
 	common.replaceElemClassFromTo('attachmentButton', 'hidden', 'visibleIB', false);
 	deleteImg.style.display = 'none';
+	if (msgTextArea.value == '')
+	    document.getElementById('msgFeeArea').value = 'Fee: 0 Wei';
     });
     attachmentButton.addEventListener('click', function() {
 	attachmentInput.value = attachmentInput.files = null;
@@ -209,6 +213,8 @@ function setAttachButtonHandler() {
 		attachmentSaveA.style.display = 'inline-block';
 		deleteImg.style.display = 'inline-block';
 		common.replaceElemClassFromTo('attachmentInput', 'visibleIB', 'hidden', true);
+		//message has content...
+		document.getElementById('msgFeeArea').value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(mtDisplay.composeFee));
 	    };
 	    reader.readAsDataURL(attachmentInput.files[0]);
         } else {
@@ -258,6 +264,21 @@ function setSendButtonHandler() {
 		mtDisplay.sendCb(null, attachmentIdxBN, message);
 	    }
 	}
+    });
+}
+
+//
+// handle any changes in the message text area:
+// if the message is empty then the fee is zero.
+//
+function setTextAreaHandler() {
+    const msgTextArea = document.getElementById('msgTextArea');
+    msgTextArea.addEventListener('input', function() {
+	console.log('setTextAreaHandler: msgTextArea.value = ' + msgTextArea.value);
+	if (msgTextArea.value == '' && (!attachmentSaveA.href || !attachmentSaveA.download))
+	    document.getElementById('msgFeeArea').value = 'Fee: 0 Wei';
+	else
+	    document.getElementById('msgFeeArea').value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(mtDisplay.composeFee));
     });
 }
 
