@@ -27,7 +27,7 @@ var dashboard = module.exports = {
     localStoragePrefix: '',
     hiMsgIdPrefix: '',
     //
-    stepNames:        [ 'purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn' ],
+    stepNames:        [ 'purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn', 'claim' ],
     stepTileClasses:  [ 'escrowListStepDepositSpan', 'escrowListStepModifySpan', 'escrowListStepCancelSpan',
 		        'escrowListStepDeclineSpan', 'escrowListStepApproveSpan', 'escrowListStepReleaseSpan',
 			'escrowListStepBurnSpan', 'escrowListStepClaimSpan' ],
