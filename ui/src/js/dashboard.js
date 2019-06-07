@@ -892,11 +892,11 @@ function doClaimDialog(escrowIdBN, escrowInfo) {
     console.log('doClaimDialog: nowSec = ' + nowSec + ', deliveryDateSec = ' + deliveryDateSec + ', abandonedDateSec = ' +  abandonedDateSec);
     if (nowSec < abandonedDateSec) {
 	document.getElementById('noteDialogIntro').textContent =
-	    'You commited to deliver this product before ' + deliveryDateStr + '. The buyer has until ' + abandonedDateStr + ' to decide either to ' +
-	    'release the funds, or to burn the escrow';
+	    'You commited to deliver this product before ' + deliveryDateStr +
+	    '. The buyer has an additional 30 days to either release the funds, or to burn the escrow.';
 	document.getElementById('noteDialogNote').textContent =
-	    'If by ' + abandonedDateStr + ' the buyer neither releases the escrow funds, nor burns the escrow, then the escrow will be considered abandoned, ' +
-	    'and you can claim all the escrow funds';
+	    'If by ' + abandonedDateStr + ' the buyer neither releases nor burns the escrow, then the escrow will be considered abandoned, ' +
+	    'and you will be able to claim all the escrow funds.';
 	common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 	common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 	common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
