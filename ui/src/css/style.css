@@ -1073,11 +1073,11 @@ h3 { font-size:18px; }
 }
 .extend #selectedProductFrameDiv {
     top: 10px;
-    min-height: 360px;
+    min-height: 390px;
 }
 .limit #selectedProductFrameDiv {
     top: 50px;
-    min-height: 400px;
+    min-height: 430px;
 }
 .shop #selectedProductFrameDiv {
     background-color: var(--clr_toparea);
@@ -1252,12 +1252,13 @@ h3 { font-size:18px; }
 }
 #selectedProductSellerRegion {
 }
+#selectedProductSellerBurns,
+#selectedProductSellerResponse,
 #selectedProductSellerRating {
     position: absolute;
     left: 50%;
     top: 100%;
-    width: 240px;
-    transform: translate3d(-50%, -35px, 0px);
+    width: 290px;
     text-align: center;
     font-size: 16px;
     font-weight: normal;
@@ -1266,19 +1267,14 @@ h3 { font-size:18px; }
     border-color: black;
     border-radius: 9px;
 }
+#selectedProductSellerResponse {
+    transform: translate3d(-50%, -95px, 0px);
+}
 #selectedProductSellerBurns {
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    width: 240px;
     transform: translate3d(-50%, -65px, 0px);
-    text-align: center;
-    font-size: 16px;
-    font-weight: normal;
-    border-style: solid;
-    border-width: 1px;
-    border-color: black;
-    border-radius: 9px;
+}
+#selectedProductSellerRating {
+    transform: translate3d(-50%, -35px, 0px);
 }
 
 #shopNextPrevDiv,

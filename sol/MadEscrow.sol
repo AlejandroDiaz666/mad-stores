@@ -74,7 +74,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     uint256 productId;                  // productId is an opaque cookie
     uint256 vendorBalance;              // amount that vendor has put into escrow
     uint256 customerBalance;            // amount that customer has put into escrow
-    uint256 openDate;
+    uint256 promptDate;
     uint256 deliveryDate;
   }
   struct EscrowXact {
@@ -221,7 +221,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   // -------------------------------------------------------------------------------------------------------
   function wrapDai(uint256 _daiAmount) public {
     require(daiTokenContract.transferFrom(msg.sender, address(this), _daiAmount), "failed to transfer dai");
-    balances[msg.sender] = safeAdd(balances[msg.sender],_daiAmount);
+    balances[msg.sender] = safeAdd(balances[msg.sender], _daiAmount);
     totalSupply = safeAdd(totalSupply, _daiAmount);
   }
   // -------------------------------------------------------------------------
@@ -266,7 +266,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     balances[_customerAddr] = safeSub(balances[_customerAddr], _minCustomerBond);
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);
-    _escrow.openDate = now;
+    _escrow.promptDate = now;
     //default is zero
     //_escrowXact.approveXact = 0;
   }
@@ -320,7 +320,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   // record response
   // just update the latest transaction id for the specified escrow
   // -------------------------------------------------------------------------------------------------------
-  function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public trustedOnly {
+  function recordReponse(uint256 _escrowId, address _initiatorAddr, uint256 _XactId, uint256 _ref) public trustedOnly returns (uint _responseTime) {
     require(_XactId != 0, "invalid transaction id");
     require(_ref != 0, "invalid ref");
     EscrowXact storage _escrowXact = escrowXacts[_escrowId];
@@ -341,6 +341,15 @@ contract MadEscrow is iERC20Token, SafeMath {
     else {
       require(_escrowXact.createXactId == _ref, "unknown ref");
       _escrowXact.createXactId = _XactId;
+    }
+    Escrow storage _escrow = escrows[_escrowId];
+    if ((_escrow.state & STEP_APPROVE) == 0) {
+      if (_initiatorAddr == _escrow.customerAddr)
+	  _escrow.promptDate = now;
+      else if (_escrow.promptDate != 0) {
+	_responseTime = safeSub(now, _escrow.promptDate);
+	_escrow.promptDate = 0;
+      }
     }
   }
 
@@ -367,6 +376,7 @@ contract MadEscrow is iERC20Token, SafeMath {
     balances[_customerAddr] = safeSub(balances[_customerAddr], _minCustomerBond);
     _escrow.vendorBalance = safeAdd(_escrow.vendorBalance, _minVendorBond);
     _escrow.customerBalance = safeAdd(_escrow.customerBalance, _minCustomerBond);
+    _escrow.promptDate = now;
   }
 
 
@@ -374,7 +384,7 @@ contract MadEscrow is iERC20Token, SafeMath {
   // cancel an escrow
   // called by customer or vendor, but only before purchase has been approved by vendor
   // -------------------------------------------------------------------------------------------------------
-  function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public trustedOnly {
+  function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public trustedOnly returns (uint _responseTime) {
     Escrow storage _escrow = escrows[_escrowId];
     EscrowXact storage _escrowXact = escrowXacts[_escrowId];
     require(_escrow.closed   == false, "escrow is closed");
@@ -385,6 +395,8 @@ contract MadEscrow is iERC20Token, SafeMath {
     if (_initiatorAddr == _vendorAddr) {
       _escrow.state |= (uint8)(STEP_DECLINE);
       _escrowXact.declineXactId = _XactId;
+      if (_escrow.promptDate != 0)
+	_responseTime = safeSub(now, _escrow.promptDate);
     } else {
       _escrow.state |= (uint8)(STEP_CANCEL);
       _escrowXact.cancelXactId = _XactId;
@@ -411,7 +423,8 @@ contract MadEscrow is iERC20Token, SafeMath {
     _escrow.deliveryDate = safeAdd(now, _deliveryTime);
     _escrow.state |= (uint8)(STEP_APPROVE);
     _escrowXact.approveXactId = _XactId;
-    _responseTime = safeSub(now, _escrow.openDate);
+    if (_escrow.promptDate != 0)
+      _responseTime = safeSub(now, _escrow.promptDate);
   }
 
 

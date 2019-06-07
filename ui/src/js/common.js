@@ -224,6 +224,16 @@ const common = module.exports = {
 	return(common.bytesToImage(utf8Buf));
     },
 
+    secsBNToComfortTime: function(secsBN) {
+	if (secsBN.ltn(120))
+	    return(secsBN.toString(10) + ' seconds');
+	if (secsBN.ltn(2 * 3600))
+	    return(secsBN.divn(60).toString(10) + ' minutes');
+	if (secsBN.ltn(72 * 3600))
+	    return(secsBN.divn(3600).toString(10) + ' hours');
+	return(secsBN.divn(24*3600).toString(10) + ' days');
+    },
+
     leftPadTo: function(str, desiredLen, ch) {
 	const padChar = (typeof ch !== 'undefined') ? ch : ' ';
 	const pad = new Array(1 + desiredLen).join(padChar);

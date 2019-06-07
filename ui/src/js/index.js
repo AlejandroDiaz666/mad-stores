@@ -481,7 +481,6 @@ function handleUnlockedMetaMask() {
 	const balanceETH = parseFloat(balance).toFixed(6);
 	balanceArea.value = '  Eth Balance: ' + balanceETH.toString(10) + ' Eth';
     });
-    shop.updateDaiAndWDai();
     ether.getNetwork(function(err, network) {
 	const networkArea = document.getElementById('networkArea');
 	if (!!err) {
@@ -493,10 +492,13 @@ function handleUnlockedMetaMask() {
 		networkArea.className = (networkArea.className).replace('attention', '');
 	    else if (networkArea.className.indexOf(' attention' < 0))
 		networkArea.className += ' attention';
+	    if (!err)
+		err = meEther.setNetwork(network);
 	    if (!!err) {
 		alert(err)
 		return;
 	    }
+	    shop.updateDaiAndWDai();
 	}
 	mtUtil.refreshAcctInfo(false, function(err, _acctInfo) {
 	    console.log('handleUnlockedMetaMask: _acctInfo: ' + _acctInfo);

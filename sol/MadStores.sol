@@ -22,9 +22,9 @@ contract MadEscrow is iERC20Token {
   function verifyEscrowCustomer(uint256 _escrowID, address _customerAddr) public view returns (uint256 _productID, address _vendorAddr);
   function verifyEscrowParty(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr);
   function verifyEscrowAny(uint256 _escrowId, address _firstAddr) public view returns (uint256 _productId, address _otherAddr);
-  function recordReponse(uint256 _escrowId, uint256 _XactId, uint256 _ref) public;
+  function recordReponse(uint256 _escrowId, address _initiatorAddr, uint256 _XactId, uint256 _ref) public returns (uint _responseTime);
   function modifyEscrowPrice(uint256 _escrowID, uint256 _XactId, uint256 _surcharge) public;
-  function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public;
+  function cancelEscrow(uint256 _escrowId, address _initiatorAddr, uint256 _XactId) public returns (uint _responseTime);
   function approveEscrow(uint256 _escrowID, uint256 _deliveryTime, uint256 _XactId) public returns (uint _responseTime);
   function releaseEscrow(uint256 _escrowID, uint256 _XactId) public;
   function burnEscrow(uint256 _escrowID, uint256 _XactId) public;
@@ -69,6 +69,7 @@ contract MadStores is SafeMath {
   // for keeping track of vendor reputation
   // -----------------------------------------------------------------------------------------------------
   struct VendorAccount {
+    uint256 noResponses;
     uint256 deliveriesApproved;
     uint256 deliveriesRejected;
     uint256 region;
@@ -363,8 +364,7 @@ contract MadStores is SafeMath {
       (_categoryProductIdx, _regionProductIdx) = updateTlcTlr(_productID, _newTlc, _newTlr);
     }
     Product storage _product = products[_productID];
-    _product.price = _price;
-    _product.quantity = _quantity;
+    _adjustProduct(_product, _price, _quantity);
     _product.category = _category;
     _product.categoryProductIdx = _categoryProductIdx;
     _product.region = _region;
@@ -375,6 +375,25 @@ contract MadStores is SafeMath {
     emit RegisterProductEvent(_productID, _name, _desc, _image);
   }
 
+  function adjustProduct(uint256 _productID, uint256 _price, uint256 _quantity) public {
+    Product storage _product = products[_productID];
+    require(_product.vendorAddr == msg.sender, "caller does not own this product");
+    _adjustProduct(_product, _price, _quantity);
+  }
+  function adjustProductInc(uint256 _productID, uint256 _price, uint256 _quantity) public {
+    Product storage _product = products[_productID];
+    require(_product.vendorAddr == msg.sender, "caller does not own this product");
+    _adjustProduct(_product, _price, safeAdd(_product.quantity, _quantity));
+  }
+  function adjustProductDec(uint256 _productID, uint256 _price, uint256 _quantity) public {
+    Product storage _product = products[_productID];
+    require(_product.vendorAddr == msg.sender, "caller does not own this product");
+    _adjustProduct(_product, _price, safeSub(_product.quantity, _quantity));
+  }
+  function _adjustProduct(Product storage _product, uint256 _price, uint256 _quantity) internal {
+    _product.price = _price;
+    _product.quantity = _quantity;
+  }
 
   function productInfo(uint256 _productID) public view returns(address _vendorAddr, uint256 _price, uint256 _quantity, bool _available) {
     Product storage _product = products[_productID];
@@ -395,10 +414,15 @@ contract MadStores is SafeMath {
     (, _otherAddr) = madEscrow.verifyEscrowAny(_escrowId, msg.sender);
     //ensure message fees
     uint256 _noDataLength = 4 + 32 + 32 + 32 + 64;
-    uint256 _msgFee = (msg.data.length > _noDataLength) ? messageTransport.getFee(msg.sender, _otherAddr) : 0;
+    require(msg.data.length > _noDataLength, "must include message");
+    uint256 _msgFee = messageTransport.getFee(msg.sender, _otherAddr);
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _otherAddr, _attachmentIdx, _ref, _message);
-    madEscrow.recordReponse(_escrowId, _msgId, _ref);
+    uint256 _responseTime = madEscrow.recordReponse(_escrowId, msg.sender, _msgId, _ref);
+    if (_responseTime != 0) {
+      vendorAccounts[msg.sender].noResponses = safeAdd(vendorAccounts[msg.sender].noResponses, 1);
+      vendorAccounts[msg.sender].responseTimeSum = safeAdd(vendorAccounts[msg.sender].responseTimeSum, _responseTime);
+    }
   }
 
 
@@ -454,11 +478,16 @@ contract MadStores is SafeMath {
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _otherAddr, _attachmentIdx, _ref, _message);
     Product storage _product = products[_productID];
     _product.quantity += 1;
-    madEscrow.cancelEscrow(_escrowID, msg.sender, _msgId);
-    if (msg.sender == _product.vendorAddr)
+    uint256 _responseTime = madEscrow.cancelEscrow(_escrowID, msg.sender, _msgId);
+    if (msg.sender == _product.vendorAddr) {
+      if (_responseTime != 0) {
+	vendorAccounts[msg.sender].noResponses = safeAdd(vendorAccounts[msg.sender].noResponses, 1);
+	vendorAccounts[msg.sender].responseTimeSum = safeAdd(vendorAccounts[msg.sender].responseTimeSum, _responseTime);
+      }
       emit PurchaseDeclineEvent(msg.sender, _otherAddr, _escrowID, _productID, _msgId);
-    else
+    } else {
       emit PurchaseCancelEvent(_otherAddr, msg.sender, _escrowID, _productID, _msgId);
+    }
   }
 
 
@@ -476,7 +505,10 @@ contract MadStores is SafeMath {
     require(msg.value == _msgFee, "incorrect funds for message fee");
     uint256 _msgId = messageTransport.sendMessage.value(_msgFee)(msg.sender, _customerAddr, _attachmentIdx, _ref, _message);
     uint256 _responseTime = madEscrow.approveEscrow(_escrowID, _deliveryTime, _msgId);
-    vendorAccounts[msg.sender].responseTimeSum = safeAdd(vendorAccounts[msg.sender].responseTimeSum, _responseTime);
+    if (_responseTime != 0) {
+      vendorAccounts[msg.sender].noResponses = safeAdd(vendorAccounts[msg.sender].noResponses, 1);
+      vendorAccounts[msg.sender].responseTimeSum = safeAdd(vendorAccounts[msg.sender].responseTimeSum, _responseTime);
+    }
     emit PurchaseApproveEvent(msg.sender, _customerAddr, _escrowID, _productID, _deliveryTime, _msgId);
   }
 

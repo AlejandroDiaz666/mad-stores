@@ -409,6 +409,10 @@ var meUtil = module.exports = {
     // viewMode   = 'shop' | 'view'
     // extendMode = 'limit' | 'extend'
     //
+    // note: the extendMode selects the css class that is assigned to the selectedProductPageDiv elem. when the 'extend' class is selected,
+    // then the product div grows unbounded (so the user may need to scroll), which is usually appropriate. use the 'limit' class to avoid
+    // letting the user to scroll, for example when the product is embedded in another scrolling page -- for example in the dashboard.
+    //
     showProductDetail: function(product, viewMode, extendMode, closeCB) {
 	console.log('showProductDetail: productIdBN = 0x' + product.productIdBN.toString(16) + ', name = ' + product.name + ', viewMode = ' + viewMode);
 	common.replaceElemClassFromTo('selectedProductPageDiv', 'hidden', 'visibleB', null);
@@ -457,45 +461,52 @@ var meUtil = module.exports = {
 	const selectedProductSellerName = document.getElementById('selectedProductSellerName');
 	const selectedProductSellerDesc = document.getElementById('selectedProductSellerDesc');
 	const selectedProductSellerRegion = document.getElementById('selectedProductSellerRegion');
+	const selectedProductSellerResponse = document.getElementById('selectedProductSellerResponse');
 	const selectedProductSellerRating = document.getElementById('selectedProductSellerRating');
 	const selectedProductSellerBurns = document.getElementById('selectedProductSellerBurns');
 	//seller description height is adjustable!
 	selectedProductSellerDesc.style.height = (selectedProductFrameDiv.clientHeight - 390) + 'px';
 	//
+	meEther.vendorAccountQuery(product.vendorAddr, function(err, vendorAcctInfo) {
+	    console.log('regStorePageSubPage: err = ' + err);
+	    console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
+	    console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
+	    const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
+	    const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
+	    const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
+	    const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
+	    const noResponsesBN = common.numberToBN(vendorAcctInfo.noResponses);
+	    const responseTimeSumBN = common.numberToBN(vendorAcctInfo.responseTimeSum);
+	    const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
+	    const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
+	    const avgResponseTimeBN = noResponsesBN.isZero() ? new BN(0) : responseTimeSumBN.div(noResponsesBN);
+	    let grade = 'A+';
+	    if (totalBN.isZero()) {
+		grade = 'N/A';
+	    } else {
+		switch(avgRatingBN.toNumber()) {
+		case 0: grade = 'F-'; break;
+		case 1: grade = 'F'; break;
+		case 2: grade = 'D-'; break;
+		case 3: grade = 'D'; break;
+		case 4: grade = 'C-'; break;
+		case 5: grade = 'C'; break;
+		case 6: grade = 'B-'; break;
+		case 7: grade = 'B'; break;
+		case 8: grade = 'A-'; break;
+		case 9: grade = 'A'; break;
+		default: grade = 'A+'; break;
+		}
+	    }
+	    //TODO avg approval response time here secs to comfort
+	    selectedProductSellerResponse.textContent = 'Average response time: ' + common.secsBNToComfortTime(avgResponseTimeBN);
+	    selectedProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
+	    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
+	});
+	//
 	meUtil.getVendorLogs(product.vendorAddr, function(err, result) {
 	    console.log('showProductDetail: result.length = ' + result.length);
 	    if (!!result && result.length > 0) {
-		meEther.vendorAccountQuery(product.vendorAddr, function(err, vendorAcctInfo) {
-		    console.log('regStorePageSubPage: err = ' + err);
-		    console.log('regStorePageSubPage: vendorAcctInfo.activeFlag = ' + vendorAcctInfo.activeFlag);
-		    console.log('regStorePageSubPage: vendorAcctInfo.region = ' + vendorAcctInfo.region);
-		    const defaultRegionBN = common.numberToBN(vendorAcctInfo.region);
-		    const ratingSumBN = common.numberToBN(vendorAcctInfo.ratingSum);
-		    const deliveriesApprovedBN = common.numberToBN(vendorAcctInfo.deliveriesApproved);
-		    const deliveriesRejectedBN = common.numberToBN(vendorAcctInfo.deliveriesRejected);
-		    const totalBN = deliveriesApprovedBN.add(deliveriesRejectedBN);
-		    const avgRatingBN = totalBN.isZero() ? new BN(0) : ratingSumBN.div(totalBN);
-		    let grade = 'A+';
-		    if (totalBN.isZero()) {
-			grade = 'N/A';
-		    } else {
-			switch(avgRatingBN.toNumber()) {
-			case 0: grade = 'F-'; break;
-			case 1: grade = 'F'; break;
-			case 2: grade = 'D-'; break;
-			case 3: grade = 'D'; break;
-			case 4: grade = 'C-'; break;
-			case 5: grade = 'C'; break;
-			case 6: grade = 'B-'; break;
-			case 7: grade = 'B'; break;
-			case 8: grade = 'A-'; break;
-			case 9: grade = 'A'; break;
-			default: grade = 'A+'; break;
-			}
-		    }
-		    selectedProductSellerBurns.textContent = deliveriesRejectedBN.toString(10) + ' deliveries rejected out of ' + totalBN.toString(10);
-		    selectedProductSellerRating.textContent = 'Average rating: ' + avgRatingBN.toString(10) + ' (' + grade + ')';
-		});
 		meEther.parseRegisterVendorEvent(result[result.length - 1], function(err, vendorAddr, name, desc, image) {
 		    if (common.abbreviateElemContent(selectedProductSellerName, name)) {
 			const sellerFullName = document.createElement("span");
