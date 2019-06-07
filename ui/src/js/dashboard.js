@@ -884,12 +884,12 @@ function doClaimDialog(escrowIdBN, escrowInfo) {
     dashboard.selectedEscrowInfo = escrowInfo;
     dashboard.inDialog = true;
     //
-    const nowSec = Date.now() * 1000;
-    const deliveryDate = parseInt(escrowInfo.deliveryDate);
-    const deliveryDateSec = deliveryDate * 1000;
+    const nowSec = Date.now() / 1000;
+    const deliveryDateSec = parseInt(escrowInfo.deliveryDate);
     const abandonedDateSec = deliveryDateSec + (30 * 24 * 60 * 60);
-    const deliveryDateStr = (new Date(deliveryDateSec)).toUTCString();
-    const abandonedDateStr = (new Date(deliveryDateSec)).toUTCString();
+    const deliveryDateStr = (new Date(deliveryDateSec * 1000)).toUTCString();
+    const abandonedDateStr = (new Date(abandonedDateSec * 1000)).toUTCString();
+    console.log('doClaimDialog: nowSec = ' + nowSec + ', deliveryDateSec = ' + deliveryDateSec + ', abandonedDateSec = ' +  abandonedDateSec);
     if (nowSec < abandonedDateSec) {
 	document.getElementById('noteDialogIntro').textContent =
 	    'You commited to deliver this product before ' + deliveryDateStr + '. The buyer has until ' + abandonedDateStr + ' to decide either to ' +
