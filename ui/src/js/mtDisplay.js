@@ -37,7 +37,7 @@ const mtDisplay = module.exports = {
     // set up the compose area. before calling the cb any attachment is appended to the message (via the
     // attachButton and sendButton click handlers). the message is not encrypted.
     //
-    setupComposeMsgArea: function(destAddr, placeholderText, msgDesc, msgId, ref, sendButtonText, sendCb) {
+    setupComposeMsgArea: function(destAddr, placeholderText, defaultText, msgDesc, ref, sendButtonText, sendCb) {
 	console.log('setupComposeMsgArea: enter');
 	if (!ether.validateAddr(destAddr)) {
 	    sendCb('Error: vendor has an invalid Ethereum address.', null, null);
@@ -55,12 +55,16 @@ const mtDisplay = module.exports = {
 	    const msgTextArea = document.getElementById('msgTextArea');
 	    msgTextArea.readonly = '';
 	    msgTextArea.disabled = false;
+	    msgTextArea.value = defaultText;
 	    msgTextArea.placeholder = placeholderText;
 	    //fees: see how many messages have been sent from the proposed recipient to me
 	    mtEther.getPeerMessageCount(destAddr, common.web3.eth.accounts[0], function(err, msgCount) {
 		console.log('setupMsgArea: ' + msgCount.toString(10) + ' messages have been sent from ' + destAddr + ' to me');
 		mtDisplay.composeFee = (msgCount > 0) ? toAcctInfo.msgFee : toAcctInfo.spamFee;
-		document.getElementById('msgFeeArea').value = 'Fee: 0 Wei';
+		if (msgTextArea.value == '')
+		    document.getElementById('msgFeeArea').value = 'Fee: 0 Wei';
+		else
+		    document.getElementById('msgFeeArea').value = 'Fee: ' + ether.convertWeiBNToComfort(common.numberToBN(mtDisplay.composeFee));
 		document.getElementById('sendButton').disabled = false;
 		mtDisplay.sendCb = sendCb;
 	    });
@@ -150,9 +154,8 @@ const mtDisplay = module.exports = {
 		const placeholderText =
 		      '\n' +
 		      'Type your message here...\n' +
-		      'NOTE: always include the escrow ID in your message...\n\n' +
-		      'The previous message was:\n' + message.text;
-		mtDisplay.setupComposeMsgArea(message.otherAddr, placeholderText, msgDesc, null, message.msgId, 'send', sendCb);
+		      'NOTE: The previous message was:\n' + message.text;
+		mtDisplay.setupComposeMsgArea(message.otherAddr, placeholderText, '', msgDesc, message.msgId, 'send', sendCb);
 	    };
 	} else if (!!prevMsgId) {
 	    //

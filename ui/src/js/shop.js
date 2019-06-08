@@ -270,8 +270,12 @@ function handlePurchase(product) {
 		  'enter them here.\n\n' +
 		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
 		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
+	    const defaultText =
+		  '\nHi, I\'d like to purchase:\n   ' +  product.name + '\n\n' +
+		  'Delivery address:\n    \n' +
+		  'Special instructions:\n';
 	    const msgDesc = 'Price: ' + meEther.daiBNToUsdStr(product.priceBN) + ' Dai; You will deposit ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-	    mtDisplay.setupComposeMsgArea(product.vendorAddr, placeholderText, msgDesc, null, null, 'Send/Purchase', function(err, attachmentIdxBN, message) {
+	    mtDisplay.setupComposeMsgArea(product.vendorAddr, placeholderText, defaultText, msgDesc, null, 'Send/Purchase', function(err, attachmentIdxBN, message) {
 		if (!!err) {
 		    alert(err);
 		    return;

@@ -582,8 +582,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to approve this purchase and commit to a delivery date\n\n' +
+	  'NOTE: You are about to approve this purchase and commit to a delivery date\n\n' +
 	  'Your bond funds (and the buyer\'s bond funds and payment) will be locked into a \'MAD\' escrow account -- and you will only be paid ' +
 	  'when the buyer confirms succesful delivery of the product. Use this message to communicate any special delivery instructions to the buyer, such as a ' +
 	  'pick-up location or any required code. If none of these are applicable to this purchase, then you can simply use this message to thank the buyer for ' +
@@ -592,7 +591,7 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, '', msgDesc, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doApprove: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -641,15 +640,14 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to add funds to this the price of this product!\n\n' +
+	  'NOTE: You are about to add funds to this the price of this product!\n\n' +
 	  'Additional bond funds, equal to 150% of the increase in price will be added to the \'MAD\' escrow account for this purchase.\n\n' +
 	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
     const escrowBN = addAmountBN.muln(3).divn(2);
     const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doModify: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -686,14 +684,13 @@ function doCancel(escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to cancel this purchase!\n\n' +
+	  'NOTE: You are about to cancel this purchase!\n\n' +
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Cancel this Escrow', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Cancel this Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -727,8 +724,7 @@ function doDecline(escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to decline this purchase!\n\n' +
+	  'NOTE: You are about to decline this purchase!\n\n' +
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the buyer why you are declining this purchase\n\n' +
 	  'Note: if you only require more information (eg. shipping information) from the buyer, then you can send him a response to his original deposit ' +
 	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
@@ -736,7 +732,7 @@ function doDecline(escrowIdBN, escrowInfo) {
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Decline', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, '', msgDesc, refBN, 'Decline', function(err, attachmentIdxBN, message) {
 	console.log('doDecline: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -783,8 +779,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties:\n\n' +
+	  'NOTE: You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties:\n\n' +
 	  'The total purchase price will be released to the seller, together with the seller\'s bond (50% of the purchase price);\n' +
 	  'The buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
@@ -792,7 +787,7 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
 	console.log('doRelease: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
@@ -840,8 +835,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
     const placeholderText =
 	  '\n' +
 	  'Type your message here...\n' +
-	  'NOTE: always include the escrow ID in your message...\n\n' +
-	  'You are about to burn this escrow!!\n\n' +
+	  'NOTE: You are about to burn this escrow!!\n\n' +
 	  'You will lose the entire amount that you deposited into the escrow, including the price of the product, and you buyer-bond (50% of the ' +
 	  'purchase price). The seller will also not receive any payment for the product, and will lose his bond (also 50% of the purchase price).\n\n' +
 	  'This is a drastic measure, but it is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
@@ -850,7 +844,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
 	console.log('doBurn: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);

@@ -1461,16 +1461,18 @@ h3 { font-size:18px; }
 }
 /* dashboard page -- add funds dialog */
 #addFundsDialogDiv {
-    position: absolute;
-    z-index: 1;
-    left: 30%;
-    top: 120px;
+    position: fixed;
+    top: 40%;
+    left: 50%;
     width: 420px;
-    height: 200px;
-    padding: 10px;
-    overflow: none;
-    border: 1px solid #888;
-    background-color: #9cd9db;
+    height: 195px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
 }
 #addFundsDialogInstr {
     position: absolute;
