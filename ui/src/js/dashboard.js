@@ -322,7 +322,7 @@ function makeRow(rowDiv, escrowIdx, cb) {
         escrowNoArea.value = escrowIdBN.toString(10);
 	productArea.value = 'loading...';
 	meUtil.getProductById(common.numberToBN(escrowInfo.productId), function(err, product) {
-	    productArea.value = product.name;
+	    productArea.value = (product.name.length <= 21) ? product.name : product.name.substring(0, 19) + '...';
 	    leftDiv.addEventListener('click', function() {
 		console.log('productArea: got click');
 		hideAllModals();
@@ -581,12 +581,13 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
     console.log('doApprove: secsBN = ' + secsBN.toString(10));
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to approve this purchase and commit to a delivery date\n\n' +
-	  'Your bond funds (and the buyer\'s bond funds and payment) will be locked into a \'MAD\' escrow account -- and you will only be paid ' +
-	  'when the buyer confirms succesful delivery of the product. Use this message to communicate any special delivery instructions to the buyer, such as a ' +
-	  'pick-up location or any required code. If none of these are applicable to this purchase, then you can simply use this message to thank the buyer for ' +
-	  'his patronage.';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to approve this purchase and commit to a delivery date\n\n' +
+	  ' Your bond funds (and the buyer\'s bond funds and payment) will be locked into a \'MAD\' escrow account --\n' +
+	  ' and you will only be paid when the buyer confirms succesful delivery of the product.\n\n' +
+	  ' Use this message to communicate any special delivery instructions to the buyer, such as a pick-up location\n' +
+	  ' or any required code. If none of these are applicable to this purchase, then you can simply use this message\n' +
+	  ' to thank the buyer for his patronage.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
@@ -639,10 +640,11 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
     const escrowIdx = dashboard.selectedEscrowIdx;
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to add funds to this the price of this product!\n\n' +
-	  'Additional bond funds, equal to 150% of the increase in price will be added to the \'MAD\' escrow account for this purchase.\n\n' +
-	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to add funds to this the price of this product!\n\n' +
+	  ' Additional bond funds, equal to 150% of the increase in price will be added to the \'MAD\' escrow\n' +
+	  ' account for this purchase.\n\n' +
+	  ' Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
     const escrowBN = addAmountBN.muln(3).divn(2);
     const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
@@ -683,9 +685,10 @@ function doCancel(escrowIdBN, escrowInfo) {
     const escrowIdx = dashboard.selectedEscrowIdx;
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to cancel this purchase!\n\n' +
-	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to cancel this purchase!\n\n' +
+	  ' All escrow funds will be returned to the respective parties.\n\n' +
+	  ' Please use this form for to explain to the seller why you are canceling this purchase.';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
@@ -723,11 +726,13 @@ function doDecline(escrowIdBN, escrowInfo) {
     console.log('doDecline: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to decline this purchase!\n\n' +
-	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the buyer why you are declining this purchase\n\n' +
-	  'Note: if you only require more information (eg. shipping information) from the buyer, then you can send him a response to his original deposit ' +
-	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to decline this purchase!\n\n' +
+	  ' All escrow funds will be returned to the respective parties.\n\n' +
+	  ' Please use this form for to explain to the buyer why you are declining this purchase\n\n' +
+	  ' Note: if you only require more information (eg. shipping information) from the buyer, then you can send him\n' +
+	  ' a response to his original deposit-message to ask for more information. In addition, if there is extra expense\n' +
+	  ' (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
@@ -778,11 +783,12 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
     console.log('doRelease: escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to confirm satisfactory delivery of the purchased product -- and release all funds from escrow to the respective parties:\n\n' +
-	  'The total purchase price will be released to the seller, together with the seller\'s bond (50% of the purchase price);\n' +
-	  'The buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
-	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to confirm satisfactory delivery of the purchased product --\n' +
+	  ' and release all funds from escrow to the respective parties.\n\n' +
+	  ' The total purchase price will be released to the seller, together with the seller\'s bond (50% of the purchase price).\n' +
+	  ' The buyer\'s bond (50% of the purchase price) will be released back to you.\n\n' +
+	  ' Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
@@ -834,12 +840,14 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
     console.log('doBurn: escrowIdx = ' + escrowIdx + ', escrowIdBN = 0x' + escrowIdBN.toString(16));
     const placeholderText =
 	  '\n' +
-	  'Type your message here...\n' +
-	  'NOTE: You are about to burn this escrow!!\n\n' +
-	  'You will lose the entire amount that you deposited into the escrow, including the price of the product, and you buyer-bond (50% of the ' +
-	  'purchase price). The seller will also not receive any payment for the product, and will lose his bond (also 50% of the purchase price).\n\n' +
-	  'This is a drastic measure, but it is appropriate if you believe that the seller is utterly dishonest. At any rate, please use this form to ' +
-	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to burn this escrow!!\n\n' +
+	  ' You will lose the entire amount that you deposited into the escrow, including the price of the product, and\n' +
+	  ' your buyer-bond (50% of the purchase price). The seller will also not receive any payment for the product, and\n' +
+	  ' will lose his bond (also 50% of the purchase price).\n\n' +
+	  ' This is a drastic measure, but it is appropriate if you believe that the seller is utterly dishonest. At any\n' +
+	  ' rate, please use this message to explain to the seller how they have been less than truthful --\n' +
+	  ' perhaps they can improve...';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
