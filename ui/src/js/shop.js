@@ -263,13 +263,13 @@ function handlePurchase(product) {
 	} else {
 	    const placeholderText =
 		  '\n' +
-		  'Type your message here...\n\n' +
-		  'You are about to move funds into an escrow account to purchase this product!\n\n' +
-		  'Enter data pertinent to your purchase here.\n' +
-		  'For example, if a shipping address is required, then enter it here. Also if you have any special instructions for a custom order, ' +
-		  'enter them here.\n\n' +
-		  'The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
-		  'approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
+		  ' Type your message here...\n\n' +
+		  ' You are about to move funds into an escrow account to purchase this product!\n\n' +
+		  ' Enter data pertinent to your purchase here.\n' +
+		  ' For example, if a shipping address is required, then enter it here. Also if you have any special instructions for a custom order, ' +
+		  ' enter them here.\n\n' +
+		  ' The seller will have a chance to review your instructions / shipping address before approving the purchase. If the seller does not ' +
+		  ' approve the purchase, then the escrow will be canceled, and all your funds will be returned.';
 	    const defaultText =
 		  '\nHi, I\'d like to purchase:\n   ' +  product.name + '\n\n' +
 		  'Delivery address:\n    \n' +
