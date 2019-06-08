@@ -60,24 +60,15 @@ var dashboard = module.exports = {
 			'claim all funds from this abandoned escrow' ],
     //name of message passed to mtDisplay.setupDisplayMsgArea
     msgNames: [ 'deposit/purchase', 'modify', 'cancel', 'decline', 'approve', 'release', 'burn', 'claim' ],
-    //description of original transaction message passed to mtDisplay.setupDisplayMsgArea
-    firstMsgDescs: [ 'this is the initial escrow deposit and product-purchase for this order',
-		     'this is the transaction that modifed the escrow deposit for this order',
-		     'the customer canceled this purchase',
-		     'the vendor declined this purchase',
-		     'the vendor approved this escrow, and committed to deliver this product by DATE',
-		     'delivery of this item was confirmed; all escrow funds have been released',
-		     'item not delivered, or delivery was rejected; all escrow funds have been burned',
-		     'buyer abandoned this escrow, and vendor claimed all funds' ],
-    //description of follow-up transaction message passed to mtDisplay.setupDisplayMsgArea
-    followMsgDescs: [ 'this is a follow-up message to product-purchase transaction for this order',
-		      'this is a follow-up message to the escrow modification transaction for this order',
-		      'this is a follow-up message to the escrow cancellation transaction for this order',
-		      'this is a follow-up message to the decline transaction for this order',
-		      'this is a follow-up message to the approve transaction for this order',
-		      'this is a follow-up message to the delivery confirmation transaction for this order',
-		      'this is a follow-up message to the burn transaction for this order',
-		      'this is a follow-up message to the claim-abandoned transaction for this escrow' ],
+    //description of transaction message passed to mtDisplay.setupDisplayMsgArea
+    messageDescs: [ 'this message pertains to the initial escrow deposit and product-purchase for this order',
+		    'this message pertains to the transaction that modifed the escrow deposit for this order',
+		    'this message pertains to customer cancellation this purchase',
+		    'this message pertains to vendor declining this purchase',
+		    'this message pertains to vendor approval and committment to delivery by DATE',
+		    'this message pertains to customer confirmation of delivery and release of all escrow funds',
+		    'this message pertains to customer rejection of delivery was rejected and burn of escrow funds',
+		    'this message pertains to buyer abandonment of escrow and vendor claim of all funds' ],
     replyAlerts:  [ 'You have attached a new message to the purchase transaction!\n',
 		    'You have attached a new message to the modify transaction!\n',
 		    'This escrow is already closed and you have attached a new message to the cancel transaction!\n',
@@ -519,8 +510,7 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	const msgName = dashboard.msgNames[step];
-	let msgDesc = common.numberToBN(message.ref).isZero() ? dashboard.firstMsgDescs[step] : dashboard.followMsgDescs[step];
+	let msgDesc = dashboard.messageDescs[step];
 	dateIdx = msgDesc.indexOf('DATE');
 	if (dateIdx >= 0) {
 	    const deliveryDate = parseInt(escrowInfo.deliveryDate);
@@ -565,7 +555,9 @@ function showCompletedStep(escrowIdBN, escrowInfo, productIdBN, step) {
 	    }
 	};
 	//clears loading-icon
-	mtDisplay.setupDisplayMsgArea(msgName, msgDesc, message, null, closeCb, sendCb);
+	const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+	const mostRecentMsgName = dashboard.msgNames[mostRecentMsgInfo.step];
+	mtDisplay.setupDisplayMsgArea(msgDesc, message, mostRecentMsgName, mostRecentMsgInfo.msgId, null, closeCb, sendCb);
     });
 }
 
@@ -598,7 +590,8 @@ function doApprove(secsBN, escrowIdBN, escrowInfo) {
 	  'his patronage.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = 'You will lock ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into an escrow account';
-    const refBN = new BN('0');
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Approve Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doApprove: setupComposeMsgArea came back');
 	if (!!err) {
@@ -654,8 +647,8 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 	  'Use this message to communicate to the seller what extra services you are paying for with these additional funds.';
     const escrowBN = addAmountBN.muln(3).divn(2);
     const msgDesc = 'Increase product price by ' + meEther.daiBNToUsdStr(addAmountBN) + '; add ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai into the escrow account';
-    //if nz, then we want to refernce any existing modify... they will all be chained together
-    const refBN = escrowInfo.modifyXactIdBN;
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Modify Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doModify: setupComposeMsgArea came back');
 	if (!!err) {
@@ -673,7 +666,7 @@ function doModify(addAmountBN, escrowIdBN, escrowInfo) {
 		    'funds that you deposited are equal to 150% of the increase in price. Automatically, the seller\'s bond has also been ' +
 		    'increased proportionally (by 50% of the increase in price).';
 		document.getElementById('noteDialogNote').textContent =
-		    'Since the escrow has not yet been "approved" by the seller, it is not \"locked,\". So you can still cancel, or the seller ' +
+		    'Since the escrow has not yet been approved by the seller, it is not \"locked,\". So you can still cancel, or the seller ' +
 		    'could still decline the escrow.';
 		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
 		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogSmall', 'noteDialogLarge', true);
@@ -698,7 +691,8 @@ function doCancel(escrowIdBN, escrowInfo) {
 	  'All escrow funds will be returned to the respective parties. Please use this form for to explain to the seller why you are canceling this purchase.';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
-    const refBN = new BN('0');
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Cancel this Escrow', function(err, attachmentIdxBN, message) {
 	console.log('doCancel: setupComposeMsgArea came back');
 	if (!!err) {
@@ -740,7 +734,8 @@ function doDecline(escrowIdBN, escrowInfo) {
 	  'to ask for more information. In addition, if there is extra expense (eg. shipping), you can ask the buyer to add additional funds into the escrow.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
-    const refBN = new BN('0');
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, msgDesc, null, refBN, 'Decline', function(err, attachmentIdxBN, message) {
 	console.log('doDecline: setupComposeMsgArea came back');
 	if (!!err) {
@@ -795,7 +790,8 @@ function doRelease(ratingBN, escrowIdBN, escrowInfo) {
 	  'Please use this form to offer any suggestions, criticisms, or compliments to the seller.';
     const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai will be returned to you from the escrow account';
-    const refBN = new BN('0');
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Approve', function(err, attachmentIdxBN, message) {
 	console.log('doRelease: setupComposeMsgArea came back');
 	if (!!err) {
@@ -852,7 +848,8 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	  'explain to the seller how they have been less than truthful -- perhaps they can improve...';
     const escrowBN = common.numberToBN(escrowInfo.customerBalance);
     const msgDesc = meEther.daiBNToUsdStr(escrowBN) + ' W-Dai that you deposited will be lost!';
-    const refBN = new BN('0');
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
     mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, msgDesc, null, refBN, 'Delivery-Reject', function(err, attachmentIdxBN, message) {
 	console.log('doBurn: setupComposeMsgArea came back');
 	if (!!err) {
@@ -945,9 +942,9 @@ function escrowStateLine(escrowInfo) {
     else if (!escrowInfo.cancelXactIdBN.isZero())
 	return('This escrow has been "canceled" by the buyer. All the funds that were deposited have been returned to their respective parties.');
     else if (!escrowInfo.modifyXactIdBN.isZero())
-	return('Additional funds have been deposited into this escrow, but it has yet not been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
+	return('Additional funds have been deposited into this escrow, but it has not yet been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
     else if (!escrowInfo.createXactIdBN.isZero())
-	return('Funds have been deposited into this escrow, but it has yet not been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
+	return('Funds have been deposited into this escrow, but it has not yet been approved by the seller. The escrow can still be canceled by the buyer or declined by the seller.');
     else
 	return('The initial deposit transaction for this escrow is missing!');
 }

@@ -783,7 +783,10 @@
 	</div>
 	<span id="msgRightButtonsSpan">
 	  <img id="msgCloseImg" src="images/close.png"></img>
-	  <button id="sendButton" type="button" class="msgRightButton hidden">Send/Purchase</button>
+	  <div id="sendButtonDiv">
+	    <button id="sendButton" type="button" class="msgRightButton sendButtonIsSend hidden">Send/Purchase</button>
+	    <button id="prevButton" type="button" class="msgRightButton hidden">Previous Message</button>
+	  </div>
 	  <button id="attachmentButton" type="button" class="msgRightButton hidden">Attach</button>
 	  <input id="attachmentInput" type="file" name="filename" class="hidden"></input>
 	  <div id="attachmentSaveADiv">

@@ -74,18 +74,33 @@ const mtDisplay = module.exports = {
     // set up the message-display area.
     // this is a versatile function!
     //
-    // 1) to display the most recent message in a message thread, set prevMsgId to null. in that case the user can click the send
-    // button to add another message to the thread. that is, reply to the message, or send another message. set the sendCb to the
-    // function that will be called to perform the actual encrpytion and send.
+    // 1) to display the most recent message in a message thread, set prevMsgId to null and message.msgId equal to mostRecentMsgId.
+    //    in this case the user can click the send button to add another message to the thread. that is, reply to the message, or
+    //    send another follow-up message. set the sendCb to the function that will be called to perform the actual encrpytion and
+    //    send.
     //
-    // 2) the second mode of operation is recursive. if the user clicks the ref button, then the ref message is displayed via a
-    // recursive call. but in that call prevMsgId is non-null. also the sendCb fcn that is passed in the recursive call just redisplays
-    // the current message; that is to say, the send button acts as a back button.
+    // 2) to display a message that is not necessarily the most recent message in a message thread, but the most recent message for
+    //    a particular sub-thread, set prevMsgId to null and message.msgId not equal to mostRecentMsgId. in this case the send button
+    //    is actually a button to display the most recent message. set the sendCb to the function that will be called to perform the
+    //    actual encrpytion and send, if and when a reply is sent to the most recent message.
     //
-    setupDisplayMsgArea: function(msgName, msgDesc, message, prevMsgId, closeCb, sendCb) {
-	console.log('setupDisplayMsgArea: enter msgId = ' + message.msgId + ', text = ' + message.text);
+    // 3) to display a message that is part of a chain of messages, set prevMsgId to previous message (which came later chronologically,
+    //    but is 'previous' in the sense that it was displayed previously). and message.msgId not equal to mostRecentMsgId. in this
+    //    case the send button will redisplay the previous message. that is to say, the send button acts as a 'back' button.
+    //
+    // recursive operation:
+    // the function can operate in a recursive fashion. imagine a series of messages in a message thread, A => B => C, where message A
+    // was the first message and message C is the most recent message. if called initially to display message B, the the 'send' button
+    // actually displays the most recent message, C via a recursive call. if the user clicks the ref button, then message A is displayed
+    // via a recursive call. but in that call prevMsgId refers to a message B. that is, the sendCb fcn that is passed in the recursive
+    // call just redisplays the current message; that is to say, the send button acts as a back button.
+    //
+    setupDisplayMsgArea: function(msgDesc, message, mostRecentMsgName, mostRecentMsgId, prevMsgId, closeCb, sendCb) {
+	console.log('setupDisplayMsgArea: enter msgId = ' + message.msgId + ', mostRecentMsgId = ' + mostRecentMsgId + ', text = ' + message.text);
 	const addrPrompt = (message.fromAddr == common.web3.eth.accounts[0]) ? 'To: ' : 'From: ';
-	const sendButtonText = !!prevMsgId ? 'Back' : (message.fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply';
+	const sendButtonText = (message.msgId == mostRecentMsgId) ?
+	      ((message.fromAddr == common.web3.eth.accounts[0]) ? 'Send follow-up' : 'Reply') :
+	      (!!prevMsgId && prevMsgId != mostRecentMsgId) ? 'Subsequent Message' : 'Most Recent Message';
 	setMsgArea(mtDisplay.DISPLAY_MODE, addrPrompt, message.otherAddr, message.msgId, message.ref, msgDesc, message.date, sendButtonText);
 	mtDisplay.closeCb = closeCb;
 	mtDisplay.refCb = null;
@@ -93,7 +108,6 @@ const mtDisplay = module.exports = {
 	//
 	// iff there's a nz ref, and the user clicks on the ref to display it, then we pass the backCb to the display fcn in place of the sendCb.
 	// in that case the send button acts as a back button, to redisplay the current message
-	const backCb = () => mtDisplay.setupDisplayMsgArea(msgName, msgDesc, message, prevMsgId, closeCb, sendCb);
 	document.getElementById('msgTextArea').readonly = 'true';
 	document.getElementById('msgTextArea').value = message.text;
 	if (!!message.attachment) {
@@ -107,8 +121,10 @@ const mtDisplay = module.exports = {
 	}
 	document.getElementById('sendButton').disabled = false;
 	//
-	// if there is a ref, then clicking on it displays the ref, and the sendCb is really a back button, which bring us back to the current msg
+	// if there is a ref, then clicking on it displays the ref, and within that message the sendCb is really a back button, which bring us
+	// back to the current msg
 	//
+	const backCb = () => mtDisplay.setupDisplayMsgArea(msgDesc, message, mostRecentMsgName, mostRecentMsgId, prevMsgId, closeCb, sendCb);
 	if (!!message.ref) {
 	    const thisMsgId = message.msgId;
 	    mtDisplay.refCb = (refId) => {
@@ -119,17 +135,18 @@ const mtDisplay = module.exports = {
 			alert(err);
 			return;
 		    }
-		    const msgDesc = 'This is the the previous ' + msgName + ' message';
+		    const msgDesc = 'This is a previous message in the thread of messages for this escrow';
 		    //no reply except replying to the most recent message
-		    mtDisplay.setupDisplayMsgArea(msgName, msgDesc, refMessage, thisMsgId, closeCb, backCb);
+		    mtDisplay.setupDisplayMsgArea(msgDesc, refMessage, mostRecentMsgName, mostRecentMsgId, thisMsgId, closeCb, backCb);
 		});
 	    };
 	}
-	if (!!prevMsgId) {
-	    mtDisplay.sendCb = sendCb;
-	} else {
+	//
+	// send button really is a send button iff this is the most recent message
+	//
+	if (message.msgId == mostRecentMsgId) {
 	    mtDisplay.sendCb = () => {
-		const msgDesc = 'Enter additional notes regarding the previous ' + msgName + ' message';
+		const msgDesc = 'Enter additional notes regarding the previous ' + mostRecentMsgName + ' message';
 		const placeholderText =
 		      '\n' +
 		      'Type your message here...\n' +
@@ -137,9 +154,32 @@ const mtDisplay = module.exports = {
 		      'The previous message was:\n' + message.text;
 		mtDisplay.setupComposeMsgArea(message.otherAddr, placeholderText, msgDesc, null, message.msgId, 'send', sendCb);
 	    };
+	} else if (!!prevMsgId) {
+	    //
+	    // send button is really a 'back' button to return to the previous (newer) message. this is the backCb defined above, which
+	    // has been passed into us in a recursive call
+	    //
+	    mtDisplay.sendCb = sendCb;
+	} else {
+	    //
+	    // the is the most recent message we have in the partial thread -- but it's still not the most recent message. sendCb
+	    // is really a button to go to the most recent message.
+	    //
+	    mtDisplay.sendCb = () => {
+		common.setLoadingIcon('start');
+		mtUtil.getParseDecryptMsg(mostRecentMsgId, function(err, mostRecentMessage) {
+		    common.setLoadingIcon(null);
+		    if (!!err) {
+			alert(err);
+			return;
+		    }
+		    const msgDesc = 'This is the most recent message for this escrow';
+		    mtDisplay.setupDisplayMsgArea(msgDesc, mostRecentMessage, mostRecentMsgName, mostRecentMsgId, null, closeCb, sendCb);
+		});
+	    };
 	}
     },
-}
+};
 
 
 //
@@ -160,14 +200,15 @@ function setMsgCloseHandler() {
 // just calls the refCb
 //
 function setRefHandler() {
-    const msgRefButton = document.getElementById('msgRefButton');
-    msgRefButton.addEventListener('click', function() {
+    const refHandler = () => {
 	console.log('setRefHandler: refId = ' + msgRefButton.ref);
 	if (!!msgRefButton.ref) {
 	    const refId = common.numberToHex256(msgRefButton.ref);
 	    mtDisplay.refCb(refId);
 	}
-    });
+    };
+    document.getElementById('msgRefButton').addEventListener('click', refHandler);
+    document.getElementById('prevButton').addEventListener('click', refHandler);
 }
 
 //
@@ -339,12 +380,21 @@ function setMsgArea(composeMode, addrPrompt, otherAddr, msgId, ref, msgDesc, dat
     }
     //
     if (!!composeMode) {
-	common.replaceElemClassFromTo('msgFeeArea',         'hidden',    'visibleIB', true);
-	common.replaceElemClassFromTo('attachmentButton',   'hidden',    'visibleIB', false);
-	common.replaceElemClassFromTo('attachmentInput',    'visibleIB', 'hidden',    true);
+	common.replaceElemClassFromTo('msgFeeArea',         'hidden',           'visibleIB',        true);
+	common.replaceElemClassFromTo('attachmentButton',   'hidden',           'visibleIB',        false);
+	common.replaceElemClassFromTo('attachmentInput',    'visibleIB',        'hidden',           true);
+	common.replaceElemClassFromTo('prevButton',         'visibleB',         'hidden',           true);
+	common.replaceElemClassFromTo('sendButton',         'sendButtonIsNext', 'sendButtonIsSend', false);
     } else {
-	common.replaceElemClassFromTo('attachmentButton',   'visibleIB', 'hidden',    true);
-	common.replaceElemClassFromTo('msgFeeArea',         'visibleIB', 'hidden',    true);
+	common.replaceElemClassFromTo('attachmentButton',   'visibleIB',        'hidden',           true);
+	common.replaceElemClassFromTo('attachmentInput',    'visibleIB',        'hidden',           true);
+	common.replaceElemClassFromTo('msgFeeArea',         'visibleIB',        'hidden',           true);
+	if (!!ref && !common.numberToBN(ref).isZero())
+	    common.replaceElemClassFromTo('prevButton',     'hidden',           'visibleB',         false);
+	else
+	    common.replaceElemClassFromTo('prevButton',     'visibleB',         'hidden',           true);
+	common.replaceElemClassFromTo('sendButton',         'sendButtonIsSend', 'sendButtonIsNext', false);
+
     }
     common.replaceElemClassFromTo('msgAreaDiv', 'hidden', 'visibleB',  true);
 }

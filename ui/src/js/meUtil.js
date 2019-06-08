@@ -153,7 +153,20 @@ var meUtil = module.exports = {
     },
 
 
-    //cb(err, results)
+    // mostRecentMsgInfo: { err, msgId, msgIdBN, step }
+    // get message id (hex256) and step for most recent message sent in an escrow
+    getMostRecentMsg: function(escrowInfo) {
+	for (let step = meEther.xactKeys.length - 1; step >= 0; --step) {
+	    const msgIdBN = escrowInfo[meEther.xactKeys[step]];
+	    console.log('getMostRecentMsg: msgId[' + meEther.xactKeys[step] + '] = ' + msgIdBN.toString(16));
+	    if (!!msgIdBN && !msgIdBN.isZero())
+		return( {err: null, msgId: common.BNToHex256(msgIdBN), msgIdBN: msgIdBN, step: step} );
+	}
+	return( {err: 'no message found', msgId: common.BNToHex256(new BN('0', 16)), msgIdBN: new BN('0', 16), step: 0} );
+    },
+
+
+    // cb(err, results)
     getVendorLogs: function(vendorAddr, cb) {
 	const options = {
 	    fromBlock: 0,

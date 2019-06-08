@@ -198,7 +198,7 @@ const mtUtil = module.exports = {
     // doneCb(noMessagesProcessed)
     // gets up to 9 messages specified in msgIds[]
     // msgCb is called once for each message passing msgCookies[msgId]
-    // messages that are sucessfully decrypted are cached
+    // messages that are sucessfully decrypted are cached via decrptMsg
     //
     getParseDecryptMsgs: function(msgIds, msgCookies, msgCb, doneCb) {
 	console.log('getParseDecryptMsgs: ' + msgIds.length + ' msgIds');
@@ -209,6 +209,7 @@ const mtUtil = module.exports = {
 		console.log('getParseDecryptMsgs: msgId = ' + message.msgId + ', err = ' + err + ', text = ' + message.text);
 		msgCb(err, cookie, message);
 	    } else {
+		//caches message if decrypted
 		mtUtil.decryptMsg(message, attachmentIdxBN, msgHex, (err, message) => {
 		    if (!!err && !message.text)
 			message.text = err.toString();
@@ -226,6 +227,7 @@ const mtUtil = module.exports = {
     // cb(err, message)
     // decrypt message and extract attachment
     //  attachment: { name: 'name', blob: 'saveable-blob' };
+    // sucessfully decrypted messages are cached
     //
     decryptMsg: function(message, attachmentIdxBN, msgHex, cb) {
 	console.log('decryptMsg: otherAddr = ' + message.otherAddr);

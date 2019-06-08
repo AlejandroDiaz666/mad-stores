@@ -276,7 +276,7 @@ h3 { font-size:18px; }
     min-height: 190px;
 }
 .noteDialogLarge {
-    height: 260px;
+    min-height: 190px;
 }
 #noteDialogIntro {
     font-size: 16px;
@@ -2403,8 +2403,12 @@ h3 { font-size:18px; }
     }
 }
 
-#sendButton {
+#sendButtonDiv {
     float: right;
+}
+#sendButton, #prevButton {
+    float: none;
+    clear: both;
     vertical-align: middle;
     padding-top: 0px;
     padding-right: 6px;
@@ -2412,6 +2416,12 @@ h3 { font-size:18px; }
     padding-left: 6px;
     border-radius: 8px;
     color: var(--clr_buttontext);
+    width: -webkit-fill-available;
+}
+.sendButtonIsNext {
+    min-width: 11em;
+}
+.sendButtonIsSend {
 }
 #msgCloseImg {
     float: right;

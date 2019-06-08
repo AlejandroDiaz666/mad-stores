@@ -668,7 +668,7 @@ const meEther = module.exports = {
 		'approveXactIdBN',
 		'releaseXactIdBN',
 		'burnXactIdBN',
-		'claimXactId' ],
+		'claimXactIdBN' ],
 
 
     // cb(err, escrowInfo);
