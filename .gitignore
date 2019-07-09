@@ -1,0 +1,5 @@
+*~
+ui/build/*
+ui/node_modules/*
+ui/src/js/autoVersion.js
+ui/src/js/autoVersion.txt

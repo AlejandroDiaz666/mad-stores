@@ -1,0 +1,2695 @@
+html {
+    height: 100%;
+}
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 100%;
+    background: var(--clr_bodybg);
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    min-width: 480px;
+    min-height: 640px;
+    margin: 0;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+h1 { font-size:22px; }
+h2 {
+    margin: 0px;
+    font-size:20px;
+}
+h3 { font-size:18px; }
+
+
+/*
+ * modifiers to make blocks disappear and re-appear.
+ *  visibleIB: for normal divs (inline-block)
+ *  visibleTC: for buttons (table-cells) for vertical alignment
+ */
+.visibleB, .statusDivShow, .metaMaskDivShow {
+    display: block;
+}
+.visibleT {
+    display: table;
+}
+.visibleIB {
+    display: inline-block;
+}
+.visibleTC {
+    display: table-cell;
+}
+.visibleTR {
+    display: table-row;
+}
+.hidden, .statusDivHide, .metaMaskDivHide {
+    display: none;
+}
+.attention {
+    background-color: #9cd9db;
+}
+
+.notBlinking {
+}
+.blinking {
+    animation: blinkingText 0.8s infinite;
+}
+@keyframes blinkingText {
+    0%   { color: #000;        }
+    49%  { color: transparent; }
+    50%  { color: transparent; }
+    99%  { color: transparent;  }
+    100% { color: #000;        }
+}
+
+.tooltip {
+}
+.tooltip .tooltipText {
+    visibility: hidden;
+    background-color: white;
+    color: black;
+    text-align: center;
+    padding: 5px;
+    border-radius: 6px;
+    position: absolute;
+    font-weight: normal;
+    font-size: 14px;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+}
+.tooltip:hover .tooltipText {
+    visibility: visible;
+    font-weight: normal;
+    font-size: 14px;
+}
+/* individual tooltip custmizations */
+.tooltip .tooltipTextDepositSpan,
+.tooltip .tooltipTextApproveSpan,
+.tooltip .tooltipTextDeclineSpan,
+.tooltip .tooltipTextBurnSpan,
+.tooltip .tooltipTextReleaseSpan,
+.tooltip .tooltipTextClaimSpan,
+.tooltip .tooltipTextModifySpan,
+.tooltip .tooltipTextCancelSpan {
+    left: -10em;
+    top: 30px;
+    position: relative;
+    white-space: nowrap;
+}
+#priceTooltip {
+    top: -1px;
+    left: 38px;
+}
+
+#searchRegionTooltipText {
+    top: -25px;
+}
+#searchCategoryTooltipText {
+    top: 92px;
+}
+#searchPriceTooltipText {
+    top: 217px;
+}
+#searchSalesTooltipText {
+    top: 234px;
+}
+#searchRatingTooltipText {
+    top: 282px;
+}
+#searchAddrTooltipText {
+    top: 313px;
+}
+
+#accountAreaFull {
+    position: absolute;
+    transform: translate3d(90px, 58%, 0px);
+    width: 35em;
+}
+
+#productDetailFullName {
+    font-family: lato;
+    font-size: 24px;
+    font-weight: bold;
+    min-width: 300px;
+    width: fit-content;
+    height: 25px;
+    padding: 15px;
+    white-space: pre;
+    left: 100%;
+    transform: translate3d(-100%, 0px, 0px);
+}
+
+#productDetailFullDesc.tooltipText,
+#productDetailFullDescPre.tooltipText {
+    position: fixed;
+}
+#productDetailFullDesc,
+#productDetailFullDescPre {
+    position: fixed;
+    text-align: left;
+    min-width: 400px;
+    width: fit-content;
+    left: 100%;
+    top: 85px;
+    transform: translate3d(-100%, 0px, 0px);
+}
+#productDetailFullDescPre {
+    white-space: pre-wrap;
+}
+#selectedProductSellerAddrFull {
+    transform: translate3d(-50%, 83%, 0px);
+    left: 50%;
+    width: 28em;
+}
+#productDetailSellerFullName {
+    text-align: left;
+    min-width: 300px;
+    width: fit-content;
+    white-space: pre-wrap;
+    left: 0%;
+    transform: translate3d(0%, 0px, 0px);
+}
+#productDetailSellerFullDesc {
+    text-align: left;
+    min-width: 300px;
+    width: fit-content;
+    white-space: pre-wrap;
+    left: 0%;
+    transform: translate3d(0%, 0px, 0px);
+}
+
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#waitIcon {
+    position: fixed;
+    display: none;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    z-index: 99;
+    animation-name: waitIconAnimation;
+    animation-duration: 2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: reverse;
+    background-size: 80px 80px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    background-image: url('../images/loading.png');
+}
+
+@keyframes waitIconAnimation {
+    from {
+	-webkit-transform: rotate(0deg);
+    }
+    to {
+	-webkit-transform: rotate(359deg);
+    }
+}
+
+
+#noteDialogDiv {
+    position: fixed;
+    top: 35%;
+    left: 50%;
+    width: 350px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    padding-bottom: 35px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#noteDialogTitle {
+    position: relative;
+    top: 0px;
+    left: 50%;
+    width: max-content;
+    font-size: 18px;
+    font-weight: bold;
+    transform: translate(-50%, 0px);
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.noteDialogSmall {
+    min-height: 190px;
+}
+.noteDialogLarge {
+    min-height: 190px;
+}
+#noteDialogIntro {
+    font-size: 16px;
+}
+#noteDialogNote {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 1em;
+}
+#noteDialogOkButton {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -125%);
+}
+
+
+/* this modal has a message telling the user that we are waiting
+   for metamask
+*/
+#metaMaskDiv {
+    position: fixed;
+    left: 50%;
+    top: 20%;
+    width: 325px;
+    height: 70px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    border-radius: 15px;
+    background-color: #60ff60;
+    /* same as the status div */
+    z-index: 98;
+}
+
+.metaMaskNoPulse {
+}
+.metaMaskPulse {
+    -webkit-animation: mmPulse linear .5s infinite;
+    animation: mmPulse linear .5s infinite;
+}
+@-webkit-keyframes mmPulse {
+    0%   { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+    50%  { width: 320px; height: 60px;
+	   transform: translate3d(-10px, -5px, 0px); }
+    100% { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes mmPulse {
+    0%   { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+    50%  { width: 320px; height: 60px;
+	   transform: translate3d(-10px, -5px, 0px); }
+    100% { width: 300px; height: 50px;
+	   transform: translate3d(0px, 0px, 0px); }
+
+}
+#metaMaskDiv p {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#newMsgModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2; /* Sit on top */
+    left: 80%;
+    top: 22%;
+    width: 270px;
+    height: 50px;
+    padding: 10px;
+    overflow: none;
+    border: 1px solid #888;
+    background-color: #9cd9db;
+}
+
+#statusDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 450px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* only the loading icon has a higher z-index */
+    z-index: 98;
+}
+#statusCtrDiv {
+    position: relative;
+    width: 70%;
+    left: 50%;
+    margin-top: 20px;
+    min-height: 40px;
+    transform: translateX(-50%);
+}
+#statusViewLinkDiv {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    white-space: nowrap;
+    margin-top: 10px;
+}
+#statusNoteDiv {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, -150%);
+    width: 70%;
+}
+#statusContinueDiv {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    margin-top: 20px;
+}
+
+
+#topSection {
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    font-family: 'Lato', sans-serif;
+    background-color: var(--clr_toparea);
+    margin: 0px;
+    border-top: 10px;
+    border-left: 10px;
+    border-right: 10px;
+    border-bottom: 0px;
+    border-radius: 15px;
+    height: 100px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+
+#mainTitleSpan {
+    float: left;
+    margin-left: 20px;
+    color: var(--clr_maintitletext);
+    font-style: italic;
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    max-width: 50%;
+    transform: translateY(-50%);
+}
+@media (max-width: 1450px) and (min-width: 384px) {
+    #mainTitleSpan {
+	max-width: 35%;
+    }
+}
+
+#logoImg {
+    width: 100px;
+    height: 84px;
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+/*
+ * options panel styles here
+ */
+#optionsButtonDiv {
+    float:right;
+    position: relative;
+}
+#optionsButton {
+    float:right;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    top: 20px;
+    left: 71px;
+}
+#optionsButton:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+#optionsPanel {
+    width: 300px;
+    height: 380px;
+    position: absolute;
+    top: 70px;
+    left: 100%;
+    transform: translateX(-300px);
+    font-size: 14px;
+    z-index: 2;
+    padding: 15px;
+    background-color: var(--clr_optpanelbg);
+    border: 2px solid var(--clr_border);
+}
+#versionArea {
+    width: 80%;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -24px);
+    font-size: 12px;
+    text-align: center;
+    resize: none;
+    overflow: hidden;
+    height: 14px;
+}
+#closeOptionsButton {
+    float: right;
+    width: auto;
+    height: auto;
+    padding: 5px;
+}
+#themeSelectorSpan {
+    position: absolute;
+    top: 42px;
+    left: 0%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+#nodeSelectorSpan {
+    position: absolute;
+    top: 145px;
+    left: 0%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+#customViewButton {
+    position: absolute;
+    top: 170px;
+    left: 238px;
+    height: 20px;
+}
+#customNodeDiv {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 196px;
+    width: 270px;
+    height: 50px;
+    padding: 10px;
+    border: 1px solid #888;
+    background-color: snow;
+    transform: translateX(-50%);
+}
+#customNodeArea {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    resize: none;
+    transform: translateX(-50%);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    whitespace: nowrap;
+}
+#customNodeDoButton {
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#viewContractSpan {
+    position: absolute;
+    top: 205px;
+    left: 0%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+#viewSrcSpan {
+    position: absolute;
+    top: 280px;
+    left: 0%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+
+#rightAcctInfo {
+    float:right;
+    margin: 10px;
+    overflow: visible;
+}
+#networkAreaDiv, #accountAreaDiv, #balanceAreaDiv, #daiBalanceAreaDiv, #wdaiBalanceAreaDiv  {
+    display: block;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    margin: 0px;
+    min-width: 20%;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    height: 17px;
+}
+#networkArea, #accountArea, #balanceArea, #daiBalanceArea, #wdaiBalanceArea {
+    float: right;
+    padding: 0px;
+    margin: 0px;
+    min-width: 20%;
+    resize: none;
+}
+#wrapButton, #unwrapButton {
+    display: inline-block;
+    margin-right: 0px;
+    position: relative;
+    top: 0%;
+    left: 0%;
+    width: 10em;
+    font-size: 9px;
+    transform: translateY(-24%);
+}
+#wrapDialogDiv, #unwrapDialogDiv {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 150px;
+    width: 300px;
+    height: 165px;
+    overflow: none;
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#wrapDialogInstr, #unwrapDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#wrapDialogErr, #wrapDialogNote,
+#unwrapDialogErr, #unwrapDialogNote {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    margin: 10px;
+    width: 60%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#wrapDialogNote, #unwrapDialogNote {
+    color: inherit;
+    font-weight: normal;
+}
+#wrapDialogErr, #unwrapDialogErr {
+    color: red;
+    font-weight: bold;
+}
+#wrapDialogArea, #unwrapDialogArea {
+    resize: none;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6em;
+}
+#wrapDialogCancelButton, #unwrapDialogCancelButton {
+    position: absolute;
+    top: 80%;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#wrapDialogDoButton, #unwrapDialogDoButton {
+    position: absolute;
+    top: 80%;
+    left: 65%;
+    transform: translateX(-50%);
+}
+
+
+#topMenuBarDiv, #botMenuBarDiv {
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 0px;
+    margin-right: 0px;
+    background-color: var(--clr_menubar);
+    position: relative;
+    border-radius: 12px;
+}
+
+#importantInfoButton {
+    float: left;
+    margin-left:10px;
+    margin-right: auto;
+}
+
+.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled,
+.menuBarButtonSelected, .menuBarButton:hover {
+    padding : var(--pad_menubar);
+    color: var(--clr_buttontext);
+    text-align: center;
+    text-decoration: none;
+}
+.menuBarButton, .menuBarButtonEnabled, .menuBarButtonDisabled {
+    background-color: var(--clr_buttonbg);
+    border: var(--bor_butnormal);
+}
+.menuBarButton:hover, .menuBarButtonSelected, .menuBarButtonEnabled:hover {
+    background-color: var(--clr_buttonbgsel);
+    border: var(--bor_butselect);
+}
+.menuBarButton:hover, .menuBarButtonEnabled:hover {
+    cursor: pointer;
+}
+#importantInfoButton {
+    float: right;
+    margin-right: 10px;
+}
+.topMenuButton {
+    margin: 5px;
+    width: 15%;
+    height: 80%;
+    max-width: 280px;
+    font-size: 16px;
+    border-radius: 12px;
+}
+#shopButton, #dashboardButton, #createStoreButton {
+    min-width: fit-content;
+}
+
+.msgInfoAreaButton, .msgRightButton {
+    margin: 1px;
+    border: var(--bor_butnormal);
+    background-color: var(--clr_buttonbg);
+}
+.msgInfoAreaButton:hover, .msgRightButton:hover {
+    cursor: pointer;
+    border: var(--bor_butselect);
+    background-color: var(--clr_buttonbgsel);
+}
+.msgInfoAreaButton[disabled], .msgInfoAreaButton[disabled]:hover, .msgInfoAreaButton[disabled]:focus, .msgInfoAreaButton[disabled]:active,
+.msgRightButton[disabled], .msgRightButton[disabled]:hover, .msgRightButton[disabled]:focus, .msgRightButton[disabled]:active {
+    cursor: default;
+    border: var(--bor_butnormal);
+    background-color: var(--clr_buttonbg);
+}
+.msgRightButton {
+    height: 26px;
+}
+
+.otherButton, .otherButtonEnabled, .otherButtonDisabled,
+.otherButtonSelected, .otherButton:hover {
+    border-radius: 10px;
+    padding : var(--pad_menubar);
+    color: var(--clr_buttontext);
+    text-align: center;
+    text-decoration: none;
+}
+.otherButton, .otherButtonEnabled {
+    background-color: var(--clr_buttonbg);
+    border: var(--bor_butnormal);
+}
+.otherButtonDisabled {
+    background-color: var(--clr_buttonbgdis);
+    border: var(--bor_butdisable);
+    opacity: var(--opacity_butdisable);
+}
+.otherButton:hover, .otherButtonSelected, .otherButtonEnabled:hover {
+    background-color: var(--clr_buttonbgsel);
+    border: var(--bor_butselect);
+}
+.otherButton:hover, .otherButtonEnabled:hover {
+    cursor: pointer;
+}
+
+
+
+/*
+ * three column format for shop page (excluding product-selected) and create-store pages
+ */
+.outerDiv {
+    /*
+     * via class visibleT
+     *  display: table
+     */
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height: max-content;
+}
+.leftSideDiv {
+    float: left;
+    min-width: 100px;
+    min-height: 640px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 460px;
+
+}
+.centerDiv {
+    float: left;
+    min-width: 100px;
+    min-height: 640px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+}
+.height680Div {
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 15px;
+    position: relative;
+    height: 680px;
+    top: 0px;
+    left: 0px;
+}
+
+/*
+ * but no 3-column format for these pages...
+ */
+#selectedProductPageDiv, #dashboardPageDiv {
+    position: relative;
+    flex-shrink: 1;
+    flex-basis: auto;
+    top: 0px;
+    left: 0px;
+    height: 0px;
+}
+/*
+ * selectedProductPageDiv will have:
+ *   one class of either:     "shop" or "view"
+ *   and one class of either: "extend" or "limit"
+ */
+#selectedProductPageDiv.extend {
+    flex-grow: 1;
+}
+#selectedProductPageDiv.limit {
+    flex-grow: 0;
+}
+#dashboardPageDiv {
+    flex-grow: 0;
+}
+
+
+/*
+ * ====================================================================================================================
+ * shop page
+ * ====================================================================================================================
+ */
+.searchTable {
+    margin-left: 10px;
+    border-collapse: collapse;
+}
+#searchNoteBg {
+    width: 410px;
+    height: 150px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-205px, 20px, 0px);
+    background-image: none;
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
+}
+#searchNoteText {
+    width: 370px;
+    height: 125px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, 20px, 0px);
+}
+#searchDiv {
+    width: 460px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-230px, 190px, 0px);
+}
+#searchCategoryRow, #searchSalesRow, #searchRatingRow, #searchAddrRow {
+    border-top: 10px solid transparent;
+}
+#searchDoSearchRow {
+    border-top: 15px solid transparent;
+}
+#searchPriceRow {
+}
+#regionPromptArea, #categoryPromptArea, #salesPromptArea, #ratingPromptArea, #pricePromptArea, #storeAddrPromptArea {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#pricePromptArea {
+    margin-top: 20px;
+}
+.slidecontainer {
+    position: relative;
+    height: 40px;
+}
+#searchSalesSelect, #searchRatingSelect {
+    width: 4em;
+}
+#storeAddrArea {
+    display: table-cell;
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+}
+#shopRegionTlrSel, #shopRegionLlrBitsSel,
+#shopCategoryTlcSel, #shopCategoryLlcBitsSel {
+    width: 25em;
+}
+#shopDoSearchButton {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px;
+}
+
+
+/*
+ * ====================================================================================================================
+ * shop-page tile styles
+ * these are for shop page and also for create-store view-products page
+ * ====================================================================================================================
+ */
+
+.tilesDiv {
+    min-width: 280px;
+    min-height: 640px;
+    position: relative;
+    top: 0px;
+    left: 0px;
+
+    display: grid;
+    grid-template-columns: repeat(2, 260px);
+    grid-auto-columns: minmax(260px, 260px);
+    grid-auto-rows: minmax(335px, 335px);
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    height: 100%;
+    min-height: 680px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+@media (min-width: 1900px) {
+    .tilesDiv {
+	grid-template-columns: repeat(5, 260px);
+    }
+}
+@media (max-width: 1899px) and (min-width: 1600px) {
+    .tilesDiv {
+	grid-template-columns: repeat(4, 260px);
+    }
+}
+@media (max-width: 1599px) and (min-width: 1380px) {
+    .tilesDiv {
+	grid-template-columns: repeat(3, 260px);
+    }
+}
+
+.tileDivHidden {
+    display: none;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    background-color: rgb(150, 150, 179);
+    border: 1px solid rgb(150, 150, 179);
+}
+.tileDivShow {
+    display: inline-block;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    background-color: whitesmoke;
+    border: 1px solid transparent;
+    border-radius: 15px;
+}
+.tileDivShow:hover {
+    border: 1px solid black;
+    cursor: pointer;
+}
+.tileDiv:hover {
+    border: 1px solid black;
+}
+.tileImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-80px, 5px, 0px);
+}
+.tileName {
+    width: 240px;
+    height: 25px;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -155px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: bold;
+}
+.tileText {
+    width: 240px;
+    height: 60px;
+    overflow: hidden;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -125px, 0px);
+}
+.tilePrice {
+    width: 240px;
+    height: 20px;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -35px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px;
+}
+.tileQuantity {
+    width: 240px;
+    height: 25px;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -60px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* frame for selected product
+ * selectedProductPageDiv will have:
+ *   one class of either:     "shop" or "view"
+ *   and one class of either: "extend" or "limit"
+ */
+
+.shop #selectedProductFrameDiv, .view #selectedProductFrameDiv {
+    position: relative;
+    left: 50%;
+    z-index: 2;
+    min-width: 940px;
+    width: 80%;
+    height: 100%;
+    border-radius: 15px;
+    transform: translate3d(-50%, 0, 0);
+}
+.extend #selectedProductFrameDiv {
+    top: 10px;
+    min-height: 390px;
+}
+.limit #selectedProductFrameDiv {
+    top: 50px;
+    min-height: 430px;
+}
+.shop #selectedProductFrameDiv {
+    background-color: var(--clr_toparea);
+}
+.view #selectedProductFrameDiv {
+    background-color: whitesmoke;
+}
+#selectedProductCloseImg {
+    float:left;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+}
+#selectedProductCloseImg:hover {
+    cursor: pointer;
+}
+
+#selectedProductDetailDiv {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 40px;
+    min-width: 450px;
+    width: 45%;
+    min-height: 340px;
+    height: 90%;
+    transform: translateY(-50%);
+    background-color: whitesmoke;
+    border: 1px solid rgb(150, 150, 179);
+    border-radius: 15px;
+}
+.shop #purchaseProductButton {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 130px;
+    transform: translate3d(-50%, -95px, 0px);
+}
+.shop #purchaseProductButton:hover {
+    cursor: pointer;
+}
+.view  #purchaseProductButton {
+    display: none;
+}
+#selectedProductSellerDiv {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    min-width: 370px;
+    width: 40%;
+    min-height: 340px;
+    height: 90%;
+    transform: translate3d(-110%, -50%, 0px);
+    background-color: whitesmoke;
+    border: 1px solid rgb(150, 150, 179);
+    border-radius: 15px;
+}
+#selectedProductDetailImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    left: 10px;
+    top: 30px;
+    transform-style: preserve-3d;
+}
+#selectedProductDetailName {
+    min-width: 240px;
+    max-width: 70%;
+    height: 55px;
+    background-color: transparent;
+    position: absolute;
+    left: 170px;
+    top: 30px;
+    text-align: center;
+    font-family: lato;
+    font-size: 24px;
+    font-weight: bold;
+}
+#selectedProductDetailDesc {
+    min-width: 230px;
+    margin-right: 15px;
+    background-color: transparent;
+    position: absolute;
+    left: 185px;
+    top: 85px;
+    font-family: lato;
+    font-size: 18px;
+    font-weight: normal;
+    overflow: hidden;
+    white-space: pre-wrap;
+}
+#selectedProductDetailPrice {
+    width: 240px;
+    height: 20px;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -35px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px;
+}
+#selectedProductDetailQuantity {
+    width: 240px;
+    height: 25px;
+    background-color: transparent;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform-style: preserve-3d;
+    transform: translate3d(-120px, -60px, 0px);
+    text-align: center;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: bold;
+}
+#selectedProductSellerIntro {
+    width: 200px;
+    height: 20px;
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    margin-top: 5px;
+    transform: translate3d(-50%, 0px, 0px);
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    font-style: italic;
+}
+#selectedProductSellerAddrArea {
+    width: 27em;
+    position: absolute;
+    left: 50%;
+    top: 26px;
+    transform: translate3d(-50%, 0px, 0px);
+    resize: none;
+}
+#selectedProductSellerImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    left: 10px;
+    top: 50px;
+}
+#selectedProductSellerName {
+    background-color: transparent;
+    position: absolute;
+    left: 170px;
+    top: 115px;
+    min-width: 182px;
+    max-width: 70%;
+    height: 95px;
+    margin-right: 15px;
+    margin-left: 10px;
+    font-family: lato;
+    font-size: 20px;
+    font-weight: normal;
+}
+#selectedProductSellerDesc {
+    position: absolute;
+    left: 10%;
+    top: 215px;
+    min-height: 57px;
+    padding-right: 10px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+}
+#selectedProductSellerRegion {
+}
+#selectedProductSellerBurns,
+#selectedProductSellerResponse,
+#selectedProductSellerRating {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 290px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 9px;
+}
+#selectedProductSellerResponse {
+    transform: translate3d(-50%, -95px, 0px);
+}
+#selectedProductSellerBurns {
+    transform: translate3d(-50%, -65px, 0px);
+}
+#selectedProductSellerRating {
+    transform: translate3d(-50%, -35px, 0px);
+}
+
+#shopNextPrevDiv,
+#createStoreNextPrevDiv {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translateX(-50%);
+}
+#shopPrevButton,
+#createStorePrevButton {
+}
+#shopNextButton,
+#createStoreNextButton {
+}
+
+
+/*
+ * ====================================================================================================================
+ * dashboard page
+ * ====================================================================================================================
+ */
+#escrowlistAreaDiv {
+    padding: 12px;
+    margin: 0px;
+    background-color: var(--clr_toparea);
+    border-collapse: collapse;
+    color: var(--clr_areatext); /*yellow; */
+    position: absolute;
+    width: 80%;
+    left: 10%;
+}
+#escrowListDiv {
+    height: 640px;
+}
+#escrowListHeaderDiv {
+    border: none;
+}
+.escrowListItemDiv, .escrowListItemDivSelected {
+    clear: both;
+    display: inline-table;
+    height: 40px;
+    background-color: var(--clr_toparea);
+    font-weight: normal;
+    overflow: clip;
+}
+.escrowListItemDiv {
+    border-style: solid;
+    border-width: 1px;
+    margin: 1px;
+}
+.escrowListItemDivSelected {
+    border-style: solid;
+    border-width: 2px;
+    margin: 0px;
+}
+.escrowListItemLeftDiv {
+}
+.escrowListItemLeftSubDiv0 {
+    float: left;
+}
+.escrowListItemLeftSubDiv1 {
+    clear: both;
+    text-align: center;
+}
+.escrowListItemLeftDiv:hover, .escrowListItemLeftSubDiv0:hover, .escrowListItemLeftSubDiv1:hover,
+.escrowListEscrowNoArea:hover, .escrowListTypeArea:hover, .escrowListProductArea:hover,
+.escrowListAddrArea:hover, .escrowListDateArea:hover {
+    cursor: pointer;
+}
+
+.escrowListEscrowNoArea, .escrowListTypeArea, .escrowListProductArea, .escrowListAddrArea, .escrowListDateArea {
+    resize: none;
+    display: table-cell;
+    height: 15px;
+}
+.escrowListEscrowNoArea {
+    width: 8em;
+}
+.escrowListTypeArea {
+    width: 12em;
+}
+.escrowListProductArea {
+    width: 15em;
+}
+.escrowListAddrArea {
+    width: 28em;
+}
+.escrowListDateArea {
+}
+#escrowListHeaderCompleted {
+    width: 300px;
+    height: 15px;
+    resize: none;
+}
+#escrowListHeaderNextSteps {
+    height: 15px;
+    width: 200px;
+    resize: none;
+}
+.escrowListCompletedSpan {
+    display: table-cell;
+    width: 300px;
+    height: 35px;
+    resize: none;
+    border-left-style: dashed;
+    border-right-style: dashed;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    vertical-align: middle;
+}
+.escrowListnextStepsSpan {
+    display: table-cell;
+    resize: none;
+    width: 200px;
+    height: 35px;
+    border-right-style: dashed;
+    border-right-width: 2px;
+    font-size: 16px;
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    vertical-align: middle;
+}
+.escrowListStepArea {
+    resize: none;
+    height: 15px;
+    width: 115px;
+    border-style: solid;
+    margin-top: 2px;
+}
+.escrowListStepDepositSpan, .escrowListStepModifySpan, .escrowListStepCancelSpan, .escrowListStepDeclineSpan,
+.escrowListStepApproveSpan, .escrowListStepReleaseSpan, .escrowListStepBurnSpan, .escrowListStepClaimSpan {
+    float: left;
+    background-size: 40px 40px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    height: 39px;
+    width: 39px;
+    display: inline-block;
+    border-radius: 9px;
+    margin-left: 5px;
+    padding: 1px;
+    position: relative;
+}
+.escrowListStepDepositSpan {
+    background-image: url('../images/funds-deposited.jpg');
+}
+.escrowListStepModifySpan {
+    background-image: url('../images/funds-deposited.jpg');
+}
+.escrowListStepCancelSpan {
+    background-image: url('../images/cancel.jpg');
+}
+.escrowListStepDeclineSpan {
+    background-image: url('../images/decline.jpg');
+}
+.escrowListStepApproveSpan {
+    background-image: url('../images/locked-handshake.jpg');
+}
+.escrowListStepReleaseSpan  {
+    background-image: url('../images/release.jpg');
+}
+.escrowListStepBurnSpan  {
+    background-image: url('../images/burn.jpg');
+}
+.escrowListStepClaimSpan  {
+    background-image: url('../images/wait-for-delivery.jpg');
+}
+.escrowListStepDepositSpan:hover, .escrowListStepModifySpan:hover, .escrowListStepCancelSpan:hover, .escrowListStepDeclineSpan:hover,
+.escrowListStepApproveSpan:hover, .escrowListStepReleaseSpan:hover, .escrowListStepBurnSpan:hover, .escrowListStepClaimSpan:hover {
+    padding: 0px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    cursor: pointer;
+}
+.escrowListInfoArea {
+    width: 100%;
+    resize: none;
+}
+/* dashboard page -- add funds dialog */
+#addFundsDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 420px;
+    height: 195px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#addFundsDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#addFundsDialogErr, #addFundsDialogNote {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#addFundsDialogNote {
+    color: inherit;
+    font-weight: normal;
+}
+#addFundsDialogErr {
+    color: red;
+    font-weight: bold;
+}
+#addFundsDialogArea {
+    resize: none;
+    position: absolute;
+    top: 62px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6em;
+}
+#addFundsDialogCancelButton {
+    position: absolute;
+    top: 190px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#addFundsDialogDoButton {
+    position: absolute;
+    top: 190px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+/* dashboard page -- approve dialog */
+#approveDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 640px;
+    height: 285px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#approveDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#approveDialogNote {
+    position: absolute;
+    top: 157px;
+    left: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#approveDialogArea {
+    resize: none;
+    position: absolute;
+    top: 140px;
+    left: 275px;
+    transform: translateX(-50%);
+    width: 4em;
+}
+#approveDialogSelect {
+    resize: none;
+    position: absolute;
+    top: 141px;
+    left: 340px;
+    transform: translateX(-50%);
+}
+#approveDialogCancelButton {
+    position: absolute;
+    top: 270px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#approveDialogDoButton {
+    position: absolute;
+    top: 270px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+/* dashboard page -- release dialog */
+#releaseDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 500px;
+    height: 200px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#releaseDialogInstr {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#releaseDialogNote {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#releaseDialogSelect {
+    resize: none;
+    position: absolute;
+    top: 88px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#releaseDialogCancelButton {
+    position: absolute;
+    top: 175px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#releaseDialogDoButton {
+    position: absolute;
+    top: 175px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+/* dashboard page -- burn dialog */
+#burnDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 600px;
+    height: 230px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#burnDialogInstr {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#burnDialogNote {
+    position: absolute;
+    top: 140px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#burnDialogSelect {
+    resize: none;
+    position: absolute;
+    top: 115px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#burnDialogCancelButton {
+    position: absolute;
+    top: 230px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#burnDialogDoButton {
+    position: absolute;
+    top: 230px;
+    left: 65%;
+    transform: translateX(-50%);
+}
+
+
+/*
+ * ====================================================================================================================
+ * create store
+ * ====================================================================================================================
+ */
+#createStoreMenuBarDiv {
+    display: block;
+    padding-top: 4px;
+    padding-right: 0px;
+    padding-bottom: 4px;
+    padding-left: 0px;
+    margin-top: 11px;
+    margin-bottom: 4px;
+    margin-left: 0px;
+    margin-right: 0px;
+    height: 35px;
+    border-radius: 12px;
+    background-color: var(--clr_menubar);
+    width: 97%;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.createStoreMenuButton {
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 100%;
+    max-height: 35px;
+    width: 30%;
+    max-width: 150px;
+}
+
+
+/*
+ * ====================================================================================================================
+ * create store - register-store
+ * common styling for all steps
+ * ====================================================================================================================
+ */
+#createStoreRegStoreNote {
+    width: 410px;
+    height: 140px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-205px, 62px, 0px);
+    background-image: none;
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
+
+}
+#createStoreRegStoreNoteText {
+    width: 370px;
+    height: 120px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, -7px, 0px);
+}
+#createStoreRegStoreDoRegButton {
+    width: auto;
+    position: absolute;
+    top: 145px;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(0px, 0px, 0px);
+    padding: 4px;
+}
+
+#createStoreRegStoreStepsDiv {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+#createStoreRegStoreStep1NoBg,
+#createStoreRegStoreStep2NoBg,
+#createStoreRegStoreStep3NoBg {
+   width: 70px;
+   height: 70px;
+   border-radius: 35px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: var(--clr_menubar);
+}
+#createStoreRegStoreStep1NoText,
+#createStoreRegStoreStep2NoText,
+#createStoreRegStoreStep3NoText {
+   text-align: center;
+   font-family: lato;
+   font-size: 30px;
+   font-weight: bold;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+}
+#createStoreRegStoreStep1InstrBg,
+#createStoreRegStoreStep2InstrBg,
+#createStoreRegStoreStep3InstrBg {
+   width: 635px;
+   height: 70px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: var(--clr_menubar);
+}
+#createStoreRegStoreStep1InstrText,
+#createStoreRegStoreStep2InstrText,
+#createStoreRegStoreStep3InstrText {
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+
+
+/*
+ * ====================================================================================================================
+ * create store - register-store
+ * step 1
+ * ====================================================================================================================
+ */
+#createStoreRegStoreStep1NoBg {
+    transform-style: preserve-3d;
+    transform: translate3d(70px, 50px, 0px);
+}
+#createStoreRegStoreStep1NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 36px, 0px);
+}
+#createStoreRegStoreStep1InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 50px, 0px);
+}
+#createStoreRegStoreStep1InstrText {
+    width: 460px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 51px, 0px);
+}
+#createStoreRegStoreNameArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 128px, 0px);
+    resize: none;
+}
+#createStoreRegStoreDescArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 154px, 0px);
+    resize: none;
+    overflow-y: scroll;
+}
+
+
+/*
+ * ====================================================================================================================
+ * create store - register-store
+ * step 2
+ * ====================================================================================================================
+ */
+#createStoreRegStoreStep2NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 260px, 0px);
+}
+#createStoreRegStoreStep2NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 246px, 0px);
+}
+#createStoreRegStoreStep2InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 260px, 0px);
+}
+#createStoreRegStoreStep2InstrText {
+    width: 590px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 250px, 0px);
+}
+#createStoreRegStoreTlrSel {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 335px, 0px);
+    resize: none;
+}
+#createStoreRegStoreLlrBitsSel {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 335px, 0px);
+    resize: none;
+    width: 25em;
+}
+
+
+
+/*
+ * ====================================================================================================================
+ * create store - register-store
+ * step 3
+ * ====================================================================================================================
+ */
+#createStoreRegStoreStep3NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 457px, 0px);
+}
+#createStoreRegStoreStep3NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 445px, 0px);
+}
+#createStoreRegStoreStep3InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 457px, 0px);
+}
+#createStoreRegStoreStep3InstrText {
+    width: 460px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(129px, 457px, 0px);
+}
+#createStoreRegStoreLoadImageButton {
+    width: 20em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(156px, 533px, 0px);
+}
+#createStoreRegStoreImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 536px, 0px);
+}
+
+
+/*
+ * ====================================================================================================================
+ * create store - add/edit product
+ * ====================================================================================================================
+ */
+#createStoreAddProdNote,
+#createStoreViewProdsNote,
+#createStoreAddCatNote {
+    width: 410px;
+     position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    background-image: none;
+    background-color: var(--clr_toparea);
+    border-radius: 12px;
+}
+#createStoreAddProdNote,
+#createStoreViewProdsNote {
+   height: 140px;
+   transform: translate3d(-205px, 62px, 0px);
+}
+#createStoreAddCatNote {
+    height: 118px;
+    transform: translate3d(-205px, 335px, 0px);
+}
+#createStoreAddProdNoteText,
+#createStoreViewProdsNoteText,
+#createStoreAddCatNoteText {
+    width: 370px;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(-180px, -7px, 0px);
+}
+#createStoreAddProdNoteText,
+#createStoreViewProdsNoteText {
+    height: 120px;
+}
+#createStoreAddCatNoteText {
+    height: 110px;
+}
+#createStoreAddProdDoAddButton,
+#createStoreViewProdsDoEditButton,
+#createStoreAddCatButton {
+    width: auto;
+    min-width: 11em;
+    position: absolute;
+    left: 50%;
+}
+#createStoreAddProdDoAddButton,
+#createStoreViewProdsDoEditButton {
+    top: 145px;
+}
+#createStoreAddCatButton {
+    top: 123px;
+}
+#createStoreAddProdPreviewButton,
+#createStoreViewProdsPreviewButton {
+    width: auto;
+    min-width: 11em;
+    position: absolute;
+    top: 180px;
+    left: 50%;
+}
+#createStoreAddProdStepsDiv,
+#createStoreEditProdStepsDiv {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+#createStoreAddProdStep1NoBg,
+#createStoreAddProdStep2NoBg,
+#createStoreAddProdStep3NoBg,
+#createStoreAddProdStep4NoBg,
+#createStoreEditProdStep1NoBg,
+#createStoreEditProdStep2NoBg,
+#createStoreEditProdStep3NoBg,
+#createStoreEditProdStep4NoBg {
+   width: 70px;
+   height: 70px;
+   border-radius: 35px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: var(--clr_menubar);
+}
+#createStoreAddProdStep1NoText,
+#createStoreAddProdStep2NoText,
+#createStoreAddProdStep3NoText,
+#createStoreAddProdStep4NoText,
+#createStoreEditProdStep1NoText,
+#createStoreEditProdStep2NoText,
+#createStoreEditProdStep3NoText,
+#createStoreEditProdStep4NoText {
+    text-align: center;
+    font-family: lato;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+#createStoreAddProdStep1InstrBg,
+#createStoreAddProdStep2InstrBg,
+#createStoreAddProdStep3InstrBg,
+#createStoreAddProdStep4InstrBg,
+#createStoreEditProdStep1InstrBg,
+#createStoreEditProdStep2InstrBg,
+#createStoreEditProdStep3InstrBg,
+#createStoreEditProdStep4InstrBg {
+   width: 635px;
+   height: 70px;
+   position: absolute;
+   top: 0%;
+   left: 0%;
+   background-image: none;
+   background-color: var(--clr_menubar);
+}
+#createStoreAddProdStep1InstrText,
+#createStoreAddProdStep2InstrText,
+#createStoreAddProdStep3InstrText,
+#createStoreAddProdStep4InstrText,
+#createStoreEditProdStep1InstrText,
+#createStoreEditProdStep2InstrText,
+#createStoreEditProdStep3InstrText,
+#createStoreEditProdStep4InstrText {
+    text-align: center;
+    font-family: lato;
+    font-weight: bold;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+}
+/*
+ * create store - add product
+ * step 1
+ */
+#createStoreAddProdStep1NoBg,
+#createStoreEditProdStep1NoBg {
+    transform-style: preserve-3d;
+    transform: translate3d(70px, 50px, 0px);
+}
+#createStoreAddProdStep1NoText,
+#createStoreEditProdStep1NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 36px, 0px);
+}
+#createStoreAddProdStep1InstrBg,
+#createStoreEditProdStep1InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 50px, 0px);
+}
+#createStoreAddProdStep1InstrText,
+#createStoreEditProdStep1InstrText {
+    width: 550px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(150px, 51px, 0px);
+}
+#createStoreAddProdNameArea,
+#createStoreEditProdNameArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 128px, 0px);
+    resize: none;
+}
+#createStoreAddProdDescArea,
+#createStoreEditProdDescArea {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(155px, 154px, 0px);
+    resize: none;
+    overflow-y: scroll;
+}
+/*
+ * create store - add product
+ * step 2
+ */
+#createStoreAddProdStep2NoBg,
+#createStoreEditProdStep2NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 520px, 0px);
+}
+#createStoreAddProdStep2NoText,
+#createStoreEditProdStep2NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 506px, 0px);
+}
+#createStoreAddProdStep2InstrBg,
+#createStoreEditProdStep2InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 520px, 0px);
+}
+#createStoreAddProdStep2InstrText,
+#createStoreEditProdStep2InstrText {
+    width: 550px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(150px, 510px, 0px);
+}
+#createStoreAddProdPriceArea,
+#createStoreEditProdPriceArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 594px, 0px);
+    resize: none;
+}
+#createStoreAddProdPriceUnits,
+#createStoreEditProdPriceUnits {
+    width: 4em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(277px, 595px, 0px);
+    resize: none;
+}
+#createStoreAddProdQuantityArea,
+#createStoreEditProdQuantityArea {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 595px, 0px);
+    resize: none;
+}
+
+/*
+ * create store - add product
+ * step 3
+ */
+#createStoreAddProdStep3NoBg,
+#createStoreEditProdStep3NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 647px, 0px);
+}
+#createStoreAddProdStep3NoText,
+#createStoreEditProdStep3NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 635px, 0px);
+}
+#createStoreAddProdStep3InstrBg,
+#createStoreEditProdStep3InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 647px, 0px);
+}
+#createStoreAddProdStep3InstrText,
+#createStoreEditProdStep3InstrText {
+    width: 550px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(150px, 637px, 0px);
+}
+#createStoreAddProdTlcSel,
+#createStoreEditProdTlcSel {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(154px, 721px, 0px);
+    resize: none;
+}
+#createStoreAddProdLlcBitsSel,
+#createStoreEditProdLlcBitsSel {
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 721px, 0px);
+    resize: none;
+    min-width: 20em;
+}
+
+/*
+ * create store - add product
+ * step 4
+ */
+#createStoreAddProdStep4NoBg,
+#createStoreEditProdStep4NoBg {
+   transform-style: preserve-3d;
+   transform: translate3d(70px, 877px, 0px);
+}
+#createStoreAddProdStep4NoText,
+#createStoreEditProdStep4NoText {
+    transform-style: preserve-3d;
+    transform: translate3d(95px, 865px, 0px);
+}
+#createStoreAddProdStep4InstrBg,
+#createStoreEditProdStep4InstrBg {
+    transform-style: preserve-3d;
+    transform: translate3d(100px, 877px, 0px);
+}
+#createStoreAddProdStep4InstrText,
+#createStoreEditProdStep4InstrText {
+    width: 550px;
+    font-size: 16px;
+    transform-style: preserve-3d;
+    transform: translate3d(150px, 867px, 0px);
+}
+#createStoreAddProdLoadImageButton,
+#createStoreEditProdLoadImageButton {
+    width: 20em;
+    position: absolute;
+    left: 50%;
+    top: 0%;
+    transform-style: preserve-3d;
+    transform: translate3d(156px, 953px, 0px);
+}
+#createStoreAddProdImg,
+#createStoreEditProdImg {
+    width: 160px;
+    height: 160px;
+    position: absolute;
+    border: 1px solid black;
+    left: 50%;
+    transform-style: preserve-3d;
+    transform: translate3d(424px, 953px, 0px);
+    margin-bottom: 30px;
+}
+
+/*
+ * create store - add category
+ */
+#addCatDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 420px;
+    height: 260px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#addCatDialogInstr {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    margin: 10px;
+    width: 75%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#addCatDialogNote {
+    position: absolute;
+    top: 170px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#addCatTlcDiv {
+    position: absolute;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#addCatTlcSel {
+    min-width: 20em;
+}
+#addCatLlcDiv {
+    position: absolute;
+    top: 129px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#addCatDialogArea {
+    resize: none;
+    width: 25em;
+}
+#addCatDialogCancelButton {
+    position: absolute;
+    top: 100%;
+    left: 35%;
+    transform: translate(-50%, -125%);
+}
+#addCatDialogDoButton {
+    position: absolute;
+    top: 100%;
+    left: 65%;
+    transform: translate(-50%, -125%);
+}
+
+
+
+
+
+
+#storeInfoDiv {
+    display: table;
+    padding: 0px;
+    margin-top: 10px;
+    margin-left: 0px;
+    min-height: 180px;
+}
+#storeAddrDiv {
+    display: table-cell;
+    padding: 10px;
+    margin-top: 10px;
+    margin-left: 0px;
+    margin-right: auto;
+    background-color: #9cd9db;
+    width: 20%;
+}
+#storeAddrArea {
+    width: 26em;
+    min-width: 20%;
+}
+#loadStoreButton {
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+}
+
+#storeInfoImageDiv {
+    display: table-cell;
+    min-width: 180px;
+    max-width: 180px;
+    width: 15%;
+    height: 100%;
+    min-height: 180px;
+    background-color: #ec00ec;
+}
+
+#storeInfoTextDiv {
+    display: table-cell;
+    min-width: 300px;
+    height: 100%;
+    min-height: 180px;
+    background-color: #00eceb;
+}
+
+
+
+/*
+ * ====================================================================================================================
+ * styling for message area (selected product & dashboard pages)
+ * ====================================================================================================================
+ */
+#msgAreaDiv  {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70%;
+    min-width: 1070px;
+    transform: translate3d(-50%, -50%, 0px);
+    padding: var(--pad_msgAreaDiv);
+    margin-top: var(--martop_msgAreaDiv);
+    margin-left: 0px;
+    margin-right: auto;
+    background-color: var(--clr_border);
+    border-radius: 12px;
+    color: var(--clr_areatext);
+    z-index: 2;
+}
+#msgInfoAreaDiv {
+    float: left;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 0px;
+    padding-left: 10px;
+    display: table;
+    margin: 0px;
+    min-width: 67em;
+    background-color: var(--clr_toparea);
+    color: var(--clr_areatext);
+}
+
+#msgPromptArea, #msgAddrArea, #msgIdArea, #msgRefButton, #msgDescPromptArea, #msgDescArea, #msgFeeArea, #msgDateArea {
+    vertical-align: middle;
+    padding-top: 1px;
+    padding-right: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    margin: 0px;
+    resize: none;
+    color: var(--clr_areatext);
+}
+#msgPromptArea {
+    display: table-cell;
+    width: 4em;
+    max-width: 4em;
+}
+#msgAddrArea {
+    display: table-cell;
+    width: 36em;
+    min-width: 20%;
+}
+#msgIdArea {
+    display: table-cell;
+    width: 20em;
+}
+#msgRefButton {
+    display: table-cell;
+    padding-right: 6px;
+    padding-left: 6px;
+    width: 20em;
+    min-width: 10em;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+}
+
+#msgFeeArea, #msgDateArea {
+    float: right;
+    margin: 0px;
+    resize: none;
+}
+#msgFeeArea {
+    width: 12em;
+}
+#msgDateArea {
+    width: 20em;
+}
+#msgDescPromptArea {
+    clear: both;
+    float: left;
+    width: 4em;
+    max-width: 4em;
+}
+#msgDescArea {
+    float: left;
+    margin: 0px;
+    width: 77em;
+    min-width: 20%;
+}
+
+@media (max-width: 1875px) and (min-width: 384px) {
+    #msgInfoAreaDiv {
+	min-width: 47em;
+    }
+    #msgDescArea {
+        width: 57em;
+    }
+}
+
+#sendButtonDiv {
+    float: right;
+}
+#sendButton, #prevButton {
+    float: none;
+    clear: both;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+    width: -webkit-fill-available;
+}
+.sendButtonIsNext {
+    min-width: 11em;
+}
+.sendButtonIsSend {
+}
+#msgCloseImg {
+    float: right;
+    width: 28px;
+    height: 28px;
+    padding-left: 2px;
+}
+#msgCloseImg:hover {
+    cursor: pointer;
+}
+#msgRightButtonsSpan {
+    padding: 0px;
+}
+#attachmentButton, #attachmentInput {
+    float:left;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 6px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+}
+#attachmentButton {
+    padding-right: 6px;
+    margin-top: 1px;
+    margin-bottom: 0px;
+}
+#attachmentInput {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-right: 0px;
+    max-width: 15em; /* emough space for no file chosen */
+}
+#attachmentInput:hover {
+    cursor: pointer;
+}
+#attachmentSaveADiv {
+    float: left;
+}
+#deleteImg {
+    display: none;
+    float: left;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 21px;
+    height: 21px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+#deleteImg:hover {
+    cursor: pointer;
+}
+#attachmentSaveA {
+    float: left;
+    margin-right: 10px;
+    margin-top: 0px;
+}
+#attachmentSaveSpan {
+    display: block;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-bottom: 0px;
+    padding-left: 26px;
+    border-radius: 8px;
+    color: var(--clr_buttontext);
+    background-color: var(--clr_buttonbg);
+    width: fit-content;
+    height: 20px;
+    background-image: url('../images/clip.png');
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+}
+#msgTextAreaDiv {
+    clear: both;
+    padding-top: 0px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    display: block;
+    margin: 0px;
+    min-width: 90%;
+    background-color: var(--clr_toparea);
+}
+#msgTextArea {
+    padding: 0px;
+    margin: 0px;
+    min-width: 100%;
+    resize: none;
+}
+/*
+ * end of styling for message area
+ */
+
+
+
+/*
+ * slider styling
+ */
+.slider {
+    width: 330px;
+    height: 25px;
+    position: absolute;
+    top: 17px;
+    outline: none;
+}
+.slider input {
+    position: absolute;
+    pointer-events: none;
+    overflow: hidden;
+    left: 25%;
+    top: 15px;
+    width: 50%;
+    outline: none;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 35px;
+    height: 35px;
+    background: #ea4550;
+
+    cursor: pointer;
+    pointer-events: all;
+    position: relative;
+    z-index: 1;
+    outline: 0;
+}
+.slider::-moz-range-thumb {
+
+    width: 20px;
+    height: 20px;
+    background: #ea4550;
+
+    cursor: pointer;
+    pointer-events: all;
+    position: relative;
+    z-index: 10;
+    -moz-appearance: none;
+
+    width: 9px;
+
+}
+.slider input::-moz-range-track {
+    position: relative;
+    z-index: -1;
+    border: 0;
+}
+.slider input:last-of-type::-moz-range-track {
+    -moz-appearance: none;
+    background: none transparent;
+    border: 0;
+}
+.slider input[type=range]::-moz-focus-outer {
+    border: 0;
+}
+/*
+ * end of slider styling
+ */
+
+
+DIV.finalresultstable {
+    background-color: #60ff60;
+    padding: 8px;
+    margin: 20px;
+    position: absolute;
+    left: 0%;
+    width: 95%;
+    top: 100%;
+    transform: translateY(-135%);
+}
