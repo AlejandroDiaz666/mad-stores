@@ -30,7 +30,7 @@ const meEther = module.exports = {
     mainnet_ms_contract_addr: '',
     mainnet_tt_contract_addr: '0x88088019a2a235f9e7495124d0b0e90f41a777b0',
     mainnet_dai_contract_addr: '',
-    ropsten_me_contract_addr: '0x9dcda3fc63995a310500e9ad00262ec16e6f95b1',
+    ropsten_me_contract_addr: '0x19626b86bac95a5f6671f91b51dbf6dc08f9266f',
     ropsten_ms_contract_addr: '0x2195b7ff79b24806a239747cf21a95d455966d7d',
     ropsten_tt_contract_addr: '0x8b23b091247856377e095edac0b690ab80de5635',
     ropsten_dai_contract_addr: '0x101848D5C5bBca18E6b4431eEdF6B95E9ADF82FA',
