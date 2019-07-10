@@ -1690,6 +1690,53 @@ h3 { font-size:18px; }
     left: 65%;
     transform: translateX(-50%);
 }
+/* dashboard page -- claim dialog */
+#claimDialogDiv {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    width: 575px;
+    height: 230px;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: black 3px solid;
+    border-radius: 15px;
+    background-color: var(--clr_optpanelbg);
+    /* just below statusDiv and loading icon */
+    z-index: 97;
+}
+#claimDialogInstr {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    margin: 10px;
+    width: 80%;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+#claimDialogNote {
+    position: absolute;
+    top: 160px;
+    left: 50%;
+    margin: 10px;
+    width: 70%;
+    font-size: 16px;
+    transform: translateX(-50%);
+    color: inherit;
+    font-weight: normal;
+}
+#claimDialogCancelButton {
+    position: absolute;
+    top: 230px;
+    left: 35%;
+    transform: translateX(-50%);
+}
+#claimDialogDoButton {
+    position: absolute;
+    top: 230px;
+    left: 65%;
+    transform: translateX(-50%);
+}
 
 
 /*

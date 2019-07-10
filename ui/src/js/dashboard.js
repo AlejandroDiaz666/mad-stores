@@ -184,6 +184,21 @@ var dashboard = module.exports = {
 	    common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
 	    doBurn(ratingBN, dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
 	});
+	// claim dialog
+	const claimDialogDoButton = document.getElementById('claimDialogDoButton');
+	const claimDialogCancelButton = document.getElementById('claimDialogCancelButton');
+	claimDialogCancelButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
+	    common.replaceElemClassFromTo('claimDialogDiv', 'visibleB', 'hidden', null);
+	});
+	claimDialogDoButton.addEventListener('click', function() {
+	    dashboard.inDialog = false;
+	    claimDialogDoButton.disabled = true;
+	    claimDialogCancelButton.disabled = true;
+	    common.replaceElemClassFromTo('claimDialogNote', 'visibleIB', 'hidden', null);
+	    common.replaceElemClassFromTo('claimDialogDiv', 'visibleB', 'hidden', null);
+	    doClaim(dashboard.selectedEscrowIdBN, dashboard.selectedEscrowInfo);
+	});
     },
 
 };
@@ -859,7 +874,7 @@ function doBurn(ratingBN, escrowIdBN, escrowInfo) {
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	meUtil.escrowFcnWithParmMsg(meEther.deliveryReject, 'Delivery-Approve', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithParmMsg(meEther.deliveryReject, 'Delivery-Reject', escrowIdBN, ratingBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else {
@@ -900,20 +915,61 @@ function doClaimDialog(escrowIdBN, escrowInfo) {
 	common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 	common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 	common.noteOkHandler = null;
+	return;
     }
-    //
-    /*
-    common.replaceElemClassFromTo('burnDialogNote', 'hidden', 'visibleIB', null);
-    common.replaceElemClassFromTo('burnDialogDiv', 'hidden', 'visibleB', null);
-    const burnDialogDoButton = document.getElementById('burnDialogDoButton');
-    const burnDialogCancelButton = document.getElementById('burnDialogCancelButton');
-    const burnDialogSelect = document.getElementById('burnDialogSelect');
-    burnDialogDoButton.disabled = false;
-    burnDialogCancelButton.disabled = false;
-    */
+    dashboard.selectedEscrowIdBN = escrowIdBN;
+    dashboard.selectedEscrowInfo = escrowInfo;
+    dashboard.inDialog = true;
+    common.replaceElemClassFromTo('claimDialogNote', 'hidden', 'visibleIB', null);
+    common.replaceElemClassFromTo('claimDialogDiv', 'hidden', 'visibleB', null);
+    const claimDialogDoButton = document.getElementById('claimDialogDoButton');
+    const claimDialogCancelButton = document.getElementById('claimDialogCancelButton');
+    claimDialogDoButton.disabled = false;
+    claimDialogCancelButton.disabled = false;
 }
 
 
+function doClaim(escrowIdBN, escrowInfo) {
+    const escrowIdx = dashboard.selectedEscrowIdx;
+    console.log('doClaim: escrowIdx = ' + escrowIdx + ', escrowIdBN = 0x' + escrowIdBN.toString(16));
+    const placeholderText =
+	  '\n' +
+	  ' Type your message here...\n\n' +
+	  ' NOTE: You are about to claim this escrow!!\n\n' +
+	  ' You will get all the funds that were deposited into the escrow, including the price of the product, and\n' +
+	  ' the buyer-bond (50% of the purchase price) and the seller-bond (also 50% of the purchase price).\n\n' +
+	  ' Please use this message to explain to the buyer that you beleive he has abandoned the escrow.';
+    const customerBN = common.numberToBN(escrowInfo.customerBalance);
+    const escrowBN = common.numberToBN(escrowInfo.vendorBalance);
+    escrowBN.iadd(customerBN);
+    const msgDesc = 'Claim all escrow funds, ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai!';
+    const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
+    const refBN = mostRecentMsgInfo.msgIdBN;
+    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Claim-Abandoned', function(err, attachmentIdxBN, message) {
+	console.log('doClaim: setupComposeMsgArea came back');
+	if (!!err) {
+	    alert(err);
+	    dashboard.handleDashboardPage();
+	    return;
+	}
+	meUtil.escrowFcnWithMsg(meEther.claimAbandoned, 'Claim-Abandoned', escrowIdBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	    if (!!err)
+		alert(err);
+	    else {
+		document.getElementById('noteDialogIntro').textContent =
+		    'You have just claimed all funds from this escrow';
+		document.getElementById('noteDialogNote').textContent =
+		    'All the escrow funds, ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai, have been sent to you.';
+		common.replaceElemClassFromTo('noteDialogTitle', 'visibleB', 'hidden', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		common.noteOkHandler = null;
+	    }
+	    remakeRow(escrowIdx);
+	    dashboard.handleDashboardPage();
+	});
+    });
+}
 
 
 function hideAllModals() {
@@ -922,6 +978,7 @@ function hideAllModals() {
     common.replaceElemClassFromTo('addFundsDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('releaseDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('burnDialogDiv', 'visibleB', 'hidden', null);
+    common.replaceElemClassFromTo('claimDialogDiv', 'visibleB', 'hidden', null);
     common.replaceElemClassFromTo('msgAreaDiv', 'visibleB', 'hidden', false);
     dashboard.inDialog = false;
 
@@ -933,7 +990,9 @@ function hideAllModals() {
 // suitable for disaply as a note in the noteDialog
 //
 function escrowStateLine(escrowInfo) {
-    if (!escrowInfo.burnXactIdBN.isZero())
+    if (!escrowInfo.claimXactId.isZero())
+	return('This escrow has been "claimed". All the funds that were deposited, including the purchase price and the buyer\'s and seller\'s bonds have claimed by the seller.');
+    else if (!escrowInfo.burnXactIdBN.isZero())
 	return('This escrow has been "burned". All the funds that were deposited, including the purchase price and the buyer\'s and seller\'s bonds have been forfeit.');
     else if (!escrowInfo.releaseXactIdBN.isZero())
 	return('This escrow has been "released". The seller has been credited with the purchase price, and the buyer\'s and seller\'s bonds have been returned.');

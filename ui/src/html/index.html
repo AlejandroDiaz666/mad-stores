@@ -575,6 +575,13 @@
 	<button id="burnDialogCancelButton" type="button">Cancel</button>
 	<button id="burnDialogDoButton" type="button">Set Rating</button>
       </div>
+      <div id="claimDialogDiv" class="hidden">
+	<p id="claimDialogInstr">The buyer has neither burned nor released the MAD Escrow funds.</br>
+	  Since more than 30 days have passed from the time you promised to deliver the product, and presumably you delivered the product within the allotted time, you can now assume that all the escrow funds have been abandoned, and claim them for yourself. If you didn't deliver the product within the allotted time, then you should give the buyer some extra time before assuming that he abandoned the escrow.</p>
+	<p id="claimDialogNote" class="visibleIB">You will be given a chance to send a polite note to the buyer explaining that you have claimed the escrow funds.</p>
+	<button id="claimDialogCancelButton" type="button">Cancel</button>
+	<button id="claimDialogDoButton" type="button">Claim Funds</button>
+      </div>
       <div id="escrowlistAreaDiv">
 	<div id="escrowListHeaderDiv" class="escrowListItemDiv">
 	  <textarea id="escrowListHeaderEscrowNo" class="escrowListEscrowNoArea" rows="1" readonly="readonly" disabled="disabled">Escrow Id.</textarea>
