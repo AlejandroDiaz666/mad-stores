@@ -43,7 +43,7 @@ const createStore = module.exports = {
     doExitWarning: function() {
 	const exitWarning = 'Warning: You don\'t have enough Turms W-Dia to make a bond for all of your products.\n' +
 	      'Whenever a buyer deposits funds to purchase an item, the Turms Mad Escrow contract will automatically ' +
-	      'make an escrow deposit on your behalf, equal to take 50% of the price.\n' +
+	      'make an escrow deposit on your behalf, equal to 50% of the price.\n' +
 	      'Your escrow deposit will be returned to you if the escrow is cancelled or if delivery of the product is approved.\n' +
 	      'Right now you don\'t have sufficient wrapped DAI to create an escrow for your most expensive product. ' +
 	      'You will need to wrap additional DAI for in order for all of your products to be view-able by buyers';
