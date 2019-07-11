@@ -37,10 +37,10 @@ const mtEther = module.exports = {
     setNetwork: function(network) {
 	let err = null;
 	if (network.indexOf('Mainnet') >= 0) {
-	    mtEther.firstBlock = meEther.mainnet_firstBlock;
+	    mtEther.firstBlock = mtEther.mainnet_firstBlock;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.mainnet_contract_addr;
 	} else if (network.indexOf('Ropsten') >= 0) {
-	    meEther.firstBlock = meEther.ropsten_firstBlock;
+	    mtEther.firstBlock = mtEther.ropsten_firstBlock;
 	    mtEther.EMT_CONTRACT_ADDR = mtEther.ropsten_contract_addr;
 	}
 	if (!mtEther.EMT_CONTRACT_ADDR)
