@@ -945,14 +945,14 @@ function doClaim(escrowIdBN, escrowInfo) {
     const msgDesc = 'Claim all escrow funds, ' + meEther.daiBNToUsdStr(escrowBN) + ' W-Dai!';
     const mostRecentMsgInfo = meUtil.getMostRecentMsg(escrowInfo);
     const refBN = mostRecentMsgInfo.msgIdBN;
-    mtDisplay.setupComposeMsgArea(escrowInfo.vendorAddr, placeholderText, '', msgDesc, refBN, 'Claim-Abandoned', function(err, attachmentIdxBN, message) {
+    mtDisplay.setupComposeMsgArea(escrowInfo.customerAddr, placeholderText, '', msgDesc, refBN, 'Claim-Abandoned', function(err, attachmentIdxBN, message) {
 	console.log('doClaim: setupComposeMsgArea came back');
 	if (!!err) {
 	    alert(err);
 	    dashboard.handleDashboardPage();
 	    return;
 	}
-	meUtil.escrowFcnWithMsg(meEther.claimAbandoned, 'Claim-Abandoned', escrowIdBN, escrowInfo.vendorAddr, attachmentIdxBN, refBN, message, function(err) {
+	meUtil.escrowFcnWithMsg(meEther.claimAbandoned, 'Claim-Abandoned', escrowIdBN, escrowInfo.customerAddr, attachmentIdxBN, refBN, message, function(err) {
 	    if (!!err)
 		alert(err);
 	    else {
