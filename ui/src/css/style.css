@@ -1015,6 +1015,7 @@ h3 { font-size:18px; }
     font-family: lato;
     font-size: 20px;
     font-weight: bold;
+    overflow: hidden;
 }
 .tileText {
     width: 240px;

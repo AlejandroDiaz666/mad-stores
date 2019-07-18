@@ -47,6 +47,8 @@ const createStore = module.exports = {
 	      'Your escrow deposit will be returned to you if the escrow is cancelled or if delivery of the product is approved.\n' +
 	      'Right now you don\'t have sufficient wrapped DAI to create an escrow for your most expensive product. ' +
 	      'You will need to wrap additional DAI for in order for all of your products to be view-able by buyers';
+	if (!!createStore.maxProductPriceBN)
+	    console.log('doExitWarning: common.wdaiBalanceBN  = ' + common.wdaiBalanceBN.toString(10) + ', createStore.maxProductPriceBN = ' + createStore.maxProductPriceBN.toString(10));
 	if (!!common.wdaiBalanceBN && !!createStore.maxProductPriceBN && common.wdaiBalanceBN.lt(createStore.maxProductPriceBN.divn(2))) {
 	    alert(exitWarning);
 	    //if we don'r set this to null here then the user will get the warning everytime he changes pages (modes), until he re-enters the
@@ -73,7 +75,21 @@ function setRegisterStoreButtonHandlers() {
             const reader = new FileReader();
             reader.onload = (e) => {
 		//eg. createStoreRegStoreLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
+		console.log('image length = ' + e.target.result.length);
                 createStoreRegStoreImg.src = e.target.result;
+		const imageKb = parseInt(e.target.result.length / 1024);
+		if (imageKb > 25) {
+		    document.getElementById('noteDialogTitle').textContent = 'Warning!';
+		    document.getElementById('noteDialogIntro').textContent =
+			'Images stored on the blockchain are limited to approximately 25 KB, but the size of this image is ' + imageKb + ' KB.';
+		    document.getElementById('noteDialogNote').textContent =
+			'Registering this store will likely fail because the filesize of the image exceeds the maximum Ethereum transaction size.\n' +
+			'Please select a different image, or use image-editing software (like photoshop) to reduce the filesize of this image.';
+		    common.replaceElemClassFromTo('noteDialogTitle', 'hidden', 'visibleB', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		    common.noteOkHandler = null;
+		}
 		enableRegisterStoreDoRegButton();
             };
             reader.readAsDataURL(createStoreRegStoreLoadImageButton.files[0]);
@@ -115,7 +131,21 @@ function setAddProductButtonHandlers() {
 		//console.log('createStoreAddProdLoadImageButton: e.target.result = ' + e.target.result);
 		//eg. createStoreAddProdLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
                 createStoreAddProdImg.src = e.target.result;
-		console.log('createStoreAddProdLoadImageButton: createStoreAddProdImg.src = ' + createStoreAddProdImg.src);
+		console.log('image length = ' + e.target.result.length);
+		const imageKb = parseInt(e.target.result.length / 1024);
+		if (imageKb > 25) {
+		    document.getElementById('noteDialogTitle').textContent = 'Warning!';
+		    document.getElementById('noteDialogIntro').textContent =
+			'Images stored on the blockchain are limited to approximately 25 KB, but the size of this image is ' + imageKb + ' KB.';
+		    document.getElementById('noteDialogNote').textContent =
+			'Registering this product will likely fail because the filesize of the image exceeds the maximum Ethereum transaction size.\n' +
+			'Please select a different image, or use image-editing software (like photoshop) to reduce the filesize of this image.';
+		    common.replaceElemClassFromTo('noteDialogTitle', 'hidden', 'visibleB', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		    common.noteOkHandler = null;
+		}
+		//console.log('createStoreAddProdLoadImageButton: createStoreAddProdImg.src = ' + createStoreAddProdImg.src);
 		enableAddProductDoAddButton();
             };
             reader.readAsDataURL(createStoreAddProdLoadImageButton.files[0]);
@@ -211,6 +241,19 @@ function setViewProductsButtonHandlers() {
 		//console.log('createStoreEditProdLoadImageButton: e.target.result = ' + e.target.result);
 		//eg. createStoreEditProdLoadImageButton: e.target.result = data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAACx1BMV...
                 createStoreEditProdImg.src = e.target.result;
+		const imageKb = parseInt(e.target.result.length / 1024);
+		if (imageKb > 25) {
+		    document.getElementById('noteDialogTitle').textContent = 'Warning!';
+		    document.getElementById('noteDialogIntro').textContent =
+			'Images stored on the blockchain are limited to approximately 25 KB, but the size of this image is ' + imageKb + ' KB.';
+		    document.getElementById('noteDialogNote').textContent =
+			'Registering this product will likely fail because the filesize of the image exceeds the maximum Ethereum transaction size.\n' +
+			'Please select a different image, or use image-editing software (like photoshop) to reduce the filesize of this image.';
+		    common.replaceElemClassFromTo('noteDialogTitle', 'hidden', 'visibleB', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
+		    common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
+		    common.noteOkHandler = null;
+		}
 		enableViewProdsDoEditButton();
             };
             reader.readAsDataURL(createStoreEditProdLoadImageButton.files[0]);
