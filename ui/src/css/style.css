@@ -1149,11 +1149,11 @@ h3 { font-size:18px; }
 }
 #selectedProductDetailName {
     min-width: 240px;
-    max-width: 70%;
+    max-width: 62%;
     height: 55px;
     background-color: transparent;
     position: absolute;
-    left: 170px;
+    left: 182px;
     top: 30px;
     text-align: center;
     font-family: lato;

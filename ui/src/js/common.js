@@ -647,7 +647,7 @@ const common = module.exports = {
     abbreviateElemContent: function(elem, str) {
 	elem.textContent = str;
 	if (common.isOverflown(elem)) {
-	    let limit = str.length - 4;
+	    let limit = str.length - 5;
 	    while (common.isOverflown(elem) && limit >= 0)
 		elem.textContent = str.substring(0, limit--) + '...';
 	    return true;
