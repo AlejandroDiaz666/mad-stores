@@ -297,6 +297,7 @@ function handlePurchase(product) {
 		       common.replaceElemClassFromTo('noteDialogDiv', 'noteDialogLarge', 'noteDialogSmall', true);
 		       common.replaceElemClassFromTo('noteDialogDiv', 'hidden', 'visibleB', true);
 		       common.noteOkHandler = handleSearchProducts;
+		       shop.updateDaiAndWDai();
 		   }
 		});
 	    });
